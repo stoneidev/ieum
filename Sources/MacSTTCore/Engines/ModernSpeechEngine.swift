@@ -86,6 +86,7 @@ actor ModernSpeechEngine: TranscriberEngine {
         self.capture = capture
 
         let localeID = self.localeID
+        let pause = options.pauseFinalization
         return AsyncThrowingStream { continuation in
             let results = Task {
                 do {
@@ -108,8 +109,17 @@ actor ModernSpeechEngine: TranscriberEngine {
             }
             let feed = Task {
                 var converter: PCMConverter?
+                var endpoint = pause.map { EndpointDetector(pause: $0) }
+                var fedSeconds = 0.0
                 for await chunk in audio {
                     if Task.isCancelled { break }
+                    fedSeconds += chunk.duration
+                    // A pause after speech ends the sentence: finalize right there rather than waiting for the
+                    // recognizer, which can hold a sentence open for seconds (and across a change of language).
+                    if endpoint?.ingest(levelDB: chunk.levelDB, duration: chunk.duration) == true {
+                        let through = CMTime(seconds: fedSeconds, preferredTimescale: 1000)
+                        Task { try? await analyzer.finalize(through: through) }
+                    }
                     if converter == nil {
                         converter = PCMConverter(from: chunk.buffer.format, to: analyzerFormat)
                     }

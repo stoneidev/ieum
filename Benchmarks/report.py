@@ -43,22 +43,29 @@ metrics = [
     ("Last final after speech end", "finalDelaySeconds", "s"),
     ("Word error rate", "wer", "pct"),
     ("Character error rate", "cer", "pct"),
+    ("Language chosen correctly", "languageAccuracy", "pct", False),
     ("First translation after speech start", "firstTranslationSeconds", "s"),
     ("Final translation lag", "finalTranslationLagSeconds", "s"),
     ("Interim translation lag", "interimTranslationLagSeconds", "s"),
     ("CPU while running", "cpuPercent", "cpu"),
     ("Peak memory (MB)", "peakRSSMB", "mb"),
 ]
+def unpack(row):
+    return row[0], row[1], row[2], row[3] if len(row) > 3 else True
+
 for name, c in cur.items():
     m, b = c["median"], base.get(name, {}).get("median", {})
     lines += [f"## {name}  ({c['locale']}, {c['engine']}, {c['speechSeconds']:.0f} s of speech, {len(c['runs'])} runs)", "",
               "| Metric | Value |", "|---|---|"]
-    for title, key, kind in metrics:
+    for row in metrics:
+        title, key, kind, lower = unpack(row)
         v = m.get(key)
+        if v is None and key == "languageAccuracy": continue
         if v is None and key in ("firstTranslationSeconds", "finalTranslationLagSeconds", "interimTranslationLagSeconds"): continue
-        lines.append(f"| {title} | {fmt(v, kind)}{delta(v, b.get(key), kind) if b else ''} |")
+        lines.append(f"| {title} | {fmt(v, kind)}{delta(v, b.get(key), kind, lower) if b else ''} |")
     note = m.get("translationNote")
     if note: lines.append(f"| Translation | unavailable: {note} |")
+    if m.get("languageSequence"): lines.append(f"\nLanguage sequence heard: `{m['languageSequence']}`")
     lines += ["", f"Recognized: _{m.get('recognized', '')}_", ""]
 open(os.path.join(root, f"{label}.md"), "w").write("\n".join(lines))
 print(f"wrote Benchmarks/results/{label}.md")

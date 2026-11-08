@@ -27,10 +27,16 @@ struct STTBench: AsyncParsableCommand {
     var name: String?
     @Option(help: "Words to favor, comma separated (meeting vocabulary).")
     var vocabulary: String?
+    @Flag(help: "Print every recognizer event with its time to stderr (diagnostics).")
+    var dump = false
     @Option(help: "Write the JSON result here instead of stdout.")
     var output: String?
     @Flag(help: "Use the legacy SFSpeechRecognizer engine.")
     var legacy = false
+    @Flag(help: "Conversation mode: recognize English and Korean in parallel and pick the spoken language per utterance.")
+    var conversation = false
+    @Option(help: "With --conversation: the languages spoken in the audio, in order, e.g. en,ko,en,ko.")
+    var expectedLanguages: String?
 
     struct Run: Codable {
         var startupSeconds = 0.0
@@ -43,6 +49,8 @@ struct STTBench: AsyncParsableCommand {
         var finals = 0
         var recognized = ""
         var meanConfidence: Double?
+        var languageSequence: String?
+        var languageAccuracy: Double?
         var firstTranslationSeconds: Double?
         var finalTranslationLagSeconds: Double?
         var interimTranslationLagSeconds: Double?
@@ -99,7 +107,9 @@ struct STTBench: AsyncParsableCommand {
         let wallStart = clock.now
 
         let setupStart = clock.now
-        let started = try await EngineFactory.start(choice: legacy ? .legacy : .auto, localeID: locale, options: options, capture: capture)
+        let started = conversation
+            ? try await EngineFactory.startConversation(locales: ["en-US", "ko-KR"], options: options, capture: capture)
+            : try await EngineFactory.start(choice: legacy ? .legacy : .auto, localeID: locale, options: options, capture: capture)
         guard let zero = capture.startedAt else { throw ValidationError("capture did not start") }
         run.startupSeconds = Self.seconds(zero - setupStart)
 
@@ -123,14 +133,21 @@ struct STTBench: AsyncParsableCommand {
 
         var finalsText: [String] = []
         var confidences: [Double] = []
+        var languages: [String] = []
         var lastFinal: ContinuousClock.Instant?
         for try await event in started.events {
             let now = clock.now
             let text = event.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if dump {
+                let range = event.audioStart.map { String(format: "%.1f-%.1f", $0, event.audioEnd ?? 0) } ?? "-"
+                FileHandle.standardError.write(Data(String(format: "%6.2fs %@ %@ conf=%@ range=%@ | %@\n", Self.seconds(now - zero), event.locale, event.isFinal ? "FINAL " : "interim", event.confidence.map { String(format: "%.2f", $0) } ?? "-", range, text).utf8))
+            }
             if event.isFinal {
                 guard !text.isEmpty else { continue }
                 finalsText.append(text)
                 if let c = event.confidence { confidences.append(c) }
+                let language = String(event.locale.prefix(2))
+                if languages.last != language { languages.append(language) }
                 lastFinal = now
                 run.finals += 1
                 if let pipeline {
@@ -149,6 +166,12 @@ struct STTBench: AsyncParsableCommand {
         }
         if let lastFinal { run.finalDelaySeconds = Self.seconds(lastFinal - zero) - profile.speechEnd }
         run.recognized = finalsText.joined(separator: " ")
+        if conversation {
+            run.languageSequence = languages.joined(separator: ",")
+            if let expected = expectedLanguages?.split(separator: ",").map(String.init) {
+                run.languageAccuracy = TextMetrics.sequenceSimilarity(languages, expected)
+            }
+        }
         run.meanConfidence = confidences.isEmpty ? nil : confidences.reduce(0, +) / Double(confidences.count)
         run.wer = TextMetrics.wordErrorRate(reference: reference, hypothesis: run.recognized)
         run.cer = TextMetrics.characterErrorRate(reference: reference, hypothesis: run.recognized)
@@ -227,6 +250,7 @@ struct STTBench: AsyncParsableCommand {
         result.finalDelaySeconds = med(runs.compactMap(\.finalDelaySeconds))
         result.wer = med(runs.map(\.wer)) ?? 0
         result.cer = med(runs.map(\.cer)) ?? 0
+        result.languageAccuracy = med(runs.compactMap(\.languageAccuracy))
         result.cpuPercent = med(runs.map(\.cpuPercent)) ?? 0
         result.peakRSSMB = runs.map(\.peakRSSMB).max() ?? 0
         result.firstTranslationSeconds = med(runs.compactMap(\.firstTranslationSeconds))

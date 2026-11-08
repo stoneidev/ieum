@@ -29,6 +29,12 @@ public enum TextMetrics {
         return Double(editDistance(ref, hyp)) / Double(ref.count)
     }
 
+    /// 1 when the sequences are equal, falling towards 0 with every insertion, deletion or substitution.
+    public static func sequenceSimilarity<T: Equatable>(_ a: [T], _ b: [T]) -> Double {
+        let longest = max(a.count, b.count)
+        return longest == 0 ? 1 : 1 - Double(editDistance(a, b)) / Double(longest)
+    }
+
     static func editDistance<T: Equatable>(_ a: [T], _ b: [T]) -> Int {
         if a.isEmpty { return b.count }
         if b.isEmpty { return a.count }

@@ -41,6 +41,17 @@ public enum EngineFactory {
         return (legacy, try await legacy.events(from: capture))
     }
 
+    /// Two-way conversation: recognizes every language in parallel and keeps, per utterance, the one that was spoken.
+    public static func startConversation(
+        locales: [String],
+        options: EngineOptions,
+        capture: any AudioCapture
+    ) async throws -> (engine: any TranscriberEngine, events: AsyncThrowingStream<TranscriptionEvent, Error>) {
+        let engine = ConversationEngine(locales: locales, options: options)
+        let events = try await engine.events(from: capture)
+        return (engine, VocabularyCorrector(terms: options.vocabulary).apply(to: events))
+    }
+
     /// Supported on-device locales as BCP-47 identifiers.
     public static func supportedLocaleIdentifiers() async -> [String] {
         // Probing SFSpeechRecognizer per locale makes the system log noise to stderr, so only do it

@@ -49,11 +49,15 @@ public struct EngineOptions: Sendable, Equatable {
     public var useVAD = true
     /// Words and phrases the recognizer should favor (names, jargon).
     public var vocabulary: [String] = []
+    /// Modern engine: after this many seconds of silence following speech, finalize the sentence at once instead
+    /// of waiting for the recognizer to decide. Nil leaves the decision to the recognizer.
+    public var pauseFinalization: TimeInterval? = 0.7
 
-    public init(fast: Bool = true, useVAD: Bool = true, vocabulary: [String] = []) {
+    public init(fast: Bool = true, useVAD: Bool = true, vocabulary: [String] = [], pauseFinalization: TimeInterval? = 0.7) {
         self.fast = fast
         self.useVAD = useVAD
         self.vocabulary = vocabulary
+        self.pauseFinalization = pauseFinalization
     }
 
     /// One term per line; blank lines and `#` comments are ignored.
