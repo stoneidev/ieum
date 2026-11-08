@@ -107,15 +107,15 @@
   },
   "hotPaths": [
     {
-      "path": "README.md",
-      "accessCount": 1,
-      "lastAccessed": 1794132206322,
+      "path": "site/index.html",
+      "accessCount": 4,
+      "lastAccessed": 1794134619083,
       "type": "file"
     },
     {
-      "path": "site/index.html",
+      "path": "README.md",
       "accessCount": 1,
-      "lastAccessed": 1794132722825,
+      "lastAccessed": 1794132206322,
       "type": "file"
     }
   ],
