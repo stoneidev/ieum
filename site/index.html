@@ -15,12 +15,16 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
+@font-face{font-family:"Fraunces";src:url(/fonts/fraunces-latin.woff2) format("woff2");font-weight:300 600;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Inter";src:url(/fonts/inter-latin.woff2) format("woff2");font-weight:400 600;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Hahmlet";src:url(/fonts/hahmlet-ko.woff2) format("woff2");font-weight:100 900;font-display:swap}
 :root{
   --ink:#14161a; --ink-2:#1b1e23; --ink-3:#262a31; --line:rgba(242,240,235,.12);
   --paper:#f2f0eb; --paper-2:#e7e4dc; --mute:#9aa0aa; --mute-2:#6d737d;
   --amber:#f4b54a; --amber-deep:#b9791a;
-  --serif:ui-serif,"New York","Iowan Old Style","Apple SD Gothic Neo","Noto Serif KR",Georgia,serif;
-  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Noto Sans KR","Segoe UI",system-ui,sans-serif;
+  --serif:"Fraunces","Hahmlet",ui-serif,"New York","Iowan Old Style","Noto Serif KR",Georgia,serif;
+  --hang:"Hahmlet","Nanum Myeongjo","Noto Serif KR",ui-serif,serif;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Noto Sans KR","Segoe UI",system-ui,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
   --max:1120px;
 }
@@ -37,8 +41,8 @@ a{color:inherit}
 header.top{position:sticky;top:0;z-index:10;backdrop-filter:saturate(1.4) blur(14px);background:rgba(20,22,26,.72);border-bottom:1px solid var(--line)}
 header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font:600 19px/1 var(--serif);letter-spacing:.01em}
+.brand .ko{font:500 17px/1 var(--hang);color:var(--amber);margin-left:2px}
 .brand img{width:30px;height:30px;border-radius:8px}
-.brand small{font:400 14px/1 var(--sans);color:var(--mute);margin-left:2px}
 nav{display:flex;gap:28px;font-size:15px;color:var(--mute)}
 nav a{text-decoration:none;transition:color .2s}
 nav a:hover{color:var(--paper)}
@@ -59,6 +63,15 @@ nav a:hover{color:var(--paper)}
 .btn.ghost:hover{background:rgba(255,255,255,.05)}
 .note{margin-top:16px;font-size:14px;color:var(--mute)}
 
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+.wordmark{position:relative;text-align:center;padding:24px 0}
+.wordmark .ko{display:block;font:300 clamp(120px,14vw,205px)/1 var(--hang);letter-spacing:-.05em;white-space:nowrap;
+  background:linear-gradient(172deg,#fbf6ea 8%,#f4b54a 62%,#b9791a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 18px 50px rgba(244,181,74,.18))}
+.wordmark .rom{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:10px;font:400 15px/1 var(--sans);letter-spacing:.32em;color:var(--mute);text-indent:.32em}
+.wordmark .rom::before,.wordmark .rom::after{content:"";width:44px;height:1px;background:linear-gradient(90deg,transparent,var(--amber))}
+.wordmark .rom::after{transform:scaleX(-1)}
+.wordmark .mean{margin-top:14px;font:italic 400 19px/1.4 var(--serif);color:var(--paper-2)}
 /* live demo */
 .stage{margin-top:72px;border-radius:26px;border:1px solid var(--line);overflow:hidden;background:
   linear-gradient(180deg,rgba(20,22,26,0) 40%,rgba(20,22,26,.7) 100%),
@@ -161,6 +174,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 @media (max-width:900px){
   nav{display:none}
+  .hero-grid{grid-template-columns:1fr}
+  .wordmark{order:-1;padding:0 0 8px}
+  .wordmark .ko{font-size:clamp(120px,36vw,200px)}
   section{padding:84px 0}
   .modes{grid-template-columns:1fr}
   .card.big{grid-row:auto;min-height:0}
@@ -188,7 +204,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Ieum home"><img src="/icon-512.png" alt="" width="30" height="30">Ieum <small>이음</small></a>
+    <a class="brand" href="#top" aria-label="Ieum home"><img src="/icon-512.png" alt="" width="30" height="30">Ieum <span class="ko">이음</span></a>
     <nav aria-label="Primary">
       <a href="#modes">Modes</a>
       <a href="#privacy">Privacy</a>
@@ -202,16 +218,21 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 <main id="main">
 <div class="hero" id="top">
   <div class="wrap">
-    <h1>Every word, <em>understood</em> in the room.</h1>
-    <p class="lead">Ieum puts live captions and translation on your Mac during a meeting. The other side speaks English and you read Korean. You answer in Korean and they can read English. All of it happens on your Mac.</p>
-    <div class="cta" id="get">
-      <span class="btn primary" role="note">
-        Coming soon for Mac
-      </span>
-      <a class="btn ghost" href="#modes">See how it reads</a>
-    </div>
-    <p class="note">Requires macOS 26.4 or later on a Mac with Apple silicon for translation. No account and no cloud.</p>
+    <div class="hero-grid">
+      <div>
+      <h1>Every word, <em>understood</em> in the room.</h1>
+      <p class="lead">Ieum puts live captions and translation on your Mac during a meeting. The other side speaks English and you read Korean. You answer in Korean and they can read English. All of it happens on your Mac.</p>
+      <div class="cta" id="get">
+        <span class="btn primary" role="note">
+          Coming soon for Mac
+        </span>
+        <a class="btn ghost" href="#modes">See how it reads</a>
+      </div>
+      <p class="note">Requires macOS 26.4 or later on a Mac with Apple silicon for translation. No account and no cloud.</p>
 
+      </div>
+      <div class="wordmark" aria-hidden="false"><span class="ko" lang="ko">이음</span><div class="rom">I · E · U · M</div><p class="mean">the act of connecting, a join</p></div>
+    </div>
     <figure class="stage" aria-label="Example of Ieum captions over a video meeting">
       <div class="menubar"><span class="mark"><i></i>Ieum</span><span>Tue 10:02</span></div>
       <figcaption>Sample conversation</figcaption>
