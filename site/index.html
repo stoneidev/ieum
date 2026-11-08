@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ieum · Live captions and translation for meetings, on your Mac</title>
-<meta name="description" content="Ieum puts live captions and English–Korean translation on your Mac screen during a meeting. Speech recognition and translation run on the device. No account, no cloud.">
-<meta name="theme-color" content="#f0fdfa">
-<meta property="og:title" content="Ieum · Live captions and translation for meetings">
-<meta property="og:description" content="Read the other side in your language while they read you in theirs. Fully on-device, for Mac.">
+<title>Ieum 이음 · Live Korean subtitles for English meetings, on your Mac</title>
+<meta name="description" content="Ieum shows live captions and English–Korean translation on your Mac during meetings. Recognition and translation run on the device: no account, no cloud, free to download.">
+<meta name="theme-color" content="#0a1822">
+<meta property="og:title" content="Ieum 이음 · Live Korean subtitles for English meetings">
+<meta property="og:description" content="Read the other side in your language while they read you in theirs. Fully on-device, free for Mac.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ieum.calmwork.today/">
 <meta property="og:image" content="https://ieum.calmwork.today/icon-512.png">
@@ -15,418 +15,512 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/plusjakarta-latin.woff2" as="font" type="font/woff2" crossorigin>
-<script>document.documentElement.className="js"</script>
+<script>
+(function(){var d=document.documentElement,l;try{l=localStorage.getItem("lang")}catch(e){}
+if(!l)l=/^ko/i.test(navigator.language||"")?"ko":"en";
+d.dataset.lang=l;d.lang=l;d.classList.add("js")})();
+</script>
 <style>
 @font-face{font-family:"Plus Jakarta Sans";src:url(/fonts/plusjakarta-latin.woff2) format("woff2");font-weight:300 800;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Noto Sans KR";src:url(/fonts/notosanskr-subset.woff2) format("woff2");font-weight:100 900;font-display:swap}
 
-/* Design tokens: Product Demo + Features, Flat Design (ui-ux-pro-max) */
 :root{
-  --color-primary:#0d9488; --color-on-primary:#000;
-  --color-secondary:#14b8a6; --color-primary-text:#0b6e66;
-  --color-accent:#ea580c; --color-accent-hover:#f97316; --color-on-accent:#000;
-  --color-background:#f0fdfa; --color-foreground:#134e4a;
-  --color-card:#fff; --color-muted:#e8f1f4; --color-muted-foreground:#475569;
-  --color-border:#99f6e4; --color-ring:#0d9488;
+  --ink:#0a1822; --ink-2:#12303d; --ink-3:#1c4656;
+  --paper:#f5f3ee; --card:#fff; --line:#dcd8cd;
+  --text:#14232c; --muted:#4d5b63;
+  --teal:#5eead4; --teal-d:#0b6e66; --teal-m:#14b8a6;
+  --amber:#ffb84d;
   --font:"Plus Jakarta Sans","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",system-ui,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
-  --space-1:8px; --space-2:16px; --space-3:24px; --space-4:32px; --space-5:48px; --space-6:64px; --space-7:96px;
-  --radius:14px; --max:1120px;
-  --ease:cubic-bezier(.2,.7,.2,1);
+  --max:1160px; --ease:cubic-bezier(.2,.7,.2,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--color-background);color:var(--color-foreground);font:400 17px/1.65 var(--font);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:72px}
+body{background:var(--paper);color:var(--text);font:400 17px/1.65 var(--font);-webkit-font-smoothing:antialiased}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--color-ring);outline-offset:3px;border-radius:6px}
-.on-dark :focus-visible,.on-primary :focus-visible{outline-color:#fff}
-.on-primary :focus-visible{outline-color:#000}
+:focus-visible{outline:3px solid var(--teal-m);outline-offset:3px;border-radius:6px}
+.dark :focus-visible{outline-color:var(--teal)}
 .wrap{width:min(var(--max),100% - 48px);margin-inline:auto}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.skip{position:absolute;left:-999px;top:8px;background:var(--color-foreground);color:#fff;padding:12px 16px;border-radius:8px;z-index:20}
+.skip{position:absolute;left:-999px;top:8px;background:#fff;color:#000;padding:12px 16px;border-radius:8px;z-index:50}
 .skip:focus{left:8px}
-.icon{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 :lang(ko){word-break:keep-all}
+/* bilingual: both languages live in the markup, one is shown */
+[data-lang=en] .ko,[data-lang=ko] .en{display:none!important}
 
-/* buttons: 48px tall, color-shift hover only (flat) */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 26px;border-radius:12px;border:2px solid transparent;background:var(--color-accent);color:var(--color-on-accent);font:700 16px/1 var(--font);text-decoration:none;cursor:pointer;transition:background-color .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease)}
-.btn:hover{background:var(--color-accent-hover)}
-.btn.small{min-height:44px;padding:0 20px;font-size:15px}
-.btn.ghost{background:transparent;color:var(--color-foreground);border-color:var(--color-foreground)}
-.btn.ghost:hover{background:var(--color-foreground);color:#fff}
-.textbtn{min-height:44px;padding:0 14px;border:2px solid var(--color-foreground);border-radius:10px;background:transparent;color:var(--color-foreground);font:600 14.5px/1 var(--font);cursor:pointer;transition:background-color .2s var(--ease),color .2s var(--ease)}
-.textbtn:hover{background:var(--color-foreground);color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border-radius:14px;border:2px solid transparent;background:var(--teal);color:#04201c;font:700 17px/1 var(--font);text-decoration:none;cursor:pointer;transition:background-color .18s var(--ease),transform .18s var(--ease)}
+.btn:hover{background:#99f6e4}
+.btn:active{transform:scale(.98)}
+.btn.sm{min-height:44px;padding:0 18px;font-size:15px;border-radius:11px}
+.btn.line{background:transparent;color:inherit;border-color:currentColor}
+.btn.line:hover{background:rgba(255,255,255,.1)}
+.light .btn.line:hover{background:rgba(0,0,0,.06)}
+.btn.solid{background:var(--ink);color:#fff}
+.btn.solid:hover{background:var(--ink-3)}
 
 /* header */
-.top{padding:var(--space-2) 0}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)}
-.brand{display:flex;align-items:center;gap:12px;min-height:44px;text-decoration:none;font:800 21px/1 var(--font);letter-spacing:-.03em}
-.brand img{width:32px;height:32px;border-radius:9px}
-.brand span{font-weight:700;color:var(--color-primary-text)}
-.top nav{display:flex;align-items:center;gap:6px}
-.top nav a:not(.btn){display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:8px;text-decoration:none;font-weight:500;font-size:15.5px;transition:background-color .2s var(--ease)}
-.top nav a:not(.btn):hover{background:var(--color-muted)}
-.top nav .btn{margin-left:var(--space-1)}
+.top{position:sticky;top:0;z-index:30;background:rgba(10,24,34,.88);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px}
+.brand{display:flex;align-items:center;gap:11px;min-height:44px;text-decoration:none;font:800 20px/1 var(--font);letter-spacing:-.02em}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand i{font-style:normal;font-weight:600;color:var(--teal)}
+.top nav{display:flex;align-items:center;gap:4px}
+.top nav a:not(.btn){display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:8px;text-decoration:none;font-weight:500;font-size:15px;color:rgba(255,255,255,.82);transition:color .15s,background-color .15s}
+.top nav a:not(.btn):hover{color:#fff;background:rgba(255,255,255,.08)}
+.lang{min-height:44px;min-width:44px;padding:0 12px;margin-left:4px;border-radius:8px;border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;font:600 14px/1 var(--font);cursor:pointer}
+.lang:hover{background:rgba(255,255,255,.1)}
+.top .btn{margin-left:8px}
 
 /* hero */
-.hero{padding:var(--space-6) 0 var(--space-7);text-align:center}
-h1{font:800 clamp(40px,6.2vw,80px)/1.04 var(--font);letter-spacing:-.04em;max-width:17ch;margin-inline:auto;text-wrap:balance}
-.lead{margin:var(--space-3) auto 0;max-width:56ch;font-size:clamp(17px,1.7vw,20px);color:var(--color-muted-foreground)}
-.cta{margin-top:var(--space-4);display:flex;flex-wrap:wrap;gap:var(--space-2);justify-content:center}
-.note{margin:var(--space-3) auto 0;max-width:60ch;font-size:14.5px;color:var(--color-muted-foreground)}
-.note a{color:var(--color-foreground)}
+.hero{background:var(--ink);color:#fff;position:relative;overflow:hidden;padding:72px 0 88px}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto auto;width:70%;aspect-ratio:1;background:radial-gradient(closest-side,rgba(94,234,212,.2),transparent);pointer-events:none}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:56px;align-items:center;position:relative}
+.eyebrow{display:inline-flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;font-weight:600;color:var(--teal);letter-spacing:.01em}
+.eyebrow .it+.it::before{content:"·";margin-right:14px;color:rgba(255,255,255,.4)}
+h1{margin-top:18px;font:800 clamp(38px,5.2vw,64px)/1.08 var(--font);letter-spacing:-.035em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--teal)}
+.lead{margin-top:22px;max-width:46ch;font-size:clamp(17px,1.5vw,19.5px);color:rgba(255,255,255,.8)}
+.cta{margin-top:32px;display:flex;flex-wrap:wrap;gap:14px}
+.micro{margin-top:18px;max-width:52ch;font-size:14px;line-height:1.6;color:rgba(255,255,255,.66)}
+.micro a{color:#fff}
+.hint{display:none;margin-top:14px;font-size:14.5px;color:var(--amber)}
+.notmac .hint{display:block}
+.pill{display:none;margin-top:16px;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--teal)}
+.pill.on{display:inline-flex}
 
-/* product demo: a flat window with the real caption bar */
-.demo{margin:var(--space-6) auto 0;max-width:960px;text-align:left}
-.win{background:var(--color-card);border:2px solid var(--color-foreground);border-radius:20px;overflow:hidden}
-.win-bar{display:flex;align-items:center;gap:var(--space-2);padding:12px 18px;border-bottom:2px solid var(--color-foreground);font-size:14.5px;font-weight:600}
-.dots{display:flex;gap:7px}
-.dots i{width:12px;height:12px;border-radius:50%;background:var(--color-muted);border:2px solid var(--color-foreground)}
-.win-bar .title{flex:1;text-align:center}
-.win-bar .who{min-width:84px;text-align:right;color:var(--color-foreground);font-weight:800}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);padding:var(--space-3) var(--space-3) var(--space-2);background:var(--color-muted)}
-.tile{aspect-ratio:4/3;border-radius:12px;background:color-mix(in srgb,var(--color-secondary) 22%,#fff);position:relative;overflow:hidden;outline:3px solid transparent;outline-offset:-3px;transition:outline-color .2s var(--ease)}
-.tile::before{content:"";position:absolute;left:50%;top:26%;width:20%;aspect-ratio:1;border-radius:50%;background:var(--color-foreground);opacity:.28;transform:translateX(-50%)}
-.tile::after{content:"";position:absolute;left:50%;top:58%;width:44%;height:60%;border-radius:50% 50% 0 0;background:var(--color-foreground);opacity:.2;transform:translateX(-50%)}
-.tile.speaking{outline-color:var(--color-accent)}
-.captions{background:var(--color-foreground);color:#fff;padding:var(--space-3) var(--space-4) var(--space-4)}
-.line-src{min-height:3.3em;font-size:clamp(16px,1.9vw,21px);line-height:1.55;color:rgba(255,255,255,.82)}
-.line-src .interim{color:rgba(255,255,255,.55)}
-.line-dst{margin-top:var(--space-1);min-height:2.7em;font-size:clamp(24px,3.6vw,42px);line-height:1.3;font-weight:700;letter-spacing:-.02em;border-left:5px solid var(--color-accent);padding-left:var(--space-2);opacity:0;transition:opacity .3s var(--ease)}
-.line-dst.on{opacity:1}
-.demo figcaption{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin-top:var(--space-2);font-size:14.5px;color:var(--color-muted-foreground)}
+/* Mac screen mock */
+.screen{border-radius:18px;background:#0e2230;border:1px solid rgba(255,255,255,.14);box-shadow:0 40px 80px -30px rgba(0,0,0,.7);overflow:hidden}
+.menubar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:rgba(255,255,255,.07);font-size:12.5px;color:rgba(255,255,255,.85)}
+.menubar b{font-weight:700}
+.menubar .rec{display:inline-flex;align-items:center;gap:7px;color:var(--teal);font-weight:600}
+.menubar .rec::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.stage{position:relative;padding:18px 18px 0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cell{aspect-ratio:16/10;border-radius:10px;background:linear-gradient(160deg,#1f4a5c,#14323f);position:relative;overflow:hidden;outline:2px solid transparent;outline-offset:-2px;transition:outline-color .25s}
+.cell::before{content:"";position:absolute;left:50%;top:24%;width:17%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.3);transform:translateX(-50%)}
+.cell::after{content:"";position:absolute;left:50%;top:56%;width:38%;height:70%;border-radius:50% 50% 0 0;background:rgba(255,255,255,.2);transform:translateX(-50%)}
+.cell span{position:absolute;left:8px;bottom:6px;z-index:1;font-size:11.5px;font-weight:600;background:rgba(0,0,0,.5);padding:2px 8px;border-radius:6px}
+.cell.on{outline-color:var(--teal)}
+.bar{margin:14px auto 18px;width:calc(100% - 20px);background:rgba(4,12,18,.94);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px 20px 18px}
+.bar .src{min-height:2.9em;font-size:clamp(13.5px,1.35vw,15.5px);line-height:1.5;color:rgba(255,255,255,.62)}
+.bar .dst{margin-top:6px;min-height:2.6em;font-size:clamp(20px,2.3vw,28px);line-height:1.3;font-weight:700;letter-spacing:-.015em;color:#fff;transition:opacity .25s}
+.bar .dst.fade{opacity:0}
+.stagefoot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;font-size:13px;color:rgba(255,255,255,.62)}
+.pause{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font:600 13.5px/1 var(--font);cursor:pointer}
+.pause:hover{background:rgba(255,255,255,.1)}
+
+/* trust strip */
+.strip{background:var(--ink-2);color:#fff}
+.strip ul{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:8px 24px;padding:22px 0}
+.strip li{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:600}
+.strip .icon{color:var(--teal)}
 
 /* sections */
-.band{padding:var(--space-7) 0}
-.band.alt{background:var(--color-card)}
-h2{font:800 clamp(30px,4.2vw,52px)/1.08 var(--font);letter-spacing:-.035em;max-width:18ch}
-.sub{margin-top:var(--space-2);max-width:56ch;font-size:19px;color:var(--color-muted-foreground)}
-.reveal{transition:opacity .35s var(--ease),transform .35s var(--ease)}
-.js .reveal{opacity:0;transform:translateY(12px)}
+section{padding:96px 0}
+.light{background:var(--paper)}
+.white{background:#fff}
+.k{font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-d)}
+.dark .k{color:var(--teal)}
+h2{margin-top:12px;font:800 clamp(30px,3.8vw,48px)/1.12 var(--font);letter-spacing:-.03em;max-width:20ch;text-wrap:balance}
+.sub{margin-top:16px;max-width:58ch;font-size:18.5px;color:var(--muted)}
+.dark{background:var(--ink);color:#fff}
+.dark .sub{color:rgba(255,255,255,.78)}
+.reveal{transition:opacity .4s var(--ease),transform .4s var(--ease)}
+.js .reveal{opacity:0;transform:translateY(14px)}
 .js .reveal.in{opacity:1;transform:none}
 
-/* transcript */
-.transcript{margin-top:var(--space-5);background:var(--color-background);border:2px solid var(--color-foreground);border-radius:var(--radius);overflow:hidden}
-.transcript .row{display:grid;grid-template-columns:1fr 1fr}
-.transcript .row>*{padding:22px var(--space-4)}
-.transcript .row>*+*{border-left:2px solid var(--color-foreground)}
-.transcript .row+.row{border-top:1px solid var(--color-border)}
-.transcript .head{background:var(--color-foreground);color:#fff;font-weight:600;font-size:14.5px}
-.transcript .head>*{padding:12px var(--space-4)}
-.transcript .head>*+*{border-left-color:rgba(255,255,255,.3)}
-.transcript .said{font-size:clamp(18px,2vw,24px);font-weight:600;line-height:1.4}
-.transcript .read{font-size:clamp(18px,2vw,24px);font-weight:600;line-height:1.4;color:var(--color-primary-text)}
-.modes{margin-top:var(--space-5);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
-.card{background:var(--color-card);border:2px solid var(--color-border);border-radius:var(--radius);padding:var(--space-4)}
-.band.alt .card{background:var(--color-background)}
-.ico{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--color-foreground);color:#fff;margin-bottom:var(--space-3)}
-.card h3{font:700 21px/1.25 var(--font);letter-spacing:-.02em}
-.card p{margin-top:10px;color:var(--color-muted-foreground);font-size:16px}
+/* steps */
+.steps{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--teal);font-weight:800;margin-bottom:18px}
+.steps h3{font:700 21px/1.25 var(--font);letter-spacing:-.015em}
+.steps p{margin-top:8px;color:var(--muted);font-size:16px}
+kbd{font:700 13.5px/1 var(--font);padding:6px 8px 5px;border-radius:7px;background:#fff;border:1px solid #b9b5a8;border-bottom-width:3px;color:var(--text);white-space:nowrap}
+
+/* modes + transcript */
+.modes{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:28px}
+.card .ic{display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--ink);color:var(--teal);margin-bottom:18px}
+.card h3{font:700 20px/1.25 var(--font);letter-spacing:-.015em}
+.card p{margin-top:8px;color:var(--muted);font-size:16px}
+.tx{margin-top:28px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+.tx .r{display:grid;grid-template-columns:1fr 1fr}
+.tx .r>*{padding:18px 28px}
+.tx .r>*+*{border-left:1px solid var(--line)}
+.tx .r+.r{border-top:1px solid var(--line)}
+.tx .h{background:var(--ink);color:#fff;font-size:14px;font-weight:600}
+.tx .h>*{padding:11px 28px}
+.tx .h>*+*{border-left-color:rgba(255,255,255,.2)}
+.tx .a{font-size:clamp(17px,1.8vw,21px);font-weight:600;line-height:1.4}
+.tx .b{font-size:clamp(17px,1.8vw,21px);font-weight:600;line-height:1.4;color:var(--teal-d)}
 
 /* privacy */
-.band.primary{background:var(--color-primary);color:var(--color-on-primary)}
-.band.primary .sub,.band.primary .fine{color:rgba(0,0,0,.8)}
-.says{margin-top:var(--space-5);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4)}
-.says li{list-style:none;border-top:3px solid #000;padding-top:var(--space-3)}
-.says b{display:flex;align-items:center;gap:10px;font:800 clamp(24px,2.6vw,32px)/1.15 var(--font);letter-spacing:-.03em}
-.says p{margin-top:10px;font-size:16.5px;max-width:30ch}
-.fine{margin-top:var(--space-5);max-width:70ch;font-size:15px}
+.priv{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.priv li{list-style:none;border-top:2px solid var(--teal);padding-top:22px}
+.priv b{display:block;font:800 clamp(22px,2.3vw,28px)/1.2 var(--font);letter-spacing:-.02em}
+.priv p{margin-top:8px;color:rgba(255,255,255,.76);font-size:16px;max-width:32ch}
+.fine{margin-top:40px;max-width:72ch;font-size:14.5px;color:rgba(255,255,255,.62)}
 
 /* features */
-.feat{margin-top:var(--space-5);display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
-.feat .wide{grid-column:1/-1;display:grid;grid-template-columns:1fr 1.25fr;gap:var(--space-5);align-items:center}
-.swatches{display:flex;gap:10px;margin-top:var(--space-3);flex-wrap:wrap}
-.sw{width:88px;height:48px;border-radius:10px;display:grid;place-items:center;font:600 13px/1 var(--font);color:#fff;border:2px solid var(--color-foreground)}
-.keys{margin-top:var(--space-3);display:flex;flex-wrap:wrap;gap:12px 20px}
-.keys span{display:inline-flex;align-items:center;gap:10px;font-size:15px;color:var(--color-muted-foreground)}
-kbd{font:700 14px/1 var(--font);padding:9px 11px 8px;border-radius:8px;background:#fff;border:2px solid var(--color-foreground);border-bottom-width:4px;color:var(--color-foreground)}
-.script{font:400 14.5px/1.85 var(--mono);color:rgba(255,255,255,.88);background:var(--color-foreground);border-radius:12px;padding:var(--space-3) var(--space-4);overflow:auto;white-space:pre}
-.script u{text-decoration:none;color:#5eead4}
+.feat{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat .card{background:#fff}
+.script{margin-top:28px;font:400 14px/1.85 var(--mono);color:rgba(255,255,255,.88);background:var(--ink);border-radius:18px;padding:24px 28px;overflow:auto;white-space:pre}
+.script u{text-decoration:none;color:var(--teal)}
 .script b{font-weight:400;color:#fff}
-.spec{margin-top:var(--space-6);display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);border-top:2px solid var(--color-foreground);padding-top:var(--space-4)}
-.spec div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:8px}
-.spec dt{font-size:15px;color:var(--color-muted-foreground);max-width:24ch}
-.spec dd{font:800 clamp(24px,2.6vw,34px)/1.1 var(--font);letter-spacing:-.03em}
-.spec dd small{display:block;margin-top:6px;font:400 15px/1.4 var(--font);letter-spacing:0;color:var(--color-muted-foreground)}
-.footnote{margin-top:var(--space-4);font-size:14.5px;color:var(--color-muted-foreground);max-width:76ch}
+
+/* requirements */
+.req{margin-top:40px;width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;font-size:16px}
+.req th,.req td{text-align:left;padding:16px 22px;border-bottom:1px solid var(--line);vertical-align:top}
+.req tr:last-child td{border-bottom:0}
+.req th{background:var(--ink);color:#fff;font-size:14px;font-weight:600}
+.req td:first-child{font-weight:700;white-space:nowrap}
+.req td:last-child{color:var(--muted)}
 
 /* faq */
-.faq{display:grid;grid-template-columns:1fr 1.4fr;gap:var(--space-5) var(--space-6);align-items:start}
-details{border-bottom:2px solid var(--color-border)}
-details:first-child{border-top:2px solid var(--color-border)}
-summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);min-height:64px;padding:14px 0;font:700 19px/1.35 var(--font);letter-spacing:-.015em}
+.faq{margin-top:40px;max-width:820px}
+details{border-bottom:1px solid var(--line)}
+details:first-child{border-top:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:64px;padding:14px 0;font:700 19px/1.35 var(--font);letter-spacing:-.01em}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"";width:22px;height:22px;flex:none;background:linear-gradient(var(--color-primary),var(--color-primary)) center/100% 3px no-repeat,linear-gradient(var(--color-primary),var(--color-primary)) center/3px 100% no-repeat;transition:transform .25s var(--ease)}
+summary::after{content:"+";flex:none;font:400 28px/1 var(--font);color:var(--teal-d);transition:transform .2s var(--ease)}
 details[open] summary::after{transform:rotate(45deg)}
-details p{padding:0 0 22px;max-width:60ch;color:var(--color-muted-foreground);font-size:16.5px}
+details p{padding:0 0 22px;max-width:64ch;color:var(--muted);font-size:16.5px}
 
-/* closing */
-.band.dark{background:var(--color-foreground);color:#fff;position:relative;overflow:hidden}
-.band.dark .sub{color:rgba(255,255,255,.82)}
-.band.dark .wrap{position:relative}
-.band.dark h2,.band.dark .sub,.band.dark .cta{position:relative;z-index:1}
-.band.dark .cta{justify-content:flex-start}
-.glyph{position:absolute;right:-.03em;bottom:-.2em;font:800 clamp(150px,23vw,330px)/1 var(--font);letter-spacing:-.06em;color:var(--color-secondary);opacity:.22;z-index:0;white-space:nowrap;user-select:none;pointer-events:none}
-.glyph::before{content:"이음";content:"이음" / ""}
-footer{background:var(--color-foreground);color:rgba(255,255,255,.78);border-top:1px solid rgba(255,255,255,.18);padding:var(--space-3) 0 var(--space-4);font-size:14.5px}
-footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+/* final cta */
+.final{text-align:center}
+.final h2{margin-inline:auto;max-width:18ch}
+.final .sub{margin-inline:auto}
+.final .cta{justify-content:center}
+.share{margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.14);display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:center;font-size:15px;color:rgba(255,255,255,.76)}
+footer{background:var(--ink);color:rgba(255,255,255,.68);border-top:1px solid rgba(255,255,255,.1);padding:26px 0 34px;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px}
+footer a{color:#fff}
 
-@media (max-width:900px){
+@media (max-width:960px){
+  .hero{padding:48px 0 64px}
+  .hero .wrap{grid-template-columns:minmax(0,1fr);gap:44px}
   .top nav a:not(.btn){display:none}
-  .hero{padding:var(--space-5) 0 var(--space-6)}
-  .band{padding:var(--space-6) 0}
-  .tiles{grid-template-columns:repeat(2,1fr);padding:var(--space-2)}
-  .tile:nth-child(3){display:none}
-  .captions{padding:var(--space-3) var(--space-3) var(--space-3)}
-  .win-bar .title{display:none}
-  .win-bar .who{flex:1}
-  .modes,.says,.feat{grid-template-columns:1fr}
-  .feat .wide{grid-template-columns:1fr;gap:var(--space-3)}
-  .spec{grid-template-columns:1fr 1fr}
-  .faq{grid-template-columns:1fr}
-  .transcript .row>*{padding:18px var(--space-2)}
-  .transcript .head>*{padding:10px var(--space-2)}
+  .strip ul{grid-template-columns:1fr 1fr}
+  .steps,.modes,.priv,.feat{grid-template-columns:1fr}
+  section{padding:68px 0}
 }
-@media (max-width:520px){
-  .transcript .row{grid-template-columns:1fr}
-  .transcript .row>*+*{border-left:0;border-top:1px solid var(--color-border)}
-  .transcript .head{display:none}
+@media (max-width:560px){
   .cta .btn{width:100%}
+  .top .btn{display:none}
+  .tx .r{grid-template-columns:1fr}
+  .tx .r>*+*{border-left:0;border-top:1px solid var(--line)}
+  .tx .h{display:none}
+  .req th:nth-child(3),.req td:nth-child(3){display:none}
+  .strip ul{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .reveal,.line-dst,.tile,.btn,.textbtn,summary::after{transition:none}
+  *{transition:none!important}
   .js .reveal{opacity:1;transform:none}
 }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
-  <symbol id="i-captions" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 15h4M15 15h2M7 11h2M13 11h4"/></symbol>
-  <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></symbol>
-  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
-  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15h18M8 19h.01M8 9h8"/></symbol>
-  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/><path d="m3 3 18 18"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
   <symbol id="i-swap" viewBox="0 0 24 24"><path d="m8 3-4 4 4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></symbol>
   <symbol id="i-ear" viewBox="0 0 24 24"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 0 1-7 0M15 8.5a2.5 2.5 0 0 0-5 0v1"/></symbol>
   <symbol id="i-screen" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
-  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 15h4M15 15h2M7 11h2M13 11h4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="6" rx="1.5"/><path d="M7 14h10M7 18h6"/></symbol>
+  <symbol id="i-cmd" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
 </svg>
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main"><span class="en">Skip to content</span><span class="ko">본문으로 건너뛰기</span></a>
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Ieum 이음 home"><img src="/icon-512.png" alt="" width="32" height="32">Ieum <span lang="ko">이음</span></a>
-    <nav aria-label="Primary">
-      <a href="#modes">Modes</a>
-      <a href="#privacy">Privacy</a>
-      <a href="#details">Details</a>
-      <a href="#faq">FAQ</a>
-      <a class="btn small" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download>Download</a>
+    <a class="brand" href="#top" aria-label="Ieum 이음"><img src="/icon-512.png" alt="" width="30" height="30">Ieum <i lang="ko">이음</i></a>
+    <nav aria-label="Main">
+      <a href="#how"><span class="en">How it works</span><span class="ko">사용법</span></a>
+      <a href="#privacy"><span class="en">Privacy</span><span class="ko">개인정보</span></a>
+      <a href="#faq"><span class="en">FAQ</span><span class="ko">자주 묻는 질문</span></a>
+      <button class="lang" type="button" id="langbtn" aria-label="Switch language / 언어 전환"><span class="en" lang="ko">한국어</span><span class="ko" lang="en">English</span></button>
+      <a class="btn sm dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><span class="en">Download</span><span class="ko">다운로드</span></a>
     </nav>
   </div>
 </header>
 
 <main id="main">
-<section class="hero" id="top" aria-labelledby="hero-h">
+<section id="top" class="hero dark" style="padding:72px 0 88px">
   <div class="wrap">
-    <h1 id="hero-h">Every word, understood in the room.</h1>
-    <p class="lead">Ieum puts live captions and translation on your Mac during a meeting. The other side speaks English and you read Korean. You answer in Korean and they can read English. All of it happens on your Mac.</p>
-    <div class="cta" id="get">
-      <a class="btn" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Download for Mac</a>
-      <a class="btn ghost" href="#modes">See how it reads</a>
+    <div>
+      <p class="eyebrow"><span class="it"><span class="en">Free</span><span class="ko">무료</span></span><span class="it">macOS</span><span class="it"><span class="en">Works offline</span><span class="ko">오프라인 동작</span></span></p>
+      <h1>
+        <span class="en">Follow every word of your <em>English meeting</em>.</span>
+        <span class="ko">영어 회의, <em>한 마디도</em> 놓치지 마세요.</span>
+      </h1>
+      <p class="lead">
+        <span class="en">Ieum puts live captions and Korean subtitles on your Mac screen while people talk. You answer in Korean, and the English is there for them. Everything runs on your Mac.</span>
+        <span class="ko">상대가 말하는 동안 Mac 화면에 실시간 자막과 한국어 번역이 뜹니다. 한국어로 답하면 상대는 영어로 읽습니다. 모든 처리는 내 Mac 안에서만 이뤄집니다.</span>
+      </p>
+      <div class="cta">
+        <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download data-where="hero"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span></a>
+        <a class="btn line" href="#how"><span class="en">See how it works</span><span class="ko">사용법 보기</span></a>
+      </div>
+      <p class="hint" id="machint">
+        <span class="en">This is a Mac app. Open this page on your Mac, or <a href="#" data-share="mail" style="color:inherit">email yourself the link</a>.</span>
+        <span class="ko">Mac 전용 앱입니다. Mac에서 이 페이지를 열거나 <a href="#" data-share="mail" style="color:inherit">링크를 메일로 보내 두세요</a>.</span>
+      </p>
+      <p class="micro">
+        <span class="en">Version 0.2.2 · 1.3 MB · Signed and notarized by Apple. Captions need macOS 14+. Translation needs macOS 26.4+ on Apple silicon. Free for personal and noncommercial use. <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></span>
+        <span class="ko">버전 0.2.2 · 1.3 MB · Apple 서명 및 공증 완료. 자막은 macOS 14 이상, 번역은 Apple silicon의 macOS 26.4 이상이 필요합니다. 개인·비영리 용도는 무료입니다. <a href="https://github.com/stoneidev/ieum/releases/latest">릴리스 노트</a></span>
+      </p>
+      <p class="pill" id="count"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span id="countn"></span></p>
     </div>
-    <p class="note">Free, including at work. About 1.3 MB. Signed and notarized by Apple. Captions need macOS 14 or later; translation needs macOS 26.4 or later on Apple silicon. <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></p>
 
-    <figure class="demo" aria-label="Example of Ieum captions during a video meeting">
-      <div class="win">
-        <div class="win-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">Weekly sync</span><span class="who" id="who">English</span></div>
-        <div class="tiles" aria-hidden="true"><div class="tile" id="t1"></div><div class="tile" id="t2"></div><div class="tile" id="t3"></div></div>
-        <div class="captions">
-          <div class="line-src" id="src">Listening</div>
-          <div class="line-dst" id="dst" aria-live="polite"></div>
+    <figure class="screen" aria-label="Demo of the subtitle bar">
+      <div class="menubar"><span><b>Meet</b> &nbsp; Weekly product sync</span><span class="rec"><span class="en">Ieum · listening</span><span class="ko">이음 · 듣는 중</span></span></div>
+      <div class="stage">
+        <div class="grid" aria-hidden="true">
+          <div class="cell on" id="c0"><span>Sarah</span></div>
+          <div class="cell" id="c1"><span><span class="en">You</span><span class="ko">나</span></span></div>
+          <div class="cell" id="c2"><span>Mike</span></div>
+          <div class="cell" id="c3"><span>Priya</span></div>
+        </div>
+        <div class="bar" role="img" aria-label="Example: someone says “Can we ship the beta on Thursday?” and Ieum shows “목요일에 베타를 출시할 수 있을까요?”">
+          <div class="src" id="src" aria-hidden="true"></div>
+          <div class="dst" id="dst" lang="ko" aria-hidden="true"></div>
         </div>
       </div>
-      <figcaption><button class="textbtn" id="toggle" type="button" aria-pressed="false">Pause demo</button><span>A sample conversation. Nothing here is recorded.</span></figcaption>
+      <div class="stagefoot" style="padding:0 18px 14px">
+        <span class="en">Example conversation, played in a loop.</span><span class="ko">예시 대화가 반복 재생됩니다.</span>
+        <button class="pause" type="button" id="pause" aria-pressed="false"><span class="en">Pause</span><span class="ko">일시정지</span></button>
+      </div>
     </figure>
   </div>
 </section>
 
-<section class="band alt" id="modes" aria-labelledby="modes-h">
-  <div class="wrap reveal">
-    <h2 id="modes-h">One conversation, two languages.</h2>
-    <p class="sub">Pick a meeting mode and start. Conversation mode listens for English and Korean at once and decides which one you spoke, sentence by sentence.</p>
-    <div class="transcript" role="table" aria-label="Example of a conversation">
-      <div class="row head" role="row"><span role="columnheader">What was said</span><span role="columnheader">What you read</span></div>
-      <div class="row" role="row"><div class="said" role="cell" lang="en">Could you share the schedule for next week?</div><div class="read" role="cell" lang="ko">다음 주 일정을 공유해 주시겠어요?</div></div>
-      <div class="row" role="row"><div class="said" role="cell" lang="ko">네, 공유해 드리겠습니다.</div><div class="read" role="cell" lang="en">Yes, I'll share it with you.</div></div>
-      <div class="row" role="row"><div class="said" role="cell" lang="en">What about the budget?</div><div class="read" role="cell" lang="ko">예산은 어떻게 되나요?</div></div>
-    </div>
-    <div class="modes">
-      <div class="card"><div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div><h3>Conversation</h3><p>Both directions in one stream. English is shown with Korean beneath it. Korean is shown with English beneath it.</p></div>
-      <div class="card"><div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-ear"/></svg></div><h3>English to Korean</h3><p>For the meeting where you mostly listen. Read the speaker in Korean as they talk.</p></div>
-      <div class="card"><div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div><h3>Korean to English</h3><p>For the meeting where you present. Show the room your words in English.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="band primary on-primary" id="privacy" aria-labelledby="privacy-h">
-  <div class="wrap reveal">
-    <h2 id="privacy-h">What is said in the room stays in the room.</h2>
-    <p class="sub">Speech recognition and translation use the models built into macOS. Your audio is processed in memory on your Mac and never uploaded.</p>
-    <ul class="says">
-      <li><b><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>No account.</b><p>No sign-in and no server to trust.</p></li>
-      <li><b><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>No network requests.</b><p>Ieum makes none while it runs.</p></li>
-      <li><b><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>No recordings.</b><p>Only the text script is saved.</p></li>
-    </ul>
-    <p class="fine">macOS downloads a language model the first time you use a language, so that one step needs a network connection. After that, Ieum works with Wi-Fi switched off.</p>
-  </div>
-</section>
-
-<section class="band" id="details" aria-labelledby="details-h">
-  <div class="wrap reveal">
-    <h2 id="details-h">Built to be read from across the table.</h2>
-    <p class="sub">The subtitle bar is large, calm and out of the way. Everything about it is yours to adjust.</p>
-    <div class="feat">
-      <div class="card">
-        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-captions"/></svg></div>
-        <h3>A subtitle bar made for distance</h3>
-        <p>Large type, one to four lines, and the translation set apart from the original so your eye never has to search. Interim words appear dimmed and settle when the sentence is final.</p>
-        <div class="swatches" aria-label="Background styles">
-          <div class="sw" style="background:#0f2f2c">Solid</div>
-          <div class="sw" style="background:rgba(19,78,74,.68)">Glass</div>
-          <div class="sw" style="background:linear-gradient(90deg,#134e4a,rgba(19,78,74,.35));color:#fff">Fade</div>
-          <div class="sw" style="background:#fff;color:#134e4a">Paper</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-keyboard"/></svg></div>
-        <h3>Stays out of your way</h3>
-        <p>Fades when nobody is speaking. Click through it to reach the window beneath.</p>
-        <div class="keys">
-          <span><kbd>⌃⌥S</kbd>start</span>
-          <span><kbd>⌃⌥H</kbd>hide</span>
-          <span><kbd>⌃⌥D</kbd>panel</span>
-          <span><kbd>⌃⌥L</kbd>swap</span>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></div>
-        <h3>Your vocabulary</h3>
-        <p>List the names, products and jargon of the meeting. Ieum corrects them in the transcript before translating, so "Kubernetes" stays "Kubernetes".</p>
-      </div>
-      <div class="card">
-        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-panel"/></svg></div>
-        <h3>A transcript panel</h3>
-        <p>Switch to a timestamped scrollback you can select and copy, and that scrolls itself while you listen.</p>
-      </div>
-      <div class="card wide">
-        <div>
-          <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></div>
-          <h3>A script, when it ends</h3>
-          <p>Each meeting is saved as a plain text file you can open anywhere.</p>
-        </div>
-        <div class="script" role="img" aria-label="Example script"><u>[10:02:14]</u> <b>[EN]</b> Could you share the schedule for next week?
-           → 다음 주 일정을 공유해 주시겠어요?
-<u>[10:02:19]</u> <b>[KO]</b> 네, 공유해 드리겠습니다.
-           → Yes, I'll share it with you.</div>
-      </div>
-    </div>
-
-    <dl class="spec">
-      <div><dt>First words appear</dt><dd>about 1 second<small>after speech starts</small></dd></div>
-      <div><dt>A finished sentence is translated</dt><dd>about 1 second<small>after it ends</small></dd></div>
-      <div><dt>Language picked correctly</dt><dd>4 of 4<small>sentences, English and Korean mixed</small></dd></div>
-      <div><dt>CPU and memory</dt><dd>2–4%, 25 MB<small>while running</small></dd></div>
-    </dl>
-    <p class="footnote">Measured with synthesized speech played through the real engines on an Apple silicon Mac running macOS 26. A real room with several people and distant voices will be harder. We publish how we measure, and what the numbers leave out, with each release.</p>
-  </div>
-</section>
-
-<section class="band alt" id="faq" aria-labelledby="faq-h">
-  <div class="wrap faq reveal">
-    <h2 id="faq-h">Questions, answered plainly.</h2>
-    <div>
-      <details><summary>Does it work without internet?</summary><p>Yes. Recognition and translation run on your Mac. The first time you use a language, macOS downloads its model, and that single step needs a connection.</p></details>
-      <details><summary>Can the other people in the meeting see Ieum?</summary><p>No. The captions are a window on your own screen. Nothing is added to your video call, and the call software does not know it is there.</p></details>
-      <details><summary>Can it caption a video call, not just a microphone?</summary><p>Yes. Choose system audio and Ieum captions what the Mac is playing. macOS will ask for Screen &amp; System Audio Recording permission the first time.</p></details>
-      <details><summary>Which languages does it support?</summary><p>English (US and Australian) and Korean, in both directions. The command-line version can transcribe more languages that macOS supports on-device.</p></details>
-      <details><summary>What do I need?</summary><p>An Apple silicon Mac. Captions work on macOS 14 or later. The faster recognizer, conversation mode and translation need macOS 26.4 or later.</p></details>
-      <details><summary>Will it get my company's names right?</summary><p>Add them to the vocabulary list before the meeting. Ieum corrects them in the transcript before translating. Apple's recognizer does not take hints directly, so this correction is done afterwards.</p></details>
-      <details><summary>What does Ieum mean?</summary><p><span lang="ko">이음</span> means "to connect". A join between two sides that were apart.</p></details>
-    </div>
-  </div>
-</section>
-
-<section class="band dark on-dark" aria-labelledby="close-h">
+<div class="strip">
   <div class="wrap">
-    <h2 id="close-h">Join the conversation.</h2>
-    <p class="sub">Download Ieum and start your next meeting with captions.</p>
-    <div class="cta"><a class="btn" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Download for Mac</a></div>
-    <div class="glyph" lang="ko" aria-hidden="true"></div>
+    <ul>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span class="en">100% on-device</span><span class="ko">100% 기기 내 처리</span></li>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><span class="en">No account or sign-in</span><span class="ko">계정·로그인 없음</span></li>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-bolt"/></svg><span class="en">About 1 second delay</span><span class="ko">약 1초 지연</span></li>
+      <li><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span class="en">Notarized by Apple</span><span class="ko">Apple 공증 완료</span></li>
+    </ul>
+  </div>
+</div>
+
+<section id="how" class="white">
+  <div class="wrap">
+    <p class="k"><span class="en">How it works</span><span class="ko">사용법</span></p>
+    <h2><span class="en">Running in under a minute.</span><span class="ko">1분이면 시작합니다.</span></h2>
+    <ol class="steps">
+      <li class="reveal">
+        <h3><span class="en">Install</span><span class="ko">설치</span></h3>
+        <p><span class="en">Open Ieum.dmg and drag Ieum to Applications. It lives in the menu bar. A short setup asks for the microphone and speech permissions.</span><span class="ko">Ieum.dmg를 열고 Ieum을 응용 프로그램으로 끌어다 놓으세요. 메뉴 막대에 상주하며, 처음 실행 시 마이크와 음성 인식 권한을 안내합니다.</span></p>
+      </li>
+      <li class="reveal">
+        <h3><span class="en">Pick a mode, press start</span><span class="ko">모드 선택 후 시작</span></h3>
+        <p><span class="en">Choose English → Korean, Korean → English, or Conversation. Then press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> from any app.</span><span class="ko">영어→한국어, 한국어→영어, 또는 대화 모드를 고른 뒤 어떤 앱에서든 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 누르세요.</span></p>
+      </li>
+      <li class="reveal">
+        <h3><span class="en">Read along</span><span class="ko">자막으로 따라 읽기</span></h3>
+        <p><span class="en">A large subtitle bar appears at the bottom of the screen. Press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> for the scrollback transcript. A script is saved when you stop.</span><span class="ko">화면 하단에 큰 자막 바가 나타납니다. <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd>로 전체 기록을 볼 수 있고, 종료하면 스크립트가 저장됩니다.</span></p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="modes" class="light">
+  <div class="wrap">
+    <p class="k"><span class="en">Meeting modes</span><span class="ko">회의 모드</span></p>
+    <h2><span class="en">Both sides read their own language.</span><span class="ko">양쪽 모두 자기 언어로 읽습니다.</span></h2>
+    <p class="sub"><span class="en">Conversation mode detects the language sentence by sentence, so one stream covers the whole meeting.</span><span class="ko">대화 모드는 문장마다 언어를 감지해, 하나의 흐름으로 회의 전체를 다룹니다.</span></p>
+    <div class="modes">
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div><h3><span class="en">Conversation</span><span class="ko">대화</span></h3><p><span class="en">English and Korean in one stream, each with its translation beneath it.</span><span class="ko">영어와 한국어가 한 흐름으로, 문장 아래에 번역이 붙습니다.</span></p></div>
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-ear"/></svg></div><h3><span class="en">English → Korean</span><span class="ko">영어 → 한국어</span></h3><p><span class="en">For meetings where you mostly listen. Read the speaker in Korean as they talk.</span><span class="ko">주로 듣는 회의에 알맞습니다. 말하는 동안 한국어로 읽으세요.</span></p></div>
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div><h3><span class="en">Korean → English</span><span class="ko">한국어 → 영어</span></h3><p><span class="en">For meetings where you present. Show the room your words in English.</span><span class="ko">발표하는 회의에 알맞습니다. 내 말을 영어 자막으로 보여 주세요.</span></p></div>
+    </div>
+    <div class="tx reveal" role="table" aria-label="Example transcript">
+      <div class="r h" role="row"><div role="columnheader"><span class="en">Heard</span><span class="ko">들린 말</span></div><div role="columnheader"><span class="en">You read</span><span class="ko">화면에 뜨는 자막</span></div></div>
+      <div class="r" role="row"><div class="a" role="cell" lang="en">Can we ship the beta on Thursday?</div><div class="b" role="cell" lang="ko">목요일에 베타를 출시할 수 있을까요?</div></div>
+      <div class="r" role="row"><div class="a" role="cell" lang="ko">QA가 끝나면 가능합니다.</div><div class="b" role="cell" lang="en">It's possible once QA is done.</div></div>
+      <div class="r" role="row"><div class="a" role="cell" lang="en">Great. I'll update the release notes.</div><div class="b" role="cell" lang="ko">좋아요. 제가 릴리스 노트를 업데이트할게요.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="privacy" class="dark">
+  <div class="wrap">
+    <p class="k"><span class="en">Privacy</span><span class="ko">개인정보</span></p>
+    <h2><span class="en">Your meeting never leaves your Mac.</span><span class="ko">회의 내용은 Mac 밖으로 나가지 않습니다.</span></h2>
+    <p class="sub"><span class="en">Confidential calls are exactly where cloud captions are hard to justify. Ieum uses Apple's Speech and Translation frameworks, running on the device.</span><span class="ko">기밀 회의에 클라우드 자막을 쓰기는 부담스럽습니다. Ieum은 기기 안에서 동작하는 Apple의 음성 인식·번역 프레임워크를 사용합니다.</span></p>
+    <ul class="priv">
+      <li class="reveal"><b><span class="en">No account.</span><span class="ko">계정 없음.</span></b><p><span class="en">No sign-in and no server to trust.</span><span class="ko">로그인도, 믿어야 할 서버도 없습니다.</span></p></li>
+      <li class="reveal"><b><span class="en">No network requests.</span><span class="ko">네트워크 요청 없음.</span></b><p><span class="en">The app makes none while it runs. Language models are downloaded by macOS the first time you use a language.</span><span class="ko">앱은 실행 중 네트워크를 쓰지 않습니다. 언어 모델은 처음 사용할 때 macOS가 내려받습니다.</span></p></li>
+      <li class="reveal"><b><span class="en">No recordings.</span><span class="ko">녹음 없음.</span></b><p><span class="en">Only the text script is saved, in your Documents folder.</span><span class="ko">텍스트 스크립트만 문서 폴더에 저장됩니다.</span></p></li>
+    </ul>
+    <p class="fine"><span class="en">The source is published on GitHub, so you can check these claims yourself.</span><span class="ko">소스 코드는 GitHub에 공개되어 있어 직접 확인할 수 있습니다.</span> <a href="https://github.com/stoneidev/ieum" style="color:#fff">github.com/stoneidev/ieum</a></p>
+  </div>
+</section>
+
+<section id="features" class="white">
+  <div class="wrap">
+    <p class="k"><span class="en">Built for the table</span><span class="ko">회의를 위해</span></p>
+    <h2><span class="en">Small details that matter in a real meeting.</span><span class="ko">실제 회의에서 중요한 디테일.</span></h2>
+    <div class="feat">
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div><h3><span class="en">Readable subtitle bar</span><span class="ko">읽기 쉬운 자막 바</span></h3><p><span class="en">Large text, adjustable lines, size, background and opacity. It fades when nobody speaks and can be click-through.</span><span class="ko">큰 글씨와 줄 수·크기·배경·투명도 조절. 말이 없으면 흐려지고 클릭이 통과되게 할 수도 있습니다.</span></p></div>
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div><h3><span class="en">Mic or system audio</span><span class="ko">마이크 또는 시스템 오디오</span></h3><p><span class="en">Hear the room, or capture the audio of any video-call app through ScreenCaptureKit.</span><span class="ko">주변 소리를 듣거나, 어떤 화상 회의 앱이든 ScreenCaptureKit으로 소리를 가져옵니다.</span></p></div>
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></div><h3><span class="en">Meeting vocabulary</span><span class="ko">회의 용어집</span></h3><p><span class="en">List names and jargon once. They are corrected in the transcript before it is translated.</span><span class="ko">이름과 전문 용어를 등록하면 번역 전에 기록에서 먼저 바로잡습니다.</span></p></div>
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg></div><h3><span class="en">Menu bar app</span><span class="ko">메뉴 막대 앱</span></h3><p><span class="en">Global shortcuts, open at login, and a Korean or English interface.</span><span class="ko">전역 단축키, 로그인 시 자동 실행, 한국어·영어 인터페이스.</span></p></div>
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></div><h3><span class="en">Saved scripts</span><span class="ko">스크립트 저장</span></h3><p><span class="en">One timestamped file per meeting, ready for notes and follow-ups.</span><span class="ko">회의마다 타임스탬프가 붙은 파일 하나. 회의록과 후속 작업에 바로 쓸 수 있습니다.</span></p></div>
+      <div class="card reveal"><div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cmd"/></svg></div><h3><span class="en">Command-line tool</span><span class="ko">커맨드라인 도구</span></h3><p><span class="en"><code>caption-cli</code> runs the same recognizer in a terminal, as text or JSON Lines.</span><span class="ko"><code>caption-cli</code>로 같은 인식기를 터미널에서 텍스트나 JSON Lines로 쓸 수 있습니다.</span></p></div>
+    </div>
+<pre class="script reveal" aria-label="Example saved script">~/Documents/Ieum Transcripts/2026-11-08 Weekly sync.txt
+
+<u>[10:02:14] [EN]</u> <b>Can we ship the beta on Thursday?</b>
+             → 목요일에 베타를 출시할 수 있을까요?
+<u>[10:02:21] [KO]</u> <b>QA가 끝나면 가능합니다.</b>
+             → It's possible once QA is done.</pre>
+  </div>
+</section>
+
+<section id="requirements" class="light">
+  <div class="wrap">
+    <p class="k"><span class="en">Check your Mac</span><span class="ko">내 Mac 확인</span></p>
+    <h2><span class="en">What you need.</span><span class="ko">필요한 환경.</span></h2>
+    <p class="sub"><span class="en">Translation relies on Apple's newest on-device models, so it needs a recent macOS. Check before you download.</span><span class="ko">번역은 Apple의 최신 온디바이스 모델을 사용하므로 최신 macOS가 필요합니다. 다운로드 전에 확인하세요.</span></p>
+    <table class="req">
+      <thead><tr><th scope="col">macOS</th><th scope="col"><span class="en">You get</span><span class="ko">사용 가능한 기능</span></th><th scope="col"><span class="en">Hardware</span><span class="ko">하드웨어</span></th></tr></thead>
+      <tbody>
+        <tr><td>14+</td><td><span class="en">Live captions with the standard recognizer</span><span class="ko">기본 인식기로 실시간 자막</span></td><td><span class="en">Apple silicon (arm64 build)</span><span class="ko">Apple silicon (arm64 빌드)</span></td></tr>
+        <tr><td>26+</td><td><span class="en">Faster recognizer (SpeechAnalyzer)</span><span class="ko">더 빠른 인식기 (SpeechAnalyzer)</span></td><td><span class="en">Apple silicon</span><span class="ko">Apple silicon</span></td></tr>
+        <tr><td>26.4+</td><td><span class="en">Offline translation and Conversation mode</span><span class="ko">오프라인 번역 및 대화 모드</span></td><td><span class="en">Apple silicon</span><span class="ko">Apple silicon</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="faq" class="white">
+  <div class="wrap">
+    <p class="k">FAQ</p>
+    <h2><span class="en">Questions, answered.</span><span class="ko">궁금한 점.</span></h2>
+    <div class="faq">
+      <details><summary><span class="en">Is it really free?</span><span class="ko">정말 무료인가요?</span></summary><p><span class="en">Yes, for personal and noncommercial use, under the PolyForm Noncommercial 1.0.0 license. For commercial use, contact the author through GitHub.</span><span class="ko">네. PolyForm Noncommercial 1.0.0 라이선스에 따라 개인·비영리 용도로 무료입니다. 상업적 사용은 GitHub로 저자에게 문의해 주세요.</span></p></details>
+      <details><summary><span class="en">Does it work with Zoom, Google Meet and Teams?</span><span class="ko">Zoom, Google Meet, Teams에서도 되나요?</span></summary><p><span class="en">Yes. Pick the system audio source and Ieum reads the audio of any app, so it does not depend on the meeting software. The first time, macOS asks for Screen &amp; System Audio Recording permission. Ieum uses it for audio only.</span><span class="ko">네. 시스템 오디오를 소스로 고르면 어떤 앱의 소리든 읽으므로 회의 소프트웨어에 상관없이 동작합니다. 처음 한 번 macOS가 화면 및 시스템 오디오 녹음 권한을 묻습니다. 오디오 용도로만 사용합니다.</span></p></details>
+      <details><summary><span class="en">Is my audio sent anywhere?</span><span class="ko">내 음성이 어딘가로 전송되나요?</span></summary><p><span class="en">No. Recognition and translation run on your Mac, and the app makes no network requests while it runs. Only a text script is saved locally. No audio is recorded.</span><span class="ko">아니요. 인식과 번역은 Mac 안에서 이뤄지고, 앱은 실행 중 네트워크 요청을 하지 않습니다. 텍스트 스크립트만 로컬에 저장되며 음성은 녹음하지 않습니다.</span></p></details>
+      <details><summary><span class="en">Which languages are supported?</span><span class="ko">어떤 언어를 지원하나요?</span></summary><p><span class="en">English and Korean, in both directions. Captions-only mode is also available.</span><span class="ko">영어와 한국어를 양방향으로 지원하며, 자막만 표시하는 모드도 있습니다.</span></p></details>
+      <details><summary><span class="en">Why do I need macOS 26.4 for translation?</span><span class="ko">번역에 macOS 26.4가 필요한 이유는?</span></summary><p><span class="en">Ieum uses Apple's own on-device Translation framework instead of a cloud service. The version it needs for this use ships with macOS 26.4. On older versions you still get live captions.</span><span class="ko">Ieum은 클라우드 대신 Apple의 온디바이스 번역 프레임워크를 사용하며, 이 용도에 필요한 버전이 macOS 26.4에 포함됩니다. 이전 버전에서도 실시간 자막은 사용할 수 있습니다.</span></p></details>
+      <details><summary><span class="en">macOS says the app can't be opened.</span><span class="ko">macOS가 앱을 열 수 없다고 합니다.</span></summary><p><span class="en">The app is signed and notarized, so it should open normally. If a permission was just turned on in System Settings, quit Ieum completely and open it again. If something else goes wrong, open an issue on GitHub.</span><span class="ko">앱은 서명 및 공증되어 있어 정상적으로 열려야 합니다. 시스템 설정에서 권한을 방금 켰다면 Ieum을 완전히 종료한 뒤 다시 여세요. 그래도 문제가 있으면 GitHub에 이슈를 남겨 주세요.</span></p></details>
+    </div>
+  </div>
+</section>
+
+<section class="dark final">
+  <div class="wrap">
+    <h2><span class="en">Your next English meeting, in Korean.</span><span class="ko">다음 영어 회의는 한국어 자막과 함께.</span></h2>
+    <p class="sub"><span class="en">1.3 MB, free, and nothing leaves your Mac.</span><span class="ko">1.3 MB, 무료, 내용은 Mac 밖으로 나가지 않습니다.</span></p>
+    <div class="cta">
+      <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download data-where="final"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span></a>
+    </div>
+    <div class="share">
+      <span class="en">Know someone who joins English meetings? Send it along:</span><span class="ko">영어 회의에 들어가는 동료가 있나요? 공유해 주세요:</span>
+      <button class="btn line sm" type="button" data-share="copy"><span class="en">Copy link</span><span class="ko">링크 복사</span></button>
+      <a class="btn line sm" href="#" data-share="x" target="_blank" rel="noopener">X</a>
+      <a class="btn line sm" href="#" data-share="li" target="_blank" rel="noopener">LinkedIn</a>
+      <span class="sr" role="status" id="copied"></span>
+    </div>
   </div>
 </section>
 </main>
 
-<footer class="on-dark">
+<footer>
   <div class="wrap">
-    <span>© 2026 Ieum. Made for people who meet across languages.</span>
-    <span><a href="https://github.com/stoneidev/ieum/blob/main/LICENSE">Apache License 2.0</a> · ieum.calmwork.today</span>
+    <span>© 2026 Ieum 이음 · <a href="https://github.com/stoneidev/ieum/blob/main/LICENSE">PolyForm Noncommercial 1.0.0</a></span>
+    <span><a href="https://github.com/stoneidev/ieum">GitHub</a> · <a href="https://github.com/stoneidev/ieum/issues">Issues</a> · ieum.calmwork.today</span>
   </div>
 </footer>
 
 <script>
 (function(){
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var els = document.querySelectorAll('.reveal');
-  if('IntersectionObserver' in window){
-    var io = new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1});
-    els.forEach(function(el){io.observe(el)});
-  } else { els.forEach(function(el){el.classList.add('in')}); }
+var d=document.documentElement,$=function(i){return document.getElementById(i)};
+var reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
 
-  var script = [
-    {lang:'en', who:'English', src:'Could you share the schedule for next week?', dst:'다음 주 일정을 공유해 주시겠어요?', tile:'t1'},
-    {lang:'ko', who:'한국어', src:'네, 공유해 드리겠습니다.', dst:"Yes, I'll share it with you.", tile:'t3'},
-    {lang:'en', who:'English', src:'What about the budget?', dst:'예산은 어떻게 되나요?', tile:'t2'}
-  ];
-  var who = document.getElementById('who'), src = document.getElementById('src'), dst = document.getElementById('dst'), btn = document.getElementById('toggle');
-  function mark(id){['t1','t2','t3'].forEach(function(t){document.getElementById(t).classList.toggle('speaking', t===id)})}
-  function frame(l){ who.textContent = l.who; who.lang = l.lang; src.lang = l.lang; dst.lang = l.lang==='en' ? 'ko' : 'en'; mark(l.tile); }
-  function showFinal(l){ frame(l); src.textContent = l.src; dst.textContent = l.dst; dst.className = 'line-dst on'; }
+/* language toggle */
+$("langbtn").addEventListener("click",function(){
+  var l=d.dataset.lang==="ko"?"en":"ko";d.dataset.lang=l;d.lang=l;
+  try{localStorage.setItem("lang",l)}catch(e){}
+  play(0);
+});
 
-  var timers = [], idx = 0, playing = false, visible = false, userPaused = reduce;
-  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
-  function clearAll(){ timers.forEach(clearTimeout); timers = []; }
-  function play(){
-    var l = script[idx % script.length], words = l.src.split(' '), t = 0;
-    frame(l); dst.className = 'line-dst'; src.textContent = '';
-    words.forEach(function(w, k){
-      t += 150 + Math.min(w.length, 9) * 22;
-      later(function(){
-        src.textContent = words.slice(0, k).join(' ') + (k ? ' ' : '');
-        var s = document.createElement('span'); s.className = 'interim'; s.textContent = w; src.appendChild(s);
-      }, t);
-    });
-    later(function(){ src.textContent = l.src; }, t + 250);
-    later(function(){ dst.textContent = l.dst; dst.className = 'line-dst on'; }, t + 1000);
-    later(function(){ idx++; play(); }, t + 4800);
-  }
-  function sync(){
-    var want = visible && !userPaused;
-    if(want && !playing){ playing = true; play(); }
-    else if(!want && playing){ playing = false; clearAll(); showFinal(script[idx % script.length]); }
-  }
-  btn.textContent = reduce ? 'Play demo' : 'Pause demo';
-  btn.setAttribute('aria-pressed', reduce ? 'true' : 'false');
-  btn.addEventListener('click', function(){
-    userPaused = !userPaused;
-    btn.textContent = userPaused ? 'Play demo' : 'Pause demo';
-    btn.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
-    sync();
+/* non-Mac visitors cannot run the app: offer a link to open on a Mac */
+var isMac=/Mac/i.test(navigator.platform||navigator.userAgent)&&!/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!(navigator.maxTouchPoints>1);
+if(!isMac)d.classList.add("notmac");
+
+/* sharing */
+var url="https://ieum.calmwork.today/";
+var msg=function(){return d.dataset.lang==="ko"?"Ieum 이음: 영어 회의에 한국어 실시간 자막을 띄워 주는 Mac 앱 (무료, 100% 기기 내 처리)":"Ieum: live Korean subtitles for English meetings on Mac. Free, 100% on-device."};
+document.querySelectorAll("[data-share]").forEach(function(el){
+  el.addEventListener("click",function(e){
+    var k=el.dataset.share,t=msg();
+    if(k==="copy"){
+      e.preventDefault();
+      (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(function(){$("copied").textContent=d.dataset.lang==="ko"?"링크를 복사했습니다":"Link copied"},function(){prompt("Copy:",url)});
+    }else{
+      e.preventDefault();
+      var h=k==="x"?"https://twitter.com/intent/tweet?text="+encodeURIComponent(t)+"&url="+encodeURIComponent(url)
+        :k==="li"?"https://www.linkedin.com/sharing/share-offsite/?url="+encodeURIComponent(url)
+        :"mailto:?subject="+encodeURIComponent("Ieum 이음")+"&body="+encodeURIComponent(t+"\n"+url);
+      if(k==="mail")location.href=h;else window.open(h,"_blank","noopener");
+    }
   });
-  showFinal(script[0]);
-  new IntersectionObserver(function(es){ visible = es[0].isIntersecting; sync(); },{threshold:.25}).observe(document.querySelector('.win'));
+});
+
+/* real download count from the GitHub release, shown only once it is meaningful */
+fetch("https://api.github.com/repos/stoneidev/ieum/releases?per_page=30").then(function(r){return r.json()}).then(function(rs){
+  var n=0;rs.forEach(function(r){(r.assets||[]).forEach(function(a){if(/\.dmg$/.test(a.name))n+=a.download_count})});
+  if(n>=25){$("countn").textContent=n.toLocaleString()+(d.dataset.lang==="ko"?"회 다운로드":" downloads");$("count").classList.add("on")}
+}).catch(function(){});
+
+/* hero demo */
+var script=[
+ {who:0,en:"Can we ship the beta on Thursday?",ko:"목요일에 베타를 출시할 수 있을까요?"},
+ {who:1,en:"It's possible once QA is done.",ko:"QA가 끝나면 가능합니다.",src:"QA가 끝나면 가능합니다.",dst:"It's possible once QA is done.",dl:"en"},
+ {who:2,en:"I can review the build tonight.",ko:"오늘 밤에 빌드를 검토할 수 있어요."},
+ {who:3,en:"Great. I'll update the release notes.",ko:"좋아요. 제가 릴리스 노트를 업데이트할게요."}
+];
+var src=$("src"),dst=$("dst"),cells=[0,1,2,3].map(function(i){return $("c"+i)});
+var i=0,timer,paused=false,typer;
+function show(n){
+  var s=script[n],ko=d.dataset.lang==="ko",fromKo=s.who===1;
+  cells.forEach(function(c,k){c.classList.toggle("on",k===s.who)});
+  var a=fromKo?s.ko:s.en,b=fromKo?s.en:s.ko;
+  dst.lang=fromKo?"en":"ko";
+  clearInterval(typer);dst.classList.add("fade");
+  if(reduce){src.textContent=a;dst.textContent=b;dst.classList.remove("fade");return}
+  var c=0;src.textContent="";
+  typer=setInterval(function(){c+=2;src.textContent=a.slice(0,c);
+    if(c>=a.length){clearInterval(typer);setTimeout(function(){dst.textContent=b;dst.classList.remove("fade")},350)}},34);
+}
+function play(n){clearTimeout(timer);i=n;show(i);
+  if(!paused&&!reduce)timer=setTimeout(function(){play((i+1)%script.length)},4200)}
+$("pause").addEventListener("click",function(){
+  paused=!paused;this.setAttribute("aria-pressed",paused);
+  this.querySelector(".en").textContent=paused?"Play":"Pause";
+  this.querySelector(".ko").textContent=paused?"재생":"일시정지";
+  if(paused)clearTimeout(timer);else play((i+1)%script.length);
+});
+if(reduce)$("pause").hidden=true;
+play(0);
+
+/* reveal on scroll */
+if("IntersectionObserver" in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.15});
+  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el)});
+}else document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("in")});
 })();
 </script>
 </body>
