@@ -231,12 +231,16 @@ private struct VocabularyTab: View {
                 .padding(6)
                 .overlay(alignment: .topLeading) {
                     if text.isEmpty {
-                        Text("Kubernetes\nSiobhan\nTerraform\n쿠버네티스")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.tertiary)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 14)
-                            .allowsHitTesting(false)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(tr("Example, replaced as soon as you type:", "예시, 입력하면 사라집니다:"))
+                                .font(.system(size: 12, weight: .medium))
+                            Text("Kubernetes\nSiobhan\nTerraform\n쿠버네티스")
+                                .font(.system(size: 14, design: .monospaced))
+                        }
+                        .foregroundStyle(.tertiary)
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 14)
+                        .allowsHitTesting(false)
                     }
                 }
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color(nsColor: .textBackgroundColor)))
@@ -246,9 +250,6 @@ private struct VocabularyTab: View {
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(tr("Example: Kubernetes, Siobhan, Terraform, 쿠버네티스", "예: Kubernetes, Siobhan, Terraform, 쿠버네티스"))
-                    .font(.system(size: 12))
-                    .foregroundStyle(.tertiary)
             }
         }
         .padding(20)
