@@ -87,7 +87,10 @@ code{font:500 .9em var(--mono);padding:2px 6px;border-radius:6px;background:var(
 h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--font);letter-spacing:-.045em;text-wrap:balance}
 .lead{margin:26px auto 0;max-width:54ch;font-size:clamp(17px,1.6vw,20px);color:var(--mute)}
 .cta{margin-top:36px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.micro{margin:20px auto 0;max-width:62ch;font-size:13.5px;line-height:1.6;color:var(--dim)}
+.compat{list-style:none;margin:22px auto 0;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.compat li{padding:7px 14px;border-radius:999px;border:1px solid var(--bd-2);background:var(--surf);font-size:13.5px;color:var(--mute)}
+.compat b{color:var(--tx);font-weight:700}
+.micro{margin:14px auto 0;max-width:62ch;font-size:13.5px;line-height:1.6;color:var(--dim)}
 .micro a{color:var(--mute)}
 .hint{display:none;margin:14px auto 0;font-size:14.5px;color:var(--coffee)}
 .notmac .hint{display:block}
@@ -189,6 +192,27 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
 .barwrap{position:relative;width:min(720px,calc(100% - 48px));margin:26px auto 22px}
 .barwrap .tag{position:absolute;top:-11px;left:18px;z-index:2;padding:2px 10px;border-radius:999px;background:var(--teal);color:#04201c;font-size:11px;font-weight:700;letter-spacing:.01em}
 .desknote{padding:0 18px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;color:var(--dim)}
+
+
+/* after-download guidance */
+.toast{position:fixed;left:50%;bottom:20px;z-index:45;width:min(460px,calc(100% - 24px));transform:translate(-50%,24px);opacity:0;visibility:hidden;padding:18px 20px 18px 20px;border-radius:20px;background:rgba(14,22,30,.96);border:1px solid var(--bd-2);box-shadow:0 24px 60px -12px rgba(0,0,0,.8);backdrop-filter:blur(14px);transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s}
+.toast.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.toast h3{font:700 16px/1.3 var(--font);display:flex;align-items:center;gap:8px;padding-right:40px}
+.toast h3 .icon{color:var(--teal)}
+.toast ol{margin:10px 0 0 22px;color:var(--mute);font-size:14.5px;line-height:1.7}
+.toast ol b{color:var(--tx);font-weight:600}
+.toast .x{position:absolute;top:6px;right:6px;width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--mute);font:400 22px/1 var(--font);cursor:pointer}
+.toast .x:hover{background:var(--surf-2);color:#fff}
+
+
+/* sticky action bar on narrow screens */
+.sticky{display:none;position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:35;transform:translateY(140%);transition:transform .35s var(--ease)}
+.sticky.on{transform:none}
+.sticky .btn{width:100%;box-shadow:0 14px 40px -8px rgba(0,0,0,.8)}
+.sticky .mail{display:none}
+.notmac .sticky .dl{display:none}
+.notmac .sticky .mail{display:inline-flex}
+@media (max-width:960px){.sticky{display:block}}
 
 .chips{list-style:none;display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:center;padding:56px 0 0}
 .chips li{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;color:var(--mute)}
@@ -353,9 +377,14 @@ footer a{color:var(--mute)}
       <span class="en">This is a Mac app. Open this page on your Mac, or <a href="#" data-share="mail" style="color:inherit">email yourself the link</a>.</span>
       <span class="ko">Mac 전용 앱입니다. Mac에서 이 페이지를 열거나 <a href="#" data-share="mail" style="color:inherit">링크를 메일로 보내 두세요</a>.</span>
     </p>
+    <ul class="compat" aria-label="Requirements">
+      <li><b>macOS 14+</b> <span class="en">live captions</span><span class="ko">실시간 자막</span></li>
+      <li><b>macOS 26.4+</b> <span class="en">translation</span><span class="ko">번역</span></li>
+      <li><b>Apple silicon</b></li>
+    </ul>
     <p class="micro">
-      <span class="en">1.3 MB · Signed and notarized by Apple · Captions need macOS 14+, translation needs macOS 26.4+ on Apple silicon · <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></span>
-      <span class="ko">1.3 MB · Apple 서명 및 공증 · 자막은 macOS 14 이상, 번역은 Apple silicon의 macOS 26.4 이상 · <a href="https://github.com/stoneidev/ieum/releases/latest">릴리스 노트</a></span>
+      <span class="en">1.3 MB · Signed and notarized by Apple · <a href="#requirements">What does my Mac get?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></span>
+      <span class="ko">1.3 MB · Apple 서명 및 공증 · <a href="#requirements">내 Mac은 어디까지 되나요?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">릴리스 노트</a></span>
     </p>
     <p class="pill" id="count"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span id="countn"></span></p>
 
@@ -635,10 +664,47 @@ footer a{color:var(--mute)}
   </div>
 </footer>
 
+
+<div class="sticky" id="sticky">
+  <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span></a>
+  <a class="btn mail" href="#" data-share="mail" tabindex="-1"><span class="en">Email me the link for my Mac</span><span class="ko">내 Mac에서 열 수 있게 링크 메일로 보내기</span></a>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <h3><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Downloading Ieum.dmg</span><span class="ko">Ieum.dmg를 받는 중입니다</span></h3>
+  <ol>
+    <li><span class="en"><b>Open</b> Ieum.dmg from your Downloads.</span><span class="ko">다운로드 폴더에서 <b>Ieum.dmg</b>를 여세요.</span></li>
+    <li><span class="en"><b>Drag</b> Ieum to Applications.</span><span class="ko">Ieum을 <b>응용 프로그램</b>으로 끌어다 놓으세요.</span></li>
+    <li><span class="en"><b>Press</b> <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> in your next meeting.</span><span class="ko">다음 회의에서 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 <b>누르세요</b>.</span></li>
+  </ol>
+  <button class="x" type="button" id="toastx" aria-label="Close"><span aria-hidden="true">×</span></button>
+</div>
+
 <script>
 (function(){
 var d=document.documentElement,$=function(i){return document.getElementById(i)};
 var reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+
+/* after-download guidance */
+var toast=$("toast"),toastT;
+function hideToast(){toast.classList.remove("on");clearTimeout(toastT)}
+document.querySelectorAll("a.dl").forEach(function(a){a.addEventListener("click",function(){
+  setTimeout(function(){toast.classList.add("on");clearTimeout(toastT);toastT=setTimeout(hideToast,14000)},350);
+})});
+$("toastx").addEventListener("click",hideToast);
+document.addEventListener("keydown",function(e){if(e.key==="Escape")hideToast()});
+
+/* sticky bar: only while neither the hero nor the closing CTA is on screen */
+(function(){
+  var sb=$("sticky"),hero=document.querySelector(".hero .cta"),fin=document.querySelector(".final .cta"),a=true,b=false;
+  if(!sb||!hero||!("IntersectionObserver" in window))return;
+  function upd(){var on=!a&&!b;sb.classList.toggle("on",on);sb.querySelectorAll("a").forEach(function(x){x.tabIndex=on?0:-1})}
+  new IntersectionObserver(function(es){a=es[0].isIntersecting;upd()}).observe(hero);
+  new IntersectionObserver(function(es){b=es[0].isIntersecting;upd()}).observe(fin);
+  new MutationObserver(function(){if(toast.classList.contains("on"))sb.classList.remove("on");else upd()}).observe(toast,{attributes:true,attributeFilter:["class"]});
+})();
+
 
 /* Buy Me a Coffee page, e.g. "https://buymeacoffee.com/yourname". Empty hides the button. */
 var COFFEE_URL="https://buymeacoffee.com/stoni";
