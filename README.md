@@ -13,7 +13,7 @@ Read what the other side says in your language, while they read what you say in 
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%E2%86%94%20%ED%95%9C%EA%B5%AD%EC%96%B4-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.2.2-orange)
+![Version](https://img.shields.io/badge/version-0.2.3-orange)
 
 [Features](#features) · [Install](#install) · [Usage](#usage) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
 
@@ -209,7 +209,7 @@ Ieum makes no network requests of its own. macOS may download a language model t
 
 ## Status
 
-Version 0.2.2. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
+Version 0.2.3. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
 
 ## License
 
