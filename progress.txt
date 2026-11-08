@@ -22,3 +22,5 @@ Phase 5: internal modules are named by function, only the public product keeps t
 CaptionCore (library), CaptionCLI (product caption-cli), CaptionBench (caption-bench), OverlayApp (product Ieum), CaptionCoreTests.
 
 Phase 6: three UX rounds on the app. Found but not fixed: vocabulary placeholder looks like real entries; empty Records tab; GitHub Release DMG predates these changes (rebuild + notarize to ship). Tip: capture windows with screencapture -l <id> (CGWindowList), never the full screen.
+
+Phase 7: second UX pass. Setup marks screen audio optional; vocabulary example labelled; records empty state with Start button. Not shipped in a release yet (latest is v0.2.3).

@@ -222,7 +222,7 @@
         "Committed and pushed"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -235,7 +235,7 @@
         "Committed and pushed"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -248,7 +248,7 @@
         "Committed and pushed"
       ],
       "priority": 23,
-      "passes": false,
+      "passes": true,
       "notes": ""
     }
   ],

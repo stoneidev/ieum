@@ -309,10 +309,25 @@ private struct TranscriptsTab: View {
             }
             if files.isEmpty {
                 Spacer()
-                Text(tr("No transcripts yet. Each time you start captions, a new file is saved here.",
-                        "아직 기록이 없습니다. 자막을 시작할 때마다 새 파일이 여기에 저장됩니다."))
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
+                VStack(spacing: 12) {
+                    Image(systemName: "doc.text")
+                        .font(.system(size: 34, weight: .light))
+                        .foregroundStyle(.tertiary)
+                    Text(tr("No transcripts yet", "아직 기록이 없습니다"))
+                        .font(.system(size: 15, weight: .semibold))
+                    Text(tr("Each time you start captions, a new file is saved here, with the time of every sentence.",
+                            "자막을 시작할 때마다 새 파일이 여기에 저장되고, 문장마다 시각이 함께 남습니다."))
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 360)
+                    if !model.isRunning {
+                        Button(tr("Start captions", "자막 시작")) { model.start() }
+                            .controlSize(.large)
+                            .padding(.top, 4)
+                    }
+                }
+                .frame(maxWidth: .infinity)
                 Spacer()
             } else {
                 List(files) { file in

@@ -138,7 +138,7 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 .tbar.caps .d{display:none}
 .tbar.caps .s{font-size:var(--sz);font-weight:700;color:inherit}
 .tbar .idle{font-size:15px;color:var(--srcc);text-align:center;align-self:center;margin:auto 0}
-mark.fix{background:rgba(94,234,212,.4);color:inherit;border-radius:5px;padding:0 3px;animation:flash .9s}
+mark.fix{background:rgba(94,234,212,.9);color:#04201c;border-radius:5px;padding:0 3px;animation:flash .9s}
 @keyframes flash{from{background:rgba(94,234,212,.95)}}
 .tpanel{display:none;margin:14px auto 16px;max-width:700px;height:calc(2 * (var(--sz,24px) * 2.1 + 14px) + 28px);min-height:200px;overflow-y:auto;padding:12px 16px;border-radius:16px;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);font:400 13px/1.7 var(--mono);color:#cfd8e0}
 .tpanel .t{color:var(--teal)}
@@ -157,6 +157,7 @@ mark.fix{background:rgba(94,234,212,.4);color:inherit;border-radius:5px;padding:
 .seg input:focus-visible+span{outline:2px solid #fff;outline-offset:2px}
 .rowc{display:grid;gap:6px}
 .rowc label,.chk{font-size:15px;color:var(--tx);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lbl2{font-size:15px;color:var(--tx)}
 .rowc output{font:600 13px var(--font);color:var(--mute)}
 input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer;background:transparent}
 .chk{min-height:44px;cursor:pointer;justify-content:flex-start}
@@ -444,12 +445,16 @@ footer a{color:var(--mute)}
           <legend><span class="en">Subtitle bar</span><span class="ko">자막 바</span></legend>
           <div class="rowc"><label for="szr"><span class="en">Text size</span><span class="ko">글자 크기</span><output id="szo">24</output></label><input id="szr" type="range" min="16" max="36" value="24"></div>
           <div class="rowc"><label for="opr"><span class="en">Background opacity</span><span class="ko">배경 투명도</span><output id="opo">88%</output></label><input id="opr" type="range" min="20" max="100" value="88"></div>
-          <div class="seg" role="radiogroup" aria-label="Lines">
-            <label><input type="radio" name="lines" value="1"><span><span class="en">1 line</span><span class="ko">1줄</span></span></label>
-            <label><input type="radio" name="lines" value="2" checked><span><span class="en">2 lines</span><span class="ko">2줄</span></span></label>
-            <label><input type="radio" name="theme" value="dark" checked><span><span class="en">Dark</span><span class="ko">어둡게</span></span></label>
-            <label><input type="radio" name="theme" value="light"><span><span class="en">Light</span><span class="ko">밝게</span></span></label>
-          </div>
+          <div class="rowc"><span class="lbl2"><span class="en">Lines</span><span class="ko">줄 수</span></span>
+            <div class="seg" role="radiogroup">
+              <label><input type="radio" name="lines" value="1"><span><span class="en">1 line</span><span class="ko">1줄</span></span></label>
+              <label><input type="radio" name="lines" value="2" checked><span><span class="en">2 lines</span><span class="ko">2줄</span></span></label>
+            </div></div>
+          <div class="rowc"><span class="lbl2"><span class="en">Background</span><span class="ko">배경</span></span>
+            <div class="seg" role="radiogroup">
+              <label><input type="radio" name="theme" value="dark" checked><span><span class="en">Dark</span><span class="ko">어둡게</span></span></label>
+              <label><input type="radio" name="theme" value="light"><span><span class="en">Light</span><span class="ko">밝게</span></span></label>
+            </div></div>
           <label class="chk"><input type="checkbox" id="fadechk" checked><span><span class="en">Fade when nobody speaks</span><span class="ko">말이 없으면 흐리게</span></span></label>
         </fieldset>
         <fieldset>
