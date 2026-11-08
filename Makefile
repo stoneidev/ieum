@@ -1,5 +1,5 @@
-BIN := .build/release/mac-stt
-APP_NAME := STT Overlay
+BIN := .build/release/ieum-cli
+APP_NAME := Ieum
 APP := .build/app/$(APP_NAME).app
 ENTITLEMENTS := Resources/entitlements.plist
 
@@ -23,10 +23,10 @@ test:
 
 # Assemble the unsigned .app bundle from the release build.
 app-bundle:
-	swift build -c release --arch arm64 --product STTOverlay
+	swift build -c release --arch arm64 --product Ieum
 	rm -rf "$(APP)"
 	mkdir -p "$(APP)/Contents/MacOS" "$(APP)/Contents/Resources"
-	cp .build/release/STTOverlay "$(APP)/Contents/MacOS/STTOverlay"
+	cp .build/release/Ieum "$(APP)/Contents/MacOS/Ieum"
 	cp Resources/App/Info.plist "$(APP)/Contents/Info.plist"
 	cp Resources/App/AppIcon.icns "$(APP)/Contents/Resources/AppIcon.icns"
 
@@ -49,7 +49,7 @@ app-release: app-bundle
 # Disk image of the app that is already in .build/app (run `make app-release` first for a notarized app).
 # Does NOT rebuild the app, so the notarization ticket stapled to it is kept.
 # With SIGN_IDENTITY the .dmg is signed; with SIGN_IDENTITY and NOTARY_PROFILE it is also notarized and stapled.
-DMG := .build/app/STT-Overlay.dmg
+DMG := .build/app/Ieum.dmg
 dmg:
 	@test -d "$(APP)" || { echo "Build the app first: make app-release (or make app)."; exit 1; }
 	rm -rf .build/app/dmg-root "$(DMG)"
@@ -71,7 +71,7 @@ dmg:
 # Repeatable latency / accuracy / cost measurements. Usage: make bench LABEL=v0.2.0 [BASELINE=v0.1.0-baseline]
 LABEL ?= current
 bench:
-	swift build -c release --arch arm64 --product stt-bench
+	swift build -c release --arch arm64 --product ieum-bench
 	BASELINE=$(BASELINE) Benchmarks/run.sh $(LABEL)
 
 clean:

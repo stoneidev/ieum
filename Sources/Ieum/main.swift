@@ -21,7 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.setupWindow?.close()
             })
         }
-        settingsWindow = AuxiliaryWindow(title: { tr("STT Overlay Settings", "STT Overlay 설정") }) { [weak self, model] in
+        settingsWindow = AuxiliaryWindow(title: { tr("Ieum Settings", "Ieum 설정") }) { [weak self, model] in
             NSHostingView(rootView: SettingsView(model: model) { self?.setupWindow?.show() })
         }
 

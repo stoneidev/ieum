@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import MacSTTCore
+@testable import IeumCore
 
 private func event(_ text: String, final: Bool, confidence: Double?, range: ClosedRange<Double>? = nil, locale: String) -> TranscriptionEvent {
     TranscriptionEvent(text: text, isFinal: final, locale: locale, audioStart: range?.lowerBound, audioEnd: range?.upperBound, confidence: confidence)

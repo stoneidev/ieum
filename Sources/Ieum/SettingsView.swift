@@ -1,5 +1,5 @@
 import SwiftUI
-import MacSTTCore
+import IeumCore
 
 struct SettingsView: View {
     @ObservedObject var model: AppModel
@@ -355,7 +355,11 @@ private struct AboutTab: View {
             Image(nsImage: NSApp.applicationIconImage)
                 .resizable()
                 .frame(width: 96, height: 96)
-            Text("STT Overlay").font(.system(size: 22, weight: .semibold))
+            Text("Ieum").font(.system(size: 22, weight: .semibold))
+            Text(tr("Ieum (이음) means \"to connect\": English and Korean, in the same meeting.",
+                    "이음: 영어와 한국어를 한 회의 안에서 이어 줍니다."))
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
             Text(tr("Version \(version)", "버전 \(version)")).foregroundStyle(.secondary)
             Text(tr("Live captions and translation for meetings. Speech recognition and translation run on this Mac. No account, no cloud: your voice and your transcripts never leave this computer.",
                     "회의용 실시간 자막과 번역입니다. 음성 인식과 번역이 이 Mac 안에서 처리됩니다. 계정도 클라우드도 없으며 음성과 기록은 이 컴퓨터 밖으로 나가지 않습니다."))

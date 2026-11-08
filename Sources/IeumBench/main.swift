@@ -1,13 +1,13 @@
 import ArgumentParser
 import Darwin
 import Foundation
-import MacSTTCore
+import IeumCore
 
 /// Runs a real audio file through the real engines in real time and reports latency, accuracy and cost.
 @main
-struct STTBench: AsyncParsableCommand {
+struct IeumBench: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "stt-bench",
+        commandName: "ieum-bench",
         abstract: "Benchmarks recognition (and optionally translation) on a recorded audio file."
     )
 
@@ -264,6 +264,6 @@ struct STTBench: AsyncParsableCommand {
     private func fmt(_ value: Double?) -> String { value.map { String(format: "%.2f", $0) } ?? "n/a" }
 }
 
-extension STTBench.Run {
+extension IeumBench.Run {
     mutating func translationNotice(_ message: String) { translationNote = message }
 }

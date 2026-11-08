@@ -1,4 +1,4 @@
-# STT Overlay
+# Ieum
 
 Live captions and translation for meetings, on a Mac, entirely offline.
 
@@ -13,7 +13,7 @@ you answer in Korean, and the English is there for them. Speech recognition and 
 - **Meeting vocabulary**: names and jargon you list are corrected in the transcript before it is translated.
 - **Transcripts** are saved per meeting (`[HH:mm:ss] text` with `→ translation` lines; `[EN]`/`[KO]` tags in conversation mode) and listed in Settings.
 - Korean and English interface, first-run permission check, global shortcuts (⌃⌥S start/stop, ⌃⌥H show/hide, ⌃⌥D bar/panel), open at login.
-- `mac-stt`: a command-line version of the recognizer (text or JSON Lines).
+- `ieum-cli`: a command-line version of the recognizer (text or JSON Lines).
 
 Requires macOS 14 or later; the fast recognizer, conversation mode and translation need macOS 26.4 or later.
 
@@ -21,7 +21,7 @@ Requires macOS 14 or later; the fast recognizer, conversation mode and translati
 
 ```sh
 make build          # CLI
-make app            # STT Overlay.app (ad-hoc signed, runs on this Mac)
+make app            # Ieum.app (ad-hoc signed, runs on this Mac)
 make test
 make app-release SIGN_IDENTITY="Developer ID Application: …" NOTARY_PROFILE=<notarytool profile>   # signed + notarized
 make dmg SIGN_IDENTITY=… NOTARY_PROFILE=…
@@ -37,8 +37,8 @@ what the numbers do not tell you.
 
 | Path | What |
 |---|---|
-| `Sources/MacSTTCore` | audio capture, recognizers, conversation arbitration, translation pipeline, transcript recorder |
-| `Sources/STTOverlay` | the menu-bar app (overlay, settings, setup) |
-| `Sources/MacSTT` | command-line tool |
-| `Sources/STTBench` | benchmark tool |
+| `Sources/IeumCore` | audio capture, recognizers, conversation arbitration, translation pipeline, transcript recorder |
+| `Sources/Ieum` | the menu-bar app (overlay, settings, setup) |
+| `Sources/IeumCLI` | command-line tool |
+| `Sources/IeumBench` | benchmark tool |
 | `docs/UX-REVIEW.md` | UX findings and decisions |

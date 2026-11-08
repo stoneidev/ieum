@@ -1,5 +1,5 @@
 import Foundation
-import MacSTTCore
+import IeumCore
 
 /// User choices that survive relaunch. Launch arguments such as `-meetingMode conversation` override them for a run.
 enum Preferences {
@@ -109,7 +109,7 @@ enum Preferences {
         get {
             if let path = defaults.string(forKey: "scriptDirectory"), !path.isEmpty { return URL(fileURLWithPath: path) }
             let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documents.appendingPathComponent("STT Transcripts", isDirectory: true)
+            return documents.appendingPathComponent("Ieum Transcripts", isDirectory: true)
         }
         set { defaults.set(newValue.path, forKey: "scriptDirectory") }
     }

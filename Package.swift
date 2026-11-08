@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "mac-stt",
+    name: "ieum",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "mac-stt", targets: ["mac-stt"]),
-        .executable(name: "STTOverlay", targets: ["STTOverlay"]),
-        .executable(name: "stt-bench", targets: ["STTBench"]),
+        .executable(name: "ieum-cli", targets: ["ieum-cli"]),
+        .executable(name: "Ieum", targets: ["Ieum"]),
+        .executable(name: "ieum-bench", targets: ["IeumBench"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
@@ -15,16 +15,16 @@ let package = Package(
     targets: [
         // Audio capture, speech engines, output formatting and script recording, shared by the CLI and the app.
         .target(
-            name: "MacSTTCore",
-            path: "Sources/MacSTTCore"
+            name: "IeumCore",
+            path: "Sources/IeumCore"
         ),
         .executableTarget(
-            name: "mac-stt",
+            name: "ieum-cli",
             dependencies: [
-                "MacSTTCore",
+                "IeumCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            path: "Sources/MacSTT",
+            path: "Sources/IeumCLI",
             linkerSettings: [
                 // Embed Info.plist in __TEXT,__info_plist so TCC can read the usage descriptions.
                 .unsafeFlags([
@@ -37,23 +37,23 @@ let package = Package(
         ),
         // Menu-bar live-subtitle overlay. Packaged into an .app by `make app`.
         .executableTarget(
-            name: "STTOverlay",
-            dependencies: ["MacSTTCore"],
-            path: "Sources/STTOverlay"
+            name: "Ieum",
+            dependencies: ["IeumCore"],
+            path: "Sources/Ieum"
         ),
         // Developer tool: repeatable latency / accuracy / cost measurements (`make bench`).
         .executableTarget(
-            name: "STTBench",
+            name: "IeumBench",
             dependencies: [
-                "MacSTTCore",
+                "IeumCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            path: "Sources/STTBench"
+            path: "Sources/IeumBench"
         ),
         .testTarget(
-            name: "MacSTTTests",
-            dependencies: ["MacSTTCore"],
-            path: "Tests/MacSTTTests"
+            name: "IeumTests",
+            dependencies: ["IeumCore"],
+            path: "Tests/IeumTests"
         ),
     ]
 )

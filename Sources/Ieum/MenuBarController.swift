@@ -1,6 +1,6 @@
 import AppKit
 import Combine
-import MacSTTCore
+import IeumCore
 
 /// The menu-bar icon and its short menu: what you need while a meeting is running. Everything else lives in Settings.
 @MainActor
@@ -95,7 +95,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(action(tr("Permissions and setup…", "권한 및 설정 점검…"), #selector(showSetup)))
         menu.addItem(action(tr("Settings…", "설정…"), #selector(showSettings), key: ","))
         menu.addItem(.separator())
-        menu.addItem(action(tr("Quit STT Overlay", "STT Overlay 종료"), #selector(quit), key: "q"))
+        menu.addItem(action(tr("Quit Ieum", "Ieum 종료"), #selector(quit), key: "q"))
     }
 
     private func action(_ title: String, _ selector: Selector, key: String = "") -> NSMenuItem {

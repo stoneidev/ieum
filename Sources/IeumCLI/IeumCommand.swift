@@ -1,6 +1,6 @@
 import ArgumentParser
 import Foundation
-import MacSTTCore
+import IeumCore
 
 enum SourceKind: String, CaseIterable {
     case mic
@@ -12,9 +12,9 @@ extension SourceKind: ExpressibleByArgument {}
 extension EngineChoice: ExpressibleByArgument {}
 
 @main
-struct MacSTTCommand: AsyncParsableCommand {
+struct IeumCommand: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "mac-stt",
+        commandName: "ieum-cli",
         abstract: "Real-time, fully on-device speech-to-text for macOS.",
         discussion: """
         Uses SpeechAnalyzer/SpeechTranscriber on macOS 26+ and falls back to on-device \
@@ -137,7 +137,7 @@ final class StopFlag: @unchecked Sendable {
 
 /// Traps signals with `DispatchSource` so shutdown runs as normal code, not inside a signal handler.
 final class SignalTrap: @unchecked Sendable {
-    private let queue = DispatchQueue(label: "mac-stt.signals")
+    private let queue = DispatchQueue(label: "ieum.signals")
     private var sources: [any DispatchSourceSignal] = []
     private var count = 0
 

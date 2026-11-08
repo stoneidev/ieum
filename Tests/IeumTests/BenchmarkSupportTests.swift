@@ -2,7 +2,7 @@ import AVFoundation
 import Foundation
 import Testing
 
-@testable import MacSTTCore
+@testable import IeumCore
 
 @Suite("Text metrics")
 struct TextMetricsTests {

@@ -2,7 +2,7 @@ import AVFoundation
 import AppKit
 import CoreGraphics
 import Foundation
-import MacSTTCore
+import IeumCore
 import Speech
 
 /// Live state of everything the app needs from the system, for the setup screen.

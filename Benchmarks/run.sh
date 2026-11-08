@@ -1,12 +1,12 @@
 #!/bin/zsh
 # Usage: Benchmarks/run.sh <label> [runs]
-# Runs every case through stt-bench and writes Benchmarks/results/<label>.md (+ raw JSON next to it).
+# Runs every case through ieum-bench and writes Benchmarks/results/<label>.md (+ raw JSON next to it).
 set -e
 cd "$(dirname "$0")/.."
 LABEL=${1:?label required}
 RUNS=${2:-3}
-BIN=.build/release/stt-bench
-[ -x $BIN ] || { echo "Build first: swift build -c release --product stt-bench"; exit 1; }
+BIN=.build/release/ieum-bench
+[ -x $BIN ] || { echo "Build first: swift build -c release --product ieum-bench"; exit 1; }
 Benchmarks/make-audio.sh
 OUT=Benchmarks/results/$LABEL
 rm -rf $OUT; mkdir -p $OUT

@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import MacSTTCore
+@testable import IeumCore
 
 @Suite("Vocabulary corrector")
 struct VocabularyCorrectorTests {

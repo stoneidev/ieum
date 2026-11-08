@@ -83,7 +83,7 @@ actor OnDeviceSpeechEngine: TranscriberEngine {
         }
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = 1
-        queue.name = "mac-stt.speech-callbacks"
+        queue.name = "ieum.speech-callbacks"
         recognizer.queue = queue
         self.recognizer = recognizer
         self.callbackQueue = queue

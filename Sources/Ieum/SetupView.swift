@@ -15,7 +15,7 @@ struct SetupView: View {
                     .resizable()
                     .frame(width: 56, height: 56)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(tr("Welcome to STT Overlay", "STT Overlay 시작하기"))
+                    Text(tr("Welcome to Ieum", "Ieum 시작하기"))
                         .font(.system(size: 22, weight: .semibold))
                     Text(tr("Live captions and translation for meetings, entirely on this Mac. Your voice is never sent anywhere.",
                             "회의용 실시간 자막과 번역입니다. 모든 처리는 이 Mac 안에서 이루어지고 음성은 어디로도 전송되지 않습니다."))
@@ -42,8 +42,8 @@ struct SetupView: View {
                     allow: { permissions.requestScreenAudio() },
                     open: { PermissionCenter.openSystemSettings(.screenAudio) },
                     note: permissions.screenAudio.isGranted ? nil : tr(
-                        "After you turn it on, quit and reopen the app. If it is on but still blocked, remove STT Overlay from the list and add it again.",
-                        "켠 뒤에는 앱을 완전히 종료했다가 다시 여세요. 켜져 있는데도 막혀 있다면 목록에서 STT Overlay를 삭제하고 다시 추가하세요."
+                        "After you turn it on, quit and reopen the app. If it is on but still blocked, remove Ieum from the list and add it again.",
+                        "켠 뒤에는 앱을 완전히 종료했다가 다시 여세요. 켜져 있는데도 막혀 있다면 목록에서 Ieum를 삭제하고 다시 추가하세요."
                     ),
                     noteAction: permissions.screenAudio.isGranted ? nil : (tr("Quit and reopen", "종료 후 다시 열기"), { PermissionCenter.relaunch() })
                 )

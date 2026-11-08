@@ -153,6 +153,25 @@
         "make build/app warning-free, swift test passes, `make bench` run again and compared with the baseline in docs",
         "Reviewer approval, deslop, post-deslop regression, commit and tag v0.2.0"
       ]
+    },
+    {
+      "id": "US-016",
+      "title": "Rename the product to Ieum",
+      "passes": true,
+      "acceptanceCriteria": [
+        "No remaining user-visible or build-visible use of 'STT Overlay', 'STTOverlay', 'MacSTT', 'mac-stt', 'stt-bench' outside historical records (.omc, tags, commit history)",
+        "Targets/dirs renamed: IeumCore, ieum-cli (IeumCLI), Ieum (app), IeumBench (ieum-bench), IeumTests; app bundle Ieum.app with id dev.local.ieum",
+        "make build, make app, swift test (all tests), make bench harness build all pass warning-free; the app launches, shows Ieum in menu/windows, and conversation mode still works end to end"
+      ]
+    },
+    {
+      "id": "US-017",
+      "title": "GitHub repository and push",
+      "passes": false,
+      "acceptanceCriteria": [
+        "Private repository created for the authenticated account, origin set, main and all tags pushed",
+        "git remote and remote refs verified (main, v0.1.0, bench-baseline-v0.1.0, v0.2.0, rename tag)"
+      ]
     }
   ],
   "notes": {
@@ -178,7 +197,9 @@
       "Low-latency translation model (not installed on the test Mac); macOS < 26 paths (conversation disabled, compatibility engine)",
       "stop() during startup still waits for a model download; a hung translator is not replaced after a timeout"
     ],
-    "phase3_reviewer": "architect (opus, THOROUGH): REJECTED once (vocabulary false positives, lost final translations, finalize race, duplicate finals, spec gap), all addressed, re-verified APPROVED twice"
+    "phase3_reviewer": "architect (opus, THOROUGH): REJECTED once (vocabulary false positives, lost final translations, finalize race, duplicate finals, spec gap), all addressed, re-verified APPROVED twice",
+    "phase4": "Product renamed to Ieum (app Ieum, IeumCore, ieum-cli, ieum-bench, IeumTests, bundle id dev.local.ieum). Bundle id keeps the 'dev.local' placeholder prefix: replace with a real reverse-DNS before distribution. Old settings domain dev.local.mac-stt.overlay and the 'STT Transcripts' folder are not migrated."
   },
-  "phase3": "Commercial-grade pass: baseline tag v0.1.0 -> benchmark -> UX/UI overhaul -> two features -> benchmark -> v0.2.0"
+  "phase3": "Commercial-grade pass: baseline tag v0.1.0 -> benchmark -> UX/UI overhaul -> two features -> benchmark -> v0.2.0",
+  "phase4": "Rename the product to Ieum everywhere, then create the GitHub repository and push"
 }

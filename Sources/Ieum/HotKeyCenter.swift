@@ -10,7 +10,7 @@ final class HotKeyCenter {
         let action: @MainActor () -> Void
     }
 
-    private static let signature: OSType = 0x53545431 // 'STT1'
+    private static let signature: OSType = 0x49455531 // 'IEU1'
     private var shortcuts: [UInt32: Shortcut] = [:]
     private var references: [EventHotKeyRef] = []
     private var handler: EventHandlerRef?

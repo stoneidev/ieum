@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>dev.local.mac-stt.overlay</string>
+    <string>dev.local.ieum</string>
     <key>CFBundleName</key>
-    <string>STT Overlay</string>
+    <string>Ieum</string>
     <key>CFBundleDisplayName</key>
-    <string>STT Overlay</string>
+    <string>Ieum</string>
     <key>CFBundleExecutable</key>
-    <string>STTOverlay</string>
+    <string>Ieum</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleIconFile</key>
@@ -27,8 +27,8 @@
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSMicrophoneUsageDescription</key>
-    <string>STT Overlay listens to the microphone to show live captions. Audio is processed on this Mac and never leaves it.</string>
+    <string>Ieum listens to the microphone to show live captions. Audio is processed on this Mac and never leaves it.</string>
     <key>NSSpeechRecognitionUsageDescription</key>
-    <string>STT Overlay uses on-device speech recognition to turn speech into captions. Nothing leaves this Mac.</string>
+    <string>Ieum uses on-device speech recognition to turn speech into captions. Nothing leaves this Mac.</string>
 </dict>
 </plist>

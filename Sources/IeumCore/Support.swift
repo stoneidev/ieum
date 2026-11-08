@@ -2,7 +2,7 @@ import Foundation
 
 /// Diagnostic line on stderr, shared by the CLI and the app.
 public func log(_ message: String) {
-    FileHandle.standardError.write(Data("mac-stt: \(message)\n".utf8))
+    FileHandle.standardError.write(Data("ieum: \(message)\n".utf8))
 }
 
 public enum TextScript {
