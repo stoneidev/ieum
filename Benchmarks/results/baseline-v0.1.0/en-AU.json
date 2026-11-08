@@ -1,0 +1,65 @@
+{
+  "audioSeconds" : 10.916598639455783,
+  "engine" : "SpeechAnalyzer \/ SpeechTranscriber",
+  "locale" : "en-AU",
+  "median" : {
+    "cer" : 0,
+    "cpuPercent" : 2.5314383129487563,
+    "finalDelaySeconds" : 0.738914792000001,
+    "finalTranslationLagSeconds" : 1.5421286253333335,
+    "finals" : 3,
+    "firstPartialSeconds" : 1.03655425,
+    "firstTranslationSeconds" : 1.250778875,
+    "interimTranslationLagSeconds" : 0.7751352189999999,
+    "peakRSSMB" : 25.84375,
+    "recognized" : "Good morning everyone. We have a lot to get through before lunch, so let us start with the sales figures from Melbourne. After that, I would like to hear your thoughts on the new customer onboarding process.",
+    "startupSeconds" : 0.069902,
+    "wer" : 0
+  },
+  "name" : "en-AU",
+  "runs" : [
+    {
+      "cer" : 0,
+      "cpuPercent" : 2.2949217716829935,
+      "finalDelaySeconds" : 0.738914792000001,
+      "finalTranslationLagSeconds" : 1.5626284026666666,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.03655425,
+      "firstTranslationSeconds" : 2.975969459,
+      "interimTranslationLagSeconds" : 0.9220839488888889,
+      "peakRSSMB" : 25.234375,
+      "recognized" : "Good morning everyone. We have a lot to get through before lunch, so let us start with the sales figures from Melbourne. After that, I would like to hear your thoughts on the new customer onboarding process.",
+      "startupSeconds" : 0.148447166,
+      "wer" : 0
+    },
+    {
+      "cer" : 0,
+      "cpuPercent" : 2.5511148601356517,
+      "finalDelaySeconds" : 0.7337258340000012,
+      "finalTranslationLagSeconds" : 1.5374106246666666,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.03744025,
+      "firstTranslationSeconds" : 1.148059709,
+      "interimTranslationLagSeconds" : 0.7568155624999999,
+      "peakRSSMB" : 25.640625,
+      "recognized" : "Good morning everyone. We have a lot to get through before lunch, so let us start with the sales figures from Melbourne. After that, I would like to hear your thoughts on the new customer onboarding process.",
+      "startupSeconds" : 0.069902,
+      "wer" : 0
+    },
+    {
+      "cer" : 0,
+      "cpuPercent" : 2.5314383129487563,
+      "finalDelaySeconds" : 0.7415024170000013,
+      "finalTranslationLagSeconds" : 1.5421286253333335,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.028342083,
+      "firstTranslationSeconds" : 1.250778875,
+      "interimTranslationLagSeconds" : 0.7751352189999999,
+      "peakRSSMB" : 25.84375,
+      "recognized" : "Good morning everyone. We have a lot to get through before lunch, so let us start with the sales figures from Melbourne. After that, I would like to hear your thoughts on the new customer onboarding process.",
+      "startupSeconds" : 0.064638708,
+      "wer" : 0
+    }
+  ],
+  "speechSeconds" : 10.879999999999999
+}

@@ -7,6 +7,7 @@ let package = Package(
     products: [
         .executable(name: "mac-stt", targets: ["mac-stt"]),
         .executable(name: "STTOverlay", targets: ["STTOverlay"]),
+        .executable(name: "stt-bench", targets: ["STTBench"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
@@ -39,6 +40,15 @@ let package = Package(
             name: "STTOverlay",
             dependencies: ["MacSTTCore"],
             path: "Sources/STTOverlay"
+        ),
+        // Developer tool: repeatable latency / accuracy / cost measurements (`make bench`).
+        .executableTarget(
+            name: "STTBench",
+            dependencies: [
+                "MacSTTCore",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ],
+            path: "Sources/STTBench"
         ),
         .testTarget(
             name: "MacSTTTests",

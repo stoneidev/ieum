@@ -1,0 +1,53 @@
+{
+  "audioSeconds" : 10.166802721088436,
+  "engine" : "SpeechAnalyzer \/ SpeechTranscriber",
+  "locale" : "en-US",
+  "median" : {
+    "cer" : 0.04195804195804196,
+    "cpuPercent" : 1.3160853702105577,
+    "finalDelaySeconds" : 1.5227686250000012,
+    "finals" : 3,
+    "firstPartialSeconds" : 1.031860333,
+    "peakRSSMB" : 21.75,
+    "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+    "startupSeconds" : 0.063585667,
+    "wer" : 0.14285714285714285
+  },
+  "name" : "terms-en-US",
+  "runs" : [
+    {
+      "cer" : 0.04195804195804196,
+      "cpuPercent" : 1.317567968205745,
+      "finalDelaySeconds" : 1.528607667000001,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.038559125,
+      "peakRSSMB" : 21.296875,
+      "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+      "startupSeconds" : 0.139074167,
+      "wer" : 0.14285714285714285
+    },
+    {
+      "cer" : 0.04195804195804196,
+      "cpuPercent" : 1.3160853702105577,
+      "finalDelaySeconds" : 1.5225068750000013,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.031860333,
+      "peakRSSMB" : 21.640625,
+      "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+      "startupSeconds" : 0.062662125,
+      "wer" : 0.14285714285714285
+    },
+    {
+      "cer" : 0.04195804195804196,
+      "cpuPercent" : 1.2817281468741355,
+      "finalDelaySeconds" : 1.5227686250000012,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.025231125,
+      "peakRSSMB" : 21.75,
+      "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+      "startupSeconds" : 0.063585667,
+      "wer" : 0.14285714285714285
+    }
+  ],
+  "speechSeconds" : 10.139999999999999
+}

@@ -1,0 +1,65 @@
+{
+  "audioSeconds" : 9.680272108843537,
+  "engine" : "SpeechAnalyzer \/ SpeechTranscriber",
+  "locale" : "ko-KR",
+  "median" : {
+    "cer" : 0.017857142857142856,
+    "cpuPercent" : 2.9492470519515845,
+    "finalDelaySeconds" : 2.57702175,
+    "finalTranslationLagSeconds" : 0.8419545,
+    "finals" : 1,
+    "firstPartialSeconds" : 1.037850542,
+    "firstTranslationSeconds" : 1.142609458,
+    "interimTranslationLagSeconds" : 0.8007224018823528,
+    "peakRSSMB" : 25.421875,
+    "recognized" : "안녕하세요 오늘 회의에서는 분기별 예산과 제품 로드맵을 검토하겠습니다. 공유된 스프레드 시트를 열어서 2분기 숫자를 확인해주세요.",
+    "startupSeconds" : 0.05716425,
+    "wer" : 0.3333333333333333
+  },
+  "name" : "ko-KR",
+  "runs" : [
+    {
+      "cer" : 0.017857142857142856,
+      "cpuPercent" : 2.662467522590951,
+      "finalDelaySeconds" : 2.628987499999999,
+      "finalTranslationLagSeconds" : 0.8419545,
+      "finals" : 1,
+      "firstPartialSeconds" : 1.040441209,
+      "firstTranslationSeconds" : 2.131115875,
+      "interimTranslationLagSeconds" : 0.9139504057333333,
+      "peakRSSMB" : 24.859375,
+      "recognized" : "안녕하세요 오늘 회의에서는 분기별 예산과 제품 로드맵을 검토하겠습니다. 공유된 스프레드 시트를 열어서 2분기 숫자를 확인해주세요.",
+      "startupSeconds" : 0.950279333,
+      "wer" : 0.3333333333333333
+    },
+    {
+      "cer" : 0.017857142857142856,
+      "cpuPercent" : 3.0184445567580296,
+      "finalDelaySeconds" : 2.57702175,
+      "finalTranslationLagSeconds" : 0.852941583,
+      "finals" : 1,
+      "firstPartialSeconds" : 1.037850542,
+      "firstTranslationSeconds" : 1.137181292,
+      "interimTranslationLagSeconds" : 0.7967253187058825,
+      "peakRSSMB" : 25.234375,
+      "recognized" : "안녕하세요 오늘 회의에서는 분기별 예산과 제품 로드맵을 검토하겠습니다. 공유된 스프레드 시트를 열어서 2분기 숫자를 확인해주세요.",
+      "startupSeconds" : 0.05716425,
+      "wer" : 0.3333333333333333
+    },
+    {
+      "cer" : 0.017857142857142856,
+      "cpuPercent" : 2.9492470519515845,
+      "finalDelaySeconds" : 2.5628516660000003,
+      "finalTranslationLagSeconds" : 0.840501334,
+      "finals" : 1,
+      "firstPartialSeconds" : 1.036981916,
+      "firstTranslationSeconds" : 1.142609458,
+      "interimTranslationLagSeconds" : 0.8007224018823528,
+      "peakRSSMB" : 25.421875,
+      "recognized" : "안녕하세요 오늘 회의에서는 분기별 예산과 제품 로드맵을 검토하겠습니다. 공유된 스프레드 시트를 열어서 2분기 숫자를 확인해주세요.",
+      "startupSeconds" : 0.048105167,
+      "wer" : 0.3333333333333333
+    }
+  ],
+  "speechSeconds" : 9.66
+}

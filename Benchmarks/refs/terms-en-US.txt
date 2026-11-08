@@ -1,0 +1,1 @@
+Our Kubernetes cluster on Azure uses Terraform and Grafana dashboards. Priya and Siobhan will present the OKR review, then we discuss the Figma handoff and the Jira backlog.

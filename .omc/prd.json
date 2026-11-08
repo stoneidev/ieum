@@ -93,6 +93,66 @@
       "acceptanceCriteria": [
         "make build/app warning-free, swift test passes, reviewer approval, deslop, post-deslop regression"
       ]
+    },
+    {
+      "id": "US-010",
+      "title": "Benchmark harness and baseline",
+      "passes": false,
+      "acceptanceCriteria": [
+        "FileAudioCapture streams an audio file in real time (plus trailing silence) through the real engines; unit-tested",
+        "TextMetrics computes WER (words) and CER (characters) with normalization; unit-tested",
+        "stt-bench reports startup time, first-partial latency, final delay, WER/CER, translation lag, CPU%, peak RSS for en-US, en-AU, ko-KR",
+        "`make bench` produces Benchmarks/results/<label>.md; baseline results committed and tagged"
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "UX/UI review, settings window, Korean UI, first-run setup",
+      "passes": false,
+      "acceptanceCriteria": [
+        "docs/UX-REVIEW.md lists findings from the original UX with a decision for each",
+        "Settings window (General, Display, Translation, Vocabulary, Transcripts) replaces menu nesting; menu keeps essentials",
+        "UI strings localized Korean/English following the system language, switchable in Settings",
+        "First-run/permission screen shows live status of microphone, speech recognition and screen/system-audio permission with buttons that open the right System Settings pane"
+      ]
+    },
+    {
+      "id": "US-012",
+      "title": "Overlay usability",
+      "passes": false,
+      "acceptanceCriteria": [
+        "Overlay can fade after N seconds of silence and reappears on speech",
+        "Click-through option so the overlay never blocks the meeting UI",
+        "Global hotkeys: start/stop captions and cycle display mode, configurable on/off"
+      ]
+    },
+    {
+      "id": "US-013",
+      "title": "Feature A: two-way conversation mode",
+      "passes": false,
+      "acceptanceCriteria": [
+        "A Korean user can leave captions on while both sides speak: English speech is shown with Korean translation, Korean speech with English translation, language chosen automatically per utterance",
+        "Detection accuracy and added latency measured with the benchmark on mixed en/ko audio and reported honestly",
+        "Falls back to a manual language toggle when auto-detection is unavailable"
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Feature B: meeting vocabulary",
+      "passes": false,
+      "acceptanceCriteria": [
+        "Vocabulary editor in Settings (names, product terms); persisted; applied to both engines as contextual strings",
+        "Benchmark shows the effect on a term-heavy sample (reported honestly, including no effect)"
+      ]
+    },
+    {
+      "id": "US-015",
+      "title": "Re-benchmark, verify, release",
+      "passes": false,
+      "acceptanceCriteria": [
+        "make build/app warning-free, swift test passes, `make bench` run again and compared with the baseline in docs",
+        "Reviewer approval, deslop, post-deslop regression, commit and tag v0.2.0"
+      ]
     }
   ],
   "notes": {
@@ -111,5 +171,6 @@
       "notarization of the translation build (needs make app-release / make dmg again)"
     ],
     "phase2_reviewer": "architect (sonnet): 4 defects + 2 minors found, all fixed, re-verified APPROVED"
-  }
+  },
+  "phase3": "Commercial-grade pass: baseline tag v0.1.0 -> benchmark -> UX/UI overhaul -> two features -> benchmark -> v0.2.0"
 }

@@ -9,7 +9,7 @@ ENTITLEMENTS := Resources/entitlements.plist
 SIGN_IDENTITY ?=
 NOTARY_PROFILE ?=
 
-.PHONY: build sign test clean app app-bundle app-release dmg
+.PHONY: build sign test clean app app-bundle app-release dmg bench
 
 build:
 	swift build -c release --arch arm64
@@ -66,6 +66,12 @@ dmg:
 		fi; \
 	else echo "Unsigned .dmg (set SIGN_IDENTITY and NOTARY_PROFILE for a distributable one)."; fi
 	@echo "Created $(DMG)"
+
+# Repeatable latency / accuracy / cost measurements. Usage: make bench LABEL=v0.2.0 [BASELINE=v0.1.0-baseline]
+LABEL ?= current
+bench:
+	swift build -c release --arch arm64 --product stt-bench
+	BASELINE=$(BASELINE) Benchmarks/run.sh $(LABEL)
 
 clean:
 	swift package clean

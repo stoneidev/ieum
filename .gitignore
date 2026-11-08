@@ -6,4 +6,3 @@
 .omc/state/
 .claude/
 Benchmarks/audio/
-Benchmarks/results/*.json
