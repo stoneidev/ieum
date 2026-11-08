@@ -5,6 +5,8 @@ struct SetupView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var permissions: PermissionCenter
     let onDone: () -> Void
+    /// The restart hint only matters once the person has gone to System Settings.
+    @State private var screenAudioRequested = false
 
     var body: some View {
         // Reading `uiLanguage` makes the whole screen follow the language setting.
@@ -39,13 +41,14 @@ struct SetupView: View {
                     detail: tr("Only needed to caption what plays on this Mac, such as a video call or a video.",
                                "화상회의나 영상처럼 이 Mac에서 재생되는 소리를 자막으로 만들 때만 필요합니다."),
                     state: permissions.screenAudio,
-                    allow: { permissions.requestScreenAudio() },
-                    open: { PermissionCenter.openSystemSettings(.screenAudio) },
-                    note: permissions.screenAudio.isGranted ? nil : tr(
+                    allow: { screenAudioRequested = true; permissions.requestScreenAudio() },
+                    open: { screenAudioRequested = true; PermissionCenter.openSystemSettings(.screenAudio) },
+                    isOptional: true,
+                    note: permissions.screenAudio.isGranted || !screenAudioRequested ? nil : tr(
                         "After you turn it on, quit and reopen the app. If it is on but still blocked, remove Ieum from the list and add it again.",
                         "켠 뒤에는 앱을 완전히 종료했다가 다시 여세요. 켜져 있는데도 막혀 있다면 목록에서 Ieum를 삭제하고 다시 추가하세요."
                     ),
-                    noteAction: permissions.screenAudio.isGranted ? nil : (tr("Quit and reopen", "종료 후 다시 열기"), { PermissionCenter.relaunch() })
+                    noteAction: permissions.screenAudio.isGranted || !screenAudioRequested ? nil : (tr("Quit and reopen", "종료 후 다시 열기"), { PermissionCenter.relaunch() })
                 )
                 if permissions.needsSpeechPermission {
                     Divider()
@@ -100,18 +103,34 @@ private struct PermissionRow: View {
     let allow: () -> Void
     let open: () -> Void
     var openLabel: String?
+    var isOptional = false
     var note: String?
     var noteAction: (String, () -> Void)?
+
+    private var icon: String {
+        if state.isGranted { return "checkmark.circle.fill" }
+        return isOptional ? "circle.dashed" : "exclamationmark.circle.fill"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 12) {
-                Image(systemName: state.isGranted ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                Image(systemName: icon)
                     .font(.system(size: 20))
-                    .foregroundStyle(state.isGranted ? Color.green : (state == .denied ? Color.orange : Color.secondary))
-                    .accessibilityLabel(state.isGranted ? tr("Allowed", "허용됨") : tr("Needs attention", "확인 필요"))
+                    .foregroundStyle(state.isGranted ? Color.green : (isOptional ? Color.secondary : (state == .denied ? Color.orange : Color.secondary)))
+                    .accessibilityLabel(state.isGranted ? tr("Allowed", "허용됨") : (isOptional ? tr("Optional, not allowed", "선택 사항, 허용 안 됨") : tr("Needs attention", "확인 필요")))
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(title).font(.system(size: 14, weight: .medium))
+                    HStack(spacing: 8) {
+                        Text(title).font(.system(size: 14, weight: .medium))
+                        if isOptional && !state.isGranted {
+                            Text(tr("Optional", "선택"))
+                                .font(.system(size: 10.5, weight: .medium))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 1.5)
+                                .background(Capsule().fill(Color.secondary.opacity(0.18)))
+                        }
+                    }
                     Text(detail)
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)

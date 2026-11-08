@@ -211,6 +211,45 @@
       "priority": 20,
       "passes": true,
       "notes": "Shortcut keycaps in General, taller settings window"
+    },
+    {
+      "id": "US-21",
+      "title": "UX/UI round 1 (second pass): review, pick one improvement, apply",
+      "acceptanceCriteria": [
+        "Findings listed with evidence; one chosen with a reason",
+        "Improvement implemented and verified in the running app (screenshot)",
+        "Build warning-free, tests pass",
+        "Committed and pushed"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-22",
+      "title": "UX/UI round 2 (second pass): review, pick one improvement, apply",
+      "acceptanceCriteria": [
+        "Findings listed with evidence; one chosen with a reason",
+        "Improvement implemented and verified in the running app (screenshot)",
+        "Build warning-free, tests pass",
+        "Committed and pushed"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-23",
+      "title": "UX/UI round 3 (second pass): review, pick one improvement, apply",
+      "acceptanceCriteria": [
+        "Findings listed with evidence; one chosen with a reason",
+        "Improvement implemented and verified in the running app (screenshot)",
+        "Build warning-free, tests pass",
+        "Committed and pushed"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
     }
   ],
   "notes": {

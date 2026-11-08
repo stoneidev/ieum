@@ -122,6 +122,64 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 .pause{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--bd-2);background:transparent;color:var(--tx);font:600 13px/1 var(--font);cursor:pointer}
 .pause:hover{background:var(--surf-2)}
 
+
+/* try it: interactive preview */
+.lab{margin-top:56px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+.lab .screen{transform:none}
+.lab .stage{padding:14px 14px 0}
+.lab .grid{gap:8px}
+.lab .cell{aspect-ratio:16/10}
+.tbar{--sz:24px;--op:.88;--n:2;--bgc:3,7,10;--srcc:rgba(255,255,255,.62);margin:14px auto 16px;max-width:700px;min-height:calc(var(--n) * (var(--sz) * 2.1 + 14px) + 28px);display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:14px 20px;border-radius:16px;background:rgba(var(--bgc),var(--op));border:1px solid var(--bd-2);color:#fff;transition:opacity .5s,background-color .2s}
+.tbar[data-theme=light]{--bgc:250,250,247;--srcc:rgba(16,32,42,.66);color:#10202a}
+.tbar.faded{opacity:.25}
+.tbar .ent.old{opacity:.5}
+.tbar .s{font-size:calc(var(--sz) * .56);line-height:1.4;color:var(--srcc);min-height:1.4em}
+.tbar .d{font-size:var(--sz);line-height:1.3;font-weight:700;letter-spacing:-.02em;min-height:1.3em;transition:opacity .25s}
+.tbar.caps .d{display:none}
+.tbar.caps .s{font-size:var(--sz);font-weight:700;color:inherit}
+.tbar .idle{font-size:15px;color:var(--srcc);text-align:center;align-self:center;margin:auto 0}
+mark.fix{background:rgba(94,234,212,.4);color:inherit;border-radius:5px;padding:0 3px;animation:flash .9s}
+@keyframes flash{from{background:rgba(94,234,212,.95)}}
+.tpanel{display:none;margin:14px auto 16px;max-width:700px;height:calc(2 * (var(--sz,24px) * 2.1 + 14px) + 28px);min-height:200px;overflow-y:auto;padding:12px 16px;border-radius:16px;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);font:400 13px/1.7 var(--mono);color:#cfd8e0}
+.tpanel .t{color:var(--teal)}
+.tpanel .a{color:var(--mint)}
+.lab[data-view=transcript] .tbar{display:none}
+.lab[data-view=transcript] .tpanel{display:block}
+.controls{display:grid;gap:18px;padding:24px;border-radius:24px;background:var(--surf);border:1px solid var(--bd)}
+.controls fieldset{border:0;display:grid;gap:10px;min-width:0}
+.controls legend,.controls .lbl{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:2px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;inset:0;cursor:pointer;width:100%;height:100%;margin:0}
+.seg span{display:inline-flex;align-items:center;min-height:44px;padding:0 15px;border-radius:999px;border:1px solid var(--bd-2);font-size:14px;font-weight:600;color:var(--mute);transition:background-color .15s,color .15s,border-color .15s}
+.seg input:hover+span{background:var(--surf-2)}
+.seg input:checked+span{background:var(--teal);border-color:var(--teal);color:#04201c}
+.seg input:focus-visible+span{outline:2px solid #fff;outline-offset:2px}
+.rowc{display:grid;gap:6px}
+.rowc label,.chk{font-size:15px;color:var(--tx);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.rowc output{font:600 13px var(--font);color:var(--mute)}
+input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer;background:transparent}
+.chk{min-height:44px;cursor:pointer;justify-content:flex-start}
+.chk input{width:20px;height:20px;accent-color:var(--teal);cursor:pointer}
+.chk small{display:block;font-size:13px;color:var(--dim)}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.actions .btn{min-height:44px;padding:0 18px;font-size:14.5px}
+.actions kbd{margin-left:2px;background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.2);color:inherit}
+.ghost kbd{background:var(--surf-2);border-color:var(--bd-2)}
+.lab[data-run=on] .when-off,.lab[data-run=off] .when-on{display:none!important}
+.lab[data-view=bar] .when-tr,.lab[data-view=transcript] .when-bar{display:none!important}
+.nextbtn{display:none}
+.reduce .nextbtn{display:inline-flex}
+.labnote{margin-top:18px;text-align:center;font-size:13.5px;color:var(--dim)}
+@media (max-width:960px){
+  .lab{grid-template-columns:minmax(0,1fr)}
+  .lab .grid{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:560px){
+  .lab .grid{grid-template-columns:repeat(2,1fr)}
+  .controls{padding:20px}
+}
+
 .chips{list-style:none;display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:center;padding:56px 0 0}
 .chips li{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;color:var(--mute)}
 .chips .icon{color:var(--teal)}
@@ -256,6 +314,7 @@ footer a{color:var(--mute)}
     <a class="brand" href="#top" aria-label="Ieum 이음"><img src="/icon-512.png" alt="" width="28" height="28">Ieum <i lang="ko">이음</i></a>
     <nav aria-label="Main">
       <a href="#how"><span class="en">How it works</span><span class="ko">사용법</span></a>
+      <a href="#try"><span class="en">Try it</span><span class="ko">체험</span></a>
       <a href="#privacy"><span class="en">Privacy</span><span class="ko">개인정보</span></a>
       <a href="#faq"><span class="en">FAQ</span><span class="ko">질문</span></a>
       <button class="lang" type="button" id="langbtn" aria-label="Switch language / 언어 전환"><span class="en" lang="ko">한국어</span><span class="ko" lang="en">English</span></button>
@@ -344,6 +403,67 @@ footer a{color:var(--mute)}
     <div class="cta reveal" style="margin-top:44px">
       <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span></a>
     </div>
+  </div>
+</section>
+
+
+<section id="try" style="padding-top:40px">
+  <div class="wrap">
+    <div class="head-c">
+      <p class="k"><span class="en">Try it</span><span class="ko">직접 해보기</span></p>
+      <h2><span class="en">Change the settings. Watch the bar respond.</span><span class="ko">설정을 바꿔 보세요. 자막 바가 바로 반응합니다.</span></h2>
+      <p class="sub"><span class="en">A simulated meeting with the same controls the app has. Real recognition and translation happen in the app, on your Mac.</span><span class="ko">앱과 같은 조작을 시뮬레이션한 회의입니다. 실제 인식과 번역은 Mac의 앱에서 이뤄집니다.</span></p>
+    </div>
+    <div class="lab" id="lab" data-run="off" data-view="bar">
+      <div class="screen">
+        <div class="menubar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">Weekly product sync</span><span class="rec" id="labrec"><span class="en">Ieum · stopped</span><span class="ko">이음 · 중지됨</span></span></div>
+        <div class="stage" aria-hidden="true">
+          <div class="grid">
+            <div class="cell" id="t0"><img src="/img/sarah.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Sarah</span></div>
+            <div class="cell" id="t1"><img src="/img/you.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span><span class="en">You</span><span class="ko">나</span></span></div>
+            <div class="cell" id="t2"><img src="/img/mike.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Mike</span></div>
+            <div class="cell" id="t3"><img src="/img/emma.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Emma</span></div>
+          </div>
+          <div class="tbar" id="tbar" data-theme="dark"></div>
+          <div class="tpanel" id="tpanel"></div>
+        </div>
+        <p class="stagefoot" style="padding-bottom:12px"><span class="en">Simulated conversation. Not real recognition.</span><span class="ko">시뮬레이션입니다. 실제 인식이 아닙니다.</span></p>
+      </div>
+
+      <form class="controls" onsubmit="return false" aria-label="Preview controls">
+        <fieldset>
+          <legend><span class="en">Meeting mode</span><span class="ko">회의 모드</span></legend>
+          <div class="seg">
+            <label><input type="radio" name="mode" value="conv" checked><span><span class="en">Conversation</span><span class="ko">대화</span></span></label>
+            <label><input type="radio" name="mode" value="en2ko"><span>EN → KO</span></label>
+            <label><input type="radio" name="mode" value="ko2en"><span>KO → EN</span></label>
+            <label><input type="radio" name="mode" value="caps"><span><span class="en">Captions only</span><span class="ko">자막만</span></span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span class="en">Subtitle bar</span><span class="ko">자막 바</span></legend>
+          <div class="rowc"><label for="szr"><span class="en">Text size</span><span class="ko">글자 크기</span><output id="szo">24</output></label><input id="szr" type="range" min="16" max="36" value="24"></div>
+          <div class="rowc"><label for="opr"><span class="en">Background opacity</span><span class="ko">배경 투명도</span><output id="opo">88%</output></label><input id="opr" type="range" min="20" max="100" value="88"></div>
+          <div class="seg" role="radiogroup" aria-label="Lines">
+            <label><input type="radio" name="lines" value="1"><span><span class="en">1 line</span><span class="ko">1줄</span></span></label>
+            <label><input type="radio" name="lines" value="2" checked><span><span class="en">2 lines</span><span class="ko">2줄</span></span></label>
+            <label><input type="radio" name="theme" value="dark" checked><span><span class="en">Dark</span><span class="ko">어둡게</span></span></label>
+            <label><input type="radio" name="theme" value="light"><span><span class="en">Light</span><span class="ko">밝게</span></span></label>
+          </div>
+          <label class="chk"><input type="checkbox" id="fadechk" checked><span><span class="en">Fade when nobody speaks</span><span class="ko">말이 없으면 흐리게</span></span></label>
+        </fieldset>
+        <fieldset>
+          <legend><span class="en">Meeting vocabulary</span><span class="ko">회의 용어집</span></legend>
+          <label class="chk"><input type="checkbox" id="vocchk"><span><span class="en">Correct “Emma” before translating<small>The recognizer hears “Ema”. Watch the fix.</small></span><span class="ko">번역 전에 “Emma”로 바로잡기<small>인식기는 “Ema”로 듣습니다. 교정되는 모습을 보세요.</small></span></span></label>
+        </fieldset>
+        <div class="actions">
+          <button class="btn" type="button" id="runbtn"><span class="when-off"><span class="en">Start</span><span class="ko">시작</span></span><span class="when-on"><span class="en">Stop</span><span class="ko">중지</span></span> <kbd>⌃⌥S</kbd></button>
+          <button class="btn ghost" type="button" id="viewbtn"><span class="when-bar"><span class="en">Transcript</span><span class="ko">기록 보기</span></span><span class="when-tr"><span class="en">Subtitle bar</span><span class="ko">자막 바</span></span> <kbd>⌃⌥D</kbd></button>
+          <button class="btn ghost nextbtn" type="button" id="nextbtn"><span class="en">Next sentence</span><span class="ko">다음 문장</span></button>
+        </div>
+      </form>
+    </div>
+    <p class="labnote"><span class="en">On a Mac, the real shortcuts <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> and <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> work here too.</span><span class="ko">Mac에서는 실제 단축키 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>, <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd>가 여기서도 동작합니다.</span></p>
   </div>
 </section>
 
@@ -564,6 +684,117 @@ $("pause").addEventListener("click",function(){
 });
 if(reduce)$("pause").hidden=true;
 play(0);
+
+
+/* try it: interactive preview */
+(function(){
+var lab=$("lab"),bar=$("tbar"),tp=$("tpanel");if(!lab)return;
+var cells=[0,1,2,3].map(function(i){return $("t"+i)});
+var L=[
+ {l:"en",who:0,src:"Can we ship the beta on Thursday?",dst:"목요일에 베타를 출시할 수 있을까요?"},
+ {l:"ko",who:1,src:"QA가 끝나면 가능합니다.",dst:"It's possible once QA is done."},
+ {l:"en",who:2,src:"Thanks, Ema. Can you review the build tonight?",fix:"Thanks, Emma. Can you review the build tonight?",dst:"고마워요, 에마. 오늘 밤에 빌드를 검토해 줄래요?",dstFix:"고마워요, 엠마. 오늘 밤에 빌드를 검토해 줄래요?"},
+ {l:"en",who:3,src:"Sure, I'll check it tonight.",dst:"물론이죠, 오늘 밤에 확인할게요."},
+ {l:"ko",who:1,src:"내일 오전까지 공유드릴게요.",dst:"I'll share it by tomorrow morning."},
+ {l:"en",who:0,src:"Great. I'll update the release notes.",dst:"좋아요. 제가 릴리스 노트를 업데이트할게요."},
+ {l:"ko",who:1,src:"감사합니다. 회의록은 제가 정리하겠습니다.",dst:"Thank you. I'll write up the minutes."}
+];
+var st={mode:"conv",n:2,fade:true,voc:false,run:false,stopped:false,vis:false,i:0,view:[],clock:37334};
+var timers=[],typer;
+var reduceM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+if(reduceM)lab.classList.add("reduce"),d.classList.add("reduce");
+function later(fn,ms){var t=setTimeout(fn,ms);timers.push(t)}
+function clear(){timers.forEach(clearTimeout);timers=[];clearInterval(typer)}
+function list(){return L.filter(function(x){return st.mode==="en2ko"?x.l==="en":st.mode==="ko2en"?x.l==="ko":true})}
+function hms(sec){var h=Math.floor(sec/3600)%24,m=Math.floor(sec/60)%60,s=sec%60;return [h,m,s].map(function(v){return(v<10?"0":"")+v}).join(":")}
+function render(){
+  bar.className="tbar"+(st.mode==="caps"?" caps":"");
+  bar.style.setProperty("--n",st.n);
+  bar.innerHTML="";
+  var v=st.view.slice(-st.n);
+  if(!st.run&&!v.length){var p=document.createElement("div");p.className="idle";p.textContent=d.dataset.lang==="ko"?"시작을 누르거나 ⌃⌥S를 누르세요":"Press Start or ⌃⌥S";bar.appendChild(p);return}
+  v.forEach(function(e,k){
+    var g=document.createElement("div");g.className="ent"+(k<v.length-1?" old":"");
+    var a=document.createElement("div");a.className="s";a.lang=e.l;
+    var b=document.createElement("div");b.className="d";b.lang=e.l==="en"?"ko":"en";
+    e.sEl=a;e.dEl=b;a.innerHTML=e.sHtml||"";b.textContent=e.dTxt||"";
+    g.appendChild(a);g.appendChild(b);bar.appendChild(g);
+  });
+}
+function esc(t){return t.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})}
+function setRun(on){
+  st.run=on;lab.dataset.run=on?"on":"off";
+  $("labrec").querySelector(".en").textContent=on?"Ieum · listening":"Ieum · stopped";
+  $("labrec").querySelector(".ko").textContent=on?"이음 · 듣는 중":"이음 · 중지됨";
+  if(!on){clear();bar.classList.remove("faded");cells.forEach(function(c){c.classList.remove("on")});render()}
+}
+function row(e){
+  var ts=hms(st.clock);st.clock+=7;
+  var tag=e.l==="en"?"EN":"KO";
+  var h='<span class="t">['+ts+']'+(st.mode==="conv"?' ['+tag+']':'')+'</span> '+esc(e.srcFinal);
+  if(st.mode!=="caps")h+='<br><span class="a">&nbsp;&nbsp;&nbsp;&nbsp;→ '+esc(e.dTxt)+'</span>';
+  var div=document.createElement("div");div.innerHTML=h;tp.appendChild(div);
+  while(tp.children.length>14)tp.removeChild(tp.firstChild);
+  tp.scrollTop=tp.scrollHeight;
+}
+function step(instant){
+  if(!st.run)return;
+  var F=list(),x=F[st.i%F.length];st.i++;
+  cells.forEach(function(c,k){c.classList.toggle("on",k===x.who)});
+  bar.classList.remove("faded");
+  var useFix=st.voc&&x.fix;
+  var e={l:x.l,sHtml:"",dTxt:"",srcFinal:useFix?x.fix:x.src};
+  st.view.push(e);if(st.view.length>4)st.view.shift();
+  render();
+  var raw=x.src,fin=e.srcFinal,dst=useFix?x.dstFix:x.dst;
+  function finish(){
+    e.sHtml=useFix?esc(fin).replace("Emma",'<mark class="fix">Emma</mark>'):esc(fin);
+    if(e.sEl)e.sEl.innerHTML=e.sHtml;
+    if(st.mode==="caps"){row(e);return after()}
+    later(function(){e.dTxt=dst;if(e.dEl)e.dEl.textContent=dst;row(e);after()},instant?0:700);
+  }
+  function after(){
+    if(instant)return;
+    later(function(){if(st.fade)bar.classList.add("faded")},2400);
+    later(function(){step()},4200);
+  }
+  if(instant){finish();return}
+  var c=0;
+  typer=setInterval(function(){
+    c+=2;e.sHtml=esc(raw.slice(0,c));if(e.sEl)e.sEl.innerHTML=e.sHtml;
+    if(c>=raw.length){clearInterval(typer);later(finish,useFix?450:150)}
+  },34);
+}
+function start(){
+  if(st.run)return;st.stopped=false;setRun(true);
+  if(reduceM)step(true);else step();
+}
+function stop(){st.stopped=true;setRun(false)}
+function sync(){if(st.vis&&!st.stopped&&!reduceM)start();else if(!st.vis&&st.run)setRun(false)}
+function reset(){clear();st.i=0;st.view=[];tp.innerHTML="";bar.classList.remove("faded");if(st.run){setRun(true);reduceM?step(true):step()}else render()}
+$("runbtn").addEventListener("click",function(){st.run?stop():start()});
+$("nextbtn").addEventListener("click",function(){if(!st.run){st.stopped=false;setRun(true)}step(true)});
+function toggleView(){lab.dataset.view=lab.dataset.view==="bar"?"transcript":"bar";tp.scrollTop=tp.scrollHeight}
+$("viewbtn").addEventListener("click",toggleView);
+lab.querySelectorAll("input[name=mode]").forEach(function(r){r.addEventListener("change",function(){st.mode=r.value;reset()})});
+lab.querySelectorAll("input[name=lines]").forEach(function(r){r.addEventListener("change",function(){st.n=+r.value;render()})});
+lab.querySelectorAll("input[name=theme]").forEach(function(r){r.addEventListener("change",function(){bar.dataset.theme=r.value})});
+$("szr").addEventListener("input",function(){bar.style.setProperty("--sz",this.value+"px");$("szo").textContent=this.value});
+$("opr").addEventListener("input",function(){bar.style.setProperty("--op",this.value/100);$("opo").textContent=this.value+"%"});
+$("fadechk").addEventListener("change",function(){st.fade=this.checked;if(!this.checked)bar.classList.remove("faded")});
+$("vocchk").addEventListener("change",function(){st.voc=this.checked;reset()});
+document.addEventListener("keydown",function(e){
+  if(!e.ctrlKey||!e.altKey)return;
+  if(e.code==="KeyS"){e.preventDefault();st.run?stop():start()}
+  else if(e.code==="KeyD"){e.preventDefault();toggleView()}
+});
+bar.style.setProperty("--sz","24px");bar.style.setProperty("--op",.88);
+render();
+if("IntersectionObserver" in window){
+  new IntersectionObserver(function(es){st.vis=es[0].isIntersecting;sync()},{threshold:.35}).observe(lab);
+}
+document.addEventListener("visibilitychange",function(){if(document.hidden&&st.run)setRun(false);else if(!document.hidden)sync()});
+})();
 
 if("IntersectionObserver" in window){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
