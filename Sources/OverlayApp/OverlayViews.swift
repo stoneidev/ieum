@@ -67,7 +67,7 @@ enum BarMetrics {
     }
 
     /// The small original-language row shown above the translation.
-    static func secondarySize(_ size: CGFloat) -> CGFloat { max(13, (size * 0.5).rounded()) }
+    static func secondarySize(_ size: CGFloat) -> CGFloat { max(15, (size * 0.62).rounded()) }
     static let secondaryGap: CGFloat = 6
 
     static func secondaryHeight(_ size: CGFloat) -> CGFloat {
@@ -276,7 +276,7 @@ struct SubtitleBarView: View {
     /// The speaker's own words, small and quiet, so the translation stays the thing you read.
     /// When translation cannot run, this row says why instead.
     private func secondaryRow(size: CGFloat) -> some View {
-        let shown = model.translationNotice == nil ? originalLine : ""
+        let shown = model.translationNotice == nil && !showsOriginalAsMain ? originalLine : ""
         let small = BarMetrics.secondarySize(size) * ScriptScale.factor(for: shown, hangulScale: 0.92)
         return HStack(spacing: 8) {
             if model.translationNotice == nil, model.meetingMode.isConversation, !originalLanguage.isEmpty {
@@ -285,8 +285,9 @@ struct SubtitleBarView: View {
             Group {
                 if let notice = model.translationNotice {
                     Text(notice).foregroundStyle(Theme.alert)
-                } else {
-                    Text(originalLine).foregroundStyle(palette.interim)
+                } else if !showsOriginalAsMain {
+                    // The transcript arrives first: keep it readable from across the table, not just a caption of the caption.
+                    Text(originalLine).foregroundStyle(palette.ink.opacity(0.74))
                 }
             }
             .font(.system(size: small, weight: .regular))
@@ -295,6 +296,13 @@ struct SubtitleBarView: View {
         }
         .frame(maxWidth: .infinity, minHeight: BarMetrics.secondaryHeight(size) - BarMetrics.secondaryGap, alignment: .leading)
         .padding(.leading, 25)
+    }
+
+    /// The translation has not arrived yet, so the original is the large line (and not repeated in the small row).
+    private var showsOriginalAsMain: Bool {
+        model.status == .listening && model.translationActive && model.translationNotice == nil
+            && model.barTranslation.confirmed.isEmpty && model.barTranslation.tentative.isEmpty
+            && !originalLine.isEmpty
     }
 
     private var originalLanguage: String {
@@ -317,8 +325,9 @@ struct SubtitleBarView: View {
         case .listening where model.translationActive:
             let t = model.barTranslation
             if t.confirmed.isEmpty && t.tentative.isEmpty {
-                let heardSomething = !(model.barFinalText.isEmpty && model.partial.isEmpty)
-                return Caption(tentative: heardSomething ? tr("Translating…", "번역하는 중…") : tr("Listening…", "듣는 중…"))
+                // Nothing translated yet: show what was heard, muted, until its translation arrives.
+                if showsOriginalAsMain { return Caption(tentative: originalLine) }
+                return Caption(tentative: tr("Listening…", "듣는 중…"))
             }
             return Caption(confirmed: t.confirmed, tentative: t.tentative)
         case .listening:
