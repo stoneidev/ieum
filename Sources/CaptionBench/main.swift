@@ -33,6 +33,10 @@ struct CaptionBench: AsyncParsableCommand {
     var output: String?
     @Flag(help: "Also run the legacy recognizer and show its words sooner for the sentence being spoken.")
     var earlyWords = false
+    @Flag(help: "Turn off fast results in the modern engine (slower first words, usually more accurate).")
+    var noFast = false
+    @Flag(help: "Turn off voice activity detection in the modern engine.")
+    var noVad = false
     @Flag(help: "Use the legacy SFSpeechRecognizer engine.")
     var legacy = false
     @Flag(help: "Conversation mode: recognize English and Korean in parallel and pick the spoken language per utterance.")
@@ -77,6 +81,8 @@ struct CaptionBench: AsyncParsableCommand {
         let reference = (try String(contentsOfFile: referenceFile, encoding: .utf8)).trimmingCharacters(in: .whitespacesAndNewlines)
         var options = EngineOptions(vocabulary: (vocabulary ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) })
         options.showsWordsSooner = earlyWords
+        options.fast = !noFast
+        options.useVAD = !noVad
 
         var results: [Run] = []
         var engineName = ""
