@@ -171,12 +171,6 @@ private struct DisplayTab: View {
                 Picker(tr("Lines in the subtitle bar", "자막 바 줄 수"), selection: Binding(get: { model.barLines }, set: model.setBarLines)) {
                     ForEach(Preferences.lineChoices, id: \.self) { Text(tr("\($0)", "\($0)줄")).tag($0) }
                 }
-                .disabled(!model.meetingMode.translates)
-                if !model.meetingMode.translates {
-                    Text(tr("Captions without translation use a single line.", "번역 없는 자막은 한 줄로 표시됩니다."))
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                }
                 Picker(tr("Text size", "글자 크기"), selection: Binding(get: { model.textSize }, set: model.setTextSize)) {
                     ForEach(TextSize.allCases, id: \.self) { Text($0.title).tag($0) }
                 }

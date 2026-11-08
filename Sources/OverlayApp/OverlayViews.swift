@@ -249,7 +249,7 @@ struct SubtitleBarView: View {
         // Hangul font keeps the same pitch and simply gets more leading.
         let pitch = BarMetrics.fontLineHeight(size) + BarMetrics.lineSpacing(size)
         let fontSize = size * ScriptScale.factor(for: caption.plain)
-        let textHeight = BarMetrics.textHeight(lines: model.effectiveBarLines, size: size)
+        let textHeight = BarMetrics.textHeight(lines: model.barLines, size: size)
         VStack(alignment: .leading, spacing: BarMetrics.secondaryGap) {
             if model.showsSecondaryRow { secondaryRow(size: size) }
             HStack(alignment: .bottom, spacing: 16) {
@@ -475,10 +475,6 @@ struct TranscriptPanelView: View {
                     .font(.system(size: bodySize * ScriptScale.factor(for: text, hangulScale: ScriptScale.hangulPanel), weight: .regular))
                     .lineSpacing(3)
                     .foregroundStyle(color)
-                    // Captions without translation are one line per sentence; the full text is in the tooltip and the script.
-                    .lineLimit(model.meetingMode.translates ? nil : 1)
-                    .truncationMode(.tail)
-                    .help(model.meetingMode.translates ? "" : text)
                     .textSelection(.enabled)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -518,7 +514,7 @@ struct CaptionPreview: View {
         let content = sample
         let fontSize = size * ScriptScale.factor(for: content.shown)
         let pitch = BarMetrics.fontLineHeight(size) + BarMetrics.lineSpacing(size)
-        let barHeight = BarMetrics.height(lines: model.effectiveBarLines, size: size, secondaryRow: content.secondary)
+        let barHeight = BarMetrics.height(lines: model.barLines, size: size, secondaryRow: content.secondary)
         GeometryReader { geometry in
             let scale = geometry.size.width / Self.layoutWidth
             ZStack(alignment: .bottom) {
@@ -541,7 +537,7 @@ struct CaptionPreview: View {
                             .foregroundStyle(palette.ink)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .fixedSize(horizontal: false, vertical: true)
-                            .frame(maxHeight: BarMetrics.textHeight(lines: model.effectiveBarLines, size: size), alignment: .bottomLeading)
+                            .frame(maxHeight: BarMetrics.textHeight(lines: model.barLines, size: size), alignment: .bottomLeading)
                             .fixedSize(horizontal: false, vertical: true)
                             .clipped()
                     }
