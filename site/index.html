@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ieum · Live captions and translation for meetings, on your Mac</title>
 <meta name="description" content="Ieum puts live captions and English–Korean translation on your Mac screen during a meeting. Speech recognition and translation run on the device. No account, no cloud.">
-<meta name="theme-color" content="#f2f3ef">
+<meta name="theme-color" content="#f0fdfa">
 <meta property="og:title" content="Ieum · Live captions and translation for meetings">
 <meta property="og:description" content="Read the other side in your language while they read you in theirs. Fully on-device, for Mac.">
 <meta property="og:type" content="website">
@@ -14,173 +14,210 @@
 <meta name="twitter:card" content="summary">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/plusjakarta-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.className="js"</script>
 <style>
-@font-face{font-family:"Archivo";src:url(/fonts/archivo-latin.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Hahmlet";src:url(/fonts/hahmlet-ko.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Plus Jakarta Sans";src:url(/fonts/plusjakarta-latin.woff2) format("woff2");font-weight:300 800;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Noto Sans KR";src:url(/fonts/notosanskr-subset.woff2) format("woff2");font-weight:100 900;font-display:swap}
+
+/* Design tokens: Product Demo + Features, Flat Design (ui-ux-pro-max) */
 :root{
-  --paper:#f2f3ef; --ink:#0e1124; --indigo:#1e2fbf; --stitch:#ffe14d; --mute:#565b6b;
-  --on-indigo:rgba(255,255,255,.8);
-  --latin:"Archivo",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
-  --hang:"Hahmlet","Nanum Myeongjo","Noto Serif KR",ui-serif,serif;
-  --max:1200px; --gut:max(24px,calc((100vw - var(--max)) / 2));
+  --color-primary:#0d9488; --color-on-primary:#000;
+  --color-secondary:#14b8a6; --color-primary-text:#0b6e66;
+  --color-accent:#ea580c; --color-accent-hover:#f97316; --color-on-accent:#000;
+  --color-background:#f0fdfa; --color-foreground:#134e4a;
+  --color-card:#fff; --color-muted:#e8f1f4; --color-muted-foreground:#475569;
+  --color-border:#99f6e4; --color-ring:#0d9488;
+  --font:"Plus Jakarta Sans","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --space-1:8px; --space-2:16px; --space-3:24px; --space-4:32px; --space-5:48px; --space-6:64px; --space-7:96px;
+  --radius:14px; --max:1120px;
+  --ease:cubic-bezier(.2,.7,.2,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--paper);color:var(--ink);font:400 18px/1.6 var(--latin);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{background:var(--color-background);color:var(--color-foreground);font:400 17px/1.65 var(--font);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--indigo);outline-offset:3px;border-radius:4px}
-.on-indigo :focus-visible{outline-color:var(--stitch)}
+:focus-visible{outline:3px solid var(--color-ring);outline-offset:3px;border-radius:6px}
+.on-dark :focus-visible,.on-primary :focus-visible{outline-color:#fff}
+.on-primary :focus-visible{outline-color:#000}
 .wrap{width:min(var(--max),100% - 48px);margin-inline:auto}
-.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;z-index:20}
-.skip:focus{left:8px}
-.ko{font-family:var(--hang);word-break:keep-all}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:8px;background:var(--color-foreground);color:#fff;padding:12px 16px;border-radius:8px;z-index:20}
+.skip:focus{left:8px}
+.icon{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+:lang(ko){word-break:keep-all}
 
-/* the stitch: the one repeated mark, a seam joining two sides */
-.stitch{display:block;height:3px;background:repeating-linear-gradient(90deg,var(--stitch) 0 10px,transparent 10px 18px)}
-.stitch.short{width:56px}
+/* buttons: 48px tall, color-shift hover only (flat) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 26px;border-radius:12px;border:2px solid transparent;background:var(--color-accent);color:var(--color-on-accent);font:700 16px/1 var(--font);text-decoration:none;cursor:pointer;transition:background-color .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease)}
+.btn:hover{background:var(--color-accent-hover)}
+.btn.small{min-height:44px;padding:0 20px;font-size:15px}
+.btn.ghost{background:transparent;color:var(--color-foreground);border-color:var(--color-foreground)}
+.btn.ghost:hover{background:var(--color-foreground);color:#fff}
+.textbtn{min-height:44px;padding:0 14px;border:2px solid var(--color-foreground);border-radius:10px;background:transparent;color:var(--color-foreground);font:600 14.5px/1 var(--font);cursor:pointer;transition:background-color .2s var(--ease),color .2s var(--ease)}
+.textbtn:hover{background:var(--color-foreground);color:#fff}
 
 /* header */
-.top{padding:22px 0}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px}
-.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font:700 21px/1 var(--latin);font-stretch:112%;letter-spacing:-.02em}
-.brand img{width:30px;height:30px;border-radius:8px}
-.brand .ko{font-weight:600;font-size:19px;letter-spacing:0}
-.top nav{display:flex;align-items:center;gap:30px;font-size:15.5px}
-.top nav a{text-decoration:none;color:var(--mute)}
-.top nav a:hover{color:var(--ink)}
-.top nav a.btn{color:#fff}
+.top{padding:var(--space-2) 0}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)}
+.brand{display:flex;align-items:center;gap:12px;min-height:44px;text-decoration:none;font:800 21px/1 var(--font);letter-spacing:-.03em}
+.brand img{width:32px;height:32px;border-radius:9px}
+.brand span{font-weight:700;color:var(--color-primary-text)}
+.top nav{display:flex;align-items:center;gap:6px}
+.top nav a:not(.btn){display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:8px;text-decoration:none;font-weight:500;font-size:15.5px;transition:background-color .2s var(--ease)}
+.top nav a:not(.btn):hover{background:var(--color-muted)}
+.top nav .btn{margin-left:var(--space-1)}
 
-.btn{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;border-radius:10px;background:var(--indigo);color:#fff;text-decoration:none;font:600 16px/1 var(--latin);font-stretch:108%;transition:background .2s}
-.btn:hover{background:var(--ink)}
-.btn.small{padding:11px 18px;font-size:14.5px}
-.btn svg{width:18px;height:18px}
-.link{color:var(--ink);font-weight:500;text-underline-offset:5px;text-decoration-thickness:1.5px}
+/* hero */
+.hero{padding:var(--space-6) 0 var(--space-7);text-align:center}
+h1{font:800 clamp(40px,6.2vw,80px)/1.04 var(--font);letter-spacing:-.04em;max-width:17ch;margin-inline:auto;text-wrap:balance}
+.lead{margin:var(--space-3) auto 0;max-width:56ch;font-size:clamp(17px,1.7vw,20px);color:var(--color-muted-foreground)}
+.cta{margin-top:var(--space-4);display:flex;flex-wrap:wrap;gap:var(--space-2);justify-content:center}
+.note{margin:var(--space-3) auto 0;max-width:60ch;font-size:14.5px;color:var(--color-muted-foreground)}
+.note a{color:var(--color-foreground)}
 
-/* hero: the caption is the product, so the caption is the picture */
-.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:min(820px,calc(100svh - 84px))}
-.hero .copy{padding:56px 56px 64px var(--gut);display:flex;flex-direction:column;justify-content:center}
-h1{font:700 clamp(44px,5.7vw,92px)/.98 var(--latin);font-stretch:118%;letter-spacing:-.035em;max-width:9ch}
-.lead{margin-top:30px;max-width:44ch;font-size:clamp(18px,1.6vw,21px);line-height:1.55}
-.cta{margin-top:36px;display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
-.note{margin-top:20px;max-width:52ch;font-size:14.5px;color:var(--mute)}
-.note a{color:var(--ink)}
-.field{background:var(--indigo);color:#fff;padding:28px var(--gut) 56px clamp(28px,4.5vw,72px);display:flex;flex-direction:column;justify-content:space-between;gap:48px}
-.field .top-row{display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--on-indigo)}
-.presence{display:flex;gap:10px}
-.presence i{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.28);transition:background .3s,box-shadow .3s}
-.presence i.speaking{background:#fff;box-shadow:0 0 0 4px var(--indigo),0 0 0 7px var(--stitch)}
-.line-src{font:500 clamp(18px,1.7vw,26px)/1.35 var(--latin);color:var(--on-indigo);min-height:2.7em;transition:color .3s}
-.line-src.ko{font-family:var(--hang);font-weight:400}
-.line-src .interim{color:rgba(255,255,255,.5)}
-.field .stitch{margin:20px 0 24px;opacity:0;transition:opacity .4s}
-.field .stitch.on{opacity:1}
-.line-dst{min-height:2.6em;font:600 clamp(32px,3.9vw,60px)/1.22 var(--hang);word-break:keep-all;opacity:0;transform:translateY(8px);transition:opacity .45s,transform .45s}
-.line-dst.en{font-family:var(--latin);font-weight:650;font-stretch:112%;letter-spacing:-.02em}
-.line-dst.on{opacity:1;transform:none}
+/* product demo: a flat window with the real caption bar */
+.demo{margin:var(--space-6) auto 0;max-width:960px;text-align:left}
+.win{background:var(--color-card);border:2px solid var(--color-foreground);border-radius:20px;overflow:hidden}
+.win-bar{display:flex;align-items:center;gap:var(--space-2);padding:12px 18px;border-bottom:2px solid var(--color-foreground);font-size:14.5px;font-weight:600}
+.dots{display:flex;gap:7px}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--color-muted);border:2px solid var(--color-foreground)}
+.win-bar .title{flex:1;text-align:center}
+.win-bar .who{min-width:84px;text-align:right;color:var(--color-foreground);font-weight:800}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);padding:var(--space-3) var(--space-3) var(--space-2);background:var(--color-muted)}
+.tile{aspect-ratio:4/3;border-radius:12px;background:color-mix(in srgb,var(--color-secondary) 22%,#fff);position:relative;overflow:hidden;outline:3px solid transparent;outline-offset:-3px;transition:outline-color .2s var(--ease)}
+.tile::before{content:"";position:absolute;left:50%;top:26%;width:20%;aspect-ratio:1;border-radius:50%;background:var(--color-foreground);opacity:.28;transform:translateX(-50%)}
+.tile::after{content:"";position:absolute;left:50%;top:58%;width:44%;height:60%;border-radius:50% 50% 0 0;background:var(--color-foreground);opacity:.2;transform:translateX(-50%)}
+.tile.speaking{outline-color:var(--color-accent)}
+.captions{background:var(--color-foreground);color:#fff;padding:var(--space-3) var(--space-4) var(--space-4)}
+.line-src{min-height:3.3em;font-size:clamp(16px,1.9vw,21px);line-height:1.55;color:rgba(255,255,255,.82)}
+.line-src .interim{color:rgba(255,255,255,.55)}
+.line-dst{margin-top:var(--space-1);min-height:2.7em;font-size:clamp(24px,3.6vw,42px);line-height:1.3;font-weight:700;letter-spacing:-.02em;border-left:5px solid var(--color-accent);padding-left:var(--space-2);opacity:0;transition:opacity .3s var(--ease)}
+.line-dst.on{opacity:1}
+.demo figcaption{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin-top:var(--space-2);font-size:14.5px;color:var(--color-muted-foreground)}
 
-/* bands */
-.band{padding:clamp(80px,10vw,150px) 0}
-.band.indigo{background:var(--indigo);color:#fff}
-h2{font:700 clamp(34px,4.4vw,64px)/1.02 var(--latin);font-stretch:114%;letter-spacing:-.03em;max-width:15ch}
-.head{display:grid;grid-template-columns:1fr 1fr;gap:32px 64px;align-items:end}
-.head .sub{max-width:46ch;font-size:19px;color:var(--mute)}
-.indigo .head .sub{color:var(--on-indigo)}
+/* sections */
+.band{padding:var(--space-7) 0}
+.band.alt{background:var(--color-card)}
+h2{font:800 clamp(30px,4.2vw,52px)/1.08 var(--font);letter-spacing:-.035em;max-width:18ch}
+.sub{margin-top:var(--space-2);max-width:56ch;font-size:19px;color:var(--color-muted-foreground)}
+.reveal{transition:opacity .35s var(--ease),transform .35s var(--ease)}
+.js .reveal{opacity:0;transform:translateY(12px)}
+.js .reveal.in{opacity:1;transform:none}
 
-/* a transcript, set the way Ieum sets it */
-.transcript{position:relative;margin-top:72px}
-.transcript::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:repeating-linear-gradient(180deg,var(--indigo) 0 10px,transparent 10px 18px)}
+/* transcript */
+.transcript{margin-top:var(--space-5);background:var(--color-background);border:2px solid var(--color-foreground);border-radius:var(--radius);overflow:hidden}
 .transcript .row{display:grid;grid-template-columns:1fr 1fr}
-.transcript .cap{font-size:15.5px;color:var(--mute);padding-bottom:20px}
-.transcript .row>*{padding:26px 48px}
-.transcript .row>*:first-child{padding-left:0}
-.transcript .row>*:last-child{padding-right:0}
-.transcript .said{font:500 clamp(22px,2.3vw,32px)/1.3 var(--latin);letter-spacing:-.01em}
-.transcript .read{font:500 clamp(24px,2.6vw,36px)/1.3 var(--hang);word-break:keep-all}
-.transcript .ko.said{font-family:var(--hang);font-weight:500}
-.transcript .en.read{font-family:var(--latin);letter-spacing:-.01em}
-.modes{margin-top:104px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px 56px}
-.modes h3{font:650 24px/1.2 var(--latin);font-stretch:108%;letter-spacing:-.015em}
-.modes p{margin-top:12px;max-width:34ch;color:var(--mute);font-size:16.5px}
-.modes .stitch{margin-bottom:22px;background:repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 18px)}
+.transcript .row>*{padding:22px var(--space-4)}
+.transcript .row>*+*{border-left:2px solid var(--color-foreground)}
+.transcript .row+.row{border-top:1px solid var(--color-border)}
+.transcript .head{background:var(--color-foreground);color:#fff;font-weight:600;font-size:14.5px}
+.transcript .head>*{padding:12px var(--space-4)}
+.transcript .head>*+*{border-left-color:rgba(255,255,255,.3)}
+.transcript .said{font-size:clamp(18px,2vw,24px);font-weight:600;line-height:1.4}
+.transcript .read{font-size:clamp(18px,2vw,24px);font-weight:600;line-height:1.4;color:var(--color-primary-text)}
+.modes{margin-top:var(--space-5);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+.card{background:var(--color-card);border:2px solid var(--color-border);border-radius:var(--radius);padding:var(--space-4)}
+.band.alt .card{background:var(--color-background)}
+.ico{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--color-foreground);color:#fff;margin-bottom:var(--space-3)}
+.card h3{font:700 21px/1.25 var(--font);letter-spacing:-.02em}
+.card p{margin-top:10px;color:var(--color-muted-foreground);font-size:16px}
 
 /* privacy */
-.says{margin-top:88px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px 56px}
-.says .stitch{margin-bottom:26px}
-.says b{display:block;font:650 clamp(28px,3vw,44px)/1.08 var(--latin);font-stretch:112%;letter-spacing:-.025em}
-.says p{margin-top:14px;max-width:30ch;color:var(--on-indigo);font-size:16.5px}
-.fine{margin-top:72px;max-width:70ch;font-size:14.5px;color:var(--on-indigo)}
+.band.primary{background:var(--color-primary);color:var(--color-on-primary)}
+.band.primary .sub,.band.primary .fine{color:rgba(0,0,0,.8)}
+.says{margin-top:var(--space-5);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4)}
+.says li{list-style:none;border-top:3px solid #000;padding-top:var(--space-3)}
+.says b{display:flex;align-items:center;gap:10px;font:800 clamp(24px,2.6vw,32px)/1.15 var(--font);letter-spacing:-.03em}
+.says p{margin-top:10px;font-size:16.5px;max-width:30ch}
+.fine{margin-top:var(--space-5);max-width:70ch;font-size:15px}
 
-/* details */
-.feat{margin-top:80px;display:grid;grid-template-columns:1fr 1fr;gap:72px 64px}
-.feat h3{font:650 25px/1.2 var(--latin);font-stretch:108%;letter-spacing:-.015em}
-.feat p{margin-top:12px;max-width:44ch;color:var(--mute);font-size:16.5px}
-.feat .wide{grid-column:1/-1}
-.swatches{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
-.sw{width:84px;height:48px;border-radius:8px;display:grid;place-items:center;font:500 13px/1 var(--latin);color:#fff;border:1px solid rgba(14,17,36,.12)}
-.keys{margin-top:26px;display:flex;flex-wrap:wrap;gap:14px 22px}
-.keys span{display:inline-flex;align-items:center;gap:10px;font-size:15px;color:var(--mute)}
-kbd{font:600 14px/1 var(--latin);padding:7px 10px 6px;border-radius:7px;background:#fff;border:1px solid rgba(14,17,36,.2);border-bottom-width:3px;color:var(--ink)}
-.script{margin-top:28px;font:400 14.5px/1.8 ui-monospace,"SF Mono",Menlo,monospace;color:rgba(255,255,255,.82);background:var(--ink);border-radius:10px;padding:26px 30px;overflow:auto;white-space:pre}
-.script u{text-decoration:none;color:var(--stitch)}
+/* features */
+.feat{margin-top:var(--space-5);display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.feat .wide{grid-column:1/-1;display:grid;grid-template-columns:1fr 1.25fr;gap:var(--space-5);align-items:center}
+.swatches{display:flex;gap:10px;margin-top:var(--space-3);flex-wrap:wrap}
+.sw{width:88px;height:48px;border-radius:10px;display:grid;place-items:center;font:600 13px/1 var(--font);color:#fff;border:2px solid var(--color-foreground)}
+.keys{margin-top:var(--space-3);display:flex;flex-wrap:wrap;gap:12px 20px}
+.keys span{display:inline-flex;align-items:center;gap:10px;font-size:15px;color:var(--color-muted-foreground)}
+kbd{font:700 14px/1 var(--font);padding:9px 11px 8px;border-radius:8px;background:#fff;border:2px solid var(--color-foreground);border-bottom-width:4px;color:var(--color-foreground)}
+.script{font:400 14.5px/1.85 var(--mono);color:rgba(255,255,255,.88);background:var(--color-foreground);border-radius:12px;padding:var(--space-3) var(--space-4);overflow:auto;white-space:pre}
+.script u{text-decoration:none;color:#5eead4}
 .script b{font-weight:400;color:#fff}
-.spec{margin-top:104px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px 40px}
-.spec div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:10px}
-.spec dt{font-size:15px;color:var(--mute);max-width:24ch}
-.spec dd{font:650 clamp(24px,2.5vw,34px)/1.12 var(--latin);font-stretch:110%;letter-spacing:-.02em}
-.spec dd small{display:block;margin-top:6px;font:400 15px/1.4 var(--latin);color:var(--mute);letter-spacing:0}
-.footnote{margin-top:40px;font-size:14.5px;color:var(--mute);max-width:76ch}
+.spec{margin-top:var(--space-6);display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);border-top:2px solid var(--color-foreground);padding-top:var(--space-4)}
+.spec div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:8px}
+.spec dt{font-size:15px;color:var(--color-muted-foreground);max-width:24ch}
+.spec dd{font:800 clamp(24px,2.6vw,34px)/1.1 var(--font);letter-spacing:-.03em}
+.spec dd small{display:block;margin-top:6px;font:400 15px/1.4 var(--font);letter-spacing:0;color:var(--color-muted-foreground)}
+.footnote{margin-top:var(--space-4);font-size:14.5px;color:var(--color-muted-foreground);max-width:76ch}
 
 /* faq */
-.faq{display:grid;grid-template-columns:1fr 1.35fr;gap:48px 80px;align-items:start}
-details{padding:24px 0;border-bottom:3px dashed rgba(14,17,36,.18)}
-details:first-child{padding-top:0}
-summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;font:600 21px/1.35 var(--latin);font-stretch:106%;letter-spacing:-.01em}
+.faq{display:grid;grid-template-columns:1fr 1.4fr;gap:var(--space-5) var(--space-6);align-items:start}
+details{border-bottom:2px solid var(--color-border)}
+details:first-child{border-top:2px solid var(--color-border)}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);min-height:64px;padding:14px 0;font:700 19px/1.35 var(--font);letter-spacing:-.015em}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"+";color:var(--indigo);font:400 30px/1 var(--latin);transition:transform .25s}
+summary::after{content:"";width:22px;height:22px;flex:none;background:linear-gradient(var(--color-primary),var(--color-primary)) center/100% 3px no-repeat,linear-gradient(var(--color-primary),var(--color-primary)) center/3px 100% no-repeat;transition:transform .25s var(--ease)}
 details[open] summary::after{transform:rotate(45deg)}
-details p{margin-top:14px;max-width:60ch;color:var(--mute);font-size:16.5px}
+details p{padding:0 0 22px;max-width:60ch;color:var(--color-muted-foreground);font-size:16.5px}
 
 /* closing */
-.closing{overflow:hidden;padding:clamp(80px,10vw,140px) 0 0}
-.closing .wrap{display:grid;gap:24px}
-.closing .say p{margin-top:22px;max-width:36ch;color:var(--mute);font-size:19px}
-.closing .say .btn{margin-top:34px}
-.glyph{justify-self:end;white-space:nowrap;font:600 clamp(190px,38vw,520px)/.8 var(--hang);color:var(--indigo);letter-spacing:-.06em;margin-bottom:-.13em;user-select:none}
-footer{background:var(--indigo);color:var(--on-indigo);padding:28px 0 36px;font-size:14.5px}
+.band.dark{background:var(--color-foreground);color:#fff;position:relative;overflow:hidden}
+.band.dark .sub{color:rgba(255,255,255,.82)}
+.band.dark .wrap{position:relative}
+.band.dark h2,.band.dark .sub,.band.dark .cta{position:relative;z-index:1}
+.band.dark .cta{justify-content:flex-start}
+.glyph{position:absolute;right:-.03em;bottom:-.2em;font:800 clamp(150px,23vw,330px)/1 var(--font);letter-spacing:-.06em;color:var(--color-secondary);opacity:.22;z-index:0;white-space:nowrap;user-select:none;pointer-events:none}
+.glyph::before{content:"이음";content:"이음" / ""}
+footer{background:var(--color-foreground);color:rgba(255,255,255,.78);border-top:1px solid rgba(255,255,255,.18);padding:var(--space-3) 0 var(--space-4);font-size:14.5px}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
-@media (max-width:960px){
+@media (max-width:900px){
   .top nav a:not(.btn){display:none}
-  .hero{grid-template-columns:1fr;min-height:0}
-  .hero .copy{padding:40px 24px 56px}
-  h1{max-width:11ch}
-  .field{padding:24px 24px 44px;gap:40px}
-  .head,.faq{grid-template-columns:1fr}
+  .hero{padding:var(--space-5) 0 var(--space-6)}
+  .band{padding:var(--space-6) 0}
+  .tiles{grid-template-columns:repeat(2,1fr);padding:var(--space-2)}
+  .tile:nth-child(3){display:none}
+  .captions{padding:var(--space-3) var(--space-3) var(--space-3)}
+  .win-bar .title{display:none}
+  .win-bar .who{flex:1}
   .modes,.says,.feat{grid-template-columns:1fr}
-  .feat{gap:56px}
-  .spec{grid-template-columns:1fr 1fr;margin-top:72px}
-  .glyph{justify-self:start;font-size:clamp(170px,44vw,320px)}
-  .transcript{margin-top:56px}
-  .transcript::before{display:none}
-  .transcript .cap{display:none}
-  .transcript .row{grid-template-columns:1fr;padding-block:22px}
-  .transcript .row>*,.transcript .row>*:first-child,.transcript .row>*:last-child{padding:0}
-  .transcript .read{margin-top:18px;padding-top:18px;background:repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 18px) top/100% 3px no-repeat}
+  .feat .wide{grid-template-columns:1fr;gap:var(--space-3)}
+  .spec{grid-template-columns:1fr 1fr}
+  .faq{grid-template-columns:1fr}
+  .transcript .row>*{padding:18px var(--space-2)}
+  .transcript .head>*{padding:10px var(--space-2)}
+}
+@media (max-width:520px){
+  .transcript .row{grid-template-columns:1fr}
+  .transcript .row>*+*{border-left:0;border-top:1px solid var(--color-border)}
+  .transcript .head{display:none}
+  .cta .btn{width:100%}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .line-dst,.field .stitch,.presence i{transition:none}
+  .reveal,.line-dst,.tile,.btn,.textbtn,summary::after{transition:none}
+  .js .reveal{opacity:1;transform:none}
 }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-captions" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 15h4M15 15h2M7 11h2M13 11h4"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15h18M8 19h.01M8 9h8"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="m8 3-4 4 4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></symbol>
+  <symbol id="i-ear" viewBox="0 0 24 24"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 0 1-7 0M15 8.5a2.5 2.5 0 0 0-5 0v1"/></symbol>
+  <symbol id="i-screen" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+</svg>
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Ieum 이음 home"><img src="/icon-512.png" alt="" width="30" height="30">Ieum <span class="ko" lang="ko">이음</span></a>
+    <a class="brand" href="#top" aria-label="Ieum 이음 home"><img src="/icon-512.png" alt="" width="32" height="32">Ieum <span lang="ko">이음</span></a>
     <nav aria-label="Primary">
       <a href="#modes">Modes</a>
       <a href="#privacy">Privacy</a>
@@ -192,87 +229,79 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 </header>
 
 <main id="main">
-<div class="hero" id="top">
-  <div class="copy">
-    <h1>Every word, understood in the room.</h1>
+<section class="hero" id="top" aria-labelledby="hero-h">
+  <div class="wrap">
+    <h1 id="hero-h">Every word, understood in the room.</h1>
     <p class="lead">Ieum puts live captions and translation on your Mac during a meeting. The other side speaks English and you read Korean. You answer in Korean and they can read English. All of it happens on your Mac.</p>
     <div class="cta" id="get">
-      <a class="btn" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>
-        Download for Mac
-      </a>
-      <a class="link" href="#modes">See how it reads</a>
+      <a class="btn" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Download for Mac</a>
+      <a class="btn ghost" href="#modes">See how it reads</a>
     </div>
-    <p class="note">Free download, about 1.3 MB. Signed and notarized by Apple. Captions need macOS 14 or later; translation needs macOS 26.4 or later on Apple silicon. <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></p>
+    <p class="note">Free for personal and noncommercial use, about 1.3 MB. Signed and notarized by Apple. Captions need macOS 14 or later; translation needs macOS 26.4 or later on Apple silicon. <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></p>
+
+    <figure class="demo" aria-label="Example of Ieum captions during a video meeting">
+      <div class="win">
+        <div class="win-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">Weekly sync</span><span class="who" id="who">English</span></div>
+        <div class="tiles" aria-hidden="true"><div class="tile" id="t1"></div><div class="tile" id="t2"></div><div class="tile" id="t3"></div></div>
+        <div class="captions">
+          <div class="line-src" id="src">Listening</div>
+          <div class="line-dst" id="dst" aria-live="polite"></div>
+        </div>
+      </div>
+      <figcaption><button class="textbtn" id="toggle" type="button" aria-pressed="false">Pause demo</button><span>A sample conversation. Nothing here is recorded.</span></figcaption>
+    </figure>
   </div>
+</section>
 
-  <figure class="field on-indigo" aria-label="Example of Ieum captions during a meeting">
-    <div class="top-row">
-      <span class="presence" aria-hidden="true"><i id="d1"></i><i id="d2"></i><i id="d3"></i></span>
-      <span id="who">English</span>
-    </div>
-    <div class="caption">
-      <div class="line-src" id="src">Listening</div>
-      <span class="stitch short" id="stitch" aria-hidden="true"></span>
-      <div class="line-dst" id="dst" aria-live="polite"></div>
-    </div>
-    <figcaption class="sr">Sample conversation</figcaption>
-  </figure>
-</div>
-
-<section class="band" id="modes" aria-labelledby="modes-h">
-  <div class="wrap">
-    <div class="head">
-      <h2 id="modes-h">One conversation, two languages.</h2>
-      <p class="sub">Pick a meeting mode and start. Conversation mode listens for English and Korean at once and decides which one you spoke, sentence by sentence.</p>
-    </div>
+<section class="band alt" id="modes" aria-labelledby="modes-h">
+  <div class="wrap reveal">
+    <h2 id="modes-h">One conversation, two languages.</h2>
+    <p class="sub">Pick a meeting mode and start. Conversation mode listens for English and Korean at once and decides which one you spoke, sentence by sentence.</p>
     <div class="transcript" role="table" aria-label="Example of a conversation">
-      <div class="row cap" role="row"><span role="columnheader">What was said</span><span role="columnheader">What you read</span></div>
-      <div class="row" role="row"><div class="said en" role="cell" lang="en">Could you share the schedule for next week?</div><div class="read ko" role="cell" lang="ko">다음 주 일정을 공유해 주시겠어요?</div></div>
-      <div class="row" role="row"><div class="said ko" role="cell" lang="ko">네, 공유해 드리겠습니다.</div><div class="read en" role="cell" lang="en">Yes, I'll share it with you.</div></div>
-      <div class="row" role="row"><div class="said en" role="cell" lang="en">What about the budget?</div><div class="read ko" role="cell" lang="ko">예산은 어떻게 되나요?</div></div>
+      <div class="row head" role="row"><span role="columnheader">What was said</span><span role="columnheader">What you read</span></div>
+      <div class="row" role="row"><div class="said" role="cell" lang="en">Could you share the schedule for next week?</div><div class="read" role="cell" lang="ko">다음 주 일정을 공유해 주시겠어요?</div></div>
+      <div class="row" role="row"><div class="said" role="cell" lang="ko">네, 공유해 드리겠습니다.</div><div class="read" role="cell" lang="en">Yes, I'll share it with you.</div></div>
+      <div class="row" role="row"><div class="said" role="cell" lang="en">What about the budget?</div><div class="read" role="cell" lang="ko">예산은 어떻게 되나요?</div></div>
     </div>
     <div class="modes">
-      <div><span class="stitch short"></span><h3>Conversation</h3><p>Both directions in one stream. English is shown with Korean beneath it. Korean is shown with English beneath it.</p></div>
-      <div><span class="stitch short"></span><h3>English to Korean</h3><p>For the meeting where you mostly listen. Read the speaker in Korean as they talk.</p></div>
-      <div><span class="stitch short"></span><h3>Korean to English</h3><p>For the meeting where you present. Show the room your words in English.</p></div>
+      <div class="card"><div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div><h3>Conversation</h3><p>Both directions in one stream. English is shown with Korean beneath it. Korean is shown with English beneath it.</p></div>
+      <div class="card"><div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-ear"/></svg></div><h3>English to Korean</h3><p>For the meeting where you mostly listen. Read the speaker in Korean as they talk.</p></div>
+      <div class="card"><div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div><h3>Korean to English</h3><p>For the meeting where you present. Show the room your words in English.</p></div>
     </div>
   </div>
 </section>
 
-<section class="band indigo on-indigo" id="privacy" aria-labelledby="privacy-h">
-  <div class="wrap">
-    <div class="head">
-      <h2 id="privacy-h">What is said in the room stays in the room.</h2>
-      <p class="sub">Speech recognition and translation use the models built into macOS. Your audio is processed in memory on your Mac and never uploaded.</p>
-    </div>
-    <div class="says">
-      <div><span class="stitch short"></span><b>No account.</b><p>No sign-in and no server to trust.</p></div>
-      <div><span class="stitch short"></span><b>No network requests.</b><p>Ieum makes none while it runs.</p></div>
-      <div><span class="stitch short"></span><b>No recordings.</b><p>Only the text script is saved.</p></div>
-    </div>
+<section class="band primary on-primary" id="privacy" aria-labelledby="privacy-h">
+  <div class="wrap reveal">
+    <h2 id="privacy-h">What is said in the room stays in the room.</h2>
+    <p class="sub">Speech recognition and translation use the models built into macOS. Your audio is processed in memory on your Mac and never uploaded.</p>
+    <ul class="says">
+      <li><b><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>No account.</b><p>No sign-in and no server to trust.</p></li>
+      <li><b><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>No network requests.</b><p>Ieum makes none while it runs.</p></li>
+      <li><b><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>No recordings.</b><p>Only the text script is saved.</p></li>
+    </ul>
     <p class="fine">macOS downloads a language model the first time you use a language, so that one step needs a network connection. After that, Ieum works with Wi-Fi switched off.</p>
   </div>
 </section>
 
 <section class="band" id="details" aria-labelledby="details-h">
-  <div class="wrap">
-    <div class="head">
-      <h2 id="details-h">Built to be read from across the table.</h2>
-      <p class="sub">The subtitle bar is large, calm and out of the way. Everything about it is yours to adjust.</p>
-    </div>
+  <div class="wrap reveal">
+    <h2 id="details-h">Built to be read from across the table.</h2>
+    <p class="sub">The subtitle bar is large, calm and out of the way. Everything about it is yours to adjust.</p>
     <div class="feat">
-      <div>
+      <div class="card">
+        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-captions"/></svg></div>
         <h3>A subtitle bar made for distance</h3>
         <p>Large type, one to four lines, and the translation set apart from the original so your eye never has to search. Interim words appear dimmed and settle when the sentence is final.</p>
         <div class="swatches" aria-label="Background styles">
-          <div class="sw" style="background:#0e1124">Solid</div>
-          <div class="sw" style="background:rgba(14,17,36,.68)">Glass</div>
-          <div class="sw" style="background:linear-gradient(90deg,rgba(14,17,36,.95),rgba(14,17,36,.12))">Fade</div>
-          <div class="sw" style="background:#fff;color:#0e1124">Paper</div>
+          <div class="sw" style="background:#0f2f2c">Solid</div>
+          <div class="sw" style="background:rgba(19,78,74,.68)">Glass</div>
+          <div class="sw" style="background:linear-gradient(90deg,#134e4a,rgba(19,78,74,.35));color:#fff">Fade</div>
+          <div class="sw" style="background:#fff;color:#134e4a">Paper</div>
         </div>
       </div>
-      <div>
+      <div class="card">
+        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-keyboard"/></svg></div>
         <h3>Stays out of your way</h3>
         <p>Fades when nobody is speaking. Click through it to reach the window beneath.</p>
         <div class="keys">
@@ -282,18 +311,23 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <span><kbd>⌃⌥L</kbd>swap</span>
         </div>
       </div>
-      <div>
+      <div class="card">
+        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></div>
         <h3>Your vocabulary</h3>
         <p>List the names, products and jargon of the meeting. Ieum corrects them in the transcript before translating, so "Kubernetes" stays "Kubernetes".</p>
       </div>
-      <div>
+      <div class="card">
+        <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-panel"/></svg></div>
         <h3>A transcript panel</h3>
         <p>Switch to a timestamped scrollback you can select and copy, and that scrolls itself while you listen.</p>
       </div>
-      <div class="wide">
-        <h3>A script, when it ends</h3>
-        <p>Each meeting is saved as a plain text file you can open anywhere.</p>
-        <div class="script" aria-label="Example script"><u>[10:02:14]</u> <b>[EN]</b> Could you share the schedule for next week?
+      <div class="card wide">
+        <div>
+          <div class="ico"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></div>
+          <h3>A script, when it ends</h3>
+          <p>Each meeting is saved as a plain text file you can open anywhere.</p>
+        </div>
+        <div class="script" role="img" aria-label="Example script"><u>[10:02:14]</u> <b>[EN]</b> Could you share the schedule for next week?
            → 다음 주 일정을 공유해 주시겠어요?
 <u>[10:02:19]</u> <b>[KO]</b> 네, 공유해 드리겠습니다.
            → Yes, I'll share it with you.</div>
@@ -310,8 +344,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   </div>
 </section>
 
-<section class="band" id="faq" aria-labelledby="faq-h" style="padding-top:0">
-  <div class="wrap faq">
+<section class="band alt" id="faq" aria-labelledby="faq-h">
+  <div class="wrap faq reveal">
     <h2 id="faq-h">Questions, answered plainly.</h2>
     <div>
       <details><summary>Does it work without internet?</summary><p>Yes. Recognition and translation run on your Mac. The first time you use a language, macOS downloads its model, and that single step needs a connection.</p></details>
@@ -325,56 +359,48 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   </div>
 </section>
 
-<section class="closing" aria-labelledby="close-h">
+<section class="band dark on-dark" aria-labelledby="close-h">
   <div class="wrap">
-    <div class="say">
-      <h2 id="close-h">Join the conversation.</h2>
-      <p>Download Ieum and start your next meeting with captions.</p>
-      <a class="btn" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download>Download for Mac</a>
-    </div>
-    <div class="glyph" lang="ko" aria-hidden="true">이음</div>
+    <h2 id="close-h">Join the conversation.</h2>
+    <p class="sub">Download Ieum and start your next meeting with captions.</p>
+    <div class="cta"><a class="btn" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Download for Mac</a></div>
+    <div class="glyph" lang="ko" aria-hidden="true"></div>
   </div>
 </section>
 </main>
 
-<footer>
+<footer class="on-dark">
   <div class="wrap">
     <span>© 2026 Ieum. Made for people who meet across languages.</span>
-    <span>ieum.calmwork.today</span>
+    <span><a href="https://github.com/stoneidev/ieum/blob/main/LICENSE">PolyForm Noncommercial 1.0.0</a> · ieum.calmwork.today</span>
   </div>
 </footer>
 
 <script>
 (function(){
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var script = [
-    {lang:'en', who:'English', src:'Could you share the schedule for next week?', dst:'다음 주 일정을 공유해 주시겠어요?', dot:'d1'},
-    {lang:'ko', who:'한국어', src:'네, 공유해 드리겠습니다.', dst:"Yes, I'll share it with you.", dot:'d3'},
-    {lang:'en', who:'English', src:'What about the budget?', dst:'예산은 어떻게 되나요?', dot:'d2'}
-  ];
-  var who = document.getElementById('who'), src = document.getElementById('src'), dst = document.getElementById('dst'), stitch = document.getElementById('stitch');
-  function mark(id){['d1','d2','d3'].forEach(function(d){document.getElementById(d).classList.toggle('speaking', d===id)})}
-  function setLangs(l){
-    who.textContent = l.who; who.lang = l.lang;
-    src.lang = l.lang; src.className = 'line-src' + (l.lang==='ko' ? ' ko' : '');
-    var out = l.lang==='en' ? 'ko' : 'en';
-    dst.lang = out; dst.className = 'line-dst ' + out;
-    mark(l.dot);
-  }
-  function show(l){
-    setLangs(l);
-    src.textContent = l.src;
-    dst.textContent = l.dst; dst.classList.add('on'); stitch.classList.add('on');
-  }
-  show(script[0]);
-  if(reduce) return;
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1});
+    els.forEach(function(el){io.observe(el)});
+  } else { els.forEach(function(el){el.classList.add('in')}); }
 
-  var timers = [];
+  var script = [
+    {lang:'en', who:'English', src:'Could you share the schedule for next week?', dst:'다음 주 일정을 공유해 주시겠어요?', tile:'t1'},
+    {lang:'ko', who:'한국어', src:'네, 공유해 드리겠습니다.', dst:"Yes, I'll share it with you.", tile:'t3'},
+    {lang:'en', who:'English', src:'What about the budget?', dst:'예산은 어떻게 되나요?', tile:'t2'}
+  ];
+  var who = document.getElementById('who'), src = document.getElementById('src'), dst = document.getElementById('dst'), btn = document.getElementById('toggle');
+  function mark(id){['t1','t2','t3'].forEach(function(t){document.getElementById(t).classList.toggle('speaking', t===id)})}
+  function frame(l){ who.textContent = l.who; who.lang = l.lang; src.lang = l.lang; dst.lang = l.lang==='en' ? 'ko' : 'en'; mark(l.tile); }
+  function showFinal(l){ frame(l); src.textContent = l.src; dst.textContent = l.dst; dst.className = 'line-dst on'; }
+
+  var timers = [], idx = 0, playing = false, visible = false, userPaused = reduce;
   function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
   function clearAll(){ timers.forEach(clearTimeout); timers = []; }
-  function play(i){
-    var l = script[i % script.length], words = l.src.split(' '), t = 0;
-    setLangs(l); stitch.classList.remove('on'); src.textContent = '';
+  function play(){
+    var l = script[idx % script.length], words = l.src.split(' '), t = 0;
+    frame(l); dst.className = 'line-dst'; src.textContent = '';
     words.forEach(function(w, k){
       t += 150 + Math.min(w.length, 9) * 22;
       later(function(){
@@ -383,16 +409,24 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       }, t);
     });
     later(function(){ src.textContent = l.src; }, t + 250);
-    later(function(){ stitch.classList.add('on'); dst.textContent = l.dst; dst.classList.add('on'); }, t + 1000);
-    later(function(){ play(i + 1); }, t + 4800);
+    later(function(){ dst.textContent = l.dst; dst.className = 'line-dst on'; }, t + 1000);
+    later(function(){ idx++; play(); }, t + 4800);
   }
-  var running = false;
-  new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(e.isIntersecting && !running){ running = true; play(0); }
-      else if(!e.isIntersecting && running){ running = false; clearAll(); }
-    });
-  },{threshold:.25}).observe(document.querySelector('.field'));
+  function sync(){
+    var want = visible && !userPaused;
+    if(want && !playing){ playing = true; play(); }
+    else if(!want && playing){ playing = false; clearAll(); showFinal(script[idx % script.length]); }
+  }
+  btn.textContent = reduce ? 'Play demo' : 'Pause demo';
+  btn.setAttribute('aria-pressed', reduce ? 'true' : 'false');
+  btn.addEventListener('click', function(){
+    userPaused = !userPaused;
+    btn.textContent = userPaused ? 'Play demo' : 'Pause demo';
+    btn.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
+    sync();
+  });
+  showFinal(script[0]);
+  new IntersectionObserver(function(es){ visible = es[0].isIntersecting; sync(); },{threshold:.25}).observe(document.querySelector('.win'));
 })();
 </script>
 </body>
