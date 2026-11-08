@@ -2,7 +2,15 @@ import AVFoundation
 import Foundation
 
 /// Entry points that compile on every SDK; the real engine only exists with the macOS 26 Speech SDK.
-enum ModernSpeechSupport {
+public enum ModernSpeechSupport {
+    /// Whether the macOS 26 recognizer exists on this Mac. Conversation mode needs it.
+    public static var isAvailable: Bool {
+        #if compiler(>=6.2)
+        if #available(macOS 26.0, *) { return true }
+        #endif
+        return false
+    }
+
     static func makeEngine(localeID: String, options: EngineOptions) async throws -> (any TranscriberEngine)? {
         #if compiler(>=6.2)
         if #available(macOS 26.0, *) {
@@ -82,17 +90,27 @@ actor ModernSpeechEngine: TranscriberEngine {
         let (input, inputContinuation) = AsyncStream.makeStream(of: AnalyzerInput.self, bufferingPolicy: .unbounded)
         try await analyzer.start(inputSequence: input)
 
-        let audio = try await capture.start()
+        let audio: AsyncStream<AudioChunk>
+        do {
+            audio = try await capture.start()
+        } catch {
+            // The analyzer is already running; without input it would never be released.
+            inputContinuation.finish()
+            await analyzer.cancelAndFinishNow()
+            throw error
+        }
         self.capture = capture
 
         let localeID = self.localeID
         let pause = options.pauseFinalization
+        let flags = SessionFlags()
         return AsyncThrowingStream { continuation in
             let results = Task {
                 do {
                     for try await result in transcriber.results {
                         let range = result.range
                         let hasRange = range.isValid && !range.isEmpty
+                        flags.noteResult(isFinal: result.isFinal, hasText: !result.text.characters.isEmpty)
                         continuation.yield(TranscriptionEvent(
                             text: String(result.text.characters),
                             isFinal: result.isFinal,
@@ -104,7 +122,13 @@ actor ModernSpeechEngine: TranscriberEngine {
                     }
                     continuation.finish()
                 } catch {
-                    continuation.finish(throwing: error)
+                    // Once the input is over, the recognizer may reject the silent tail it was left with. Everything
+                    // spoken has been delivered by then, so that is the end of the session, not a failure.
+                    if flags.inputEnded, (error as NSError).domain == "SFSpeechErrorDomain" {
+                        continuation.finish()
+                    } else {
+                        continuation.finish(throwing: error)
+                    }
                 }
             }
             let feed = Task {
@@ -113,19 +137,27 @@ actor ModernSpeechEngine: TranscriberEngine {
                 var fedSeconds = 0.0
                 for await chunk in audio {
                     if Task.isCancelled { break }
-                    fedSeconds += chunk.duration
-                    // A pause after speech ends the sentence: finalize right there rather than waiting for the
-                    // recognizer, which can hold a sentence open for seconds (and across a change of language).
-                    if endpoint?.ingest(levelDB: chunk.levelDB, duration: chunk.duration) == true {
-                        let through = CMTime(seconds: fedSeconds, preferredTimescale: 1000)
-                        Task { try? await analyzer.finalize(through: through) }
-                    }
                     if converter == nil {
                         converter = PCMConverter(from: chunk.buffer.format, to: analyzerFormat)
                     }
                     guard let converted = converter?.convert(chunk.buffer) else { continue }
                     inputContinuation.yield(AnalyzerInput(buffer: converted))
+                    // Only audio the analyzer really received counts towards its timeline.
+                    fedSeconds += chunk.duration
+                    // A pause after speech ends the sentence: finalize right there rather than waiting for the
+                    // recognizer, which can hold a sentence open for seconds (and across a change of language).
+                    // Only when something is still waiting to be finalized: asking again for a sentence the recognizer
+                    // has just finalized on its own makes it reject the request. The recognizer often finalizes by
+                    // itself about now, so look again a moment later, right before asking.
+                    if endpoint?.ingest(levelDB: chunk.levelDB, duration: chunk.duration) == true, flags.hasUnfinalizedText {
+                        let through = CMTime(seconds: fedSeconds, preferredTimescale: 1000)
+                        Task {
+                            try? await Task.sleep(for: .milliseconds(150))
+                            if flags.hasUnfinalizedText { try? await analyzer.finalize(through: through) }
+                        }
+                    }
                 }
+                flags.markInputEnded()
                 inputContinuation.finish()
                 // Flushes volatile text into final results; `results` ends afterwards.
                 try? await analyzer.finalizeAndFinishThroughEndOfInput()
@@ -143,6 +175,22 @@ actor ModernSpeechEngine: TranscriberEngine {
 
     func stop() async {
         await capture?.stop()
+    }
+
+    /// State shared by the task that reads results and the task that feeds audio.
+    private final class SessionFlags: @unchecked Sendable {
+        private let lock = NSLock()
+        private var unfinalized = false
+        private var ended = false
+
+        var hasUnfinalizedText: Bool { lock.withLock { unfinalized } }
+        var inputEnded: Bool { lock.withLock { ended } }
+        func markInputEnded() { lock.withLock { ended = true } }
+
+        /// Interim text is waiting for a final; a final (or an empty result) clears that.
+        func noteResult(isFinal: Bool, hasText: Bool) {
+            lock.withLock { unfinalized = !isFinal && hasText }
+        }
     }
 
     /// Average of the per-phrase confidences in a result, or nil when the engine gave none.

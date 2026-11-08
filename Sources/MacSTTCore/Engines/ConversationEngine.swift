@@ -124,11 +124,19 @@ public final class ConversationEngine: TranscriberEngine, @unchecked Sendable {
 
         private func tick() { emit(arbiter.flush(now: now)) }
 
-        private func failed(_ error: Error) { if firstError == nil { firstError = error } }
+        /// One recognizer dying mid-conversation would leave a conversation that silently hears only one language,
+        /// so the whole session fails and the caller can restart it.
+        private func failed(_ error: Error) {
+            if firstError == nil { firstError = error }
+            guard !isFinished else { return }
+            isFinished = true
+            emit(arbiter.finish())
+            continuation?.finish(throwing: error)
+        }
 
         private func streamEnded() {
             remaining -= 1
-            guard remaining == 0 else { return }
+            guard remaining == 0, !isFinished else { return }
             emit(arbiter.finish())
             isFinished = true
             // One recognizer failing is harmless when the other one carried the conversation.

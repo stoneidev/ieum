@@ -56,6 +56,33 @@ struct VocabularyCorrectorTests {
         #expect(corrector.correct("쿠버네티즈 클러스터") == "쿠버네티스 클러스터")
     }
 
+    /// A tiny stand-in for the system dictionary.
+    private static let dictionary: Set<String> = ["code", "mode", "note", "just", "must", "stack", "black", "locker", "cube", "the", "and", "is", "a"]
+    private let careful = VocabularyCorrector(
+        terms: ["Node", "Rust", "Slack", "Docker", "Kube", "Jira"],
+        isKnownWord: { VocabularyCorrectorTests.dictionary.contains($0.lowercased()) }
+    )
+
+    @Test func ordinaryWordsNearAShortTermAreNeverRewritten() {
+        let text = "the code and mode note just must stack black locker is a cube"
+        #expect(careful.correct(text) == text)
+    }
+
+    @Test func aMisspellingThatIsNotAWordIsStillFixed() {
+        #expect(careful.correct("open the Jera board") == "open the Jira board")
+        #expect(careful.correct("deploy with Dokker now") == "deploy with Docker now")
+    }
+
+    @Test func exactMatchesIgnoreTheDictionary() {
+        #expect(careful.correct("the node is down") == "the Node is down")
+        #expect(careful.correct("use slack and rust") == "use Slack and Rust")
+    }
+
+    @Test func theSystemDictionaryKnowsOrdinaryWords() {
+        for word in ["code", "mode", "stack", "locker"] { #expect(WordList.isKnownEnglishWord(word)) }
+        for word in ["Jera", "Kubernetes", "Siobhan"] { #expect(!WordList.isKnownEnglishWord(word)) }
+    }
+
     @Test func emptyVocabularyChangesNothing() {
         let empty = VocabularyCorrector(terms: [" ", ""])
         #expect(empty.isEmpty)

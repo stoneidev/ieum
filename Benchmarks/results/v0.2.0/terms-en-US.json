@@ -1,0 +1,57 @@
+{
+  "audioSeconds" : 10.166802721088436,
+  "engine" : "SpeechAnalyzer \/ SpeechTranscriber",
+  "locale" : "en-US",
+  "median" : {
+    "cer" : 0.04195804195804196,
+    "cpuPercent" : 1.7911560908087936,
+    "finalDelaySeconds" : 0.8917030420000014,
+    "finals" : 3,
+    "firstPartialSeconds" : 1.037397667,
+    "meanConfidence" : 0.8299136363636364,
+    "peakRSSMB" : 21.953125,
+    "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+    "startupSeconds" : 0.068428375,
+    "wer" : 0.14285714285714285
+  },
+  "name" : "terms-en-US",
+  "runs" : [
+    {
+      "cer" : 0.04195804195804196,
+      "cpuPercent" : 1.7349877879191007,
+      "finalDelaySeconds" : 0.8814683750000007,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.03335825,
+      "meanConfidence" : 0.8299136363636364,
+      "peakRSSMB" : 21.484375,
+      "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+      "startupSeconds" : 0.124782625,
+      "wer" : 0.14285714285714285
+    },
+    {
+      "cer" : 0.04195804195804196,
+      "cpuPercent" : 1.8482616852601912,
+      "finalDelaySeconds" : 0.8993459170000015,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.037397667,
+      "meanConfidence" : 0.8299136363636364,
+      "peakRSSMB" : 21.875,
+      "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+      "startupSeconds" : 0.068428375,
+      "wer" : 0.14285714285714285
+    },
+    {
+      "cer" : 0.04195804195804196,
+      "cpuPercent" : 1.7911560908087936,
+      "finalDelaySeconds" : 0.8917030420000014,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.038143708,
+      "meanConfidence" : 0.8299136363636364,
+      "peakRSSMB" : 21.953125,
+      "recognized" : "R. Q. Bernates cluster on Azure uses terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the figma handoff and the Jera backlog.",
+      "startupSeconds" : 0.067433708,
+      "wer" : 0.14285714285714285
+    }
+  ],
+  "speechSeconds" : 10.139999999999999
+}

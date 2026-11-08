@@ -66,19 +66,39 @@ struct TranslationPipelineTests {
         #expect(outputs == [.final(id: id, translation: "T(hello world)")])
     }
 
-    @Test func finalGoesBeforeNewInterimText() async throws {
-        let pipeline = TranslationPipeline(translator: FakeTranslator(delay: .milliseconds(80)))
+    @Test func aFinalDoesNotWaitBehindARunningInterimTranslation() async throws {
+        // Interim translations are slow (400 ms); the final's own translator is quick. The final must not queue behind it.
+        struct Slow: TextTranslator { func translate(_ text: String) async throws -> String { try await Task.sleep(for: .milliseconds(400)); return "slow(\(text))" } }
+        struct Quick: TextTranslator { func translate(_ text: String) async throws -> String { try await Task.sleep(for: .milliseconds(30)); return "quick(\(text))" } }
+        let pipeline = TranslationPipeline(translator: Quick(), interimTranslator: Slow())
+        let results = collect(pipeline)
+        let id = UUID()
+        await pipeline.submitInterim("next sentence")      // starts the slow translation
+        try await Task.sleep(for: .milliseconds(20))
+        let before = ContinuousClock.now
+        await pipeline.submitFinal(id: id, text: "one")
+        try await Task.sleep(for: .milliseconds(150))
+        let waited = before.duration(to: ContinuousClock.now)
+        await pipeline.close()
+        let outputs = await results.value
+        #expect(outputs.contains(.final(id: id, translation: "quick(one)")))
+        #expect(waited < .milliseconds(400))
+        // The interim result for the previous sentence is stale once the sentence is final.
+        #expect(!outputs.contains(.interim(source: "next sentence", translation: "slow(next sentence)")))
+    }
+
+    @Test func aNewInterimAfterAFinalStillGetsTranslated() async throws {
+        let pipeline = TranslationPipeline(translator: FakeTranslator(delay: .milliseconds(60)), interimTranslator: FakeTranslator(delay: .milliseconds(60)))
         let results = collect(pipeline)
         let id = UUID()
         await pipeline.submitFinal(id: id, text: "one")
         await pipeline.submitInterim("next sentence")
-        try await Task.sleep(for: .milliseconds(500))
+        try await Task.sleep(for: .milliseconds(400))
         await pipeline.close()
         let outputs = await results.value
-        #expect(outputs == [
-            .final(id: id, translation: "T(one)"),
-            .interim(source: "next sentence", translation: "T(next sentence)"),
-        ])
+        #expect(outputs.count == 2)
+        #expect(outputs.contains(.final(id: id, translation: "T(one)")))
+        #expect(outputs.contains(.interim(source: "next sentence", translation: "T(next sentence)")))
     }
 
     @Test func sameInterimTextIsNotTranslatedTwice() async throws {

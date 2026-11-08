@@ -16,7 +16,7 @@ public enum EngineFactory {
     ) async throws -> (engine: any TranscriberEngine, events: AsyncThrowingStream<TranscriptionEvent, Error>) {
         let started = try await startEngine(choice: choice, localeID: localeID, options: options, capture: capture)
         // The user's vocabulary also repairs the transcript afterwards: engines use it unevenly (see VocabularyCorrector).
-        return (started.engine, VocabularyCorrector(terms: options.vocabulary).apply(to: started.events))
+        return (started.engine, options.correctsTranscript ? VocabularyCorrector(terms: options.vocabulary).apply(to: started.events) : started.events)
     }
 
     private static func startEngine(
@@ -49,7 +49,7 @@ public enum EngineFactory {
     ) async throws -> (engine: any TranscriberEngine, events: AsyncThrowingStream<TranscriptionEvent, Error>) {
         let engine = ConversationEngine(locales: locales, options: options)
         let events = try await engine.events(from: capture)
-        return (engine, VocabularyCorrector(terms: options.vocabulary).apply(to: events))
+        return (engine, options.correctsTranscript ? VocabularyCorrector(terms: options.vocabulary).apply(to: events) : events)
     }
 
     /// Supported on-device locales as BCP-47 identifiers.

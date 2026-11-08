@@ -52,6 +52,9 @@ public struct EngineOptions: Sendable, Equatable {
     /// Modern engine: after this many seconds of silence following speech, finalize the sentence at once instead
     /// of waiting for the recognizer to decide. Nil leaves the decision to the recognizer.
     public var pauseFinalization: TimeInterval? = 0.7
+    /// Whether `EngineFactory` repairs the transcript with `vocabulary`. The app switches this off: it corrects
+    /// the text itself, with the list as it is right now, not as it was when the session started.
+    public var correctsTranscript = true
 
     public init(fast: Bool = true, useVAD: Bool = true, vocabulary: [String] = [], pauseFinalization: TimeInterval? = 0.7) {
         self.fast = fast

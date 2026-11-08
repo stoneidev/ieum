@@ -8,9 +8,13 @@ public final class SystemAudioCapture: NSObject, AudioCapture, SCStreamOutput, S
     private let lock = NSLock()
     private var stream: SCStream?
     private var continuation: AsyncStream<AudioChunk>.Continuation?
+    private var failure: String?
     private let queue = DispatchQueue(label: "mac-stt.system-audio", qos: .userInteractive)
 
     public override init() { super.init() }
+
+    /// Why the stream ended on its own (for example the display went to sleep), nil after a normal stop.
+    public var failureMessage: String? { lock.withLock { failure } }
 
     public func start() async throws -> AsyncStream<AudioChunk> {
         let content: SCShareableContent
@@ -82,6 +86,7 @@ public final class SystemAudioCapture: NSObject, AudioCapture, SCStreamOutput, S
     // MARK: SCStreamDelegate
 
     public func stream(_ stream: SCStream, didStopWithError error: Error) {
+        lock.withLock { failure = error.localizedDescription }
         FileHandle.standardError.write(Data("mac-stt: system audio stream stopped: \(error.localizedDescription)\n".utf8))
         let continuation = lock.withLock { () -> AsyncStream<AudioChunk>.Continuation? in
             defer { self.continuation = nil }

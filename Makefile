@@ -28,6 +28,7 @@ app-bundle:
 	mkdir -p "$(APP)/Contents/MacOS" "$(APP)/Contents/Resources"
 	cp .build/release/STTOverlay "$(APP)/Contents/MacOS/STTOverlay"
 	cp Resources/App/Info.plist "$(APP)/Contents/Info.plist"
+	cp Resources/App/AppIcon.icns "$(APP)/Contents/Resources/AppIcon.icns"
 
 # Local build: ad-hoc signed with hardened runtime. Runs on this Mac only.
 app: app-bundle

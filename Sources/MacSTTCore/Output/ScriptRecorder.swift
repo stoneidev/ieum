@@ -5,14 +5,21 @@ import Foundation
 public final class ScriptRecorder: @unchecked Sendable {
     public let fileURL: URL
     private let lock = NSLock()
-    private let handle: FileHandle
+    private var handle: FileHandle?
+    private let header: String
     private let timeZone: TimeZone
+    private let tagLanguages: Bool
     private var closed = false
+    private var reportedFailure = false
+    private var failureHandler: (@Sendable (String) -> Void)?
 
-    /// Creates a new file in `directory`; an existing file is never reused or overwritten.
-    public init(directory: URL, locale: String, startedAt: Date = Date(), timeZone: TimeZone = .current) throws {
+    /// Chooses a new file name in `directory` (an existing file is never reused or overwritten). The file itself is
+    /// created when the first sentence is written, so a session that hears nothing leaves no empty file behind.
+    /// - Parameter tagLanguages: write `[EN]` / `[KO]` after the time, for conversations that switch language.
+    public init(directory: URL, locale: String, startedAt: Date = Date(), timeZone: TimeZone = .current, tagLanguages: Bool = false) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         self.timeZone = timeZone
+        self.tagLanguages = tagLanguages
 
         let stamp = Self.format(startedAt, "yyyy-MM-dd_HHmmss", timeZone)
         let base = "transcript-\(stamp)-\(locale)"
@@ -22,13 +29,39 @@ public final class ScriptRecorder: @unchecked Sendable {
             url = directory.appendingPathComponent("\(base)-\(suffix).txt")
             suffix += 1
         }
-        let header = "# Transcript (\(locale)) started \(Self.format(startedAt, "yyyy-MM-dd HH:mm:ss", timeZone))\n"
-        guard FileManager.default.createFile(atPath: url.path, contents: Data(header.utf8)) else {
-            throw CocoaError(.fileWriteUnknown, userInfo: [NSFilePathErrorKey: url.path])
+        // Fail now, not at the first sentence, when the folder cannot be written to.
+        guard FileManager.default.isWritableFile(atPath: directory.path) else {
+            throw CocoaError(.fileWriteNoPermission, userInfo: [NSFilePathErrorKey: directory.path])
         }
-        handle = try FileHandle(forWritingTo: url)
-        try handle.seekToEnd()
+        header = "# Transcript (\(locale)) started \(Self.format(startedAt, "yyyy-MM-dd HH:mm:ss", timeZone))\n"
         fileURL = url
+    }
+
+    /// Called once, with a readable reason, if the transcript can no longer be written (disk full, folder removed).
+    public func onFailure(_ handler: @escaping @Sendable (String) -> Void) {
+        lock.withLock { failureHandler = handler }
+    }
+
+    /// Writes one line. Callers hold the lock.
+    private func write(_ line: String) {
+        do {
+            guard let file = openIfNeeded() else { throw CocoaError(.fileWriteUnknown, userInfo: [NSFilePathErrorKey: fileURL.path]) }
+            try file.write(contentsOf: Data(line.utf8))
+        } catch {
+            guard !reportedFailure else { return }
+            reportedFailure = true
+            failureHandler?(error.localizedDescription)
+        }
+    }
+
+    /// Opens the file on first use. Callers hold the lock.
+    private func openIfNeeded() -> FileHandle? {
+        if let handle { return handle }
+        guard FileManager.default.createFile(atPath: fileURL.path, contents: Data(header.utf8)),
+              let opened = try? FileHandle(forWritingTo: fileURL) else { return nil }
+        _ = try? opened.seekToEnd()
+        handle = opened
+        return opened
     }
 
     /// Records finalized, non-empty events only.
@@ -36,22 +69,22 @@ public final class ScriptRecorder: @unchecked Sendable {
         guard event.isFinal else { return }
         let text = RepetitionGuard.collapse(event.text.trimmingCharacters(in: .whitespacesAndNewlines))
         guard !text.isEmpty else { return }
-        let line = "[\(Self.format(event.timestamp, "HH:mm:ss", timeZone))] \(text)\n"
+        let line = "[\(Self.format(event.timestamp, "HH:mm:ss", timeZone))] \(languageTag(event.locale))\(text)\n"
         lock.withLock {
             guard !closed else { return }
-            try? handle.write(contentsOf: Data(line.utf8))
+            write(line)
         }
     }
 
     /// Adds the translation of an earlier sentence as `[HH:mm:ss] → translation`, using the sentence's own timestamp
     /// so the pair can be matched even when another sentence was written in between.
-    public func appendTranslation(_ translation: String, forSentenceAt time: Date) {
+    public func appendTranslation(_ translation: String, forSentenceAt time: Date, targetLanguage: String? = nil) {
         let text = translation.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        let line = "[\(Self.format(time, "HH:mm:ss", timeZone))] → \(text)\n"
+        let line = "[\(Self.format(time, "HH:mm:ss", timeZone))] \(languageTag(targetLanguage))→ \(text)\n"
         lock.withLock {
             guard !closed else { return }
-            try? handle.write(contentsOf: Data(line.utf8))
+            write(line)
         }
     }
 
@@ -59,11 +92,16 @@ public final class ScriptRecorder: @unchecked Sendable {
         lock.withLock {
             guard !closed else { return }
             closed = true
-            try? handle.close()
+            try? handle?.close()
         }
     }
 
     deinit { close() }
+
+    private func languageTag(_ locale: String?) -> String {
+        guard tagLanguages, let locale, locale.count >= 2 else { return "" }
+        return "[\(locale.prefix(2).uppercased())] "
+    }
 
     private static func format(_ date: Date, _ pattern: String, _ timeZone: TimeZone) -> String {
         let formatter = DateFormatter()

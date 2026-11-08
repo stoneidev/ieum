@@ -150,6 +150,23 @@ struct StatusDot: View {
     }
 }
 
+/// A small "EN" / "KO" tag that says which language a sentence was spoken in (used in conversation mode).
+struct LanguageChip: View {
+    let language: String
+    let palette: Theme.Palette
+    let size: CGFloat
+
+    var body: some View {
+        Text(language.uppercased())
+            .font(.system(size: size, weight: .semibold, design: .rounded))
+            .foregroundStyle(palette.ink.opacity(0.8))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 1)
+            .background(Capsule().fill(palette.interim.opacity(0.22)))
+            .accessibilityLabel(language == "ko" ? "Korean" : "English")
+    }
+}
+
 // MARK: - Subtitle bar
 
 /// Hangul is drawn smaller than Latin at the same point size so both read as equally large.
@@ -219,18 +236,27 @@ struct SubtitleBarView: View {
     private func secondaryRow(size: CGFloat) -> some View {
         let shown = model.translationNotice == nil ? originalLine : ""
         let small = BarMetrics.secondarySize(size) * ScriptScale.factor(for: shown, hangulScale: 0.92)
-        return Group {
-            if let notice = model.translationNotice {
-                Text(notice).foregroundStyle(Theme.alert)
-            } else {
-                Text(originalLine).foregroundStyle(palette.interim)
+        return HStack(spacing: 8) {
+            if model.translationNotice == nil, model.meetingMode.isConversation, !originalLanguage.isEmpty {
+                LanguageChip(language: originalLanguage, palette: palette, size: max(10, small - 4))
             }
+            Group {
+                if let notice = model.translationNotice {
+                    Text(notice).foregroundStyle(Theme.alert)
+                } else {
+                    Text(originalLine).foregroundStyle(palette.interim)
+                }
+            }
+            .font(.system(size: small, weight: .regular))
+            .lineLimit(1)
+            .truncationMode(.head)
         }
-        .font(.system(size: small, weight: .regular))
-        .lineLimit(1)
-        .truncationMode(.head)
         .frame(maxWidth: .infinity, minHeight: BarMetrics.secondaryHeight(size) - BarMetrics.secondaryGap, alignment: .leading)
         .padding(.leading, 25)
+    }
+
+    private var originalLanguage: String {
+        model.partial.isEmpty ? (model.finalizedLines.last?.language ?? "") : model.partialLanguage
     }
 
     /// Newest words of the original: the sentence being spoken, else the last finished one.
@@ -243,18 +269,18 @@ struct SubtitleBarView: View {
         case .error(let message):
             return Caption(confirmed: message)
         case .idle:
-            return Caption(tentative: "Captions are off. Choose Start captions in the menu bar.")
+            return Caption(tentative: tr("Captions are off. Choose Start captions in the menu bar.", "자막이 꺼져 있습니다. 메뉴 막대에서 '자막 시작'을 누르세요."))
         case .starting:
-            return Caption(tentative: "Starting…")
+            return Caption(tentative: tr("Starting…", "시작하는 중…"))
         case .listening where model.translationActive:
             let t = model.barTranslation
             if t.confirmed.isEmpty && t.tentative.isEmpty {
                 let heardSomething = !(model.barFinalText.isEmpty && model.partial.isEmpty)
-                return Caption(tentative: heardSomething ? "Translating…" : "Listening…")
+                return Caption(tentative: heardSomething ? tr("Translating…", "번역하는 중…") : tr("Listening…", "듣는 중…"))
             }
             return Caption(confirmed: t.confirmed, tentative: t.tentative)
         case .listening:
-            if model.barFinalText.isEmpty && model.partial.isEmpty { return Caption(tentative: "Listening…") }
+            if model.barFinalText.isEmpty && model.partial.isEmpty { return Caption(tentative: tr("Listening…", "듣는 중…")) }
             return Caption(confirmed: model.barFinalText, tentative: model.barFinalText.isEmpty || model.partial.isEmpty ? model.partial : " " + model.partial)
         }
     }
@@ -294,18 +320,19 @@ struct TranscriptPanelView: View {
                                     time: Self.timeFormatter.string(from: line.time),
                                     text: translation,
                                     color: line.translation == nil ? palette.interim : palette.ink,
-                                    original: model.translationLayout == .both ? line.text : nil
+                                    original: model.translationLayout == .both ? line.text : nil,
+                                    language: line.language
                                 )
                             } else {
-                                row(time: Self.timeFormatter.string(from: line.time), text: line.text, color: palette.ink, original: nil)
+                                row(time: Self.timeFormatter.string(from: line.time), text: line.text, color: palette.ink, original: nil, language: line.language)
                             }
                         }
                         if !model.partial.isEmpty {
                             if model.translationActive, !model.translatedPartial.isEmpty {
                                 row(time: "·  ·  ·", text: model.translatedPartial, color: palette.interim,
-                                    original: model.translationLayout == .both ? model.partial : nil)
+                                    original: model.translationLayout == .both ? model.partial : nil, language: model.partialLanguage)
                             } else {
-                                row(time: "·  ·  ·", text: model.partial, color: palette.interim, original: nil)
+                                row(time: "·  ·  ·", text: model.partial, color: palette.interim, original: nil, language: model.partialLanguage)
                             }
                         }
                         Color.clear.frame(height: 1).id("end")
@@ -323,17 +350,12 @@ struct TranscriptPanelView: View {
     private var header: some View {
         HStack(spacing: 10) {
             StatusDot(status: model.status, idleColor: palette.interim)
-            Text(model.language.title)
+            Text(model.meetingMode.title)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(palette.ink)
             Text(model.source.title)
                 .font(.system(size: 13))
                 .foregroundStyle(palette.interim)
-            if model.translationTarget != .off {
-                Text("→ \(model.translationTarget.title)")
-                    .font(.system(size: 13))
-                    .foregroundStyle(palette.interim)
-            }
             Spacer()
             if let notice = model.translationNotice {
                 Text(notice)
@@ -351,12 +373,17 @@ struct TranscriptPanelView: View {
         .padding(.vertical, 12)
     }
 
-    private func row(time: String, text: String, color: Color, original: String?) -> some View {
+    private func row(time: String, text: String, color: Color, original: String?, language: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 14) {
-            Text(time)
-                .font(.system(size: max(11, (bodySize * 0.72).rounded()), weight: .regular).monospacedDigit())
-                .foregroundStyle(palette.interim)
-                .frame(width: 58, alignment: .leading)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(time)
+                    .font(.system(size: max(11, (bodySize * 0.72).rounded()), weight: .regular).monospacedDigit())
+                    .foregroundStyle(palette.interim)
+                if model.meetingMode.isConversation, !language.isEmpty {
+                    LanguageChip(language: language, palette: palette, size: 10)
+                }
+            }
+            .frame(width: 58, alignment: .leading)
             VStack(alignment: .leading, spacing: 3) {
                 Text(text)
                     .font(.system(size: bodySize * ScriptScale.factor(for: text, hangulScale: ScriptScale.hangulPanel), weight: .regular))
@@ -376,7 +403,7 @@ struct TranscriptPanelView: View {
 
     private var emptyMessage: String {
         model.isRunning
-            ? "Listening. Sentences appear here as they are finished."
-            : "Captions are off. Choose Start captions in the menu bar."
+            ? tr("Listening. Sentences appear here as they are finished.", "듣고 있습니다. 문장이 끝나면 여기에 쌓입니다.")
+            : tr("Captions are off. Choose Start captions in the menu bar.", "자막이 꺼져 있습니다. 메뉴 막대에서 '자막 시작'을 누르세요.")
     }
 }

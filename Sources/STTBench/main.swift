@@ -121,12 +121,14 @@ struct STTBench: AsyncParsableCommand {
         var interimSubmitTimes: [String: ContinuousClock.Instant] = [:]
         if let target = translateTo {
             let source = locale.hasPrefix("ko") ? "ko" : "en"
-            switch await SystemTranslation.makeTranslator(from: source, to: target) {
-            case .success(let translator):
-                let p = TranslationPipeline(translator: translator)
+            let finals = await SystemTranslation.makeTranslator(from: source, to: target)
+            let interims = await SystemTranslation.makeTranslator(from: source, to: target)
+            switch (finals, interims) {
+            case (.success(let finalTranslator), .success(let interimTranslator)):
+                let p = TranslationPipeline(translator: finalTranslator, interimTranslator: interimTranslator)
                 pipeline = p
                 collector = Task { await Self.collect(p, clock: clock) }
-            case .failure(let reason):
+            case (.failure(let reason), _), (_, .failure(let reason)):
                 run.translationNotice(reason.message)
             }
         }

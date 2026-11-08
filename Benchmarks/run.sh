@@ -26,4 +26,6 @@ $BIN --name conversation-mixed --locale en-US --conversation --expected-language
   --file Benchmarks/audio/mixed.wav --reference-file Benchmarks/refs/mixed.txt --runs $RUNS --output $OUT/conversation-mixed.json
 echo "== single-language engine on the same mixed audio (what the user had before)"
 $BIN --name mixed-en-only --locale en-US --file Benchmarks/audio/mixed.wav --reference-file Benchmarks/refs/mixed.txt --runs $RUNS --output $OUT/mixed-en-only.json
-python3 -I Benchmarks/report.py $LABEL ${BASELINE:+--baseline $BASELINE}
+report=(Benchmarks/report.py $LABEL)
+[ -n "$BASELINE" ] && report+=(--baseline "$BASELINE")
+python3 -I "${report[@]}"

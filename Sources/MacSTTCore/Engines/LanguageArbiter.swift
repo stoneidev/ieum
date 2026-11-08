@@ -11,8 +11,15 @@ import NaturalLanguage
 /// without audio or timers.
 public struct LanguageArbiter {
     public struct Config: Sendable {
-        /// How long a final waits for the other recognizer's result for the same speech.
+        /// How long a confident final waits for the other recognizer's result for the same speech.
         public var holdSeconds = 0.7
+        /// A final scoring below `weakScore` waits this long: its rival may still arrive and is probably better.
+        public var weakHoldSeconds = 1.8
+        public var weakScore = 0.75
+        /// A final at least this sure is shown at once when the other recognizer offered nothing credible meanwhile
+        /// (its best interim scored below `rivalInterimCeiling`). Waiting would only add delay.
+        public var confidentScore = 0.9
+        public var rivalInterimCeiling = 0.3
         /// A final nobody competes with is still dropped below this score (wrong-language noise).
         public var minimumSoloScore = 0.35
         /// An interim of another language takes over the display when its score is this much higher.
@@ -27,6 +34,11 @@ public struct LanguageArbiter {
         let event: TranscriptionEvent
         let score: Double
         let arrivedAt: Double
+        /// Decided already (the rival arrived or nothing credible competes): only waits for earlier sentences.
+        var ready = false
+
+        /// Sentences are shown in the order they were spoken.
+        var order: Double { event.audioStart ?? arrivedAt }
     }
 
     private let locales: [String]
@@ -35,6 +47,8 @@ public struct LanguageArbiter {
     private var interims: [String: (event: TranscriptionEvent, score: Double)] = [:]
     private var leader: String?
     private var pending: [Pending] = []
+    /// Audio ranges of finals already shown, to recognize the same speech arriving a second time from the other recognizer.
+    private var shown: [(start: Double, end: Double, locale: String, score: Double)] = []
 
     public init(
         locales: [String],
@@ -58,12 +72,15 @@ public struct LanguageArbiter {
 
     /// Emits finals whose waiting time ran out.
     public mutating func flush(now: Double) -> [TranscriptionEvent] {
-        resolve(expiredBefore: now - config.holdSeconds)
+        let config = self.config
+        return release { item in
+            item.ready || now - item.arrivedAt >= (item.score < config.weakScore ? config.weakHoldSeconds : config.holdSeconds)
+        }
     }
 
     /// End of input: nothing more will arrive, so decide everything that is still waiting.
     public mutating func finish() -> [TranscriptionEvent] {
-        resolve(expiredBefore: .infinity)
+        release { _ in true }
     }
 
     // MARK: Interim results
@@ -86,26 +103,56 @@ public struct LanguageArbiter {
     // MARK: Final results
 
     private mutating func ingestFinal(_ event: TranscriptionEvent, locale: String, score: Double, now: Double) -> [TranscriptionEvent] {
-        // The sentence ended, so what was being shown for it is stale for both recognizers.
+        // What the other recognizer offered while this sentence was spoken, before that is cleared as stale.
+        let rivalInterim = interims.filter { $0.key != locale }.map(\.value.score).max() ?? 0
         interims.removeAll()
         leader = nil
         if let index = pending.firstIndex(where: { $0.locale != locale && Self.overlaps($0.event, event) }) {
             let rival = pending.remove(at: index)
-            let winner = rival.score >= score ? rival : Pending(locale: locale, event: event, score: score, arrivedAt: now)
-            return winner.score >= config.minimumSoloScore ? [winner.event] : []
+            var winner = rival.score >= score ? rival : Pending(locale: locale, event: event, score: score, arrivedAt: now)
+            winner.ready = true
+            pending.append(winner)
+            return flush(now: now)
         }
-        pending.append(Pending(locale: locale, event: event, score: score, arrivedAt: now))
+        var item = Pending(locale: locale, event: event, score: score, arrivedAt: now)
+        item.ready = score >= config.confidentScore && rivalInterim < config.rivalInterimCeiling
+        pending.append(item)
         return flush(now: now)
     }
 
-    private mutating func resolve(expiredBefore deadline: Double) -> [TranscriptionEvent] {
+    /// Shows what is due, strictly in the order it was spoken: a due sentence never overtakes an earlier one that is
+    /// still waiting for its rival.
+    private mutating func release(where isDue: (Pending) -> Bool) -> [TranscriptionEvent] {
         var out: [TranscriptionEvent] = []
-        pending.removeAll { item in
-            guard item.arrivedAt <= deadline else { return false }
-            if item.score >= config.minimumSoloScore { out.append(item.event) }
-            return true
+        var waiting: [Pending] = []
+        var blocked = false
+        for item in pending.sorted(by: { $0.order < $1.order }) {
+            if !blocked, isDue(item) {
+                if item.score >= config.minimumSoloScore { out.append(contentsOf: show(item)) }
+            } else {
+                blocked = true
+                waiting.append(item)
+            }
         }
+        pending = waiting
         return out
+    }
+
+    /// Emits a final unless the other recognizer's version of the same speech was already shown.
+    /// A later rival that scores *higher* than what was shown is not a duplicate but the real sentence (the earlier
+    /// one was the wrong-language recognizer's noise), so it is shown too.
+    private mutating func show(_ item: Pending) -> [TranscriptionEvent] {
+        if let start = item.event.audioStart, let end = item.event.audioEnd {
+            let own = max(end - start, 0.01)
+            let duplicate = shown.contains { other in
+                other.locale != item.locale && item.score <= other.score
+                    && min(end, other.end) - max(start, other.start) > 0.5 * min(own, other.end - other.start)
+            }
+            if duplicate { return [] }
+            shown.append((start, end, item.locale, item.score))
+            if shown.count > 20 { shown.removeFirst(shown.count - 20) }
+        }
+        return [item.event]
     }
 
     // MARK: Scoring

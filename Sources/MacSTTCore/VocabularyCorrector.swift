@@ -1,4 +1,25 @@
+import AppKit
 import Foundation
+
+/// Answers "is this an ordinary English word?" with the system dictionary, so a vocabulary term such as "Node" or
+/// "Slack" never rewrites real words like "mode" or "stack".
+public enum WordList {
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var cache: [String: Bool] = [:]
+
+    public static func isKnownEnglishWord(_ word: String) -> Bool {
+        let key = word.lowercased()
+        if let cached = lock.withLock({ cache[key] }) { return cached }
+        // NSSpellChecker is documented for use on the main thread, so go there for the (cached, rare) lookup.
+        let lookup = {
+            let range = NSSpellChecker.shared.checkSpelling(of: key, startingAt: 0, language: "en", wrap: false, inSpellDocumentWithTag: 0, wordCount: nil)
+            return range.location == NSNotFound
+        }
+        let known = Thread.isMainThread ? lookup() : DispatchQueue.main.sync(execute: lookup)
+        lock.withLock { cache[key] = known }
+        return known
+    }
+}
 
 /// Repairs recognizer output with the user's meeting vocabulary.
 ///
@@ -15,8 +36,12 @@ public struct VocabularyCorrector: Sendable {
 
     private let terms: [Term]
     private let maxWindow: Int
+    private let isKnownWord: @Sendable (String) -> Bool
 
-    public init(terms: [String]) {
+    /// - Parameter isKnownWord: whether a single Latin-script word is ordinary vocabulary; such a word is only ever
+    ///   replaced when it matches a term exactly (apart from case), never by similarity.
+    public init(terms: [String], isKnownWord: @escaping @Sendable (String) -> Bool = WordList.isKnownEnglishWord) {
+        self.isKnownWord = isKnownWord
         var seen = Set<String>()
         self.terms = terms
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -86,6 +111,8 @@ public struct VocabularyCorrector: Sendable {
                 let ratio = Double(windowKey.count) / Double(term.key.count)
                 guard ratio > 0.6, ratio < 1.5 else { continue }
                 guard let score = Self.score(windowKey, term.key) else { continue }
+                // A single ordinary word one letter away from a term ("mode" and "Node") is a different word.
+                if score < 1, length == 1, Self.isLatin(window.first!.core), isKnownWord(window.first!.core) { continue }
                 // A fuzzy match must need every word of its window. When dropping the first or last word scores clearly
                 // better ("the Kubernetes", "and Terraform"), that word is not part of the term.
                 if score < 1, length > 1 {
@@ -119,6 +146,10 @@ public struct VocabularyCorrector: Sendable {
         let similarity = 1 - Double(distance) / Double(max(window.count, term.count))
         let threshold = term.count >= 7 ? 0.7 : 0.75
         return similarity >= threshold ? similarity : nil
+    }
+
+    private static func isLatin(_ text: String) -> Bool {
+        !text.isEmpty && text.unicodeScalars.allSatisfy { $0.isASCII || ($0.value >= 0xC0 && $0.value <= 0x24F) }
     }
 
     private static func key(_ text: String) -> [Character] {

@@ -1,0 +1,145 @@
+import SwiftUI
+
+/// First-run welcome and permission check. It also opens from the menu whenever something is blocked.
+struct SetupView: View {
+    @ObservedObject var model: AppModel
+    @ObservedObject var permissions: PermissionCenter
+    let onDone: () -> Void
+
+    var body: some View {
+        // Reading `uiLanguage` makes the whole screen follow the language setting.
+        let _ = model.uiLanguage
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 14) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 56, height: 56)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(tr("Welcome to STT Overlay", "STT Overlay 시작하기"))
+                        .font(.system(size: 22, weight: .semibold))
+                    Text(tr("Live captions and translation for meetings, entirely on this Mac. Your voice is never sent anywhere.",
+                            "회의용 실시간 자막과 번역입니다. 모든 처리는 이 Mac 안에서 이루어지고 음성은 어디로도 전송되지 않습니다."))
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            VStack(spacing: 0) {
+                PermissionRow(
+                    title: tr("Microphone", "마이크"),
+                    detail: tr("Hears the people in the room.", "회의실에 있는 사람들의 목소리를 듣습니다."),
+                    state: permissions.microphone,
+                    allow: { Task { await permissions.requestMicrophone() } },
+                    open: { PermissionCenter.openSystemSettings(.microphone) }
+                )
+                Divider()
+                PermissionRow(
+                    title: tr("Screen & system audio recording", "화면 및 시스템 오디오 녹음"),
+                    detail: tr("Only needed to caption what plays on this Mac, such as a video call or a video.",
+                               "화상회의나 영상처럼 이 Mac에서 재생되는 소리를 자막으로 만들 때만 필요합니다."),
+                    state: permissions.screenAudio,
+                    allow: { permissions.requestScreenAudio() },
+                    open: { PermissionCenter.openSystemSettings(.screenAudio) },
+                    note: permissions.screenAudio.isGranted ? nil : tr(
+                        "After you turn it on, quit and reopen the app. If it is on but still blocked, remove STT Overlay from the list and add it again.",
+                        "켠 뒤에는 앱을 완전히 종료했다가 다시 여세요. 켜져 있는데도 막혀 있다면 목록에서 STT Overlay를 삭제하고 다시 추가하세요."
+                    ),
+                    noteAction: permissions.screenAudio.isGranted ? nil : (tr("Quit and reopen", "종료 후 다시 열기"), { PermissionCenter.relaunch() })
+                )
+                if permissions.needsSpeechPermission {
+                    Divider()
+                    PermissionRow(
+                        title: tr("Speech recognition", "음성 인식"),
+                        detail: tr("Needed by the speech engine on this macOS version.", "이 macOS 버전의 음성 엔진에 필요합니다."),
+                        state: permissions.speech,
+                        allow: { Task { await permissions.requestSpeech() } },
+                        open: { PermissionCenter.openSystemSettings(.speech) }
+                    )
+                }
+                Divider()
+                PermissionRow(
+                    title: tr("English ⇄ Korean translation", "영어 ⇄ 한국어 번역"),
+                    detail: permissions.translationProblem
+                        ?? tr("Offline translation is ready.", "오프라인 번역을 쓸 수 있습니다."),
+                    state: permissions.translationProblem == nil ? .granted : .denied,
+                    allow: {},
+                    open: { PermissionCenter.openSystemSettingsApp() },
+                    openLabel: tr("Open System Settings", "시스템 설정 열기")
+                )
+            }
+            .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
+            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color(nsColor: .separatorColor)))
+
+            HStack {
+                Text(tr("You can open this screen again from the menu bar icon.", "메뉴 막대 아이콘에서 이 화면을 다시 열 수 있습니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button(tr("Done", "완료"), action: onDone)
+                    .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(24)
+        .frame(width: 560)
+        .onAppear { permissions.refresh() }
+        .task {
+            // The user flips switches in System Settings; keep the status current while this window is open.
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1.5))
+                permissions.refresh()
+            }
+        }
+    }
+}
+
+private struct PermissionRow: View {
+    let title: String
+    let detail: String
+    let state: PermissionCenter.State
+    let allow: () -> Void
+    let open: () -> Void
+    var openLabel: String?
+    var note: String?
+    var noteAction: (String, () -> Void)?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: state.isGranted ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                    .font(.system(size: 20))
+                    .foregroundStyle(state.isGranted ? Color.green : (state == .denied ? Color.orange : Color.secondary))
+                    .accessibilityLabel(state.isGranted ? tr("Allowed", "허용됨") : tr("Needs attention", "확인 필요"))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(.system(size: 14, weight: .medium))
+                    Text(detail)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 12)
+                if !state.isGranted {
+                    if state == .notAsked, openLabel == nil {
+                        Button(tr("Allow", "허용"), action: allow)
+                    } else {
+                        Button(openLabel ?? tr("Open Settings", "설정 열기"), action: open)
+                    }
+                }
+            }
+            if let note {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(note)
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if let noteAction {
+                        Spacer(minLength: 8)
+                        Button(noteAction.0, action: noteAction.1).controlSize(.small)
+                    }
+                }
+                .padding(.leading, 32)
+            }
+        }
+        .padding(14)
+    }
+}

@@ -1,0 +1,65 @@
+{
+  "audioSeconds" : 16.4437641723356,
+  "engine" : "Conversation (en-US + ko-KR)",
+  "locale" : "en-US",
+  "median" : {
+    "cer" : 0.06779661016949153,
+    "cpuPercent" : 3.570852848479402,
+    "finalDelaySeconds" : 0.8642405840000009,
+    "finals" : 5,
+    "firstPartialSeconds" : 1.038833667,
+    "languageAccuracy" : 1,
+    "languageSequence" : "en,ko,en,ko",
+    "meanConfidence" : 0.9112880952380953,
+    "peakRSSMB" : 24.734375,
+    "recognized" : "Could you share the schedule for next week? 네, 공유해 드리겠습니다. 다음 주 월요일부터 시작합니다. . that works for me. What about the budget? 예산은 아직 검토 중입니다. 내일까지 알려드리겠습니다.",
+    "startupSeconds" : 0.080857375,
+    "wer" : 0.12903225806451613
+  },
+  "name" : "conversation-mixed",
+  "runs" : [
+    {
+      "cer" : 0.06779661016949153,
+      "cpuPercent" : 3.5144669570218716,
+      "finalDelaySeconds" : 0.8577399579999998,
+      "finals" : 6,
+      "firstPartialSeconds" : 1.04288,
+      "languageAccuracy" : 1,
+      "languageSequence" : "en,ko,en,ko",
+      "meanConfidence" : 0.8649125000000001,
+      "peakRSSMB" : 24.34375,
+      "recognized" : "Could you share the schedule for next week? 네, 공유해 드리겠습니다. 다음 주 월요일부터 시작합니다. ..., that works for me. What about the budget? , you. 예산은 아직 검토 중입니다. 내일까지 알려드리겠습니다.",
+      "startupSeconds" : 0.150696292,
+      "wer" : 0.12903225806451613
+    },
+    {
+      "cer" : 0.0423728813559322,
+      "cpuPercent" : 3.610296151282208,
+      "finalDelaySeconds" : 0.8642405840000009,
+      "finals" : 5,
+      "firstPartialSeconds" : 1.038833667,
+      "languageAccuracy" : 1,
+      "languageSequence" : "en,ko,en,ko",
+      "meanConfidence" : 0.9112880952380953,
+      "peakRSSMB" : 24.625,
+      "recognized" : "Could you share the schedule for next week? 네, 공유해 드리겠습니다. 다음 주 월요일부터 시작합니다. . that works for me. What about the budget? 예산은 아직 검토 중입니다. 내일까지 알려드리겠습니다.",
+      "startupSeconds" : 0.080857375,
+      "wer" : 0.0967741935483871
+    },
+    {
+      "cer" : 0.06779661016949153,
+      "cpuPercent" : 3.570852848479402,
+      "finalDelaySeconds" : 0.8685865420000027,
+      "finals" : 6,
+      "firstPartialSeconds" : 1.034916875,
+      "languageAccuracy" : 1,
+      "languageSequence" : "en,ko,en,ko",
+      "meanConfidence" : 0.8673859126984126,
+      "peakRSSMB" : 24.734375,
+      "recognized" : "Could you share the schedule for next week? 네, 공유해 드리겠습니다. 다음 주 월요일부터 시작합니다. ..., that works for me. What about the budget? , you. 예산은 아직 검토 중입니다. 내일까지 알려드리겠습니다.",
+      "startupSeconds" : 0.077372958,
+      "wer" : 0.12903225806451613
+    }
+  ],
+  "speechSeconds" : 16.38
+}

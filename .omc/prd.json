@@ -97,7 +97,7 @@
     {
       "id": "US-010",
       "title": "Benchmark harness and baseline",
-      "passes": false,
+      "passes": true,
       "acceptanceCriteria": [
         "FileAudioCapture streams an audio file in real time (plus trailing silence) through the real engines; unit-tested",
         "TextMetrics computes WER (words) and CER (characters) with normalization; unit-tested",
@@ -108,7 +108,7 @@
     {
       "id": "US-011",
       "title": "UX/UI review, settings window, Korean UI, first-run setup",
-      "passes": false,
+      "passes": true,
       "acceptanceCriteria": [
         "docs/UX-REVIEW.md lists findings from the original UX with a decision for each",
         "Settings window (General, Display, Translation, Vocabulary, Transcripts) replaces menu nesting; menu keeps essentials",
@@ -119,7 +119,7 @@
     {
       "id": "US-012",
       "title": "Overlay usability",
-      "passes": false,
+      "passes": true,
       "acceptanceCriteria": [
         "Overlay can fade after N seconds of silence and reappears on speech",
         "Click-through option so the overlay never blocks the meeting UI",
@@ -129,7 +129,7 @@
     {
       "id": "US-013",
       "title": "Feature A: two-way conversation mode",
-      "passes": false,
+      "passes": true,
       "acceptanceCriteria": [
         "A Korean user can leave captions on while both sides speak: English speech is shown with Korean translation, Korean speech with English translation, language chosen automatically per utterance",
         "Detection accuracy and added latency measured with the benchmark on mixed en/ko audio and reported honestly",
@@ -139,7 +139,7 @@
     {
       "id": "US-014",
       "title": "Feature B: meeting vocabulary",
-      "passes": false,
+      "passes": true,
       "acceptanceCriteria": [
         "Vocabulary editor in Settings (names, product terms); persisted; applied to both engines as contextual strings",
         "Benchmark shows the effect on a term-heavy sample (reported honestly, including no effect)"
@@ -148,7 +148,7 @@
     {
       "id": "US-015",
       "title": "Re-benchmark, verify, release",
-      "passes": false,
+      "passes": true,
       "acceptanceCriteria": [
         "make build/app warning-free, swift test passes, `make bench` run again and compared with the baseline in docs",
         "Reviewer approval, deslop, post-deslop regression, commit and tag v0.2.0"
@@ -170,7 +170,15 @@
       "translation quality/lag on long sessions and with fullscreen apps",
       "notarization of the translation build (needs make app-release / make dmg again)"
     ],
-    "phase2_reviewer": "architect (sonnet): 4 defects + 2 minors found, all fixed, re-verified APPROVED"
+    "phase2_reviewer": "architect (sonnet): 4 defects + 2 minors found, all fixed, re-verified APPROVED",
+    "phase3_unverified": [
+      "Physical global-hotkey presses (synthetic key events do not reach even a minimal Carbon hotkey program in the test environment; registration returned status 0)",
+      "Click-through behavior; login item registration; Developer ID signing/notarization of the v0.2.0 build (not run: needs the user's credentials and uploads to Apple)",
+      "Real-room, far-field and overlapping-speech accuracy (benchmarks use synthesized speech)",
+      "Low-latency translation model (not installed on the test Mac); macOS < 26 paths (conversation disabled, compatibility engine)",
+      "stop() during startup still waits for a model download; a hung translator is not replaced after a timeout"
+    ],
+    "phase3_reviewer": "architect (opus, THOROUGH): REJECTED once (vocabulary false positives, lost final translations, finalize race, duplicate finals, spec gap), all addressed, re-verified APPROVED twice"
   },
   "phase3": "Commercial-grade pass: baseline tag v0.1.0 -> benchmark -> UX/UI overhaul -> two features -> benchmark -> v0.2.0"
 }

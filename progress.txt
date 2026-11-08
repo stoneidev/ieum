@@ -12,3 +12,6 @@ Phase 2 done: TranslationPipeline (single-flight, latest-interim-wins, ordered f
 Learned: LanguageAvailability status is per strategy and depends on deployment target (default strategy differs); an @Published sink that resizes the window redraws SwiftUI with the OLD value - defer with .receive(on: DispatchQueue.main); generation token needed for async reconfigure.
 
 Phase 3 started: git init + tag v0.1.0 done. Plan: bench harness -> baseline -> UX overhaul -> 2 features -> re-bench -> v0.2.0
+
+Phase 3 done (v0.2.0): benchmark harness + baseline, UX review and overhaul (settings, ko/en UI, setup, icon, fade/click-through/hotkeys), conversation mode (two recognizers + LanguageArbiter), meeting vocabulary (post-recognition corrector with dictionary guard), pause finalization, finals-first translator.
+Learned: contextual strings do not affect SpeechTranscriber; finalize(through:) on an already-final region ends the session (RecogRejected); a duplicate filter must compare scores or it drops the real sentence; released sentences must keep spoken order; the benchmark caught four regressions I introduced.

@@ -1,0 +1,57 @@
+{
+  "audioSeconds" : 10.166802721088436,
+  "engine" : "SpeechAnalyzer \/ SpeechTranscriber",
+  "locale" : "en-US",
+  "median" : {
+    "cer" : 0.02097902097902098,
+    "cpuPercent" : 1.9392132733020693,
+    "finalDelaySeconds" : 0.8897865000000014,
+    "finals" : 3,
+    "firstPartialSeconds" : 1.040749167,
+    "meanConfidence" : 0.8299136363636364,
+    "peakRSSMB" : 28.984375,
+    "recognized" : "Kubernetes cluster on Azure uses Terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the Figma handoff and the Jira backlog.",
+    "startupSeconds" : 0.071123417,
+    "wer" : 0.03571428571428571
+  },
+  "name" : "terms-en-US-vocab",
+  "runs" : [
+    {
+      "cer" : 0.02097902097902098,
+      "cpuPercent" : 2.0628342599282887,
+      "finalDelaySeconds" : 0.8888388750000011,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.0396874170000001,
+      "meanConfidence" : 0.8299136363636364,
+      "peakRSSMB" : 28.484375,
+      "recognized" : "Kubernetes cluster on Azure uses Terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the Figma handoff and the Jira backlog.",
+      "startupSeconds" : 0.12391925,
+      "wer" : 0.03571428571428571
+    },
+    {
+      "cer" : 0.02097902097902098,
+      "cpuPercent" : 1.8898861481443971,
+      "finalDelaySeconds" : 0.8897865000000014,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.041695667,
+      "meanConfidence" : 0.8299136363636364,
+      "peakRSSMB" : 28.921875,
+      "recognized" : "Kubernetes cluster on Azure uses Terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the Figma handoff and the Jira backlog.",
+      "startupSeconds" : 0.071123417,
+      "wer" : 0.03571428571428571
+    },
+    {
+      "cer" : 0.02097902097902098,
+      "cpuPercent" : 1.9392132733020693,
+      "finalDelaySeconds" : 0.8979837920000016,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.040749167,
+      "meanConfidence" : 0.8299136363636364,
+      "peakRSSMB" : 28.984375,
+      "recognized" : "Kubernetes cluster on Azure uses Terraform and Grafana dashboards. Priya and Siobhan will present the OKR review. Then we discuss the Figma handoff and the Jira backlog.",
+      "startupSeconds" : 0.0652095,
+      "wer" : 0.03571428571428571
+    }
+  ],
+  "speechSeconds" : 10.139999999999999
+}

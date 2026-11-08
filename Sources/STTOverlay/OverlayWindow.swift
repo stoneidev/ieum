@@ -57,6 +57,21 @@ final class OverlayWindowController {
             .sink { [weak self] lines, size, secondary in self?.fitBarHeight(lines: lines, size: size.points, secondaryRow: secondary) }
             .store(in: &cancellables)
 
+        // Quiet, hidden and click-through are state of the model; the window just follows.
+        model.$isQuiet
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.applyPresence(animated: true) }
+            .store(in: &cancellables)
+        model.$overlayVisible
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.applyPresence(animated: true) }
+            .store(in: &cancellables)
+        model.$clickThrough
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.applyPresence(animated: false) }
+            .store(in: &cancellables)
+        applyPresence(animated: false)
+
         for name in [NSWindow.didMoveNotification, NSWindow.didResizeNotification] {
             observers.append(NotificationCenter.default.addObserver(forName: name, object: panel, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated { self?.saveFrame() }
@@ -64,7 +79,26 @@ final class OverlayWindowController {
         }
     }
 
-    func show() { panel.orderFrontRegardless() }
+    func show() { applyPresence(animated: false) }
+
+    /// Visible, faded (nobody is speaking) or hidden; and whether clicks pass through to the window underneath.
+    private func applyPresence(animated: Bool) {
+        panel.ignoresMouseEvents = model.clickThrough
+        guard model.overlayVisible else {
+            panel.orderOut(nil)
+            return
+        }
+        panel.orderFrontRegardless()
+        let target: CGFloat = model.isQuiet ? 0.18 : 1
+        if animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = model.isQuiet ? 0.9 : 0.15
+                panel.animator().alphaValue = target
+            }
+        } else {
+            panel.alphaValue = target
+        }
+    }
 
     // MARK: Placement
 
@@ -85,7 +119,7 @@ final class OverlayWindowController {
             panel.maxSize = NSSize(width: 1400, height: 2000)
         }
         panel.setFrame(frame, display: true, animate: false)
-        panel.orderFrontRegardless()
+        if model.overlayVisible { panel.orderFrontRegardless() }
     }
 
     /// Re-fits the bar after the line count or text size changed. It grows upward from its bottom edge.

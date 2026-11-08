@@ -347,6 +347,22 @@ struct ScriptRecorderTests {
         #expect(!(try String(contentsOf: first.fileURL, encoding: .utf8)).contains("두 번째"))
     }
 
+    @Test func aSessionThatHearsNothingLeavesNoFile() throws {
+        let dir = tempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let recorder = try ScriptRecorder(directory: dir, locale: "en-US", startedAt: sampleDate, timeZone: utc)
+        recorder.append(event("only an interim", final: false))
+        recorder.append(event("   ", final: true))
+        recorder.close()
+        #expect(!FileManager.default.fileExists(atPath: recorder.fileURL.path))
+    }
+
+    @Test func anUnwritableFolderFailsAtStartNotAtTheFirstSentence() {
+        #expect(throws: (any Error).self) {
+            _ = try ScriptRecorder(directory: URL(fileURLWithPath: "/System/not-writable-\(UUID().uuidString)"), locale: "en-US")
+        }
+    }
+
     @Test func linesAreOnDiskBeforeClose() throws {
         let dir = tempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -360,16 +376,20 @@ struct ScriptRecorderTests {
         let dir = tempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
         let recorder = try ScriptRecorder(directory: dir, locale: "en-US", startedAt: sampleDate, timeZone: utc)
+        recorder.append(event("early", final: true))
         recorder.close()
         recorder.close()
         recorder.append(event("late", final: true))
-        #expect(!(try String(contentsOf: recorder.fileURL, encoding: .utf8)).contains("late"))
+        let text = try String(contentsOf: recorder.fileURL, encoding: .utf8)
+        #expect(text.contains("early") && !text.contains("late"))
     }
 
     @Test func createsMissingDirectory() throws {
         let dir = tempDir().appendingPathComponent("nested/deeper")
         defer { try? FileManager.default.removeItem(at: dir.deletingLastPathComponent().deletingLastPathComponent()) }
         let recorder = try ScriptRecorder(directory: dir, locale: "en-US")
+        #expect(FileManager.default.fileExists(atPath: dir.path))
+        recorder.append(event("hello", final: true))
         #expect(FileManager.default.fileExists(atPath: recorder.fileURL.path))
     }
 }

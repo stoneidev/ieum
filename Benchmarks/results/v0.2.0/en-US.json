@@ -1,0 +1,69 @@
+{
+  "audioSeconds" : 8.836643990929705,
+  "engine" : "SpeechAnalyzer \/ SpeechTranscriber",
+  "locale" : "en-US",
+  "median" : {
+    "cer" : 0.027586206896551724,
+    "cpuPercent" : 2.782664107525731,
+    "finalDelaySeconds" : 0.873599166,
+    "finalTranslationLagSeconds" : 0.8887146806666667,
+    "finals" : 3,
+    "firstPartialSeconds" : 1.012486417,
+    "firstTranslationSeconds" : 1.7574285,
+    "interimTranslationLagSeconds" : 0.8956818286666667,
+    "meanConfidence" : 0.9744611111111111,
+    "peakRSSMB" : 25.703125,
+    "recognized" : "Thanks for joining the call. Today we will review the quarterly budget and the product roadmap. Please open the shared spreadsheet and check the numbers for the 2nd quarter.",
+    "startupSeconds" : 0.075503875,
+    "wer" : 0.034482758620689655
+  },
+  "name" : "en-US",
+  "runs" : [
+    {
+      "cer" : 0.027586206896551724,
+      "cpuPercent" : 2.5058936691982403,
+      "finalDelaySeconds" : 0.8904283339999992,
+      "finalTranslationLagSeconds" : 1.2093137223333332,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.012486417,
+      "firstTranslationSeconds" : 3.882855542,
+      "interimTranslationLagSeconds" : 1.098558714142857,
+      "meanConfidence" : 0.9744611111111111,
+      "peakRSSMB" : 25.25,
+      "recognized" : "Thanks for joining the call. Today we will review the quarterly budget and the product roadmap. Please open the shared spreadsheet and check the numbers for the 2nd quarter.",
+      "startupSeconds" : 0.150082916,
+      "wer" : 0.034482758620689655
+    },
+    {
+      "cer" : 0.027586206896551724,
+      "cpuPercent" : 2.870073164513898,
+      "finalDelaySeconds" : 0.859959332999999,
+      "finalTranslationLagSeconds" : 0.7438750000000001,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.006990042,
+      "firstTranslationSeconds" : 1.7516740419999999,
+      "interimTranslationLagSeconds" : 0.7399387175555555,
+      "meanConfidence" : 0.9744611111111111,
+      "peakRSSMB" : 25.671875,
+      "recognized" : "Thanks for joining the call. Today we will review the quarterly budget and the product roadmap. Please open the shared spreadsheet and check the numbers for the 2nd quarter.",
+      "startupSeconds" : 0.073194875,
+      "wer" : 0.034482758620689655
+    },
+    {
+      "cer" : 0.027586206896551724,
+      "cpuPercent" : 2.782664107525731,
+      "finalDelaySeconds" : 0.873599166,
+      "finalTranslationLagSeconds" : 0.8887146806666667,
+      "finals" : 3,
+      "firstPartialSeconds" : 1.0168205,
+      "firstTranslationSeconds" : 1.7574285,
+      "interimTranslationLagSeconds" : 0.8956818286666667,
+      "meanConfidence" : 0.9744611111111111,
+      "peakRSSMB" : 25.703125,
+      "recognized" : "Thanks for joining the call. Today we will review the quarterly budget and the product roadmap. Please open the shared spreadsheet and check the numbers for the 2nd quarter.",
+      "startupSeconds" : 0.075503875,
+      "wer" : 0.034482758620689655
+    }
+  ],
+  "speechSeconds" : 8.8
+}

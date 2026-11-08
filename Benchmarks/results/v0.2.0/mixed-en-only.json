@@ -1,0 +1,57 @@
+{
+  "audioSeconds" : 16.4437641723356,
+  "engine" : "SpeechAnalyzer \/ SpeechTranscriber",
+  "locale" : "en-US",
+  "median" : {
+    "cer" : 0.4322033898305085,
+    "cpuPercent" : 1.5921688553144333,
+    "finalDelaySeconds" : -1.3022777499999982,
+    "finals" : 5,
+    "firstPartialSeconds" : 1.037805417,
+    "meanConfidence" : 0.6606833333333333,
+    "peakRSSMB" : 21.65625,
+    "recognized" : "Could you share the schedule for next week? , .... ..., that works for me. What about the budget? ,..",
+    "startupSeconds" : 0.05893425,
+    "wer" : 0.4838709677419355
+  },
+  "name" : "mixed-en-only",
+  "runs" : [
+    {
+      "cer" : 0.4322033898305085,
+      "cpuPercent" : 1.5754019450321404,
+      "finalDelaySeconds" : -1.3022777499999982,
+      "finals" : 5,
+      "firstPartialSeconds" : 1.040263292,
+      "meanConfidence" : 0.6606833333333333,
+      "peakRSSMB" : 21.421875,
+      "recognized" : "Could you share the schedule for next week? , .... ..., that works for me. What about the budget? ,..",
+      "startupSeconds" : 0.120215083,
+      "wer" : 0.4838709677419355
+    },
+    {
+      "cer" : 0.4322033898305085,
+      "cpuPercent" : 1.6022364891401357,
+      "finalDelaySeconds" : -1.3017071249999983,
+      "finals" : 5,
+      "firstPartialSeconds" : 1.037805417,
+      "meanConfidence" : 0.6606833333333333,
+      "peakRSSMB" : 21.625,
+      "recognized" : "Could you share the schedule for next week? , .... ..., that works for me. What about the budget? ,..",
+      "startupSeconds" : 0.057409791,
+      "wer" : 0.4838709677419355
+    },
+    {
+      "cer" : 0.4322033898305085,
+      "cpuPercent" : 1.5921688553144333,
+      "finalDelaySeconds" : -1.308345749999999,
+      "finals" : 5,
+      "firstPartialSeconds" : 1.03749575,
+      "meanConfidence" : 0.6606833333333333,
+      "peakRSSMB" : 21.65625,
+      "recognized" : "Could you share the schedule for next week? , .... ..., that works for me. What about the budget? ,..",
+      "startupSeconds" : 0.05893425,
+      "wer" : 0.4838709677419355
+    }
+  ],
+  "speechSeconds" : 16.38
+}
