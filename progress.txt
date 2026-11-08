@@ -17,3 +17,6 @@ Phase 3 done (v0.2.0): benchmark harness + baseline, UX review and overhaul (set
 Learned: contextual strings do not affect SpeechTranscriber; finalize(through:) on an already-final region ends the session (RecogRejected); a duplicate filter must compare scores or it drops the real sentence; released sentences must keep spoken order; the benchmark caught four regressions I introduced.
 
 Phase 4: renamed the product to Ieum. CLI is ieum-cli (not ieum) because the app executable Ieum would collide on a case-insensitive filesystem. Reviewer (sonnet) APPROVED the rename.
+
+Phase 5: internal modules are named by function, only the public product keeps the name Ieum.
+CaptionCore (library), CaptionCLI (product caption-cli), CaptionBench (caption-bench), OverlayApp (product Ieum), CaptionCoreTests.

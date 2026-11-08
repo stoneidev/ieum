@@ -5,9 +5,9 @@ let package = Package(
     name: "ieum",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "ieum-cli", targets: ["ieum-cli"]),
-        .executable(name: "Ieum", targets: ["Ieum"]),
-        .executable(name: "ieum-bench", targets: ["IeumBench"]),
+        .executable(name: "caption-cli", targets: ["CaptionCLI"]),
+        .executable(name: "Ieum", targets: ["OverlayApp"]),
+        .executable(name: "caption-bench", targets: ["CaptionBench"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
@@ -15,16 +15,16 @@ let package = Package(
     targets: [
         // Audio capture, speech engines, output formatting and script recording, shared by the CLI and the app.
         .target(
-            name: "IeumCore",
-            path: "Sources/IeumCore"
+            name: "CaptionCore",
+            path: "Sources/CaptionCore"
         ),
         .executableTarget(
-            name: "ieum-cli",
+            name: "CaptionCLI",
             dependencies: [
-                "IeumCore",
+                "CaptionCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            path: "Sources/IeumCLI",
+            path: "Sources/CaptionCLI",
             linkerSettings: [
                 // Embed Info.plist in __TEXT,__info_plist so TCC can read the usage descriptions.
                 .unsafeFlags([
@@ -37,23 +37,23 @@ let package = Package(
         ),
         // Menu-bar live-subtitle overlay. Packaged into an .app by `make app`.
         .executableTarget(
-            name: "Ieum",
-            dependencies: ["IeumCore"],
-            path: "Sources/Ieum"
+            name: "OverlayApp",
+            dependencies: ["CaptionCore"],
+            path: "Sources/OverlayApp"
         ),
         // Developer tool: repeatable latency / accuracy / cost measurements (`make bench`).
         .executableTarget(
-            name: "IeumBench",
+            name: "CaptionBench",
             dependencies: [
-                "IeumCore",
+                "CaptionCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            path: "Sources/IeumBench"
+            path: "Sources/CaptionBench"
         ),
         .testTarget(
-            name: "IeumTests",
-            dependencies: ["IeumCore"],
-            path: "Tests/IeumTests"
+            name: "CaptionCoreTests",
+            dependencies: ["CaptionCore"],
+            path: "Tests/CaptionCoreTests"
         ),
     ]
 )

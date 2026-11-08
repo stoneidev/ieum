@@ -3,18 +3,18 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>dev.local.ieum.cli</string>
+    <string>dev.local.ieum.caption-cli</string>
     <key>CFBundleName</key>
-    <string>ieum-cli</string>
+    <string>caption-cli</string>
     <key>CFBundleExecutable</key>
-    <string>ieum-cli</string>
+    <string>caption-cli</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0.0</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>ieum-cli records microphone audio and transcribes it on this Mac.</string>
+    <string>caption-cli records microphone audio and transcribes it on this Mac.</string>
     <key>NSSpeechRecognitionUsageDescription</key>
-    <string>ieum-cli uses on-device speech recognition to transcribe audio. Nothing leaves this Mac.</string>
+    <string>caption-cli uses on-device speech recognition to transcribe audio. Nothing leaves this Mac.</string>
 </dict>
 </plist>

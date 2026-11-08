@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import IeumCore
+@testable import CaptionCore
 
 /// A translator with a controllable delay, so ordering and dropping behavior is deterministic enough to assert.
 private struct FakeTranslator: TextTranslator {

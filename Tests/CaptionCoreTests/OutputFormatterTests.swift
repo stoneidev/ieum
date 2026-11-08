@@ -3,7 +3,7 @@ import CoreAudio
 import Foundation
 import Testing
 
-@testable import IeumCore
+@testable import CaptionCore
 
 private let utc = TimeZone(identifier: "UTC")!
 // 2024-05-06T07:08:09.250Z
@@ -319,7 +319,7 @@ struct RolloverTests {
 @Suite("Script recorder")
 struct ScriptRecorderTests {
     private func tempDir() -> URL {
-        FileManager.default.temporaryDirectory.appendingPathComponent("ieum-cli-tests-\(UUID().uuidString)")
+        FileManager.default.temporaryDirectory.appendingPathComponent("caption-cli-tests-\(UUID().uuidString)")
     }
 
     @Test func writesTimestampedFinalsOnly() throws {

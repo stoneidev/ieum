@@ -1,5 +1,5 @@
 import Foundation
-import IeumCore
+import CaptionCore
 
 enum Language: String, CaseIterable {
     case englishUS = "en-US"
@@ -83,7 +83,7 @@ enum TranslationLayout: String, CaseIterable {
     }
 }
 
-/// Names and explanations for the meeting modes. The rules live in `MeetingMode` (IeumCore).
+/// Names and explanations for the meeting modes. The rules live in `MeetingMode` (CaptionCore).
 extension MeetingMode {
     @MainActor var title: String {
         switch self {

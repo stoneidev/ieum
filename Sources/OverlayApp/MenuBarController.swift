@@ -1,6 +1,6 @@
 import AppKit
 import Combine
-import IeumCore
+import CaptionCore
 
 /// The menu-bar icon and its short menu: what you need while a meeting is running. Everything else lives in Settings.
 @MainActor

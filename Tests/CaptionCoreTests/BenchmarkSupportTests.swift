@@ -2,7 +2,7 @@ import AVFoundation
 import Foundation
 import Testing
 
-@testable import IeumCore
+@testable import CaptionCore
 
 @Suite("Text metrics")
 struct TextMetricsTests {

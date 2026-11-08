@@ -1,5 +1,5 @@
 import AppKit
-import IeumCore
+import CaptionCore
 import SwiftUI
 
 /// Design tokens. Smoked glass so the captions hold contrast over any content; one amber "live" signal;

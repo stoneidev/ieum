@@ -9,7 +9,7 @@ public final class SystemAudioCapture: NSObject, AudioCapture, SCStreamOutput, S
     private var stream: SCStream?
     private var continuation: AsyncStream<AudioChunk>.Continuation?
     private var failure: String?
-    private let queue = DispatchQueue(label: "ieum.system-audio", qos: .userInteractive)
+    private let queue = DispatchQueue(label: "caption.system-audio", qos: .userInteractive)
 
     public override init() { super.init() }
 
@@ -87,7 +87,7 @@ public final class SystemAudioCapture: NSObject, AudioCapture, SCStreamOutput, S
 
     public func stream(_ stream: SCStream, didStopWithError error: Error) {
         lock.withLock { failure = error.localizedDescription }
-        FileHandle.standardError.write(Data("ieum: system audio stream stopped: \(error.localizedDescription)\n".utf8))
+        FileHandle.standardError.write(Data("caption: system audio stream stopped: \(error.localizedDescription)\n".utf8))
         let continuation = lock.withLock { () -> AsyncStream<AudioChunk>.Continuation? in
             defer { self.continuation = nil }
             return self.continuation

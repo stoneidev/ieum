@@ -1,5 +1,5 @@
 import Foundation
-import IeumCore
+import CaptionCore
 
 /// User choices that survive relaunch. Launch arguments such as `-meetingMode conversation` override them for a run.
 enum Preferences {

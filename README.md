@@ -13,7 +13,7 @@ you answer in Korean, and the English is there for them. Speech recognition and 
 - **Meeting vocabulary**: names and jargon you list are corrected in the transcript before it is translated.
 - **Transcripts** are saved per meeting (`[HH:mm:ss] text` with `→ translation` lines; `[EN]`/`[KO]` tags in conversation mode) and listed in Settings.
 - Korean and English interface, first-run permission check, global shortcuts (⌃⌥S start/stop, ⌃⌥H show/hide, ⌃⌥D bar/panel), open at login.
-- `ieum-cli`: a command-line version of the recognizer (text or JSON Lines).
+- `caption-cli`: a command-line version of the recognizer (text or JSON Lines).
 
 Requires macOS 14 or later; the fast recognizer, conversation mode and translation need macOS 26.4 or later.
 
@@ -37,8 +37,8 @@ what the numbers do not tell you.
 
 | Path | What |
 |---|---|
-| `Sources/IeumCore` | audio capture, recognizers, conversation arbitration, translation pipeline, transcript recorder |
-| `Sources/Ieum` | the menu-bar app (overlay, settings, setup) |
-| `Sources/IeumCLI` | command-line tool |
-| `Sources/IeumBench` | benchmark tool |
+| `Sources/CaptionCore` | audio capture, recognizers, conversation arbitration, translation pipeline, transcript recorder |
+| `Sources/OverlayApp` | the menu-bar app (overlay, settings, setup) |
+| `Sources/CaptionCLI` | command-line tool |
+| `Sources/CaptionBench` | benchmark tool |
 | `docs/UX-REVIEW.md` | UX findings and decisions |

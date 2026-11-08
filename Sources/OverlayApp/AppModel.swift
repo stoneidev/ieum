@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 import Foundation
-import IeumCore
+import CaptionCore
 
 /// Everything the overlay, the menu and the settings show, plus the recognition session that feeds them.
 @MainActor

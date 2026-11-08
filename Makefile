@@ -1,4 +1,4 @@
-BIN := .build/release/ieum-cli
+BIN := .build/release/caption-cli
 APP_NAME := Ieum
 APP := .build/app/$(APP_NAME).app
 ENTITLEMENTS := Resources/entitlements.plist
@@ -71,7 +71,7 @@ dmg:
 # Repeatable latency / accuracy / cost measurements. Usage: make bench LABEL=v0.2.0 [BASELINE=v0.1.0-baseline]
 LABEL ?= current
 bench:
-	swift build -c release --arch arm64 --product ieum-bench
+	swift build -c release --arch arm64 --product caption-bench
 	BASELINE=$(BASELINE) Benchmarks/run.sh $(LABEL)
 
 clean:

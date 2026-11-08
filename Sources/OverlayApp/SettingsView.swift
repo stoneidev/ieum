@@ -1,5 +1,5 @@
 import SwiftUI
-import IeumCore
+import CaptionCore
 
 struct SettingsView: View {
     @ObservedObject var model: AppModel
