@@ -510,7 +510,6 @@ footer a{color:var(--mute)}
               <label><input type="radio" name="theme" value="dark" checked><span><span class="en">Dark</span><span class="ko">어둡게</span></span></label>
               <label><input type="radio" name="theme" value="light"><span><span class="en">Light</span><span class="ko">밝게</span></span></label>
             </div></div>
-          <label class="chk"><input type="checkbox" id="fadechk" checked><span><span class="en">Fade when nobody speaks</span><span class="ko">말이 없으면 흐리게</span></span></label>
         </fieldset>
         <fieldset>
           <legend><span class="en">Meeting vocabulary</span><span class="ko">회의 용어집</span></legend>
@@ -553,7 +552,7 @@ footer a{color:var(--mute)}
       <div class="tile c2 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div>
         <h3><span class="en">Readable subtitle bar</span><span class="ko">읽기 쉬운 자막 바</span></h3>
-        <p><span class="en">Large text with adjustable lines, size, background and opacity. It fades when nobody speaks and can be click-through.</span><span class="ko">줄 수·크기·배경·투명도를 조절할 수 있습니다. 말이 없으면 흐려지고 클릭이 통과되게 할 수도 있습니다.</span></p>
+        <p><span class="en">Large text with adjustable lines, size, background and opacity. It stays in view, and can be click-through.</span><span class="ko">줄 수·크기·배경·투명도를 조절할 수 있습니다. 계속 보이는 상태로 유지되며 클릭이 통과되게 할 수도 있습니다.</span></p>
       </div>
       <div class="tile c2 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div>
@@ -796,7 +795,7 @@ var L=[
  {l:"en",who:0,src:"Great. I'll update the release notes.",dst:"좋아요. 제가 릴리스 노트를 업데이트할게요."},
  {l:"ko",who:1,src:"감사합니다. 회의록은 제가 정리하겠습니다.",dst:"Thank you. I'll write up the minutes."}
 ];
-var st={mode:"conv",n:2,fade:true,voc:false,run:false,stopped:false,vis:false,i:0,view:[],clock:37334};
+var st={mode:"conv",n:2,fade:false,voc:false,run:false,stopped:false,vis:false,i:0,view:[],clock:37334};
 var timers=[],typer;
 var reduceM=matchMedia("(prefers-reduced-motion:reduce)").matches;
 if(reduceM)lab.classList.add("reduce"),d.classList.add("reduce");
@@ -879,7 +878,6 @@ lab.querySelectorAll("input[name=lines]").forEach(function(r){r.addEventListener
 lab.querySelectorAll("input[name=theme]").forEach(function(r){r.addEventListener("change",function(){bar.dataset.theme=r.value})});
 $("szr").addEventListener("input",function(){bar.style.setProperty("--sz",this.value+"px");$("szo").textContent=this.value});
 $("opr").addEventListener("input",function(){bar.style.setProperty("--op",this.value/100);$("opo").textContent=this.value+"%"});
-$("fadechk").addEventListener("change",function(){st.fade=this.checked;if(!this.checked)bar.classList.remove("faded")});
 $("vocchk").addEventListener("change",function(){st.voc=this.checked;reset()});
 document.addEventListener("keydown",function(e){
   if(!e.ctrlKey||!e.altKey)return;

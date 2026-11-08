@@ -83,10 +83,6 @@ enum Preferences {
         set { defaults.set(newValue, forKey: "showsWordsSooner") }
     }
 
-    static var fadeWhenQuiet: Bool {
-        get { flag("fadeWhenQuiet", default: true) }
-        set { defaults.set(newValue, forKey: "fadeWhenQuiet") }
-    }
     static var clickThrough: Bool {
         get { flag("clickThrough", default: false) }
         set { defaults.set(newValue, forKey: "clickThrough") }

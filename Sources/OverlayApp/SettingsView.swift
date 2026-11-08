@@ -197,7 +197,6 @@ private struct DisplayTab: View {
                     .foregroundStyle(.secondary)
             }
             Section(tr("Stay out of the way", "회의를 가리지 않게")) {
-                Toggle(tr("Fade when nobody is speaking", "말이 없으면 흐리게"), isOn: Binding(get: { model.fadeWhenQuiet }, set: model.setFadeWhenQuiet))
                 Toggle(tr("Click through the overlay", "오버레이 클릭 통과"), isOn: Binding(get: { model.clickThrough }, set: model.setClickThrough))
                 if model.clickThrough {
                     Text(tr("Clicks go to the window underneath. Turn this off to move or resize the overlay.",

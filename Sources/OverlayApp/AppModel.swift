@@ -15,7 +15,6 @@ final class AppModel: ObservableObject {
     /// Finalized text that is still recent enough to belong on the subtitle bar.
     @Published private(set) var barFinalText = ""
     @Published private(set) var scriptFile: URL?
-    @Published private(set) var isQuiet = false
     /// Set when the transcript file can no longer be written; the captions keep working.
     @Published private(set) var transcriptWarning: String?
 
@@ -35,7 +34,6 @@ final class AppModel: ObservableObject {
     @Published private(set) var overlayVisible = true
 
     // MARK: Behavior
-    @Published private(set) var fadeWhenQuiet = Preferences.fadeWhenQuiet
     @Published private(set) var showsWordsSooner = Preferences.showsWordsSooner
     @Published private(set) var clickThrough = Preferences.clickThrough
     @Published private(set) var globalShortcuts = Preferences.globalShortcuts
@@ -55,8 +53,6 @@ final class AppModel: ObservableObject {
 
     /// How long a finalized sentence stays on the bar after the last speech.
     static let barLinger: TimeInterval = 12
-    /// How long the overlay waits in silence before it fades.
-    static let fadeDelay: TimeInterval = 6
     private static let maxLines = 5000
 
     private struct BarEntry {
@@ -88,7 +84,6 @@ final class AppModel: ObservableObject {
     private var awaitingTranslation = Set<UUID>()
     private var autoRestarts: [Date] = []
     private var autoRestartTask: Task<Void, Never>?
-    private var lastActivity = Date()
     private var corrector = VocabularyCorrector(terms: Preferences.vocabulary)
 
     var isRunning: Bool { status.isRunning }
@@ -111,7 +106,6 @@ final class AppModel: ObservableObject {
         barTranslation = ("", "")
         translatedPartial = ""
         partial = ""
-        lastActivity = Date()
         status = .starting
         transcriptWarning = nil
         let mode = meetingMode
@@ -239,12 +233,6 @@ final class AppModel: ObservableObject {
     func setShowsWordsSooner(_ on: Bool) {
         showsWordsSooner = on
         Preferences.showsWordsSooner = on
-    }
-
-    func setFadeWhenQuiet(_ on: Bool) {
-        fadeWhenQuiet = on
-        Preferences.fadeWhenQuiet = on
-        if !on { isQuiet = false }
     }
 
     func setClickThrough(_ on: Bool) {
@@ -478,7 +466,6 @@ final class AppModel: ObservableObject {
         sessionTask = nil
         pruneTask?.cancel()
         pruneTask = nil
-        isQuiet = false
         // A recognizer error while winding down is not worth showing; the user already asked to stop.
         status = failure != nil && !stopRequested ? .error(failure ?? "") : .idle
         if status == .idle { partial = "" }
@@ -513,8 +500,6 @@ final class AppModel: ObservableObject {
     private func apply(_ event: TranscriptionEvent) {
         let text = corrector.correct(RepetitionGuard.collapse(TranscriptCleaner.clean(event.text)))
         let language = String(event.locale.prefix(2))
-        if !text.isEmpty { lastActivity = Date() }
-        if isQuiet { isQuiet = false }
         if event.isFinal {
             let provisional = translatedPartial.isEmpty ? nil : translatedPartial
             partial = ""
@@ -552,8 +537,6 @@ final class AppModel: ObservableObject {
 
     private func tick() {
         refreshBar()
-        let quiet = fadeWhenQuiet && status == .listening && Date().timeIntervalSince(lastActivity) > Self.fadeDelay
-        if quiet != isQuiet { isQuiet = quiet }
     }
 
     private func refreshBar() {

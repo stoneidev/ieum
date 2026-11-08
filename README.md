@@ -36,7 +36,7 @@ The other side talks and you read Korean. You answer in Korean and the English i
 |---|---|
 | **Meeting modes** | Korean → English, English → Korean, Korean captions, English captions (no translation), or **detect the language and translate** (both ways, decided per sentence). |
 | **Words as they are spoken** | The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
-| **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It fades when nobody speaks and can be click-through. |
+| **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can be click-through. |
 | **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. |
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. |
 | **Saved scripts** | One file per meeting: `[HH:mm:ss] text` with `→ translation` lines, and `[EN]`/`[KO]` tags in conversation mode. Listed in Settings. |
@@ -90,7 +90,7 @@ After turning a permission on in System Settings, quit Ieum completely and open 
 
 ### Settings
 
-General (meeting mode, caption language, audio source, open at login, global shortcuts, interface language) · Display (bar or panel, lines, text size, translation layout, background and opacity, fade when quiet, click-through) · Vocabulary · Transcripts · About.
+General (meeting mode, caption language, audio source, open at login, global shortcuts, interface language) · Display (bar or panel, lines, text size, translation layout, background and opacity, click-through) · Vocabulary · Transcripts · About.
 
 ### Command line
 

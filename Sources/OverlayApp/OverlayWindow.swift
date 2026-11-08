@@ -61,23 +61,19 @@ final class OverlayWindowController {
             .removeDuplicates()
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.applyPresence(animated: false) }
+            .sink { [weak self] _ in self?.applyPresence() }
             .store(in: &cancellables)
 
-        // Quiet, hidden and click-through are state of the model; the window just follows.
-        model.$isQuiet
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.applyPresence(animated: true) }
-            .store(in: &cancellables)
+        // Hidden and click-through are state of the model; the window just follows.
         model.$overlayVisible
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.applyPresence(animated: true) }
+            .sink { [weak self] _ in self?.applyPresence() }
             .store(in: &cancellables)
         model.$clickThrough
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.applyPresence(animated: false) }
+            .sink { [weak self] _ in self?.applyPresence() }
             .store(in: &cancellables)
-        applyPresence(animated: false)
+        applyPresence()
 
         for name in [NSWindow.didMoveNotification, NSWindow.didResizeNotification] {
             observers.append(NotificationCenter.default.addObserver(forName: name, object: panel, queue: .main) { [weak self] _ in
@@ -86,10 +82,10 @@ final class OverlayWindowController {
         }
     }
 
-    func show() { applyPresence(animated: false) }
+    func show() { applyPresence() }
 
-    /// Visible, faded (nobody is speaking) or hidden; and whether clicks pass through to the window underneath.
-    private func applyPresence(animated: Bool) {
+    /// Visible or hidden; and whether clicks pass through to the window underneath.
+    private func applyPresence() {
         // The Start button on the idle bar must stay clickable, even with click-through on.
         panel.ignoresMouseEvents = model.clickThrough && model.status != .idle
         guard model.overlayVisible else {
@@ -97,15 +93,7 @@ final class OverlayWindowController {
             return
         }
         panel.orderFrontRegardless()
-        let target: CGFloat = model.isQuiet ? 0.18 : 1
-        if animated, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = model.isQuiet ? 0.9 : 0.15
-                panel.animator().alphaValue = target
-            }
-        } else {
-            panel.alphaValue = target
-        }
+        panel.alphaValue = 1
     }
 
     // MARK: Placement
