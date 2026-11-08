@@ -170,6 +170,29 @@ struct LanguageChip: View {
     }
 }
 
+/// The way to turn captions on from the overlay itself, with the shortcut when shortcuts are enabled.
+struct StartCaptionsButton: View {
+    @ObservedObject var model: AppModel
+    let fontSize: CGFloat
+
+    var body: some View {
+        Button(action: { model.start() }) {
+            HStack(spacing: 8) {
+                Text(tr("Start captions", "자막 시작")).font(.system(size: fontSize, weight: .semibold))
+                if model.globalShortcuts {
+                    Text("⌃⌥S").font(.system(size: max(12, fontSize - 4), weight: .medium, design: .rounded)).opacity(0.6)
+                }
+            }
+            .foregroundStyle(Color.black.opacity(0.88))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 7)
+            .background(Capsule().fill(Theme.live))
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(tr("Starts live captions", "실시간 자막을 시작합니다"))
+    }
+}
+
 // MARK: - Subtitle bar
 
 /// Hangul is drawn smaller than Latin at the same point size so both read as equally large.
@@ -211,20 +234,7 @@ struct SubtitleBarView: View {
                 .font(.system(size: fontSize, weight: .medium))
                 .foregroundStyle(palette.interim)
             Spacer(minLength: 12)
-            Button(action: { model.start() }) {
-                HStack(spacing: 8) {
-                    Text(tr("Start captions", "자막 시작")).font(.system(size: fontSize, weight: .semibold))
-                    if model.globalShortcuts {
-                        Text("⌃⌥S").font(.system(size: max(12, fontSize - 4), weight: .medium, design: .rounded)).opacity(0.6)
-                    }
-                }
-                .foregroundStyle(Color.black.opacity(0.88))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 7)
-                .background(Capsule().fill(Theme.live))
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint(tr("Starts live captions", "실시간 자막을 시작합니다"))
+            StartCaptionsButton(model: model, fontSize: fontSize)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .padding(.horizontal, BarMetrics.horizontalPadding)
@@ -408,7 +418,9 @@ struct TranscriptPanelView: View {
                 .font(.system(size: 13))
                 .foregroundStyle(palette.interim)
             Spacer()
-            if let notice = model.translationNotice {
+            if model.status == .idle {
+                StartCaptionsButton(model: model, fontSize: 13)
+            } else if let notice = model.translationNotice {
                 Text(notice)
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.alert)
@@ -455,7 +467,7 @@ struct TranscriptPanelView: View {
     private var emptyMessage: String {
         model.isRunning
             ? tr("Listening. Sentences appear here as they are finished.", "듣고 있습니다. 문장이 끝나면 여기에 쌓입니다.")
-            : tr("Captions are off. Choose Start captions in the menu bar.", "자막이 꺼져 있습니다. 메뉴 막대에서 '자막 시작'을 누르세요.")
+            : tr("Captions are off. Finished sentences will be listed here with their time.", "자막이 꺼져 있습니다. 시작하면 끝난 문장이 시각과 함께 여기에 쌓입니다.")
     }
 }
 
