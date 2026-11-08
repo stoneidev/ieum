@@ -21,7 +21,7 @@ struct SettingsView: View {
             AboutTab(openSetup: openSetup).tag(4)
                 .tabItem { Label(tr("About", "정보"), systemImage: "info.circle") }
         }
-        .frame(width: 600, height: 660)
+        .frame(width: 600, height: 760)
     }
 }
 
@@ -61,6 +61,13 @@ private struct GeneralTab: View {
     @ObservedObject var model: AppModel
     @State private var loginEnabled = LaunchAtLogin.isEnabled
     @State private var loginError: String?
+
+    private var shortcuts: [(key: String, title: String)] { [
+        ("S", tr("Start / stop", "시작/중지")),
+        ("H", tr("Show / hide", "보이기/숨기기")),
+        ("D", tr("Bar / panel", "바/패널")),
+        ("L", tr("Swap English ⇄ Korean", "영어 ⇄ 한국어 방향 바꾸기")),
+    ] }
 
     var body: some View {
         Form {
@@ -103,10 +110,15 @@ private struct GeneralTab: View {
                 }
                 Toggle(tr("Global shortcuts", "전역 단축키"), isOn: Binding(get: { model.globalShortcuts }, set: model.setGlobalShortcuts))
                 if model.globalShortcuts {
-                    Text(tr("⌃⌥S start / stop   ⌃⌥H show / hide   ⌃⌥D bar / panel   ⌃⌥L swap English ⇄ Korean",
-                            "⌃⌥S 시작/중지   ⌃⌥H 보이기/숨기기   ⌃⌥D 바/패널   ⌃⌥L 영어 ⇄ 한국어 방향 바꾸기"))
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                    ForEach(shortcuts, id: \.key) { shortcut in
+                        LabeledContent(shortcut.title) {
+                            HStack(spacing: 4) {
+                                ForEach(["⌃", "⌥", shortcut.key], id: \.self) { Keycap(label: $0) }
+                            }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel("Control Option \(shortcut.key)")
+                        }
+                    }
                 }
                 Picker(tr("Interface language", "화면 언어"), selection: Binding(get: { model.uiLanguage }, set: model.setUILanguage)) {
                     Text(tr("Follow the system", "시스템 설정 따르기")).tag("system")
@@ -116,6 +128,21 @@ private struct GeneralTab: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+/// One key of a shortcut, drawn like the key on a keyboard.
+private struct Keycap: View {
+    let label: String
+
+    var body: some View {
+        Text(label)
+            .font(.system(size: 12, weight: .medium, design: .rounded))
+            .frame(minWidth: 22, minHeight: 22)
+            .padding(.horizontal, 2)
+            .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color.primary.opacity(0.08)))
+            .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(Color.primary.opacity(0.18), lineWidth: 0.5))
+            .accessibilityHidden(true)
     }
 }
 

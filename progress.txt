@@ -20,3 +20,5 @@ Phase 4: renamed the product to Ieum. CLI is ieum-cli (not ieum) because the app
 
 Phase 5: internal modules are named by function, only the public product keeps the name Ieum.
 CaptionCore (library), CaptionCLI (product caption-cli), CaptionBench (caption-bench), OverlayApp (product Ieum), CaptionCoreTests.
+
+Phase 6: three UX rounds on the app. Found but not fixed: vocabulary placeholder looks like real entries; empty Records tab; GitHub Release DMG predates these changes (rebuild + notarize to ship). Tip: capture windows with screencapture -l <id> (CGWindowList), never the full screen.

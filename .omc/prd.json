@@ -183,8 +183,8 @@
         "Committed separately and pushed"
       ],
       "priority": 18,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Idle bar: one line + Start button (2e68c28)"
     },
     {
       "id": "US-19",
@@ -196,8 +196,8 @@
         "Committed separately and pushed"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Display tab live preview (aacc95a)"
     },
     {
       "id": "US-20",
@@ -209,8 +209,8 @@
         "Committed separately and pushed"
       ],
       "priority": 20,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Shortcut keycaps in General, taller settings window"
     }
   ],
   "notes": {
