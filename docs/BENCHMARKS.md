@@ -65,3 +65,16 @@ are shown for the sentence being spoken, and every finished sentence still comes
 Measured on en-US (9 s of speech, 3 runs): first text 1.01 s to 0.51 s; word error rate 3 % to 3 %; final delay 0.90 s to 0.89 s; CPU 1.3 % to 2.7 %;
 peak memory 21.7 MB to 24.1 MB. Needs the Speech Recognition permission; without it captions run as before. Not used in Conversation mode.
 Known rough edge: the two recognizers split sentences slightly differently, so a word at a sentence boundary can show up in the previous sentence for a moment.
+
+## Closing sentences at a pause damages the next sentence's first words
+
+Six sentences with a gap between them (synthesized speech, the pause rule set to 0.7 s). With the pause rule the first words of most sentences
+after a gap came out as `be... I am`, `. of a little bit`, `.........`, `. we, named it`: word error rate 20 % at 0.85 s gaps, 18 % at 1.2 s, 15 % at 2.0 s.
+Without it: 6 %, 8 %, 7 %. Placing the boundary earlier (0.3 s or 0.5 s pause, or at the end of speech) did not help, so the damage comes from asking the
+recognizer to finalize, not from where. The recognizer's own finalization closes English sentences about 0.9 s after speech ends (4.92 s against 4.19 s for a
+sentence ending at 4.0 s), so English single-language modes no longer use the pause rule.
+
+It stays on where it is needed: Korean (final delay 0.84 s with it, 2.59 s without) and the auto-detect mode (word error rate 10 % with it, 29 % without;
+language chosen correctly 100 % against 50 %; final delay 0.85 s against 2.61 s). In those modes English sentences after a pause can still lose their first
+words; a way to keep the speed without the damage is not found yet.
+Bench flags for this: `--pause <seconds>`, `--no-pause-finalization`, `--no-fast`, `--no-vad`.
