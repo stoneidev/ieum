@@ -10,6 +10,8 @@ public struct TranscriptionEvent: Sendable, Equatable {
     /// Audio-relative time range in seconds, when the engine provides it.
     public let audioStart: Double?
     public let audioEnd: Double?
+    /// How sure the recognizer is, 0...1, when the engine reports it.
+    public let confidence: Double?
 
     public init(
         text: String,
@@ -17,7 +19,8 @@ public struct TranscriptionEvent: Sendable, Equatable {
         locale: String,
         timestamp: Date = Date(),
         audioStart: Double? = nil,
-        audioEnd: Double? = nil
+        audioEnd: Double? = nil,
+        confidence: Double? = nil
     ) {
         self.text = text
         self.isFinal = isFinal
@@ -25,6 +28,7 @@ public struct TranscriptionEvent: Sendable, Equatable {
         self.timestamp = timestamp
         self.audioStart = audioStart
         self.audioEnd = audioEnd
+        self.confidence = confidence
     }
 }
 

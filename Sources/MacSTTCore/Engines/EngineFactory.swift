@@ -14,6 +14,17 @@ public enum EngineFactory {
         options: EngineOptions,
         capture: any AudioCapture
     ) async throws -> (engine: any TranscriberEngine, events: AsyncThrowingStream<TranscriptionEvent, Error>) {
+        let started = try await startEngine(choice: choice, localeID: localeID, options: options, capture: capture)
+        // The user's vocabulary also repairs the transcript afterwards: engines use it unevenly (see VocabularyCorrector).
+        return (started.engine, VocabularyCorrector(terms: options.vocabulary).apply(to: started.events))
+    }
+
+    private static func startEngine(
+        choice: EngineChoice,
+        localeID: String,
+        options: EngineOptions,
+        capture: any AudioCapture
+    ) async throws -> (engine: any TranscriberEngine, events: AsyncThrowingStream<TranscriptionEvent, Error>) {
         if choice != .legacy {
             do {
                 if let modern = try await ModernSpeechSupport.makeEngine(localeID: localeID, options: options) {

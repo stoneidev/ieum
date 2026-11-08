@@ -58,7 +58,7 @@ actor ModernSpeechEngine: TranscriberEngine {
             locale: locale,
             transcriptionOptions: [],
             reportingOptions: options.fast ? [.volatileResults, .fastResults] : [.volatileResults],
-            attributeOptions: [.audioTimeRange]
+            attributeOptions: [.audioTimeRange, .transcriptionConfidence]
         )
         var modules: [any SpeechModule] = [transcriber]
         if options.useVAD {
@@ -97,7 +97,8 @@ actor ModernSpeechEngine: TranscriberEngine {
                             isFinal: result.isFinal,
                             locale: localeID,
                             audioStart: hasRange ? range.start.seconds : nil,
-                            audioEnd: hasRange ? range.end.seconds : nil
+                            audioEnd: hasRange ? range.end.seconds : nil,
+                            confidence: Self.meanConfidence(of: result.text)
                         ))
                     }
                     continuation.finish()
@@ -132,6 +133,16 @@ actor ModernSpeechEngine: TranscriberEngine {
 
     func stop() async {
         await capture?.stop()
+    }
+
+    /// Average of the per-phrase confidences in a result, or nil when the engine gave none.
+    private static func meanConfidence(of text: AttributedString) -> Double? {
+        var total = 0.0
+        var count = 0
+        for (value, _) in text.runs[\.transcriptionConfidence] {
+            if let value { total += value; count += 1 }
+        }
+        return count == 0 ? nil : total / Double(count)
     }
 
     /// Reports clearly when the locale's on-device model must be downloaded, then installs it.

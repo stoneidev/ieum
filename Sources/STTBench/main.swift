@@ -42,6 +42,7 @@ struct STTBench: AsyncParsableCommand {
         var peakRSSMB = 0.0
         var finals = 0
         var recognized = ""
+        var meanConfidence: Double?
         var firstTranslationSeconds: Double?
         var finalTranslationLagSeconds: Double?
         var interimTranslationLagSeconds: Double?
@@ -121,6 +122,7 @@ struct STTBench: AsyncParsableCommand {
         }
 
         var finalsText: [String] = []
+        var confidences: [Double] = []
         var lastFinal: ContinuousClock.Instant?
         for try await event in started.events {
             let now = clock.now
@@ -128,6 +130,7 @@ struct STTBench: AsyncParsableCommand {
             if event.isFinal {
                 guard !text.isEmpty else { continue }
                 finalsText.append(text)
+                if let c = event.confidence { confidences.append(c) }
                 lastFinal = now
                 run.finals += 1
                 if let pipeline {
@@ -146,6 +149,7 @@ struct STTBench: AsyncParsableCommand {
         }
         if let lastFinal { run.finalDelaySeconds = Self.seconds(lastFinal - zero) - profile.speechEnd }
         run.recognized = finalsText.joined(separator: " ")
+        run.meanConfidence = confidences.isEmpty ? nil : confidences.reduce(0, +) / Double(confidences.count)
         run.wer = TextMetrics.wordErrorRate(reference: reference, hypothesis: run.recognized)
         run.cer = TextMetrics.characterErrorRate(reference: reference, hypothesis: run.recognized)
 
