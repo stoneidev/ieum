@@ -1,0 +1,12 @@
+Ralph run: mac-stt overlay app. Spec: .omc/specs/deep-interview-mac-stt-overlay.md
+Existing: CLI (35 tests passing before this run).
+
+Done: MacSTTCore split; ScriptRecorder; mic device UID; STTOverlay app (bar/panel, menu bar); app bundle Makefile targets.
+Verified: make build/app warning-free, 43 tests, menu-driven e2e (start/stop/language switch/mode switch/quit), frame persistence, error text.
+Learned: @Published sinks see the OLD value (willSet) - use the emitted value. NSScreen.main may be an external display; screencapture needs all displays. SwiftUI ScrollView bottom anchor does not bottom-align short content.
+Unverified: see .omc/prd.json notes.
+
+Phase 2: offline translation (US-007..009). Measured: Translation highFidelity ~0.9-1.0s/sentence offline; lowLatency model not installed here.
+
+Phase 2 done: TranslationPipeline (single-flight, latest-interim-wins, ordered finals, stale discard, request timeout), SystemTranslator (strategy chosen from per-strategy install status), app UI (secondary original row, interim/final styling, panel rows), menu, transcript '→' lines.
+Learned: LanguageAvailability status is per strategy and depends on deployment target (default strategy differs); an @Published sink that resizes the window redraws SwiftUI with the OLD value - defer with .receive(on: DispatchQueue.main); generation token needed for async reconfigure.

@@ -1,0 +1,9 @@
+.build/
+.DS_Store
+*.xcodeproj/xcuserdata/
+.swiftpm/
+# Local tool state and generated artifacts
+.omc/state/
+.claude/
+Benchmarks/audio/
+Benchmarks/results/*.json

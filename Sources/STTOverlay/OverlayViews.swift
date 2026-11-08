@@ -1,0 +1,382 @@
+import AppKit
+import MacSTTCore
+import SwiftUI
+
+/// Design tokens. Smoked glass so the captions hold contrast over any content; one amber "live" signal;
+/// interim words are muted until the recognizer commits them ("wet ink").
+enum Theme {
+    static let live = Color(red: 1.0, green: 0.698, blue: 0.141)         // #FFB224
+    static let alert = Color(red: 1.0, green: 0.420, blue: 0.357)        // #FF6B5B
+    static let corner: CGFloat = 20
+
+    struct Palette {
+        let ink: Color
+        let interim: Color
+        let tint: Color
+        let border: Color
+        let scheme: ColorScheme
+    }
+
+    /// Text colors follow the background, so contrast holds on both dark and light styles.
+    static func palette(for style: BackgroundStyle) -> Palette {
+        switch style {
+        case .glass, .solid:
+            return Palette(
+                ink: Color(red: 0.957, green: 0.949, blue: 0.933),       // #F4F2EE
+                interim: Color(red: 0.612, green: 0.639, blue: 0.671),   // #9CA3AB
+                tint: Color(red: 0.082, green: 0.094, blue: 0.106),      // #15181B
+                border: Color.white.opacity(0.10),
+                scheme: .dark
+            )
+        case .black:
+            // Pure black behind pure white: the highest contrast, and see-through when the opacity is lowered.
+            return Palette(
+                ink: .white,
+                interim: Color(red: 0.690, green: 0.718, blue: 0.753),   // #B0B7C0
+                tint: .black,
+                border: Color.white.opacity(0.14),
+                scheme: .dark
+            )
+        case .light:
+            return Palette(
+                ink: Color(red: 0.082, green: 0.094, blue: 0.106),       // #15181B
+                interim: Color(red: 0.369, green: 0.400, blue: 0.439),   // #5E6670
+                tint: Color(red: 0.957, green: 0.949, blue: 0.933),      // #F4F2EE
+                border: Color.black.opacity(0.12),
+                scheme: .light
+            )
+        }
+    }
+}
+
+/// Subtitle-bar geometry derived from the chosen text size and line count, so the bar is exactly as tall as
+/// its lines and never shows a half-cut line.
+enum BarMetrics {
+    static let verticalPadding: CGFloat = 18
+    static let horizontalPadding: CGFloat = 30
+
+    static func lineSpacing(_ size: CGFloat) -> CGFloat { (size * 0.15).rounded() }
+
+    static func fontLineHeight(_ size: CGFloat) -> CGFloat {
+        NSLayoutManager().defaultLineHeight(for: NSFont.systemFont(ofSize: size, weight: .medium))
+    }
+
+    static func textHeight(lines: Int, size: CGFloat) -> CGFloat {
+        let count = CGFloat(lines)
+        return ceil(count * fontLineHeight(size) + (count - 1) * lineSpacing(size))
+    }
+
+    /// The small original-language row shown above the translation.
+    static func secondarySize(_ size: CGFloat) -> CGFloat { max(13, (size * 0.5).rounded()) }
+    static let secondaryGap: CGFloat = 6
+
+    static func secondaryHeight(_ size: CGFloat) -> CGFloat {
+        ceil(fontLineHeight(secondarySize(size))) + secondaryGap
+    }
+
+    static func height(lines: Int, size: CGFloat, secondaryRow: Bool = false) -> CGFloat {
+        textHeight(lines: lines, size: size) + (secondaryRow ? secondaryHeight(size) : 0) + 2 * verticalPadding
+    }
+}
+
+struct OverlayRootView: View {
+    @ObservedObject var model: AppModel
+
+    var body: some View {
+        let palette = Theme.palette(for: model.background)
+        Group {
+            switch model.displayMode {
+            case .bar: SubtitleBarView(model: model, palette: palette)
+            case .panel: TranscriptPanelView(model: model, palette: palette)
+            }
+        }
+        .background { background(palette) }
+        .clipShape(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
+                .strokeBorder(palette.border, lineWidth: 0.5)
+        }
+        .preferredColorScheme(palette.scheme)
+    }
+
+    /// Only the background is translucent; text always stays fully opaque.
+    @ViewBuilder
+    private func background(_ palette: Theme.Palette) -> some View {
+        switch model.background {
+        case .glass, .light:
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial).opacity(model.backgroundOpacity)
+                palette.tint.opacity(model.backgroundOpacity)
+            }
+        case .solid, .black:
+            palette.tint.opacity(model.backgroundOpacity)
+        }
+    }
+}
+
+/// A small tally light: amber and breathing while listening, red when something needs attention.
+struct StatusDot: View {
+    let status: SessionStatus
+    let idleColor: Color
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dim = false
+
+    var body: some View {
+        Circle()
+            .fill(color)
+            .frame(width: 9, height: 9)
+            .opacity(status == .listening && dim ? 0.35 : 1)
+            .animation(status == .listening && !reduceMotion ? .easeInOut(duration: 1.1).repeatForever(autoreverses: true) : .default, value: dim)
+            .onAppear { dim = true }
+            .accessibilityLabel(accessibilityText)
+    }
+
+    private var color: Color {
+        switch status {
+        case .listening: Theme.live
+        case .starting: idleColor
+        case .idle: idleColor.opacity(0.5)
+        case .error: Theme.alert
+        }
+    }
+
+    private var accessibilityText: String {
+        switch status {
+        case .listening: "Listening"
+        case .starting: "Starting"
+        case .idle: "Captions off"
+        case .error: "Problem"
+        }
+    }
+}
+
+// MARK: - Subtitle bar
+
+/// Hangul is drawn smaller than Latin at the same point size so both read as equally large.
+enum ScriptScale {
+    static let hangul: CGFloat = 0.86
+    static let hangulPanel: CGFloat = 0.92
+
+    static func factor(for text: String, hangulScale: CGFloat = hangul) -> CGFloat {
+        TextScript.hangulRatio(text) > 0.3 ? hangulScale : 1
+    }
+}
+
+struct SubtitleBarView: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+
+    /// What the bar says right now: `confirmed` in full contrast, `tentative` muted.
+    private struct Caption {
+        var confirmed = ""
+        var tentative = ""
+        var plain: String { confirmed + tentative }
+    }
+
+    var body: some View {
+        let size = model.textSize.points
+        let caption = currentCaption
+        // Line pitch is fixed by the chosen size, so the bar height never depends on the language. A smaller
+        // Hangul font keeps the same pitch and simply gets more leading.
+        let pitch = BarMetrics.fontLineHeight(size) + BarMetrics.lineSpacing(size)
+        let fontSize = size * ScriptScale.factor(for: caption.plain)
+        let textHeight = BarMetrics.textHeight(lines: model.barLines, size: size)
+        VStack(alignment: .leading, spacing: BarMetrics.secondaryGap) {
+            if model.showsSecondaryRow { secondaryRow(size: size) }
+            HStack(alignment: .bottom, spacing: 16) {
+                StatusDot(status: model.status, idleColor: palette.interim)
+                    .padding(.bottom, max(0, (BarMetrics.fontLineHeight(fontSize) - 9) / 2))
+                // The text block is as tall as its content up to the chosen number of lines, anchored at the
+                // bottom and clipped at the top, so older lines scroll out whole and never half-cut.
+                text(caption)
+                    .font(.system(size: fontSize, weight: .medium))
+                    .lineSpacing(pitch - BarMetrics.fontLineHeight(fontSize))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxHeight: textHeight, alignment: .bottomLeading)
+                    // A flexible frame grows to whatever space it is offered; pin it to its content height
+                    // (capped at `textHeight`) so a short caption does not leave a gap under the original row.
+                    .fixedSize(horizontal: false, vertical: true)
+                    .clipped()
+                    .animation(.easeOut(duration: 0.25), value: model.barFinalText)
+                    .animation(.easeOut(duration: 0.25), value: model.barTranslation.confirmed)
+            }
+        }
+        // The window is fixed-height; the original row and the text sit together at the bottom of it.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+        .padding(.horizontal, BarMetrics.horizontalPadding)
+        .padding(.vertical, BarMetrics.verticalPadding)
+    }
+
+    private func text(_ caption: Caption) -> Text {
+        let separator = caption.confirmed.isEmpty || caption.tentative.isEmpty ? "" : " "
+        return Text(caption.confirmed).foregroundColor(palette.ink)
+            + Text(separator + caption.tentative).foregroundColor(palette.interim)
+    }
+
+    /// The speaker's own words, small and quiet, so the translation stays the thing you read.
+    /// When translation cannot run, this row says why instead.
+    private func secondaryRow(size: CGFloat) -> some View {
+        let shown = model.translationNotice == nil ? originalLine : ""
+        let small = BarMetrics.secondarySize(size) * ScriptScale.factor(for: shown, hangulScale: 0.92)
+        return Group {
+            if let notice = model.translationNotice {
+                Text(notice).foregroundStyle(Theme.alert)
+            } else {
+                Text(originalLine).foregroundStyle(palette.interim)
+            }
+        }
+        .font(.system(size: small, weight: .regular))
+        .lineLimit(1)
+        .truncationMode(.head)
+        .frame(maxWidth: .infinity, minHeight: BarMetrics.secondaryHeight(size) - BarMetrics.secondaryGap, alignment: .leading)
+        .padding(.leading, 25)
+    }
+
+    /// Newest words of the original: the sentence being spoken, else the last finished one.
+    private var originalLine: String {
+        model.partial.isEmpty ? model.barFinalText : model.partial
+    }
+
+    private var currentCaption: Caption {
+        switch model.status {
+        case .error(let message):
+            return Caption(confirmed: message)
+        case .idle:
+            return Caption(tentative: "Captions are off. Choose Start captions in the menu bar.")
+        case .starting:
+            return Caption(tentative: "Starting…")
+        case .listening where model.translationActive:
+            let t = model.barTranslation
+            if t.confirmed.isEmpty && t.tentative.isEmpty {
+                let heardSomething = !(model.barFinalText.isEmpty && model.partial.isEmpty)
+                return Caption(tentative: heardSomething ? "Translating…" : "Listening…")
+            }
+            return Caption(confirmed: t.confirmed, tentative: t.tentative)
+        case .listening:
+            if model.barFinalText.isEmpty && model.partial.isEmpty { return Caption(tentative: "Listening…") }
+            return Caption(confirmed: model.barFinalText, tentative: model.barFinalText.isEmpty || model.partial.isEmpty ? model.partial : " " + model.partial)
+        }
+    }
+}
+
+// MARK: - Transcript panel
+
+struct TranscriptPanelView: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return formatter
+    }()
+
+    /// Body text follows the chosen text size, but stays in a range that suits a scrolling list.
+    private var bodySize: CGFloat { max(14, (model.textSize.points * 0.57).rounded()) }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            header
+            Divider().overlay(palette.ink.opacity(0.10))
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 12) {
+                        if model.finalizedLines.isEmpty && model.partial.isEmpty {
+                            Text(emptyMessage)
+                                .font(.system(size: bodySize - 2))
+                                .foregroundStyle(palette.interim)
+                                .padding(.top, 6)
+                        }
+                        ForEach(model.finalizedLines) { line in
+                            if model.translationActive, let translation = line.displayTranslation {
+                                row(
+                                    time: Self.timeFormatter.string(from: line.time),
+                                    text: translation,
+                                    color: line.translation == nil ? palette.interim : palette.ink,
+                                    original: model.translationLayout == .both ? line.text : nil
+                                )
+                            } else {
+                                row(time: Self.timeFormatter.string(from: line.time), text: line.text, color: palette.ink, original: nil)
+                            }
+                        }
+                        if !model.partial.isEmpty {
+                            if model.translationActive, !model.translatedPartial.isEmpty {
+                                row(time: "·  ·  ·", text: model.translatedPartial, color: palette.interim,
+                                    original: model.translationLayout == .both ? model.partial : nil)
+                            } else {
+                                row(time: "·  ·  ·", text: model.partial, color: palette.interim, original: nil)
+                            }
+                        }
+                        Color.clear.frame(height: 1).id("end")
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 14)
+                }
+                .defaultScrollAnchor(.bottom)
+                .onChange(of: model.finalizedLines.count) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
+                .onChange(of: model.partial) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
+            }
+        }
+    }
+
+    private var header: some View {
+        HStack(spacing: 10) {
+            StatusDot(status: model.status, idleColor: palette.interim)
+            Text(model.language.title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(palette.ink)
+            Text(model.source.title)
+                .font(.system(size: 13))
+                .foregroundStyle(palette.interim)
+            if model.translationTarget != .off {
+                Text("→ \(model.translationTarget.title)")
+                    .font(.system(size: 13))
+                    .foregroundStyle(palette.interim)
+            }
+            Spacer()
+            if let notice = model.translationNotice {
+                Text(notice)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.alert)
+                    .lineLimit(2)
+            } else if case .error(let message) = model.status {
+                Text(message)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.alert)
+                    .lineLimit(2)
+            }
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+    }
+
+    private func row(time: String, text: String, color: Color, original: String?) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 14) {
+            Text(time)
+                .font(.system(size: max(11, (bodySize * 0.72).rounded()), weight: .regular).monospacedDigit())
+                .foregroundStyle(palette.interim)
+                .frame(width: 58, alignment: .leading)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(text)
+                    .font(.system(size: bodySize * ScriptScale.factor(for: text, hangulScale: ScriptScale.hangulPanel), weight: .regular))
+                    .lineSpacing(3)
+                    .foregroundStyle(color)
+                    .textSelection(.enabled)
+                if let original {
+                    Text(original)
+                        .font(.system(size: max(12, bodySize - 4), weight: .regular))
+                        .foregroundStyle(palette.interim)
+                        .textSelection(.enabled)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var emptyMessage: String {
+        model.isRunning
+            ? "Listening. Sentences appear here as they are finished."
+            : "Captions are off. Choose Start captions in the menu bar."
+    }
+}

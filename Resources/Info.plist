@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>dev.local.mac-stt</string>
+    <key>CFBundleName</key>
+    <string>mac-stt</string>
+    <key>CFBundleExecutable</key>
+    <string>mac-stt</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>mac-stt records microphone audio and transcribes it on this Mac.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>mac-stt uses on-device speech recognition to transcribe audio. Nothing leaves this Mac.</string>
+</dict>
+</plist>

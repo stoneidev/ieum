@@ -1,0 +1,115 @@
+{
+  "project": "mac-stt overlay app",
+  "source_spec": ".omc/specs/deep-interview-mac-stt-overlay.md",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Shared MacSTTCore library; CLI unchanged",
+      "passes": true,
+      "acceptanceCriteria": [
+        "Audio, Engines, Protocols, Output code lives in target MacSTTCore; mac-stt CLI depends on it (spec AC5)",
+        "`make build` succeeds with zero warnings and `.build/release/mac-stt --help` and `--list-locales` still work",
+        "`swift test` passes, including the existing 35 tests"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Script recorder + mic device identifier",
+      "passes": true,
+      "acceptanceCriteria": [
+        "ScriptRecorder appends '[HH:mm:ss] text' per finalized sentence, flushed per write, new file per session (spec AC9, AC10)",
+        "MicrophoneCapture accepts an optional device UID; unknown UID yields a clear error (spec AC14)",
+        "Unit tests cover recorder format/append/new-file-per-session and UID lookup"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Overlay window and UI",
+      "passes": true,
+      "acceptanceCriteria": [
+        "Bottom subtitle bar shows latest 1-2 large lines, floats above windows, does not take focus (AC1)",
+        "Transcript panel mode scrolls through finalized sentences with selectable text; modes switch without stopping recognition (AC2, AC3)",
+        "Window position/size per mode persist across launches (AC4)",
+        "Design produced with the frontend-design skill"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Menu-bar controls and session control",
+      "passes": true,
+      "acceptanceCriteria": [
+        "Menu: Start/Stop, language (en-US, en-AU, ko-KR), source (mic/system), display mode, script folder actions, Quit (AC7)",
+        "Changing language while running restarts recognition and menu shows the active language (AC8)",
+        "Mic is the default source; system audio selectable (AC6)",
+        "Permission denial shows an actionable message in the overlay and menu (AC11)"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "App bundle, signing, notarization scripts",
+      "passes": true,
+      "acceptanceCriteria": [
+        "`make app` produces a runnable .app (LSUIElement, usage strings, entitlements, hardened runtime, ad-hoc signed) (AC11,12 local part)",
+        "`make app-release` performs Developer ID signing, notarytool submit, staple, spctl check, driven by env vars; NOT executed without user credentials (AC12 reported unverified)"
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "End-to-end verification and review",
+      "passes": true,
+      "acceptanceCriteria": [
+        "App launched with system source plays `say` audio and writes a timestamped script file; first partial about 2s or less (AC13 via same method)",
+        "Unmeasured items (far-field accuracy AC15 field test, Voice Isolation in bundle, notarization) reported honestly",
+        "Reviewer approval against all criteria; deslop pass; post-deslop build+tests green"
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Core: offline translation pipeline",
+      "passes": true,
+      "acceptanceCriteria": [
+        "MacSTTCore exposes TextTranslator, TranslationPipeline (single-flight, latest-partial-wins, finals never dropped and ordered, stale partial results discarded after a final) and a system translator using Apple's Translation framework only",
+        "Unit tests with a fake translator cover latest-wins, ordered finals, stale discard, error surfacing",
+        "Availability check reports clear reasons (OS < 26.4, pair unsupported, models not installed)",
+        "lowLatency strategy is tried first and falls back to highFidelity when its model is not installed"
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "App: translation settings, display and recording",
+      "passes": true,
+      "acceptanceCriteria": [
+        "Menu: Translation submenu (Off / Korean / English, layout: original+translation or translation only), persisted, changeable while listening without restarting recognition",
+        "Subtitle bar shows translation as primary text with a small original line above; interim translation muted, final translation full contrast; bar height accounts for the extra row",
+        "Transcript panel rows show original and translation; transcript file gets '[HH:mm:ss] → translation' lines paired by timestamp",
+        "Unavailable translation shows an actionable notice instead of failing silently",
+        "Verified end-to-end offline (network denied) with say audio: translated partial appears before the sentence is final; final translation replaces it"
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "Verification, review, regression",
+      "passes": true,
+      "acceptanceCriteria": [
+        "make build/app warning-free, swift test passes, reviewer approval, deslop, post-deslop regression"
+      ]
+    }
+  ],
+  "notes": {
+    "unverified": [
+      "Developer ID signing + notarization (no credentials; make app-release stops with a message)",
+      "AC15 far-field multi-speaker field test",
+      "Voice Isolation behavior in an app bundle",
+      "Overlay over full-screen apps",
+      "External mic selection end-to-end (UID lookup and error path unit-tested only)"
+    ],
+    "reviewer": "architect (sonnet): REJECTED once (menu icon staleness, quit timeout race, stale bar text), all fixed, re-verified APPROVED",
+    "phase2_unverified": [
+      "lowLatency translation strategy (its model is not installed on this Mac; the high-fidelity model ran)",
+      "translation on macOS < 26.4 (reports an actionable notice; not run)",
+      "translation quality/lag on long sessions and with fullscreen apps",
+      "notarization of the translation build (needs make app-release / make dmg again)"
+    ],
+    "phase2_reviewer": "architect (sonnet): 4 defects + 2 minors found, all fixed, re-verified APPROVED"
+  }
+}
