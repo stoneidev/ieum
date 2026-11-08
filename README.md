@@ -12,7 +12,7 @@ Read what the other side says in your language, while they read what you say in 
 ![Tests](https://img.shields.io/badge/tests-130%20passing-brightgreen)
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%E2%86%94%20%ED%95%9C%EA%B5%AD%EC%96%B4-informational)
-![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Version](https://img.shields.io/badge/version-0.2.2-orange)
 
 [Features](#features) · [Install](#install) · [Usage](#usage) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
@@ -213,6 +213,6 @@ Version 0.2.2. Not yet verified: use in a real meeting room with several speaker
 
 ## License
 
-Ieum is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may read, run and modify the source, and use the app, for personal and other noncommercial purposes. Commercial use, including use at a company, needs a separate license from the author.
+Ieum is licensed under the [Apache License 2.0](LICENSE). You may use it freely, at work or at home, and modify and redistribute it. The name "Ieum" and its logo are not part of the license (see [NOTICE](NOTICE)).
 
 The fonts on the website (Plus Jakarta Sans, Noto Sans KR) are under the SIL Open Font License; see `site/fonts`.
