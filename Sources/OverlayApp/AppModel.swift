@@ -27,6 +27,8 @@ final class AppModel: ObservableObject {
     // MARK: Display
     @Published private(set) var displayMode = Preferences.displayMode
     @Published private(set) var barLines = Preferences.barLines
+    /// Captions without translation are a single line; the chosen number of lines is for translated captions.
+    var effectiveBarLines: Int { meetingMode.translates ? barLines : 1 }
     @Published private(set) var textSize = Preferences.textSize
     @Published private(set) var background = Preferences.background
     @Published private(set) var backgroundOpacity = Preferences.backgroundOpacity

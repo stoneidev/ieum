@@ -51,7 +51,7 @@ final class OverlayWindowController {
         // `@Published` emits before the value changes, so use the emitted values. Resizing the window redraws the
         // SwiftUI content immediately; doing that inside the emission would draw it with the old values and then
         // never redraw, so the work is deferred to the next main-queue turn.
-        Publishers.CombineLatest4(model.$barLines, model.$textSize, model.$showsSecondaryRow, model.$status.map { $0 == .idle }.removeDuplicates())
+        Publishers.CombineLatest4(Publishers.CombineLatest(model.$barLines, model.$meetingMode).map { lines, mode in mode.translates ? lines : 1 }, model.$textSize, model.$showsSecondaryRow, model.$status.map { $0 == .idle }.removeDuplicates())
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] lines, size, secondary, idle in self?.fitBarHeight(lines: lines, size: size.points, secondaryRow: secondary, idle: idle) }
@@ -106,7 +106,7 @@ final class OverlayWindowController {
         switch mode {
         case .bar:
             // The bar is exactly as tall as its lines; only its width and position are the user's to change.
-            let height = barHeight(lines: model.barLines, size: model.textSize.points, secondaryRow: model.showsSecondaryRow, idle: model.status == .idle)
+            let height = barHeight(lines: model.effectiveBarLines, size: model.textSize.points, secondaryRow: model.showsSecondaryRow, idle: model.status == .idle)
             panel.minSize = NSSize(width: 420, height: height)
             panel.maxSize = NSSize(width: 4000, height: height)
             frame.size.height = height
@@ -138,7 +138,7 @@ final class OverlayWindowController {
         switch mode {
         case .bar:
             let width = min(area.width * 0.62, 1100)
-            return NSRect(x: area.midX - width / 2, y: area.minY + 56, width: width, height: BarMetrics.height(lines: model.barLines, size: model.textSize.points, secondaryRow: model.showsSecondaryRow))
+            return NSRect(x: area.midX - width / 2, y: area.minY + 56, width: width, height: BarMetrics.height(lines: model.effectiveBarLines, size: model.textSize.points, secondaryRow: model.showsSecondaryRow))
         case .panel:
             let size = NSSize(width: 440, height: min(600, area.height * 0.7))
             return NSRect(x: area.maxX - size.width - 24, y: area.midY - size.height / 2, width: size.width, height: size.height)
