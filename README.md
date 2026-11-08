@@ -171,7 +171,7 @@ make dmg         SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" NO
 `make app-release` signs with the hardened runtime, submits to Apple, staples the ticket and runs a Gatekeeper check.
 `make dmg` packages the app that is already in `.build/app`, so the stapled ticket is kept.
 
-The bundle id in `Resources/App/Info.plist` is `dev.local.ieum`. Change it to your own reverse-DNS id before you distribute.
+The bundle id is `today.calmwork.ieum` (reverse of `ieum.calmwork.today`), set in `Resources/App/Info.plist`. Use your own reverse-DNS id if you fork the project.
 
 ## Performance
 

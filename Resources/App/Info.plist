@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>dev.local.ieum</string>
+    <string>today.calmwork.ieum</string>
     <key>CFBundleName</key>
     <string>Ieum</string>
     <key>CFBundleDisplayName</key>
