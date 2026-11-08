@@ -512,7 +512,7 @@ final class AppModel: ObservableObject {
     }
 
     private func apply(_ event: TranscriptionEvent) {
-        let text = corrector.correct(RepetitionGuard.collapse(event.text.trimmingCharacters(in: .whitespacesAndNewlines)))
+        let text = corrector.correct(RepetitionGuard.collapse(TranscriptCleaner.clean(event.text)))
         let language = String(event.locale.prefix(2))
         if !text.isEmpty { lastActivity = Date() }
         if isQuiet { isQuiet = false }
