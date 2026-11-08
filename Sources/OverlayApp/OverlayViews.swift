@@ -475,6 +475,10 @@ struct TranscriptPanelView: View {
                     .font(.system(size: bodySize * ScriptScale.factor(for: text, hangulScale: ScriptScale.hangulPanel), weight: .regular))
                     .lineSpacing(3)
                     .foregroundStyle(color)
+                    // Captions without translation are one line per sentence; the full text is in the tooltip and the script.
+                    .lineLimit(model.meetingMode.translates ? nil : 1)
+                    .truncationMode(.tail)
+                    .help(model.meetingMode.translates ? "" : text)
                     .textSelection(.enabled)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
