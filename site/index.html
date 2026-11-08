@@ -97,16 +97,7 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 /* app window */
 .stagewrap{position:relative;margin:64px auto 0;max-width:980px;perspective:1400px}
 .stagewrap::before{content:"";position:absolute;inset:8% 6% -4%;background:var(--grad);opacity:.28;filter:blur(70px);border-radius:40px;z-index:0}
-.screen{z-index:1}
-.screen{position:relative;border-radius:22px;background:linear-gradient(180deg,#101922,#0a1017);border:1px solid var(--bd-2);box-shadow:0 50px 100px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08);overflow:hidden;text-align:left;transform:rotateX(4deg);transform-origin:50% 100%}
-.menubar{display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--mute)}
-.dots{display:flex;gap:7px;margin-right:6px}
-.dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.18)}
-.menubar .title{flex:1;text-align:center}
-.menubar .rec{display:inline-flex;align-items:center;gap:7px;color:var(--teal);font-weight:600}
-.menubar .rec::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite}
 @keyframes pulse{50%{opacity:.35}}
-.stage{padding:18px 18px 0;position:relative}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .cell{aspect-ratio:4/3;border-radius:12px;background:linear-gradient(160deg,#1c3a48,#10222c);position:relative;overflow:hidden;outline:2px solid transparent;outline-offset:-2px;transition:outline-color .3s}
 .cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.9) brightness(.82);transition:filter .3s}
@@ -114,22 +105,20 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 .cell>span{position:absolute;left:8px;bottom:6px;z-index:1;font-size:11.5px;font-weight:600;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:6px}
 .cell.on{outline-color:var(--teal)}
 .cell.on>span{background:var(--teal);color:#05110f}
-.sub-bar{margin:16px auto 20px;max-width:760px;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);border-radius:18px;padding:18px 24px 20px;backdrop-filter:blur(10px)}
+.sub-bar{margin:0;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);border-radius:18px;padding:18px 24px 20px;backdrop-filter:blur(10px)}
 .sub-bar .src{min-height:2.9em;font-size:clamp(13.5px,1.3vw,15.5px);line-height:1.5;color:var(--mute)}
 .sub-bar .dst{margin-top:6px;min-height:2.7em;font-size:clamp(20px,2.5vw,30px);line-height:1.3;font-weight:700;letter-spacing:-.02em;transition:opacity .25s}
 .sub-bar .dst.fade{opacity:0}
-.stagefoot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 18px 14px;font-size:13px;color:var(--dim)}
 .pause{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--bd-2);background:transparent;color:var(--tx);font:600 13px/1 var(--font);cursor:pointer}
 .pause:hover{background:var(--surf-2)}
 
 
 /* try it: interactive preview */
 .lab{margin-top:56px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
-.lab .screen{transform:none}
-.lab .stage{padding:14px 14px 0}
-.lab .grid{gap:8px}
-.lab .cell{aspect-ratio:16/10}
-.tbar{--sz:24px;--op:.88;--n:2;--bgc:3,7,10;--srcc:rgba(255,255,255,.62);margin:14px auto 16px;max-width:700px;min-height:calc(var(--n) * (var(--sz) * 2.1 + 14px) + 28px);display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:14px 20px;border-radius:16px;background:rgba(var(--bgc),var(--op));border:1px solid var(--bd-2);color:#fff;transition:opacity .5s,background-color .2s}
+.appwin .cell{aspect-ratio:16/10}
+.appwin .cell img{filter:saturate(.85) brightness(.7)}
+.appwin .cell.on img{filter:brightness(.95)}
+.tbar{--sz:24px;--op:.88;--n:2;--bgc:3,7,10;--srcc:rgba(255,255,255,.62);margin:0;box-shadow:0 18px 40px -14px rgba(0,0,0,.75);min-height:calc(var(--n) * (var(--sz) * 2.1 + 14px) + 28px);display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:14px 20px;border-radius:16px;background:rgba(var(--bgc),var(--op));border:1px solid var(--bd-2);color:#fff;transition:opacity .5s,background-color .2s}
 .tbar[data-theme=light]{--bgc:250,250,247;--srcc:rgba(16,32,42,.66);color:#10202a}
 .tbar.faded{opacity:.25}
 .tbar .ent.old{opacity:.5}
@@ -140,7 +129,7 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 .tbar .idle{font-size:15px;color:var(--srcc);text-align:center;align-self:center;margin:auto 0}
 mark.fix{background:rgba(94,234,212,.9);color:#04201c;border-radius:5px;padding:0 3px;animation:flash .9s}
 @keyframes flash{from{background:rgba(94,234,212,.95)}}
-.tpanel{display:none;margin:14px auto 16px;max-width:700px;height:calc(2 * (var(--sz,24px) * 2.1 + 14px) + 28px);min-height:200px;overflow-y:auto;padding:12px 16px;border-radius:16px;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);font:400 13px/1.7 var(--mono);color:#cfd8e0}
+.tpanel{display:none;margin:0;box-shadow:0 18px 40px -14px rgba(0,0,0,.75);height:calc(2 * (var(--sz,24px) * 2.1 + 14px) + 28px);min-height:200px;overflow-y:auto;padding:12px 16px;border-radius:16px;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);font:400 13px/1.7 var(--mono);color:#cfd8e0}
 .tpanel .t{color:var(--teal)}
 .tpanel .a{color:var(--mint)}
 .lab[data-view=transcript] .tbar{display:none}
@@ -174,12 +163,32 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
 .labnote{margin-top:18px;text-align:center;font-size:13.5px;color:var(--dim)}
 @media (max-width:960px){
   .lab{grid-template-columns:minmax(0,1fr)}
-  .lab .grid{grid-template-columns:repeat(4,1fr)}
 }
 @media (max-width:560px){
-  .lab .grid{grid-template-columns:repeat(2,1fr)}
+  .appwin .grid{grid-template-columns:repeat(2,1fr)}
   .controls{padding:20px}
 }
+
+
+/* Mac desktop mock: the meeting app is one window, Ieum floats on the desktop */
+.desk{position:relative;border-radius:22px;border:1px solid var(--bd-2);background:radial-gradient(120% 90% at 15% 0%,#1f5163 0%,#0e2431 48%,#091119 100%);box-shadow:0 50px 100px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08);overflow:hidden;text-align:left}
+.stagewrap .desk{transform:rotateX(4deg);transform-origin:50% 100%}
+.mbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 16px;background:rgba(0,0,0,.38);font-size:12.5px;color:rgba(255,255,255,.82)}
+.mbar b{font-weight:700;margin-right:12px}
+.mbar .ie{display:inline-flex;align-items:center;gap:7px;color:var(--teal);font-weight:600}
+.mbar .ie::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite}
+.mbar .ie.off{color:var(--dim)}
+.mbar .ie.off::before{background:var(--dim);animation:none}
+.appwin{margin:18px 24px 0;border-radius:12px;background:#0c1822;border:1px solid var(--bd-2);overflow:hidden;box-shadow:0 24px 44px -22px rgba(0,0,0,.7)}
+.appwin .tb{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--bd);font-size:12.5px;color:var(--mute)}
+.appwin .tb .t{flex:1;text-align:center}
+.appwin .tb .who{font-size:11.5px;color:var(--dim)}
+.dots{display:flex;gap:7px}
+.dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.18)}
+.appwin .grid{padding:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.barwrap{position:relative;width:min(720px,calc(100% - 48px));margin:26px auto 22px}
+.barwrap .tag{position:absolute;top:-11px;left:18px;z-index:2;padding:2px 10px;border-radius:999px;background:var(--teal);color:#04201c;font-size:11px;font-weight:700;letter-spacing:.01em}
+.desknote{padding:0 18px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;color:var(--dim)}
 
 .chips{list-style:none;display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:center;padding:56px 0 0}
 .chips li{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;color:var(--mute)}
@@ -271,9 +280,9 @@ footer a{color:var(--mute)}
   .bento{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .tile.c2,.tile.c3,.tile.c4{grid-column:span 2}
   .grid{grid-template-columns:repeat(2,1fr)}
-  .screen{transform:none}
-  .menubar .title{display:none}
-  .menubar .rec{margin-left:auto}
+  .stagewrap .desk{transform:none}
+  .appwin{margin:14px 14px 0}
+  .barwrap{width:calc(100% - 28px)}
   section{padding:84px 0}
   .coffeecard,.coffeecard.nolink{grid-template-columns:minmax(0,1fr);padding:30px 26px}
 }
@@ -350,23 +359,27 @@ footer a{color:var(--mute)}
     </p>
     <p class="pill" id="count"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span id="countn"></span></p>
 
-    <figure class="stagewrap" aria-label="Demo of the subtitle bar">
-      <div class="screen">
-        <div class="menubar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">Weekly product sync</span><span class="rec"><span class="en">Ieum · listening</span><span class="ko">이음 · 듣는 중</span></span></div>
-        <div class="stage">
-          <div class="grid" aria-hidden="true">
+    <figure class="stagewrap" aria-label="Your Mac screen: a meeting app window, and the Ieum subtitle bar floating at the bottom of the screen">
+      <div class="desk">
+        <div class="mbar"><span><b>Meeting app</b><span class="en">Zoom, Meet, Teams, any app</span><span class="ko">Zoom, Meet, Teams 등 어떤 앱이든</span></span><span class="ie"><span class="en">Ieum · listening</span><span class="ko">이음 · 듣는 중</span></span></div>
+        <div class="appwin" aria-hidden="true">
+          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Weekly product sync</span><span class="who"><span class="en">your meeting app</span><span class="ko">내 회의 앱</span></span></div>
+          <div class="grid">
             <div class="cell on" id="c0"><img src="/img/sarah.webp" alt="" width="480" height="360" decoding="async" fetchpriority="low"><span>Sarah</span></div>
             <div class="cell" id="c1"><img src="/img/you.webp" alt="" width="480" height="360" decoding="async"><span><span class="en">You</span><span class="ko">나</span></span></div>
             <div class="cell" id="c2"><img src="/img/mike.webp" alt="" width="480" height="360" decoding="async"><span>Mike</span></div>
             <div class="cell" id="c3"><img src="/img/emma.webp" alt="" width="480" height="360" decoding="async"><span>Emma</span></div>
           </div>
+        </div>
+        <div class="barwrap">
+          <span class="tag"><span class="en">Ieum subtitle bar</span><span class="ko">이음 자막 바</span></span>
           <div class="sub-bar" role="img" aria-label="Example: someone says “Can we ship the beta on Thursday?” and Ieum shows “목요일에 베타를 출시할 수 있을까요?”">
             <div class="src" id="src" aria-hidden="true"></div>
             <div class="dst" id="dst" lang="ko" aria-hidden="true"></div>
           </div>
         </div>
-        <div class="stagefoot">
-          <span class="en">Example conversation, played in a loop.</span><span class="ko">예시 대화가 반복 재생됩니다.</span>
+        <div class="desknote">
+          <span class="en">Ieum is not a video-call app. It floats subtitles over the meeting app you already use.</span><span class="ko">이음은 화상회의 앱이 아닙니다. 지금 쓰는 회의 앱 위에 자막을 띄웁니다.</span>
           <button class="pause" type="button" id="pause"><span class="en">Pause</span><span class="ko">일시정지</span></button>
         </div>
       </div>
@@ -416,19 +429,23 @@ footer a{color:var(--mute)}
       <p class="sub"><span class="en">A simulated meeting with the same controls the app has. Real recognition and translation happen in the app, on your Mac.</span><span class="ko">앱과 같은 조작을 시뮬레이션한 회의입니다. 실제 인식과 번역은 Mac의 앱에서 이뤄집니다.</span></p>
     </div>
     <div class="lab" id="lab" data-run="off" data-view="bar">
-      <div class="screen">
-        <div class="menubar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">Weekly product sync</span><span class="rec" id="labrec"><span class="en">Ieum · stopped</span><span class="ko">이음 · 중지됨</span></span></div>
-        <div class="stage" aria-hidden="true">
+      <div class="desk">
+        <div class="mbar"><span><b>Meeting app</b><span class="en">Zoom, Meet, Teams, any app</span><span class="ko">Zoom, Meet, Teams 등 어떤 앱이든</span></span><span class="ie off" id="labrec"><span class="en">Ieum · stopped</span><span class="ko">이음 · 중지됨</span></span></div>
+        <div class="appwin" aria-hidden="true">
+          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Weekly product sync</span><span class="who"><span class="en">your meeting app</span><span class="ko">내 회의 앱</span></span></div>
           <div class="grid">
             <div class="cell" id="t0"><img src="/img/sarah.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Sarah</span></div>
             <div class="cell" id="t1"><img src="/img/you.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span><span class="en">You</span><span class="ko">나</span></span></div>
             <div class="cell" id="t2"><img src="/img/mike.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Mike</span></div>
             <div class="cell" id="t3"><img src="/img/emma.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Emma</span></div>
           </div>
+        </div>
+        <div class="barwrap" aria-hidden="true">
+          <span class="tag"><span class="when-bar"><span class="en">Ieum subtitle bar</span><span class="ko">이음 자막 바</span></span><span class="when-tr"><span class="en">Ieum transcript</span><span class="ko">이음 기록 창</span></span></span>
           <div class="tbar" id="tbar" data-theme="dark"></div>
           <div class="tpanel" id="tpanel"></div>
         </div>
-        <p class="stagefoot" style="padding-bottom:12px"><span class="en">Simulated conversation. Not real recognition.</span><span class="ko">시뮬레이션입니다. 실제 인식이 아닙니다.</span></p>
+        <p class="desknote"><span class="en">Simulated. Ieum floats over any app. Real recognition happens in the app.</span><span class="ko">시뮬레이션입니다. 이음은 어떤 앱 위에도 뜹니다. 실제 인식은 앱에서 이뤄집니다.</span></p>
       </div>
 
       <form class="controls" onsubmit="return false" aria-label="Preview controls">
@@ -729,6 +746,7 @@ function render(){
 function esc(t){return t.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})}
 function setRun(on){
   st.run=on;lab.dataset.run=on?"on":"off";
+  $("labrec").classList.toggle("off",!on);
   $("labrec").querySelector(".en").textContent=on?"Ieum · listening":"Ieum · stopped";
   $("labrec").querySelector(".ko").textContent=on?"이음 · 듣는 중":"이음 · 중지됨";
   if(!on){clear();bar.classList.remove("faded");cells.forEach(function(c){c.classList.remove("on")});render()}
