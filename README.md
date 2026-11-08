@@ -215,4 +215,4 @@ Version 0.2.2. Not yet verified: use in a real meeting room with several speaker
 
 Ieum is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may read, run and modify the source, and use the app, for personal and other noncommercial purposes. Commercial use, including use at a company, needs a separate license from the author.
 
-The fonts on the website (Hahmlet, Fraunces, Inter) are under the SIL Open Font License; see `site/fonts`.
+The fonts on the website (Plus Jakarta Sans, Noto Sans KR) are under the SIL Open Font License; see `site/fonts`.
