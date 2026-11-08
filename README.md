@@ -35,6 +35,7 @@ The other side talks and you read Korean. You answer in Korean and the English i
 | | |
 |---|---|
 | **Meeting modes** | English → Korean, Korean → English, **Conversation** (both ways, the language is detected per sentence), or captions only. |
+| **Words as they are spoken** | The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It fades when nobody speaks and can be click-through. |
 | **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. |
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. |

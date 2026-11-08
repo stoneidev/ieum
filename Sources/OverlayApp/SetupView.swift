@@ -50,14 +50,18 @@ struct SetupView: View {
                     ),
                     noteAction: permissions.screenAudio.isGranted || !screenAudioRequested ? nil : (tr("Quit and reopen", "종료 후 다시 열기"), { PermissionCenter.relaunch() })
                 )
-                if permissions.needsSpeechPermission {
+                if permissions.needsSpeechPermission || model.showsWordsSooner {
                     Divider()
                     PermissionRow(
                         title: tr("Speech recognition", "음성 인식"),
-                        detail: tr("Needed by the speech engine on this macOS version.", "이 macOS 버전의 음성 엔진에 필요합니다."),
+                        detail: permissions.needsSpeechPermission
+                            ? tr("Needed by the speech engine on this macOS version.", "이 macOS 버전의 음성 엔진에 필요합니다.")
+                            : tr("Shows the first words about half a second sooner. Without it captions still work, just a little later.",
+                                 "첫 단어를 약 0.5초 일찍 보여 줍니다. 허용하지 않아도 자막은 나오며 조금 늦을 뿐입니다."),
                         state: permissions.speech,
                         allow: { Task { await permissions.requestSpeech() } },
-                        open: { PermissionCenter.openSystemSettings(.speech) }
+                        open: { PermissionCenter.openSystemSettings(.speech) },
+                        isOptional: !permissions.needsSpeechPermission
                     )
                 }
                 Divider()

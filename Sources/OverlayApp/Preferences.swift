@@ -78,6 +78,12 @@ enum Preferences {
 
     // MARK: Behavior
 
+    /// Show words from the second recognizer sooner (needs Speech Recognition permission).
+    static var showsWordsSooner: Bool {
+        get { flag("showsWordsSooner", default: true) }
+        set { defaults.set(newValue, forKey: "showsWordsSooner") }
+    }
+
     static var fadeWhenQuiet: Bool {
         get { flag("fadeWhenQuiet", default: true) }
         set { defaults.set(newValue, forKey: "fadeWhenQuiet") }

@@ -56,3 +56,12 @@ Idea: when a sentence ends unchanged from the last interim text that was transla
 Result on this Mac (3 runs per case, against v0.2.0): no gain. Final translation lag was 1.44 s (en-AU, +0.14), 0.87 s (en-US, unchanged) and
 1.51 s (ko-KR, +0.28). The interim translation trails speech by 0.75 to 0.9 s, so by the time a sentence is final the text has usually grown by a word
 or its punctuation has changed, and the cached translation does not match. The change was removed again.
+
+## Early words: the legacy recognizer shows the sentence being spoken
+
+The modern recognizer reports interim text in bursts about once a second (first words at about 1.0 s). The legacy recognizer streams word by word
+(first word at about 0.5 s, then every 0.2 to 0.3 s). With `showsWordsSooner` (bench flag `--early-words`) both run on the same audio; the legacy words
+are shown for the sentence being spoken, and every finished sentence still comes from the modern recognizer.
+Measured on en-US (9 s of speech, 3 runs): first text 1.01 s to 0.51 s; word error rate 3 % to 3 %; final delay 0.90 s to 0.89 s; CPU 1.3 % to 2.7 %;
+peak memory 21.7 MB to 24.1 MB. Needs the Speech Recognition permission; without it captions run as before. Not used in Conversation mode.
+Known rough edge: the two recognizers split sentences slightly differently, so a word at a sentence boundary can show up in the previous sentence for a moment.

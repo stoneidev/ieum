@@ -37,6 +37,7 @@ final class AppModel: ObservableObject {
 
     // MARK: Behavior
     @Published private(set) var fadeWhenQuiet = Preferences.fadeWhenQuiet
+    @Published private(set) var showsWordsSooner = Preferences.showsWordsSooner
     @Published private(set) var clickThrough = Preferences.clickThrough
     @Published private(set) var globalShortcuts = Preferences.globalShortcuts
     @Published private(set) var uiLanguage = Preferences.uiLanguage
@@ -240,6 +241,12 @@ final class AppModel: ObservableObject {
 
     // MARK: Settings: behavior
 
+    /// Takes effect the next time captions start.
+    func setShowsWordsSooner(_ on: Bool) {
+        showsWordsSooner = on
+        Preferences.showsWordsSooner = on
+    }
+
     func setFadeWhenQuiet(_ on: Bool) {
         fadeWhenQuiet = on
         Preferences.fadeWhenQuiet = on
@@ -434,6 +441,7 @@ final class AppModel: ObservableObject {
 
             var options = EngineOptions(vocabulary: vocabulary)
             options.correctsTranscript = false
+            options.showsWordsSooner = showsWordsSooner
             let started = mode.isConversation
                 ? try await EngineFactory.startConversation(locales: locales, options: options, capture: capture)
                 : try await EngineFactory.start(choice: .auto, localeID: locales[0], options: options, capture: capture)

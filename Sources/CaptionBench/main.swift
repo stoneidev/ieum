@@ -31,6 +31,8 @@ struct CaptionBench: AsyncParsableCommand {
     var dump = false
     @Option(help: "Write the JSON result here instead of stdout.")
     var output: String?
+    @Flag(help: "Also run the legacy recognizer and show its words sooner for the sentence being spoken.")
+    var earlyWords = false
     @Flag(help: "Use the legacy SFSpeechRecognizer engine.")
     var legacy = false
     @Flag(help: "Conversation mode: recognize English and Korean in parallel and pick the spoken language per utterance.")
@@ -73,7 +75,8 @@ struct CaptionBench: AsyncParsableCommand {
             throw ValidationError("Cannot read speech from \(file).")
         }
         let reference = (try String(contentsOfFile: referenceFile, encoding: .utf8)).trimmingCharacters(in: .whitespacesAndNewlines)
-        let options = EngineOptions(vocabulary: (vocabulary ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) })
+        var options = EngineOptions(vocabulary: (vocabulary ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) })
+        options.showsWordsSooner = earlyWords
 
         var results: [Run] = []
         var engineName = ""

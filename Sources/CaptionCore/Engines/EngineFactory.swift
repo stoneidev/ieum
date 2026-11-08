@@ -28,6 +28,10 @@ public enum EngineFactory {
         if choice != .legacy {
             do {
                 if let modern = try await ModernSpeechSupport.makeEngine(localeID: localeID, options: options) {
+                    if options.showsWordsSooner, let early = await PreviewingEngine.makePreviewEngine(localeID: localeID, options: options) {
+                        let both = PreviewingEngine(primary: modern, preview: early)
+                        return (both, try await both.events(from: capture))
+                    }
                     return (modern, try await modern.events(from: capture))
                 }
                 if choice == .modern {
