@@ -77,6 +77,9 @@ enum BarMetrics {
     static func height(lines: Int, size: CGFloat, secondaryRow: Bool = false) -> CGFloat {
         textHeight(lines: lines, size: size) + (secondaryRow ? secondaryHeight(size) : 0) + 2 * verticalPadding
     }
+
+    /// While captions are off the bar is a single line with a Start button.
+    static func idleHeight(size: CGFloat) -> CGFloat { height(lines: 1, size: size) }
 }
 
 struct OverlayRootView: View {
@@ -191,6 +194,45 @@ struct SubtitleBarView: View {
     }
 
     var body: some View {
+        if model.status == .idle {
+            idleBar
+        } else {
+            liveBar
+        }
+    }
+
+    /// Captions are off: one calm line with the way to turn them on, instead of an empty multi-line bar.
+    private var idleBar: some View {
+        let size = model.textSize.points
+        let fontSize = max(15, (size * 0.6).rounded())
+        return HStack(spacing: 14) {
+            StatusDot(status: .idle, idleColor: palette.interim)
+            Text(tr("Captions are off", "자막이 꺼져 있습니다"))
+                .font(.system(size: fontSize, weight: .medium))
+                .foregroundStyle(palette.interim)
+            Spacer(minLength: 12)
+            Button(action: { model.start() }) {
+                HStack(spacing: 8) {
+                    Text(tr("Start captions", "자막 시작")).font(.system(size: fontSize, weight: .semibold))
+                    if model.globalShortcuts {
+                        Text("⌃⌥S").font(.system(size: max(12, fontSize - 4), weight: .medium, design: .rounded)).opacity(0.6)
+                    }
+                }
+                .foregroundStyle(Color.black.opacity(0.88))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 7)
+                .background(Capsule().fill(Theme.live))
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(tr("Starts live captions", "실시간 자막을 시작합니다"))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .padding(.horizontal, BarMetrics.horizontalPadding)
+        .padding(.vertical, BarMetrics.verticalPadding)
+    }
+
+    @ViewBuilder
+    private var liveBar: some View {
         let size = model.textSize.points
         let caption = currentCaption
         // Line pitch is fixed by the chosen size, so the bar height never depends on the language. A smaller
@@ -269,7 +311,7 @@ struct SubtitleBarView: View {
         case .error(let message):
             return Caption(confirmed: message)
         case .idle:
-            return Caption(tentative: tr("Captions are off. Choose Start captions in the menu bar.", "자막이 꺼져 있습니다. 메뉴 막대에서 '자막 시작'을 누르세요."))
+            return Caption()
         case .starting:
             return Caption(tentative: tr("Starting…", "시작하는 중…"))
         case .listening where model.translationActive:

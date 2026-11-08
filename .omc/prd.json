@@ -172,6 +172,45 @@
         "Private repository created for the authenticated account, origin set, main and all tags pushed",
         "git remote and remote refs verified (main, v0.1.0, bench-baseline-v0.1.0, v0.2.0, rename tag)"
       ]
+    },
+    {
+      "id": "US-18",
+      "title": "UX/UI round 1: review the app, pick the single most valuable improvement, apply it",
+      "acceptanceCriteria": [
+        "Round 1: review findings are listed with evidence (screenshot or code reference) and one is chosen with a reason",
+        "The chosen improvement is implemented and visible in the running app (before/after screenshot)",
+        "make build and make app have no warnings; swift test passes",
+        "Committed separately and pushed"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-19",
+      "title": "UX/UI round 2: review the app, pick the single most valuable improvement, apply it",
+      "acceptanceCriteria": [
+        "Round 2: review findings are listed with evidence (screenshot or code reference) and one is chosen with a reason",
+        "The chosen improvement is implemented and visible in the running app (before/after screenshot)",
+        "make build and make app have no warnings; swift test passes",
+        "Committed separately and pushed"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-20",
+      "title": "UX/UI round 3: review the app, pick the single most valuable improvement, apply it",
+      "acceptanceCriteria": [
+        "Round 3: review findings are listed with evidence (screenshot or code reference) and one is chosen with a reason",
+        "The chosen improvement is implemented and visible in the running app (before/after screenshot)",
+        "make build and make app have no warnings; swift test passes",
+        "Committed separately and pushed"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
     }
   ],
   "notes": {

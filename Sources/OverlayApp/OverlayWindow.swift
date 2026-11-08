@@ -51,10 +51,17 @@ final class OverlayWindowController {
         // `@Published` emits before the value changes, so use the emitted values. Resizing the window redraws the
         // SwiftUI content immediately; doing that inside the emission would draw it with the old values and then
         // never redraw, so the work is deferred to the next main-queue turn.
-        Publishers.CombineLatest3(model.$barLines, model.$textSize, model.$showsSecondaryRow)
+        Publishers.CombineLatest4(model.$barLines, model.$textSize, model.$showsSecondaryRow, model.$status.map { $0 == .idle }.removeDuplicates())
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] lines, size, secondary in self?.fitBarHeight(lines: lines, size: size.points, secondaryRow: secondary) }
+            .sink { [weak self] lines, size, secondary, idle in self?.fitBarHeight(lines: lines, size: size.points, secondaryRow: secondary, idle: idle) }
+            .store(in: &cancellables)
+        model.$status
+            .map { $0 == .idle }
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.applyPresence(animated: false) }
             .store(in: &cancellables)
 
         // Quiet, hidden and click-through are state of the model; the window just follows.
@@ -83,7 +90,8 @@ final class OverlayWindowController {
 
     /// Visible, faded (nobody is speaking) or hidden; and whether clicks pass through to the window underneath.
     private func applyPresence(animated: Bool) {
-        panel.ignoresMouseEvents = model.clickThrough
+        // The Start button on the idle bar must stay clickable, even with click-through on.
+        panel.ignoresMouseEvents = model.clickThrough && model.status != .idle
         guard model.overlayVisible else {
             panel.orderOut(nil)
             return
@@ -110,7 +118,7 @@ final class OverlayWindowController {
         switch mode {
         case .bar:
             // The bar is exactly as tall as its lines; only its width and position are the user's to change.
-            let height = BarMetrics.height(lines: model.barLines, size: model.textSize.points, secondaryRow: model.showsSecondaryRow)
+            let height = barHeight(lines: model.barLines, size: model.textSize.points, secondaryRow: model.showsSecondaryRow, idle: model.status == .idle)
             panel.minSize = NSSize(width: 420, height: height)
             panel.maxSize = NSSize(width: 4000, height: height)
             frame.size.height = height
@@ -122,10 +130,14 @@ final class OverlayWindowController {
         if model.overlayVisible { panel.orderFrontRegardless() }
     }
 
+    private func barHeight(lines: Int, size: CGFloat, secondaryRow: Bool, idle: Bool) -> CGFloat {
+        idle ? BarMetrics.idleHeight(size: size) : BarMetrics.height(lines: lines, size: size, secondaryRow: secondaryRow)
+    }
+
     /// Re-fits the bar after the line count or text size changed. It grows upward from its bottom edge.
-    private func fitBarHeight(lines: Int, size: CGFloat, secondaryRow: Bool) {
+    private func fitBarHeight(lines: Int, size: CGFloat, secondaryRow: Bool, idle: Bool) {
         guard model.displayMode == .bar else { return }
-        let height = BarMetrics.height(lines: lines, size: size, secondaryRow: secondaryRow)
+        let height = barHeight(lines: lines, size: size, secondaryRow: secondaryRow, idle: idle)
         panel.minSize = NSSize(width: 420, height: height)
         panel.maxSize = NSSize(width: 4000, height: height)
         var frame = panel.frame
