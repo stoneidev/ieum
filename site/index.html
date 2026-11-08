@@ -18,7 +18,6 @@
 <meta name="twitter:image" content="https://ieum.calmwork.today/og.png">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/img/sarah.webp" as="image" type="image/webp">
 <link rel="preload" href="/fonts/plusjakarta-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script>
 (function(){var d=document.documentElement,l;try{l=localStorage.getItem("lang")}catch(e){}
@@ -118,9 +117,6 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 
 /* try it: interactive preview */
 .lab{margin-top:56px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
-.appwin .cell{aspect-ratio:16/10}
-.appwin .cell img{filter:saturate(.85) brightness(.7)}
-.appwin .cell.on img{filter:brightness(.95)}
 .tbar{--sz:24px;--op:.88;--n:2;--bgc:3,7,10;--srcc:rgba(255,255,255,.62);margin:0;box-shadow:0 18px 40px -14px rgba(0,0,0,.75);min-height:calc(var(--n) * (var(--sz) * 2.1 + 14px) + 28px);display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:14px 20px;border-radius:16px;background:rgba(var(--bgc),var(--op));border:1px solid var(--bd-2);color:#fff;transition:opacity .5s,background-color .2s}
 .tbar[data-theme=light]{--bgc:250,250,247;--srcc:rgba(16,32,42,.66);color:#10202a}
 .tbar.faded{opacity:.25}
@@ -168,8 +164,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
   .lab{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:560px){
-  .appwin .grid{grid-template-columns:repeat(2,1fr)}
-  .controls{padding:20px}
+    .controls{padding:20px}
 }
 
 
@@ -188,7 +183,17 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
 .appwin .tb .who{font-size:11.5px;color:var(--dim)}
 .dots{display:flex;gap:7px}
 .dots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.18)}
-.appwin .grid{padding:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slideapp{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:10px;background:#0a141c}
+.thumbs{display:grid;gap:8px;align-content:start}
+.thumbs i{display:block;aspect-ratio:16/10;border-radius:5px;background:#16303f;border:1px solid var(--bd)}
+.thumbs i.on{border-color:var(--teal)}
+.slide{aspect-ratio:16/7.2;border-radius:8px;background:linear-gradient(135deg,#f6f4ee,#e3ece9);color:#10202a;padding:clamp(10px,2.2vw,22px) clamp(14px,3vw,30px);display:grid;grid-template-columns:1.2fr 1fr;grid-template-rows:auto 1fr;gap:6px 18px;overflow:hidden}
+.slide .h{grid-column:1/-1;font:800 clamp(14px,2.2vw,24px)/1.1 var(--font);letter-spacing:-.02em}
+.slide ul{list-style:none;display:grid;gap:clamp(3px,.8vw,8px);align-content:start;font-size:clamp(10.5px,1.4vw,15px);font-weight:600}
+.slide li{display:flex;align-items:center;gap:8px}
+.slide li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--teal-m,#14b8a6);flex:none}
+.slide .chart{display:flex;align-items:flex-end;gap:6px;padding-bottom:2px}
+.slide .chart i{flex:1;height:var(--h);border-radius:3px 3px 0 0;background:linear-gradient(180deg,#14b8a6,#5eead4)}
 .barwrap{position:relative;width:min(720px,calc(100% - 48px));margin:26px auto 22px}
 .barwrap .tag{position:absolute;top:-11px;left:18px;z-index:2;padding:2px 10px;border-radius:999px;background:var(--teal);color:#04201c;font-size:11px;font-weight:700;letter-spacing:.01em}
 .desknote{padding:0 18px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;color:var(--dim)}
@@ -388,16 +393,18 @@ footer a{color:var(--mute)}
     </p>
     <p class="pill" id="count"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span id="countn"></span></p>
 
-    <figure class="stagewrap" aria-label="Your Mac screen: a meeting app window, and the Ieum subtitle bar floating at the bottom of the screen">
+    <figure class="stagewrap" aria-label="Your Mac screen: a slides app window, with the Ieum subtitle bar floating at the bottom of the screen">
       <div class="desk">
-        <div class="mbar"><span><b>Meeting app</b><span class="en">Zoom, Meet, Teams, any app</span><span class="ko">Zoom, Meet, Teams 등 어떤 앱이든</span></span><span class="ie"><span class="en">Ieum · listening</span><span class="ko">이음 · 듣는 중</span></span></div>
+        <div class="mbar"><span><b>Slides</b><span class="en">Ieum works over any app</span><span class="ko">이음은 어떤 앱 위에서도 동작합니다</span></span><span class="ie"><span class="en">Ieum · listening</span><span class="ko">이음 · 듣는 중</span></span></div>
         <div class="appwin" aria-hidden="true">
-          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Weekly product sync</span><span class="who"><span class="en">your meeting app</span><span class="ko">내 회의 앱</span></span></div>
-          <div class="grid">
-            <div class="cell on" id="c0"><img src="/img/sarah.webp" alt="" width="480" height="360" decoding="async" fetchpriority="low"><span>Sarah</span></div>
-            <div class="cell" id="c1"><img src="/img/you.webp" alt="" width="480" height="360" decoding="async"><span><span class="en">You</span><span class="ko">나</span></span></div>
-            <div class="cell" id="c2"><img src="/img/mike.webp" alt="" width="480" height="360" decoding="async"><span>Mike</span></div>
-            <div class="cell" id="c3"><img src="/img/emma.webp" alt="" width="480" height="360" decoding="async"><span>Emma</span></div>
+          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Q4 launch plan</span><span class="who"><span class="en">any app, e.g. slides</span><span class="ko">어떤 앱이든, 예: 슬라이드</span></span></div>
+          <div class="slideapp">
+            <div class="thumbs"><i class="on"></i><i></i><i></i><i></i></div>
+            <div class="slide">
+              <div class="h">Q4 launch plan</div>
+              <ul><li>Beta build: Thursday</li><li>QA sign-off</li><li>Release notes</li></ul>
+              <div class="chart"><i style="--h:38%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:70%"></i><i style="--h:86%"></i></div>
+            </div>
           </div>
         </div>
         <div class="barwrap">
@@ -408,7 +415,7 @@ footer a{color:var(--mute)}
           </div>
         </div>
         <div class="desknote">
-          <span class="en">Ieum is not a video-call app. It floats subtitles over the meeting app you already use.</span><span class="ko">이음은 화상회의 앱이 아닙니다. 지금 쓰는 회의 앱 위에 자막을 띄웁니다.</span>
+          <span class="en">Ieum is not a video-call app. It floats subtitles over whatever is on your screen while a meeting plays.</span><span class="ko">이음은 화상회의 앱이 아닙니다. 회의가 진행되는 동안 화면에 떠 있는 어떤 앱 위에도 자막을 띄웁니다.</span>
           <button class="pause" type="button" id="pause"><span class="en">Pause</span><span class="ko">일시정지</span></button>
         </div>
       </div>
@@ -459,14 +466,16 @@ footer a{color:var(--mute)}
     </div>
     <div class="lab" id="lab" data-run="off" data-view="bar">
       <div class="desk">
-        <div class="mbar"><span><b>Meeting app</b><span class="en">Zoom, Meet, Teams, any app</span><span class="ko">Zoom, Meet, Teams 등 어떤 앱이든</span></span><span class="ie off" id="labrec"><span class="en">Ieum · stopped</span><span class="ko">이음 · 중지됨</span></span></div>
+        <div class="mbar"><span><b>Slides</b><span class="en">Ieum works over any app</span><span class="ko">이음은 어떤 앱 위에서도 동작합니다</span></span><span class="ie off" id="labrec"><span class="en">Ieum · stopped</span><span class="ko">이음 · 중지됨</span></span></div>
         <div class="appwin" aria-hidden="true">
-          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Weekly product sync</span><span class="who"><span class="en">your meeting app</span><span class="ko">내 회의 앱</span></span></div>
-          <div class="grid">
-            <div class="cell" id="t0"><img src="/img/sarah.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Sarah</span></div>
-            <div class="cell" id="t1"><img src="/img/you.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span><span class="en">You</span><span class="ko">나</span></span></div>
-            <div class="cell" id="t2"><img src="/img/mike.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Mike</span></div>
-            <div class="cell" id="t3"><img src="/img/emma.webp" alt="" width="480" height="360" loading="lazy" decoding="async"><span>Emma</span></div>
+          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Q4 launch plan</span><span class="who"><span class="en">any app, e.g. slides</span><span class="ko">어떤 앱이든, 예: 슬라이드</span></span></div>
+          <div class="slideapp">
+            <div class="thumbs"><i class="on"></i><i></i><i></i><i></i></div>
+            <div class="slide">
+              <div class="h">Q4 launch plan</div>
+              <ul><li>Beta build: Thursday</li><li>QA sign-off</li><li>Release notes</li></ul>
+              <div class="chart"><i style="--h:38%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:70%"></i><i style="--h:86%"></i></div>
+            </div>
           </div>
         </div>
         <div class="barwrap" aria-hidden="true">
@@ -660,7 +669,7 @@ footer a{color:var(--mute)}
 <footer>
   <div class="wrap">
     <span>© 2026 Ieum 이음 · <a href="https://github.com/stoneidev/ieum/blob/main/LICENSE">Apache License 2.0</a></span>
-    <span><a href="https://github.com/stoneidev/ieum">GitHub</a> · <a href="https://github.com/stoneidev/ieum/issues">Issues</a> · <span class="en">Photos: </span><span class="ko">사진: </span><a href="https://unsplash.com/">Unsplash</a><span id="coffeefoot"> · <a href="#" target="_blank" rel="noopener"><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span></a></span></span>
+    <span><a href="https://github.com/stoneidev/ieum">GitHub</a> · <a href="https://github.com/stoneidev/ieum/issues">Issues</a><span id="coffeefoot"> · <a href="#" target="_blank" rel="noopener"><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span></a></span></span>
   </div>
 </footer>
 
@@ -749,7 +758,7 @@ var script=[
  {who:2,en:"I can review the build tonight.",ko:"오늘 밤에 빌드를 검토할 수 있어요."},
  {who:3,en:"Great. I'll update the release notes.",ko:"좋아요. 제가 릴리스 노트를 업데이트할게요."}
 ];
-var src=$("src"),dst=$("dst"),cells=[0,1,2,3].map(function(i){return $("c"+i)});
+var src=$("src"),dst=$("dst"),cells=[0,1,2,3].map(function(i){return $("c"+i)}).filter(Boolean);
 var i=0,timer,paused=false,typer;
 function show(n){
   var s=script[n],fromKo=s.who===1;
@@ -777,7 +786,7 @@ play(0);
 /* try it: interactive preview */
 (function(){
 var lab=$("lab"),bar=$("tbar"),tp=$("tpanel");if(!lab)return;
-var cells=[0,1,2,3].map(function(i){return $("t"+i)});
+var cells=[0,1,2,3].map(function(i){return $("t"+i)}).filter(Boolean);
 var L=[
  {l:"en",who:0,src:"Can we ship the beta on Thursday?",dst:"목요일에 베타를 출시할 수 있을까요?"},
  {l:"ko",who:1,src:"QA가 끝나면 가능합니다.",dst:"It's possible once QA is done."},
