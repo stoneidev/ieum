@@ -105,6 +105,13 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "README.md",
+      "accessCount": 1,
+      "lastAccessed": 1794132206322,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
