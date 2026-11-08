@@ -125,6 +125,16 @@ private struct DisplayTab: View {
     @ObservedObject var model: AppModel
 
     var body: some View {
+        VStack(spacing: 0) {
+            CaptionPreview(model: model)
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                .padding(.bottom, 2)
+            form
+        }
+    }
+
+    private var form: some View {
         Form {
             Section(tr("Captions", "자막")) {
                 Picker(tr("Show as", "표시 방식"), selection: Binding(get: { model.displayMode }, set: model.setDisplayMode)) {
