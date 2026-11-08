@@ -4,7 +4,10 @@
 .swiftpm/
 # Local tool state and generated artifacts
 .omc/state/
-.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/ieum-*/
 Benchmarks/audio/
 
 # hook state written wherever a tool runs

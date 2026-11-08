@@ -1,0 +1,103 @@
+# AGENTS.md
+
+Guide for any coding agent (or person) who continues work on **Ieum** (이음) on another machine or in a new session.
+Read this first, then `docs/PRD.md` (what the product is and why it is built this way) and `docs/BENCHMARKS.md` (measured evidence).
+
+## What this is
+
+Ieum is a macOS menu-bar app that shows live captions and English ↔ Korean translation during meetings. Recognition and translation run
+on the Mac (Apple Speech and Translation frameworks); there is no cloud and no account. Swift 6, Swift Package Manager, no Xcode project.
+
+- Product name **Ieum** (이음, "to connect"). Internal modules are named by function, not by product (`CaptionCore`, `OverlayApp`, …).
+- Repo: https://github.com/stoneidev/ieum (public, Apache-2.0, copyright holder in `NOTICE`). Site: https://ieum.calmwork.today (Cloudflare Pages project `ieum`).
+- Bundle id `today.calmwork.ieum`. Distribution: Developer ID signed + notarized DMG attached to GitHub Releases.
+
+## Working with the owner
+
+- The owner writes Korean. Answer in Korean; keep code, commit messages, README and release notes in English (`docs/PRD.md`, `docs/UX-REVIEW.md`
+  and `docs/USER-GUIDE.md` are Korean on purpose).
+- Report honestly: say what was verified (and how) and what was not. Unverified items are listed in `docs/PRD.md` §9.
+- Ask before outward-facing or hard-to-undo actions (publishing, notarizing, deleting, changing repo visibility). The owner has authorized releases
+  case by case: "배포 / 푸시 / tag / 바이너리" in one message means the whole release runbook in `.claude/skills/ieum-release`.
+- Commit trailer: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` (use the model that actually wrote the change).
+- Never move or re-create an existing tag. Never capture the full screen (see "Verifying the app").
+- Do not put personal data (legal name, Apple team id) into the repo. Pass the signing identity through `SIGN_IDENTITY`.
+
+## Repository map
+
+| Path | What |
+|---|---|
+| `Sources/CaptionCore` | Library shared by everything: audio capture, speech engines, conversation arbitration, translation pipeline, transcript recorder, text cleaning |
+| `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
+| `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
+| `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (143 tests) |
+| `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
+| `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
+| `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
+| `site` | The product website (static HTML, self-hosted fonts); deployed with `Scripts/deploy-site.sh` |
+| `docs` | `PRD.md`, `USER-GUIDE.md`, `BENCHMARKS.md`, `UX-REVIEW.md` |
+| `.claude/skills` | Runbooks: `ieum-release`, `ieum-verify-app`, `ieum-benchmark` (plain Markdown, usable by any agent). Other skills the owner installed locally (for example `ui-ux-pro-max`, used for the UI/site design work) are not committed |
+| `.omc` | Planning artifacts from earlier sessions (`prd.json`, interview spec). History only; `docs/PRD.md` is the current statement |
+
+Key types: `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingMode` (five modes and
+their language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` (SpeechAnalyzer), `OnDeviceSpeechEngine` (SFSpeechRecognizer),
+`PreviewingEngine` (both together: early words), `ConversationEngine` + `LanguageArbiter` (auto-detect mode), `TranslationPipeline`
+(single-flight, ordered finals, latest-wins interims), `VocabularyCorrector`, `TranscriptCleaner`, `ScriptRecorder`.
+
+## Commands
+
+```sh
+make build                    # caption-cli (release, ad-hoc signed)
+make app                      # .build/app/Ieum.app (ad-hoc signed; runs on this Mac)
+make test                     # or: swift test   (143 tests; must stay green)
+Scripts/dev-run.sh [launch args]   # build, re-sign with $SIGN_IDENTITY, relaunch the app
+make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
+Scripts/deploy-site.sh        # site -> Cloudflare Pages
+```
+
+Release (signed + notarized, needs the owner's Developer ID and a `notarytool` keychain profile): see `.claude/skills/ieum-release/SKILL.md`.
+Build must stay warning-free; `make build` and `make app` print none today.
+
+Launch arguments override saved settings for one run: `-meetingMode koreanToEnglish|englishToKorean|koreanCaptions|englishCaptions|conversation`,
+`-source microphone|system`, `-displayMode bar|panel`.
+
+## Verifying the app
+
+Read `.claude/skills/ieum-verify-app/SKILL.md`. In short: re-sign the build with Developer ID so the microphone/speech grants survive,
+find the window id with `Scripts/window-info.swift`, capture **only that window** (`screencapture -x -o -l <id>`), drive buttons with
+AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), play speech with `say -v Samantha`, and keep the display awake
+(`caffeinate -u -t 900`). Tests alone are not enough for UI or timing changes.
+
+## Rules that came from mistakes
+
+- **Pause finalization.** Asking the recognizer to finalize at a pause (`pauseFinalization`) damages the first words of the next English sentence
+  (word error rate 7 % → 15–20 %), so English single-language modes switch it off. Korean and the auto-detect mode need it. Evidence in `docs/BENCHMARKS.md`.
+  Do not re-enable it for English without re-running the gap benchmark.
+- **Never finalize an already-finalized region**: it ends the SpeechAnalyzer session (`RecogRejected`). `SessionFlags` guards this.
+- **`@Published` sinks see the old value.** Use the emitted value, and defer window resizing with `.receive(on: DispatchQueue.main)`.
+- **Re-signing changes the TCC identity.** Ad-hoc builds lose microphone/speech/screen grants; sign local builds with the Developer ID identity.
+- **`contextualStrings` do nothing for SpeechTranscriber** (measured). The meeting vocabulary is applied afterwards by `VocabularyCorrector`.
+- **macOS has a case-insensitive file system**: the CLI is `caption-cli` so it cannot collide with the app executable `Ieum`.
+- **Notarization uploads can hang** (no network connection, no submission in `notarytool history`). Kill `notarytool submit` and rerun only `make dmg`.
+- **Do not publish `site/.omc`** (hook state): deploy through `Scripts/deploy-site.sh`.
+- **Display sleep breaks ScreenCaptureKit and screenshots.** Use `caffeinate -u`.
+- **zsh does not word-split unquoted variables**; use arrays. BSD `sed` has no `-i` without a suffix; use Python or `perl -pi`.
+- Experiments that did not pay off are written down (`docs/BENCHMARKS.md`, "Tried and not kept"). Add yours there, with numbers.
+
+## Conventions
+
+- Match the surrounding code: comments explain *why*, not what; no dead code; small diffs.
+- UI strings go through `tr("English", "한국어")`; every user-visible string needs both.
+- Add or update tests for logic in `CaptionCore` (Swift Testing, `#expect`; mutating calls cannot sit inside `#expect`, bind them first).
+- UI and latency changes are measured: use the bench flags (`--early-words`, `--no-fast`, `--no-vad`, `--pause`, `--no-pause-finalization`)
+  and record results.
+- Settings live in `UserDefaults` under the bundle id (`today.calmwork.ieum`); `Preferences.swift` is the only place that reads or writes them.
+- Transcripts are saved to `~/Documents/Ieum Transcripts` (text only; audio is never written).
+
+## State at hand-off
+
+- Latest release **v0.2.5** (app 0.2.5, build 6). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.5.
+- Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: early words in auto-detect mode, keeping the pause-finalization speed without the damage,
+  testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test, English user guide.
+- Domain `ieum.calmwork.today` is connected to the Pages project.

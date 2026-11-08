@@ -6,16 +6,18 @@
 
 Read what the other side says in your language, while they read what you say in theirs.
 
+![Ieum subtitle bar: the spoken English above, the Korean translation below](docs/images/bar-done.png)
+
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-lightgrey?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
 ![Build](https://img.shields.io/badge/build-Swift%20Package%20Manager-blue)
-![Tests](https://img.shields.io/badge/tests-130%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-143%20passing-brightgreen)
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%E2%86%94%20%ED%95%9C%EA%B5%AD%EC%96%B4-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Version](https://img.shields.io/badge/version-0.2.5-orange)
 
-[Features](#features) · [Install](#install) · [Usage](#usage) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
+[Features](#features) · [Install](#install) · [Usage](#usage) · [Documentation](#documentation) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
 
 </div>
 
@@ -27,7 +29,7 @@ Read what the other side says in your language, while they read what you say in 
 The other side talks and you read Korean. You answer in Korean and the English is there for them.
 
 - **Nothing leaves the Mac.** Recognition uses Apple's Speech framework and translation uses Apple's Translation framework, both on-device. No account, no cloud, no network use.
-- **Low delay.** Words appear about a second after they are spoken, and a finished sentence is translated about a second later.
+- **Low delay.** The first words appear about half a second after you start speaking and then follow word by word; a finished sentence is translated about a second later.
 - **Made for the table.** A large subtitle bar you can read from across the room, a transcript you can scroll back through, and a script saved for after the meeting.
 
 ## Features
@@ -103,6 +105,18 @@ caption-cli --list-locales                       # supported on-device locales
 ```
 
 Press Ctrl+C to stop. Pending text is flushed first. Run `caption-cli --help` for every option.
+
+## Documentation
+
+| | |
+|---|---|
+| [User guide (한국어)](docs/USER-GUIDE.md) | Install, modes, reading the screen, settings, vocabulary, shortcuts, troubleshooting, with screenshots |
+| [Product requirements (한국어)](docs/PRD.md) | What Ieum is for, requirements with acceptance criteria, decisions with their evidence, known limits |
+| [Benchmarks](docs/BENCHMARKS.md) | Latency and accuracy measurements, and experiments that were tried and dropped |
+| [UX review (한국어)](docs/UX-REVIEW.md) | Findings and decisions behind the interface |
+| [AGENTS.md](AGENTS.md) | For anyone continuing the work: repository map, commands, rules that came from mistakes, release runbook |
+
+![The transcript panel: each sentence with its translation](docs/images/panel.png)
 
 ## Architecture
 
