@@ -6,3 +6,6 @@
 .omc/state/
 .claude/
 Benchmarks/audio/
+
+# hook state written wherever a tool runs
+**/.omc/

@@ -49,3 +49,10 @@ sentences shown out of order when a sure result overtook a waiting one.
 
 Far-field accuracy in a meeting room, multiple people talking at once, the low-latency translation model (not installed on the test
 Mac), long sessions, and full-screen apps.
+
+## Tried and not kept: reusing the interim translation for the final sentence
+
+Idea: when a sentence ends unchanged from the last interim text that was translated, show that translation at once instead of translating again.
+Result on this Mac (3 runs per case, against v0.2.0): no gain. Final translation lag was 1.44 s (en-AU, +0.14), 0.87 s (en-US, unchanged) and
+1.51 s (ko-KR, +0.28). The interim translation trails speech by 0.75 to 0.9 s, so by the time a sentence is final the text has usually grown by a word
+or its punctuation has changed, and the cached translation does not match. The change was removed again.
