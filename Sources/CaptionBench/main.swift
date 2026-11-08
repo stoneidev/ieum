@@ -37,6 +37,10 @@ struct CaptionBench: AsyncParsableCommand {
     var noFast = false
     @Flag(help: "Turn off voice activity detection in the modern engine.")
     var noVad = false
+    @Flag(help: "Do not finalize a sentence at a pause; leave that to the recognizer.")
+    var noPauseFinalization = false
+    @Option(help: "Seconds of silence after which a sentence is finalized (default 0.7).")
+    var pause: Double?
     @Flag(help: "Use the legacy SFSpeechRecognizer engine.")
     var legacy = false
     @Flag(help: "Conversation mode: recognize English and Korean in parallel and pick the spoken language per utterance.")
@@ -83,6 +87,7 @@ struct CaptionBench: AsyncParsableCommand {
         options.showsWordsSooner = earlyWords
         options.fast = !noFast
         options.useVAD = !noVad
+        if noPauseFinalization { options.pauseFinalization = nil } else if let pause { options.pauseFinalization = pause }
 
         var results: [Run] = []
         var engineName = ""

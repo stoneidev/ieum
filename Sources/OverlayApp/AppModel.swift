@@ -22,7 +22,6 @@ final class AppModel: ObservableObject {
     // MARK: Meeting
     @Published private(set) var meetingMode = Preferences.meetingMode
     @Published private(set) var englishVariant = Preferences.englishVariant
-    @Published private(set) var captionLanguage = Preferences.captionLanguage
     @Published private(set) var source = Preferences.source
     @Published private(set) var vocabulary = Preferences.vocabulary
 
@@ -116,7 +115,7 @@ final class AppModel: ObservableObject {
         status = .starting
         transcriptWarning = nil
         let mode = meetingMode
-        let locales = mode.recognitionLocales(englishLocale: englishVariant.rawValue, captionLocale: captionLanguage.rawValue)
+        let locales = mode.recognitionLocales(englishLocale: englishVariant.rawValue)
         let source = self.source
         let vocabulary = self.vocabulary
         sessionTask = Task { [weak self] in
@@ -165,7 +164,9 @@ final class AppModel: ObservableObject {
         switch meetingMode {
         case .englishToKorean: setMeetingMode(.koreanToEnglish)
         case .koreanToEnglish: setMeetingMode(.englishToKorean)
-        case .conversation, .captionsOnly: setMeetingMode(.englishToKorean)
+        case .englishCaptions: setMeetingMode(.koreanCaptions)
+        case .koreanCaptions: setMeetingMode(.englishCaptions)
+        case .conversation: setMeetingMode(.englishToKorean)
         }
     }
 
@@ -173,14 +174,7 @@ final class AppModel: ObservableObject {
         guard language != englishVariant, language != .korean else { return }
         englishVariant = language
         Preferences.englishVariant = language
-        if meetingMode != .koreanToEnglish && meetingMode != .captionsOnly { restartIfRunning() }
-    }
-
-    func setCaptionLanguage(_ language: Language) {
-        guard language != captionLanguage else { return }
-        captionLanguage = language
-        Preferences.captionLanguage = language
-        if meetingMode == .captionsOnly { restartIfRunning() }
+        if meetingMode.recognizesEnglish { restartIfRunning() }
     }
 
     func setSource(_ new: Source) {
@@ -442,6 +436,11 @@ final class AppModel: ObservableObject {
             var options = EngineOptions(vocabulary: vocabulary)
             options.correctsTranscript = false
             options.showsWordsSooner = showsWordsSooner
+            // Closing a sentence at a pause makes the English recognizer mangle the first words of the next sentence
+            // (word error rate 7 % became 15 to 20 % on speech with pauses), and on its own it already closes English
+            // sentences about 0.9 s after the speaker stops. Korean needs the pause (its sentences stay open for about
+            // 2.6 s), and so does conversation mode, whose language decision waits for finished sentences.
+            if !mode.isConversation, locales[0].hasPrefix("en") { options.pauseFinalization = nil }
             let started = mode.isConversation
                 ? try await EngineFactory.startConversation(locales: locales, options: options, capture: capture)
                 : try await EngineFactory.start(choice: .auto, localeID: locales[0], options: options, capture: capture)

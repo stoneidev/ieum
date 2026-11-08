@@ -79,11 +79,7 @@ private struct GeneralTab: View {
                     Text(warning).font(.system(size: 12)).foregroundStyle(.orange)
                 }
 
-                if model.meetingMode == .captionsOnly {
-                    Picker(tr("Caption language", "자막 언어"), selection: Binding(get: { model.captionLanguage }, set: model.setCaptionLanguage)) {
-                        ForEach(Language.allCases, id: \.self) { Text($0.title).tag($0) }
-                    }
-                } else if model.meetingMode != .koreanToEnglish {
+                if model.meetingMode.recognizesEnglish {
                     Picker(tr("English accent", "영어 억양"), selection: Binding(get: { model.englishVariant }, set: model.setEnglishVariant)) {
                         Text(Language.englishUS.title).tag(Language.englishUS)
                         Text(Language.englishAU.title).tag(Language.englishAU)
@@ -109,8 +105,8 @@ private struct GeneralTab: View {
                     Text(loginError).font(.system(size: 12)).foregroundStyle(.orange)
                 }
                 Toggle(tr("Show words sooner", "단어를 더 빨리 보이기"), isOn: Binding(get: { model.showsWordsSooner }, set: model.setShowsWordsSooner))
-                Text(tr("Runs a second recognizer so the first words appear about half a second earlier and then word by word. Finished sentences are still recognized by the more accurate one. Needs the Speech Recognition permission. Applies the next time captions start, and not in Conversation mode.",
-                        "두 번째 인식기를 함께 돌려 첫 단어가 약 0.5초 일찍, 이후 단어마다 바로 나옵니다. 끝난 문장은 계속 더 정확한 인식기가 확정합니다. 음성 인식 권한이 필요합니다. 다음에 자막을 시작할 때부터 적용되며 대화 모드에서는 쓰이지 않습니다."))
+                Text(tr("Runs a second recognizer so the first words appear about half a second earlier and then word by word. Finished sentences are still recognized by the more accurate one. Needs the Speech Recognition permission. Applies the next time captions start, and not when the language is detected automatically.",
+                        "두 번째 인식기를 함께 돌려 첫 단어가 약 0.5초 일찍, 이후 단어마다 바로 나옵니다. 끝난 문장은 계속 더 정확한 인식기가 확정합니다. 음성 인식 권한이 필요합니다. 다음에 자막을 시작할 때부터 적용되며 언어 자동 인식 번역 모드에서는 쓰이지 않습니다."))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                 Toggle(tr("Global shortcuts", "전역 단축키"), isOn: Binding(get: { model.globalShortcuts }, set: model.setGlobalShortcuts))

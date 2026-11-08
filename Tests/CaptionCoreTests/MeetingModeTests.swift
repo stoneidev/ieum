@@ -21,17 +21,35 @@ struct MeetingModeTests {
         #expect(MeetingMode.conversation.translationTarget(forSpeechIn: "ja") == nil)
     }
 
-    @Test func captionsOnlyNeverTranslates() {
-        #expect(MeetingMode.captionsOnly.translationTarget(forSpeechIn: "en") == nil)
-        #expect(!MeetingMode.captionsOnly.translates)
-        #expect(MeetingMode.captionsOnly.translationPairs.isEmpty)
+    @Test func captionModesNeverTranslate() {
+        for mode in [MeetingMode.koreanCaptions, .englishCaptions] {
+            #expect(mode.translationTarget(forSpeechIn: "en") == nil)
+            #expect(mode.translationTarget(forSpeechIn: "ko") == nil)
+            #expect(!mode.translates)
+            #expect(mode.translationPairs.isEmpty)
+        }
+        #expect(MeetingMode.conversation.translates && MeetingMode.englishToKorean.translates)
+    }
+
+    @Test func theModeNamesTheLanguageThatIsRecognized() {
+        #expect(MeetingMode.koreanCaptions.recognitionLocales(englishLocale: "en-AU") == ["ko-KR"])
+        #expect(MeetingMode.englishCaptions.recognitionLocales(englishLocale: "en-AU") == ["en-AU"])
+        #expect(MeetingMode.englishCaptions.recognizesEnglish && !MeetingMode.koreanCaptions.recognizesEnglish)
+        #expect(!MeetingMode.koreanToEnglish.recognizesEnglish && MeetingMode.conversation.recognizesEnglish)
+    }
+
+    @Test func oldCaptionsOnlySettingBecomesALanguageSpecificMode() {
+        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: "ko-KR") == .koreanCaptions)
+        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: "en-AU") == .englishCaptions)
+        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: nil) == .englishCaptions)
+        #expect(MeetingMode.migrated(raw: "conversation", legacyCaptionLanguage: "ko-KR") == .conversation)
+        #expect(MeetingMode.migrated(raw: "nonsense", legacyCaptionLanguage: nil) == nil)
     }
 
     @Test func recognitionLocalesFollowTheMode() {
-        #expect(MeetingMode.englishToKorean.recognitionLocales(englishLocale: "en-AU", captionLocale: "ko-KR") == ["en-AU"])
-        #expect(MeetingMode.koreanToEnglish.recognitionLocales(englishLocale: "en-AU", captionLocale: "en-US") == ["ko-KR"])
-        #expect(MeetingMode.conversation.recognitionLocales(englishLocale: "en-AU", captionLocale: "en-US") == ["en-AU", "ko-KR"])
-        #expect(MeetingMode.captionsOnly.recognitionLocales(englishLocale: "en-AU", captionLocale: "en-US") == ["en-US"])
+        #expect(MeetingMode.englishToKorean.recognitionLocales(englishLocale: "en-AU") == ["en-AU"])
+        #expect(MeetingMode.koreanToEnglish.recognitionLocales(englishLocale: "en-AU") == ["ko-KR"])
+        #expect(MeetingMode.conversation.recognitionLocales(englishLocale: "en-AU") == ["en-AU", "ko-KR"])
     }
 
     @Test func translatorsNeededMatchTheDirections() {

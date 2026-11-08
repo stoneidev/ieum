@@ -87,19 +87,21 @@ enum TranslationLayout: String, CaseIterable {
 extension MeetingMode {
     @MainActor var title: String {
         switch self {
-        case .englishToKorean: tr("English → Korean", "영어 → 한국어")
         case .koreanToEnglish: tr("Korean → English", "한국어 → 영어")
-        case .conversation: tr("Conversation (both ways)", "대화 (양방향 자동)")
-        case .captionsOnly: tr("Captions only", "자막만 (번역 없음)")
+        case .englishToKorean: tr("English → Korean", "영어 → 한국어")
+        case .koreanCaptions: tr("Korean captions (no translation)", "한국어 자막 (번역 없음)")
+        case .englishCaptions: tr("English captions (no translation)", "영어 자막 (번역 없음)")
+        case .conversation: tr("Detect the language and translate", "언어 자동 인식 번역")
         }
     }
 
     @MainActor var explanation: String {
         switch self {
-        case .englishToKorean: tr("The other person speaks English. You read Korean.", "상대가 영어로 말합니다. 한국어 자막으로 봅니다.")
         case .koreanToEnglish: tr("The other person speaks Korean. You read English.", "상대가 한국어로 말합니다. 영어 자막으로 봅니다.")
-        case .conversation: tr("You and the other person both speak. Each sentence is detected as English or Korean and translated to the other.", "나와 상대가 번갈아 말합니다. 문장마다 영어/한국어를 자동으로 알아내 반대 언어로 번역합니다.")
-        case .captionsOnly: tr("Captions in one language, no translation.", "한 가지 언어의 자막만 보여 줍니다. 번역은 하지 않습니다.")
+        case .englishToKorean: tr("The other person speaks English. You read Korean.", "상대가 영어로 말합니다. 한국어 자막으로 봅니다.")
+        case .koreanCaptions: tr("Korean speech shown as Korean captions. Nothing is translated.", "한국어 말을 한국어 자막으로 보여 줍니다. 번역은 하지 않습니다.")
+        case .englishCaptions: tr("English speech shown as English captions. Nothing is translated.", "영어 말을 영어 자막으로 보여 줍니다. 번역은 하지 않습니다.")
+        case .conversation: tr("You and the other person both speak. Each sentence is detected as English or Korean and translated into the other.", "나와 상대가 번갈아 말합니다. 문장마다 영어/한국어를 자동으로 알아내 반대 언어로 번역합니다.")
         }
     }
 }

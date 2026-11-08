@@ -16,7 +16,11 @@ enum Preferences {
     // MARK: Meeting
 
     static var meetingMode: MeetingMode {
-        get { value("meetingMode", default: .englishToKorean) }
+        get {
+            // "Captions only" from earlier versions depended on a separate caption language.
+            MeetingMode.migrated(raw: defaults.string(forKey: "meetingMode") ?? "", legacyCaptionLanguage: defaults.string(forKey: "captionLanguage"))
+                ?? .englishToKorean
+        }
         set { defaults.set(newValue.rawValue, forKey: "meetingMode") }
     }
     /// The English variant recognized in English modes.
@@ -26,11 +30,6 @@ enum Preferences {
             return stored == .korean ? .englishUS : stored
         }
         set { defaults.set(newValue.rawValue, forKey: "englishVariant") }
-    }
-    /// The language for "captions only".
-    static var captionLanguage: Language {
-        get { value("captionLanguage", default: .englishUS) }
-        set { defaults.set(newValue.rawValue, forKey: "captionLanguage") }
     }
     static var source: Source {
         get { value("source", default: .microphone) }

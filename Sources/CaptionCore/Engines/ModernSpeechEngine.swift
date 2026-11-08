@@ -38,6 +38,9 @@ import Speech
 /// Primary engine: SpeechAnalyzer + SpeechTranscriber (+ SpeechDetector VAD), running on the ANE.
 @available(macOS 26.0, *)
 actor ModernSpeechEngine: TranscriberEngine {
+    /// Seconds after the end of speech at which a sentence is closed when a pause is noticed.
+    static let boundaryMargin = 0.15
+
     nonisolated var name: String { "SpeechAnalyzer / SpeechTranscriber" }
 
     private let localeID: String
@@ -150,7 +153,11 @@ actor ModernSpeechEngine: TranscriberEngine {
                     // has just finalized on its own makes it reject the request. The recognizer often finalizes by
                     // itself about now, so look again a moment later, right before asking.
                     if endpoint?.ingest(levelDB: chunk.levelDB, duration: chunk.duration) == true, flags.hasUnfinalizedText {
-                        let through = CMTime(seconds: fedSeconds, preferredTimescale: 1000)
+                        // Finalize just after the speech ended, not at the end of the pause: the recognizer decodes the first
+                        // words after a boundary poorly, and the next sentence often starts soon after the pause was noticed.
+                        // Placing the boundary here leaves it the rest of the pause as lead-in.
+                        let speechEnd = fedSeconds - endpoint!.lastPause
+                        let through = CMTime(seconds: max(0, speechEnd + Self.boundaryMargin), preferredTimescale: 1000)
                         Task {
                             try? await Task.sleep(for: .milliseconds(150))
                             if flags.hasUnfinalizedText { try? await analyzer.finalize(through: through) }

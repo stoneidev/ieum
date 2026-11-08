@@ -501,7 +501,8 @@ struct CaptionPreview: View {
         switch model.meetingMode {
         case .englishToKorean, .conversation: return (english, korean, model.translationLayout == .both)
         case .koreanToEnglish: return (korean, english, model.translationLayout == .both)
-        case .captionsOnly: return model.captionLanguage == .korean ? (korean, korean, false) : (english, english, false)
+        case .koreanCaptions: return (korean, korean, false)
+        case .englishCaptions: return (english, english, false)
         }
     }
 

@@ -18,6 +18,8 @@ public struct EndpointDetector: Sendable {
     private let windowSeconds: TimeInterval = 5
     private var speech: TimeInterval = 0
     private var silence: TimeInterval = 0
+    /// How long the pause had lasted when `ingest` last returned true, so the caller can tell when the speech ended.
+    public private(set) var lastPause: TimeInterval = 0
 
     public init(pause: TimeInterval = 0.7, minimumSpeech: TimeInterval = 0.3, marginDB: Float = 12, absoluteFloorDB: Float = -50) {
         self.pause = pause
@@ -36,6 +38,7 @@ public struct EndpointDetector: Sendable {
         }
         silence += duration
         guard speech >= minimumSpeech, silence >= pause else { return false }
+        lastPause = silence
         speech = 0
         silence = 0
         return true
