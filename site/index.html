@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ieum · Live captions and translation for meetings, on your Mac</title>
+<meta name="description" content="Ieum puts live captions and English–Korean translation on your Mac screen during a meeting. Speech recognition and translation run on the device. No account, no cloud.">
+<meta name="theme-color" content="#16181b">
+<meta property="og:title" content="Ieum · Live captions and translation for meetings">
+<meta property="og:description" content="Read the other side in your language while they read you in theirs. Fully on-device, for Mac.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ieum.calmwork.today/">
+<meta property="og:image" content="https://ieum.calmwork.today/icon-512.png">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+:root{
+  --ink:#14161a; --ink-2:#1b1e23; --ink-3:#262a31; --line:rgba(242,240,235,.12);
+  --paper:#f2f0eb; --paper-2:#e7e4dc; --mute:#9aa0aa; --mute-2:#6d737d;
+  --amber:#f4b54a; --amber-deep:#b9791a;
+  --serif:ui-serif,"New York","Iowan Old Style","Apple SD Gothic Neo","Noto Serif KR",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Noto Sans KR","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --max:1120px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--paper);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+.wrap{width:min(var(--max),100% - 48px);margin-inline:auto}
+.skip{position:absolute;left:-999px;top:8px;background:var(--amber);color:var(--ink);padding:8px 14px;border-radius:8px;z-index:20}
+.skip:focus{left:8px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:10;backdrop-filter:saturate(1.4) blur(14px);background:rgba(20,22,26,.72);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font:600 19px/1 var(--serif);letter-spacing:.01em}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand small{font:400 14px/1 var(--sans);color:var(--mute);margin-left:2px}
+nav{display:flex;gap:28px;font-size:15px;color:var(--mute)}
+nav a{text-decoration:none;transition:color .2s}
+nav a:hover{color:var(--paper)}
+.pill{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14px;color:var(--paper-2);text-decoration:none;background:rgba(255,255,255,.03)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 0 rgba(244,181,74,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(244,181,74,0)}100%{box-shadow:0 0 0 0 rgba(244,181,74,0)}}
+
+/* hero */
+.hero{padding:96px 0 40px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto -10%;height:640px;background:radial-gradient(60% 60% at 70% 20%,rgba(244,181,74,.10),transparent 70%),radial-gradient(50% 50% at 15% 10%,rgba(120,140,170,.10),transparent 70%);pointer-events:none}
+.hero h1{font:500 clamp(44px,7.4vw,92px)/1.02 var(--serif);letter-spacing:-.025em;max-width:13ch}
+.hero h1 em{font-style:normal;color:var(--amber)}
+.hero p.lead{margin-top:28px;max-width:560px;font-size:clamp(18px,2vw,21px);color:var(--paper-2);line-height:1.55}
+.cta{margin-top:36px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:14px;font:600 16px/1 var(--sans);text-decoration:none;border:1px solid transparent;cursor:default}
+.btn.primary{background:var(--paper);color:var(--ink)}
+.btn.ghost{border-color:var(--line);color:var(--paper);cursor:pointer;transition:background .2s}
+.btn.ghost:hover{background:rgba(255,255,255,.05)}
+.note{margin-top:16px;font-size:14px;color:var(--mute)}
+
+/* live demo */
+.stage{margin-top:72px;border-radius:26px;border:1px solid var(--line);overflow:hidden;background:
+  linear-gradient(180deg,rgba(20,22,26,0) 40%,rgba(20,22,26,.7) 100%),
+  radial-gradient(90% 120% at 20% 0%,#39414d 0%,#262b33 45%,#1a1d22 100%);
+  aspect-ratio:16/8.2;position:relative;box-shadow:0 40px 90px -30px rgba(0,0,0,.7)}
+.stage .menubar{position:absolute;inset:0 0 auto 0;height:30px;background:rgba(10,11,13,.45);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:0 16px;font:500 12px/1 var(--sans);color:var(--paper-2)}
+.stage .menubar .mark{display:flex;align-items:center;gap:6px}
+.stage .menubar .mark i{width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block}
+.tiles{position:absolute;inset:76px 5% 150px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;opacity:.9}
+.tile{border-radius:14px;background:linear-gradient(160deg,#454d5a,#2c323b);border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden}
+.tile::after{content:"";position:absolute;left:50%;top:44%;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);transform:translate(-50%,-50%)}
+.tile::before{content:"";position:absolute;left:50%;top:calc(44% + 44px);width:92px;height:46px;border-radius:46px 46px 0 0;background:rgba(255,255,255,.1);transform:translateX(-50%)}
+.tile.speaking{box-shadow:inset 0 0 0 2px var(--amber)}
+.bar{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:min(86%,820px);border-radius:18px;background:rgba(14,15,18,.86);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.08);padding:20px 28px 22px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.bar .row{display:flex;align-items:baseline;gap:12px;min-height:1.5em}
+.tag{flex:none;font:600 11px/1 var(--mono);letter-spacing:.06em;padding:4px 7px;border-radius:6px;background:rgba(255,255,255,.1);color:var(--paper-2);transform:translateY(-2px)}
+.src{font-size:clamp(13px,1.5vw,16px);color:var(--mute);transition:color .3s}
+.src.live{color:#c3c8d0}
+.src .interim{color:var(--mute-2)}
+.dst{margin-top:8px;font:500 clamp(20px,3.1vw,34px)/1.3 var(--serif);letter-spacing:-.005em;min-height:1.35em;opacity:0;transform:translateY(6px);transition:opacity .45s,transform .45s}
+.dst.on{opacity:1;transform:none}
+.stage figcaption{position:absolute;right:16px;top:40px;font-size:12px;color:var(--mute);background:rgba(10,11,13,.5);padding:5px 10px;border-radius:999px}
+
+/* sections */
+section{padding:120px 0}
+h2{font:500 clamp(34px,4.8vw,58px)/1.08 var(--serif);letter-spacing:-.02em;max-width:18ch}
+h2.wide{max-width:24ch}
+.sub{margin-top:22px;max-width:560px;color:var(--paper-2);font-size:19px}
+.rule{border:0;border-top:1px solid var(--line)}
+
+/* modes */
+.modes{margin-top:64px;display:grid;grid-template-columns:1.25fr 1fr;gap:20px}
+.card{border:1px solid var(--line);border-radius:22px;padding:36px;background:var(--ink-2);position:relative;overflow:hidden}
+.card h3{font:500 26px/1.2 var(--serif);letter-spacing:-.01em}
+.card p{margin-top:12px;color:var(--mute);font-size:16px;max-width:46ch}
+.card.big{grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;min-height:420px;background:linear-gradient(180deg,var(--ink-2),#17191d)}
+.convo{display:grid;gap:12px;margin-top:34px}
+.bubble{border-radius:14px;padding:14px 18px;max-width:92%;background:var(--ink-3);font-size:16px;line-height:1.45}
+.bubble b{display:block;font:600 11px/1 var(--mono);letter-spacing:.06em;color:var(--mute);margin-bottom:8px}
+.bubble.me{margin-left:auto;background:rgba(244,181,74,.13);border:1px solid rgba(244,181,74,.28)}
+.bubble i{display:block;font-style:normal;font-family:var(--serif);font-size:19px;margin-top:6px;color:var(--paper)}
+.pair{display:flex;gap:10px;align-items:center;margin-top:26px;font:500 17px/1 var(--serif)}
+.pair span{padding:8px 14px;border:1px solid var(--line);border-radius:999px}
+.pair svg{width:22px;height:22px;color:var(--amber)}
+
+/* privacy */
+.privacy{background:var(--paper);color:var(--ink);border-radius:36px;padding:96px 0;margin:0 12px}
+.privacy .sub{color:#464a52}
+.privacy .grid{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(20,22,26,.16)}
+.privacy .cell{padding:32px 28px 8px 0}
+.privacy .cell+.cell{padding-left:28px;border-left:1px solid rgba(20,22,26,.16)}
+.privacy .big{font:500 clamp(40px,5vw,64px)/1 var(--serif);letter-spacing:-.02em}
+.privacy .cell p{margin-top:12px;color:#464a52;font-size:16px;max-width:30ch}
+.privacy .fine{margin-top:44px;font-size:14px;color:#5a5f68;max-width:70ch}
+
+/* features */
+.feat{margin-top:64px;display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.feat .card:nth-child(1){grid-column:span 4}
+.feat .card:nth-child(2){grid-column:span 2}
+.feat .card:nth-child(3){grid-column:span 2}
+.feat .card:nth-child(4){grid-column:span 2}
+.feat .card:nth-child(5){grid-column:span 2}
+.feat .card:nth-child(6){grid-column:span 6}
+.swatches{display:flex;gap:10px;margin-top:26px;align-items:center;flex-wrap:wrap}
+.sw{width:78px;height:46px;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;font:500 11px/1 var(--mono);color:var(--paper-2)}
+.kbd{display:inline-flex;gap:6px;margin-right:14px;align-items:center;color:var(--mute);font-size:14px}
+kbd{font:500 13px/1 var(--mono);padding:6px 8px;border-radius:7px;background:var(--ink-3);border:1px solid var(--line);color:var(--paper)}
+.keys{margin-top:26px;display:flex;flex-wrap:wrap;gap:14px 8px}
+.script{margin-top:28px;font:400 13.5px/1.75 var(--mono);color:var(--mute);background:#101215;border:1px solid var(--line);border-radius:14px;padding:20px 22px;overflow:auto;white-space:pre}
+.script b{color:var(--paper);font-weight:400}
+.script u{text-decoration:none;color:var(--amber)}
+
+/* spec + faq */
+.spec{margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.spec div{padding:26px 24px 8px 0}
+.spec div+div{padding-left:24px;border-left:1px solid var(--line)}
+.spec dt{font-size:14px;color:var(--mute)}
+.spec dd{margin-top:8px;font:500 30px/1.15 var(--serif);letter-spacing:-.01em}
+.spec dd small{display:block;font:400 14px/1.4 var(--sans);color:var(--mute);margin-top:6px;letter-spacing:0}
+.footnote{margin-top:22px;font-size:14px;color:var(--mute);max-width:78ch}
+details{border-bottom:1px solid var(--line);padding:22px 0}
+details:first-of-type{border-top:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;font:500 21px/1.35 var(--serif)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--amber);font:400 28px/1 var(--sans);transition:transform .25s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin-top:14px;color:var(--paper-2);max-width:68ch;font-size:16.5px}
+.faq{margin-top:56px;max-width:860px}
+
+/* closing */
+.closing{text-align:center;padding:140px 0 120px;position:relative}
+.closing img{width:96px;height:96px;border-radius:24px;box-shadow:0 24px 50px -12px rgba(0,0,0,.6)}
+.closing h2{margin:36px auto 0;max-width:16ch}
+.closing .cta{justify-content:center}
+footer{border-top:1px solid var(--line);padding:36px 0 56px;color:var(--mute);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+
+@media (max-width:900px){
+  nav{display:none}
+  section{padding:84px 0}
+  .modes{grid-template-columns:1fr}
+  .card.big{grid-row:auto;min-height:0}
+  .privacy .grid{grid-template-columns:1fr}
+  .privacy .cell+.cell{padding-left:0;border-left:0;border-top:1px solid rgba(20,22,26,.16)}
+  .feat{grid-template-columns:1fr}
+  .feat .card:nth-child(n){grid-column:auto}
+  .spec{grid-template-columns:1fr 1fr}
+  .spec div:nth-child(3){padding-left:0;border-left:0}
+  .stage{aspect-ratio:4/3.4}
+  .tiles{grid-template-columns:repeat(2,1fr);inset:76px 5% 170px}
+  .tile:nth-child(3){display:none}
+  .bar{padding:16px 18px 18px;bottom:4%}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .dot{animation:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .dst{transition:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Ieum home"><img src="/icon-512.png" alt="" width="30" height="30">Ieum <small>이음</small></a>
+    <nav aria-label="Primary">
+      <a href="#modes">Modes</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#details">Details</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="pill" href="#get"><span class="dot" aria-hidden="true"></span>Coming to Mac</a>
+  </div>
+</header>
+
+<main id="main">
+<div class="hero" id="top">
+  <div class="wrap">
+    <h1>Every word, <em>understood</em> in the room.</h1>
+    <p class="lead">Ieum puts live captions and translation on your Mac during a meeting. The other side speaks English and you read Korean. You answer in Korean and they can read English. All of it happens on your Mac.</p>
+    <div class="cta" id="get">
+      <span class="btn primary" role="note">
+        Coming soon for Mac
+      </span>
+      <a class="btn ghost" href="#modes">See how it reads</a>
+    </div>
+    <p class="note">Requires macOS 26.4 or later on a Mac with Apple silicon for translation. No account and no cloud.</p>
+
+    <figure class="stage" aria-label="Example of Ieum captions over a video meeting">
+      <div class="menubar"><span class="mark"><i></i>Ieum</span><span>Tue 10:02</span></div>
+      <figcaption>Sample conversation</figcaption>
+      <div class="tiles" aria-hidden="true"><div class="tile" id="t1"></div><div class="tile" id="t2"></div><div class="tile" id="t3"></div></div>
+      <div class="bar" role="status" aria-live="polite">
+        <div class="row"><span class="tag" id="tag">EN</span><span class="src" id="src">Listening</span></div>
+        <div class="dst" id="dst"></div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+<section id="modes">
+  <div class="wrap reveal">
+    <h2>One conversation, two languages.</h2>
+    <p class="sub">Pick a meeting mode and start. Conversation mode listens for English and Korean at once and decides which one you spoke, sentence by sentence.</p>
+    <div class="modes">
+      <div class="card big">
+        <div>
+          <h3>Conversation</h3>
+          <p>Both directions in one stream. English is shown with Korean beneath it. Korean is shown with English beneath it.</p>
+          <div class="convo" aria-label="Example of a conversation">
+            <div class="bubble"><b>EN</b>Could you share the schedule for next week?<i>다음 주 일정을 공유해 주시겠어요?</i></div>
+            <div class="bubble me"><b>KO</b>네, 공유해 드리겠습니다.<i>Yes, I'll share it with you.</i></div>
+            <div class="bubble"><b>EN</b>What about the budget?<i>예산은 어떻게 되나요?</i></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>English to Korean</h3>
+        <p>For the meeting where you mostly listen. Read the speaker in Korean as they talk.</p>
+        <div class="pair"><span>English</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>한국어</span></div>
+      </div>
+      <div class="card">
+        <h3>Korean to English</h3>
+        <p>For the meeting where you present. Show the room your words in English.</p>
+        <div class="pair"><span>한국어</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>English</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="privacy" id="privacy">
+  <div class="wrap reveal">
+    <h2>What is said in the room stays in the room.</h2>
+    <p class="sub">Speech recognition and translation use the models built into macOS. Your audio is processed in memory on your Mac and never uploaded.</p>
+    <div class="grid">
+      <div class="cell"><div class="big">0</div><p>accounts, sign-ins or servers to trust</p></div>
+      <div class="cell"><div class="big">0</div><p>network requests made by Ieum</p></div>
+      <div class="cell"><div class="big">0</div><p>recordings kept. Only the text script is saved</p></div>
+    </div>
+    <p class="fine">macOS downloads a language model the first time you use a language, so that one step needs a network connection. After that, Ieum works with Wi-Fi switched off.</p>
+  </div>
+</div>
+
+<section id="details">
+  <div class="wrap reveal">
+    <h2 class="wide">Built to be read from across the table.</h2>
+    <p class="sub">The subtitle bar is large, calm and out of the way. Everything about it is yours to adjust.</p>
+    <div class="feat">
+      <div class="card">
+        <h3>A subtitle bar made for distance</h3>
+        <p>Large type, one to four lines, and the translation set apart from the original so your eye never has to search. Interim words appear dimmed and settle when the sentence is final.</p>
+        <div class="swatches" aria-label="Background styles">
+          <div class="sw" style="background:#0e0f12">Solid</div>
+          <div class="sw" style="background:rgba(14,15,18,.55)">Glass</div>
+          <div class="sw" style="background:linear-gradient(90deg,rgba(14,15,18,.9),rgba(14,15,18,.25))">Fade</div>
+          <div class="sw" style="background:#f2f0eb;color:#14161a">Paper</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Stays out of your way</h3>
+        <p>Fades when nobody is speaking. Click through it to reach the window beneath.</p>
+        <div class="keys">
+          <span class="kbd"><kbd>⌃⌥S</kbd>start</span>
+          <span class="kbd"><kbd>⌃⌥H</kbd>hide</span>
+          <span class="kbd"><kbd>⌃⌥D</kbd>panel</span>
+          <span class="kbd"><kbd>⌃⌥L</kbd>swap</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Your vocabulary</h3>
+        <p>List the names, products and jargon of the meeting. Ieum corrects them in the transcript before translating, so "Kubernetes" stays "Kubernetes".</p>
+      </div>
+      <div class="card">
+        <h3>A transcript panel</h3>
+        <p>Switch to a timestamped scrollback you can select and copy, and that scrolls itself while you listen.</p>
+      </div>
+      <div class="card">
+        <h3>A script, when it ends</h3>
+        <p>Each meeting is saved as a plain text file you can open anywhere.</p>
+        <div class="script" aria-label="Example script"><u>[10:02:14]</u> <b>[EN]</b> Could you share the schedule for next week?
+           → 다음 주 일정을 공유해 주시겠어요?
+<u>[10:02:19]</u> <b>[KO]</b> 네, 공유해 드리겠습니다.
+           → Yes, I'll share it with you.</div>
+      </div>
+    </div>
+
+    <dl class="spec">
+      <div><dt>First words appear</dt><dd>about 1 second<small>after speech starts</small></dd></div>
+      <div><dt>A finished sentence is translated</dt><dd>about 1 second<small>after it ends</small></dd></div>
+      <div><dt>Language picked correctly</dt><dd>4 of 4<small>sentences, English and Korean mixed</small></dd></div>
+      <div><dt>CPU and memory</dt><dd>2–4%, 25 MB<small>while running</small></dd></div>
+    </dl>
+    <p class="footnote">Measured with synthesized speech played through the real engines on an Apple silicon Mac running macOS 26. A real room with several people and distant voices will be harder. We publish how we measure, and what the numbers leave out, with each release.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap reveal">
+    <h2>Questions, answered plainly.</h2>
+    <div class="faq">
+      <details><summary>Does it work without internet?</summary><p>Yes. Recognition and translation run on your Mac. The first time you use a language, macOS downloads its model, and that single step needs a connection.</p></details>
+      <details><summary>Can the other people in the meeting see Ieum?</summary><p>No. The captions are a window on your own screen. Nothing is added to your video call, and the call software does not know it is there.</p></details>
+      <details><summary>Can it caption a video call, not just a microphone?</summary><p>Yes. Choose system audio and Ieum captions what the Mac is playing. macOS will ask for Screen &amp; System Audio Recording permission the first time.</p></details>
+      <details><summary>Which languages does it support?</summary><p>English (US and Australian) and Korean, in both directions. The command-line version can transcribe more languages that macOS supports on-device.</p></details>
+      <details><summary>What do I need?</summary><p>An Apple silicon Mac. Captions work on macOS 14 or later. The faster recognizer, conversation mode and translation need macOS 26.4 or later.</p></details>
+      <details><summary>Will it get my company's names right?</summary><p>Add them to the vocabulary list before the meeting. Ieum corrects them in the transcript before translating. Apple's recognizer does not take hints directly, so this correction is done afterwards.</p></details>
+      <details><summary>What does Ieum mean?</summary><p>이음 means "to connect". A join between two sides that were apart.</p></details>
+    </div>
+  </div>
+</section>
+
+<div class="closing">
+  <div class="wrap reveal">
+    <img src="/icon-512.png" alt="Ieum app icon" width="96" height="96">
+    <h2>Join the conversation.</h2>
+    <p class="sub" style="margin-inline:auto">Ieum for Mac is on its way.</p>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Ieum. Made for people who meet across languages.</span>
+    <span>ieum.calmwork.today</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12}) : null;
+  document.querySelectorAll('.reveal').forEach(function(el){io?io.observe(el):el.classList.add('in')});
+
+  var script = [
+    {lang:'EN', src:'Could you share the schedule for next week?', dst:'다음 주 일정을 공유해 주시겠어요?', tile:'t1'},
+    {lang:'KO', src:'네, 공유해 드리겠습니다.', dst:"Yes, I'll share it with you.", tile:'t3'},
+    {lang:'EN', src:'What about the budget?', dst:'예산은 어떻게 되나요?', tile:'t2'}
+  ];
+  var tag = document.getElementById('tag'), src = document.getElementById('src'), dst = document.getElementById('dst');
+  function mark(id){['t1','t2','t3'].forEach(function(t){document.getElementById(t).classList.toggle('speaking', t===id)})}
+  function show(l, final){
+    tag.textContent = l.lang; mark(l.tile);
+    src.className = 'src live'; src.textContent = l.src;
+    dst.textContent = l.dst; dst.className = 'dst on';
+    if(final){src.className='src'}
+  }
+  if(reduce){ show(script[0], true); return; }
+
+  var timers = [];
+  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+  function clearAll(){ timers.forEach(clearTimeout); timers = []; }
+  function play(i){
+    var l = script[i % script.length], words = l.src.split(' '), t = 0;
+    dst.className = 'dst'; src.className = 'src live'; tag.textContent = l.lang; mark(l.tile);
+    src.innerHTML = '';
+    words.forEach(function(w, k){
+      t += 150 + Math.min(w.length, 9) * 22;
+      later(function(){
+        var done = words.slice(0, k).join(' '), cur = w;
+        src.innerHTML = (done ? done + ' ' : '') + '<span class="interim"></span>';
+        src.querySelector('.interim').textContent = cur;
+      }, t);
+    });
+    later(function(){ src.className = 'src live'; src.textContent = l.src; }, t + 250);
+    later(function(){ dst.textContent = l.dst; dst.className = 'dst on'; }, t + 1050);
+    later(function(){ src.className = 'src'; }, t + 1800);
+    later(function(){ play(i + 1); }, t + 4600);
+  }
+  var stage = document.querySelector('.stage'), running = false;
+  var vis = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting && !running){ running = true; play(0); }
+      else if(!e.isIntersecting && running){ running = false; clearAll(); }
+    });
+  },{threshold:.25});
+  vis.observe(stage);
+  show(script[0], true);
+})();
+</script>
+</body>
+</html>

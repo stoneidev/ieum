@@ -143,6 +143,7 @@ flowchart LR
 | `Tests/CaptionCoreTests` | Unit tests for the core library (Swift Testing). |
 | `Resources` | Info.plists, entitlements, app icon. |
 | `Benchmarks` | Audio generation, reference texts, runner, results. |
+| `site` | The product website, static HTML deployed to Cloudflare Pages (`npx wrangler pages deploy site --project-name ieum`). |
 | `docs` | [UX review](docs/UX-REVIEW.md) and [benchmark notes](docs/BENCHMARKS.md). |
 
 ## Build from source
