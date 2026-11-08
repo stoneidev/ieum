@@ -376,7 +376,8 @@ struct TranscriptPanelView: View {
                                 .padding(.top, 6)
                         }
                         ForEach(model.finalizedLines) { line in
-                            if model.translationActive, let translation = line.displayTranslation {
+                            // A line keeps its translation after captions stop; only lines that never got one show the original.
+                            if let translation = line.displayTranslation {
                                 row(
                                     time: Self.timeFormatter.string(from: line.time),
                                     text: translation,
