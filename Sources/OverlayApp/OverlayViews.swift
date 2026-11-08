@@ -420,6 +420,21 @@ struct TranscriptPanelView: View {
             Spacer()
             if model.status == .idle {
                 StartCaptionsButton(model: model, fontSize: 13)
+            } else if model.status == .listening, model.translationNotice == nil {
+                Button(action: { model.toggleRunning() }) {
+                    HStack(spacing: 6) {
+                        Text(tr("Stop", "중지")).font(.system(size: 13, weight: .medium))
+                        if model.globalShortcuts {
+                            Text("⌃⌥S").font(.system(size: 11, weight: .medium, design: .rounded)).opacity(0.6)
+                        }
+                    }
+                    .foregroundStyle(palette.ink)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .overlay(Capsule().strokeBorder(palette.ink.opacity(0.35), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint(tr("Stops live captions and saves the transcript", "실시간 자막을 멈추고 기록을 저장합니다"))
             } else if let notice = model.translationNotice {
                 Text(notice)
                     .font(.system(size: 12))

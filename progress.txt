@@ -24,3 +24,5 @@ CaptionCore (library), CaptionCLI (product caption-cli), CaptionBench (caption-b
 Phase 6: three UX rounds on the app. Found but not fixed: vocabulary placeholder looks like real entries; empty Records tab; GitHub Release DMG predates these changes (rebuild + notarize to ship). Tip: capture windows with screencapture -l <id> (CGWindowList), never the full screen.
 
 Phase 7: second UX pass. Setup marks screen audio optional; vocabulary example labelled; records empty state with Start button. Not shipped in a release yet (latest is v0.2.3).
+
+Phase 8: third UX pass (live view). Original transcript larger/brighter and shown as the main line until translated; panel Start/Stop buttons. Found, not fixed: after Stop the panel drops translations of earlier lines (translationActive turns false). Test with Developer ID re-signed local build (same designated requirement keeps TCC grants); ad-hoc builds lose them.
