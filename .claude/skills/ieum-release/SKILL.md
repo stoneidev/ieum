@@ -15,7 +15,7 @@ export NOTARY_PROFILE=stt-notary
 ```
 
 1. **Version.** Bump `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/App/Info.plist` (build number +1), the version badge and the
-   "Version x.y.z." line in `README.md`. Pick the next patch (0.2.5 → 0.2.6) unless told otherwise.
+   "Version x.y.z." line in `README.md`. Pick the next patch (0.2.6 → 0.2.7) unless told otherwise.
 2. **Tests.** `swift test` (143+ pass).
 3. **App.** `make app-release SIGN_IDENTITY="$SIGN_IDENTITY" NOTARY_PROFILE=$NOTARY_PROFILE`. It signs with the hardened runtime, notarizes, staples and
    runs `spctl`. Expect "accepted / Notarized Developer ID". Takes about a minute.
