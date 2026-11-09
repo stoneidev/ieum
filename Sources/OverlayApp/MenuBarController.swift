@@ -86,6 +86,12 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let visibility = action(model.overlayVisible ? tr("Hide overlay", "오버레이 숨기기") : tr("Show overlay", "오버레이 보이기"), #selector(toggleOverlay), key: "h")
         visibility.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(visibility)
+        let onTop = action(tr("Keep on top of other windows", "다른 창 위에 항상 표시"), #selector(toggleKeepOnTop))
+        onTop.state = model.keepsOnTop ? .on : .off
+        menu.addItem(onTop)
+        if !model.keepsOnTop {
+            menu.addItem(action(tr("Bring captions to the front", "자막을 앞으로 가져오기"), #selector(bringToFront)))
+        }
         let display = action(model.displayMode == .bar ? tr("Switch to transcript panel", "기록 패널로 전환") : tr("Switch to subtitle bar", "자막 바로 전환"), #selector(cycleDisplay), key: "d")
         display.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(display)
@@ -111,6 +117,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func toggleRunning() { model.toggleRunning() }
     @objc private func toggleOverlay() { model.toggleOverlayVisible() }
+    @objc private func bringToFront() { model.bringOverlayToFront() }
+    @objc private func toggleKeepOnTop() { model.setKeepsOnTop(!model.keepsOnTop) }
     @objc private func swapDirection() { model.swapDirection() }
     @objc private func cycleDisplay() { model.cycleDisplayMode() }
     @objc private func showSettings() { openSettings() }

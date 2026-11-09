@@ -211,6 +211,10 @@ struct OverlayMenuButton: View {
                 }
             }
             Button(model.displayMode == .bar ? tr("Show transcript panel", "기록 패널로 전환") : tr("Show subtitle bar", "자막 바로 전환")) { model.cycleDisplayMode() }
+            Toggle(tr("Keep on top of other windows", "다른 창 위에 항상 표시"), isOn: Binding(get: { model.keepsOnTop }, set: model.setKeepsOnTop))
+            if !model.keepsOnTop {
+                Button(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() }
+            }
             Divider()
             Button(tr("Settings…", "설정…")) { model.openSettings() }
             Button(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() }

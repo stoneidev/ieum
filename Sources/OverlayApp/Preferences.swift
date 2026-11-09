@@ -83,6 +83,12 @@ enum Preferences {
         set { defaults.set(newValue, forKey: "showsWordsSooner") }
     }
 
+    /// Keep the captions above every other window. Off: they behave like an ordinary window and can sit behind others.
+    static var keepsOnTop: Bool {
+        get { flag("keepsOnTop", default: true) }
+        set { defaults.set(newValue, forKey: "keepsOnTop") }
+    }
+
     static var clickThrough: Bool {
         get { flag("clickThrough", default: false) }
         set { defaults.set(newValue, forKey: "clickThrough") }

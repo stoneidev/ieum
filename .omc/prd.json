@@ -263,6 +263,19 @@
       "priority": 27,
       "passes": true,
       "notes": "v0.2.7. Verified end to end with system audio (lid closed during verification); mic path verified earlier with lid open."
+    },
+    {
+      "id": "US-28",
+      "title": "Let the user choose whether the captions stay above all windows",
+      "acceptanceCriteria": [
+        "Setting, menu bar menu and overlay menu toggle keep-on-top (default on)",
+        "Off: the captions are a normal window that other windows can cover (z-order verified)",
+        "Off: the show/hide shortcut brings a covered overlay to the front instead of hiding it (verified with a Finder window)",
+        "Docs updated"
+      ],
+      "priority": 28,
+      "passes": true,
+      "notes": "Verified with window ordering via CGWindowList: layer 3 when on top, layer 0 and coverable when off; bring-to-front and the covered check verified."
     }
   ],
   "notes": {

@@ -28,6 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openSettings = { [weak self] in self?.settingsWindow?.show() }
         model.openSetup = { [weak self] in self?.setupWindow?.show() }
         overlay = OverlayWindowController(model: model)
+        model.bringOverlayToFront = { [weak self] in self?.overlay?.bringToFront() }
+        model.overlayIsCovered = { [weak self] in self?.overlay?.isCoveredByAnotherWindow() ?? false }
         menu = MenuBarController(
             model: model,
             openSettings: { [weak self] in self?.settingsWindow?.show() },

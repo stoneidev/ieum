@@ -29,7 +29,7 @@ final class OverlayWindowController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
-        panel.level = .floating
+        panel.level = model.keepsOnTop ? .floating : .normal
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         panel.isMovableByWindowBackground = true
         panel.hidesOnDeactivate = false
@@ -65,6 +65,11 @@ final class OverlayWindowController {
             .store(in: &cancellables)
 
         // Hidden and click-through are state of the model; the window just follows.
+        model.$keepsOnTop
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.applyPresence() }
+            .store(in: &cancellables)
         model.$overlayVisible
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.applyPresence() }
@@ -92,8 +97,35 @@ final class OverlayWindowController {
             panel.orderOut(nil)
             return
         }
-        panel.orderFrontRegardless()
+        panel.level = model.keepsOnTop ? .floating : .normal
+        // On top, the captions are always raised. As an ordinary window they are only raised when they were not showing,
+        // so a status change never pulls them over what the person is working in.
+        if model.keepsOnTop || !panel.isVisible { panel.orderFrontRegardless() }
         panel.alphaValue = 1
+    }
+
+    func bringToFront() { panel.orderFrontRegardless() }
+
+    /// Whether another app's window sits above the captions and overlaps them (only meaningful when they are not kept on top).
+    func isCoveredByAnotherWindow() -> Bool {
+        guard panel.isVisible,
+              let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]],
+              let primary = NSScreen.screens.first
+        else { return false }
+        // Window bounds are top-left based; AppKit frames are bottom-left based on the primary screen.
+        let frame = panel.frame
+        let mine = CGRect(x: frame.minX, y: primary.frame.height - frame.maxY, width: frame.width, height: frame.height)
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        for window in windows {   // front to back
+            if (window[kCGWindowNumber as String] as? Int) == panel.windowNumber { return false }
+            guard (window[kCGWindowOwnerPID as String] as? Int32) != ownPID,
+                  (window[kCGWindowLayer as String] as? Int) == 0,
+                  let bounds = window[kCGWindowBounds as String] as? [String: CGFloat],
+                  let x = bounds["X"], let y = bounds["Y"], let width = bounds["Width"], let height = bounds["Height"]
+            else { continue }
+            if CGRect(x: x, y: y, width: width, height: height).intersects(mine) { return true }
+        }
+        return false
     }
 
     // MARK: Placement

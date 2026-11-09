@@ -43,8 +43,11 @@ final class AppModel: ObservableObject {
     private var testVoice: Process?
     /// Set by the app delegate: the overlay's menu opens the windows it owns.
     var openSettings: () -> Void = {}
+    var bringOverlayToFront: () -> Void = {}
+    var overlayIsCovered: () -> Bool = { false }
     var openSetup: () -> Void = {}
     @Published private(set) var clickThrough = Preferences.clickThrough
+    @Published private(set) var keepsOnTop = Preferences.keepsOnTop
     @Published private(set) var globalShortcuts = Preferences.globalShortcuts
     @Published private(set) var uiLanguage = Preferences.uiLanguage
 
@@ -316,7 +319,20 @@ final class AppModel: ObservableObject {
         updateSecondaryRow()
     }
 
-    func toggleOverlayVisible() { overlayVisible.toggle() }
+    /// The show/hide shortcut. When the captions can sit behind other windows and one covers them, it brings them forward
+    /// instead of hiding what the person is trying to see.
+    func toggleOverlayVisible() {
+        if overlayVisible, !keepsOnTop, overlayIsCovered() {
+            bringOverlayToFront()
+            return
+        }
+        overlayVisible.toggle()
+    }
+
+    func setKeepsOnTop(_ on: Bool) {
+        keepsOnTop = on
+        Preferences.keepsOnTop = on
+    }
 
     // MARK: Settings: behavior
 

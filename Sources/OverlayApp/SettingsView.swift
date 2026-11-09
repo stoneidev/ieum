@@ -197,6 +197,13 @@ private struct DisplayTab: View {
                     .foregroundStyle(.secondary)
             }
             Section(tr("Stay out of the way", "회의를 가리지 않게")) {
+                Toggle(tr("Keep captions on top of other windows", "자막을 다른 창 위에 항상 표시"), isOn: Binding(get: { model.keepsOnTop }, set: model.setKeepsOnTop))
+                if !model.keepsOnTop {
+                    Text(tr("Other windows can cover the captions, like any window. Press ⌃⌥H to bring them back to the front.",
+                            "다른 창이 자막을 가릴 수 있습니다(일반 창처럼). ⌃⌥H를 누르면 자막이 앞으로 나옵니다."))
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                }
                 Toggle(tr("Click through the overlay", "오버레이 클릭 통과"), isOn: Binding(get: { model.clickThrough }, set: model.setClickThrough))
                 if model.clickThrough {
                     Text(tr("Clicks go to the window underneath. Turn this off to move or resize the overlay.",
