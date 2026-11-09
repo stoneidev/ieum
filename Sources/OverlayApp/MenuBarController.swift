@@ -16,6 +16,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         self.openSettings = openSettings
         self.openSetup = openSetup
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        // A name of its own: unnamed items are saved as "Item-0", "Item-1"… and share their visibility (and a hidden
+        // state set for another app's item) with every other app's unnamed item.
+        item.autosaveName = "today.calmwork.ieum.status"
         super.init()
         let menu = NSMenu()
         menu.delegate = self

@@ -193,6 +193,41 @@ struct StartCaptionsButton: View {
     }
 }
 
+/// The menu-bar menu, inside the overlay. macOS hides status items when the menu bar is full (the left-most one goes first),
+/// and then the menu would be out of reach; this keeps mode, settings and quit one click away.
+struct OverlayMenuButton: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+
+    var body: some View {
+        Menu {
+            Button(model.isRunning ? tr("Stop captions", "자막 중지") : tr("Start captions", "자막 시작")) { model.toggleRunning() }
+            Menu(tr("Meeting mode", "회의 모드")) {
+                ForEach(MeetingMode.allCases, id: \.self) { mode in
+                    Button { model.setMeetingMode(mode) } label: {
+                        if mode == model.meetingMode { Label(mode.title, systemImage: "checkmark") } else { Text(mode.title) }
+                    }
+                    .disabled(!mode.isAvailableOnThisMac)
+                }
+            }
+            Button(model.displayMode == .bar ? tr("Show transcript panel", "기록 패널로 전환") : tr("Show subtitle bar", "자막 바로 전환")) { model.cycleDisplayMode() }
+            Divider()
+            Button(tr("Settings…", "설정…")) { model.openSettings() }
+            Button(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() }
+            Divider()
+            Button(tr("Quit Ieum", "Ieum 종료")) { NSApp.terminate(nil) }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(palette.interim)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel(tr("Menu", "메뉴"))
+    }
+}
+
 // MARK: - Subtitle bar
 
 /// Hangul is drawn smaller than Latin at the same point size so both read as equally large.
@@ -235,6 +270,7 @@ struct SubtitleBarView: View {
                 .foregroundStyle(palette.interim)
             Spacer(minLength: 12)
             StartCaptionsButton(model: model, fontSize: fontSize)
+            OverlayMenuButton(model: model, palette: palette)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .padding(.horizontal, BarMetrics.horizontalPadding)
@@ -447,6 +483,7 @@ struct TranscriptPanelView: View {
                     .foregroundStyle(Theme.alert)
                     .lineLimit(2)
             }
+            OverlayMenuButton(model: model, palette: palette)
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)

@@ -25,6 +25,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSHostingView(rootView: SettingsView(model: model) { self?.setupWindow?.show() })
         }
 
+        model.openSettings = { [weak self] in self?.settingsWindow?.show() }
+        model.openSetup = { [weak self] in self?.setupWindow?.show() }
         overlay = OverlayWindowController(model: model)
         menu = MenuBarController(
             model: model,

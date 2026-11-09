@@ -81,6 +81,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 - **macOS has a case-insensitive file system**: the CLI is `caption-cli` so it cannot collide with the app executable `Ieum`.
 - **Notarization uploads can hang** (no network connection, no submission in `notarytool history`). Kill `notarytool submit` and rerun only `make dmg`.
 - **Do not publish `site/.omc`** (hook state): deploy through `Scripts/deploy-site.sh`.
+- **Status items are hosted by Control Center on macOS 26** (window owner "제어 센터"/Control Center, layer 25, named by `autosaveName`) and the left-most ones are hidden when the bar is full. The status item has its own `autosaveName` (unnamed items share "Item-0" visibility with other apps), and the overlay carries a ⋯ menu with the same actions so the app is never out of reach.
 - **Display sleep breaks ScreenCaptureKit and screenshots.** Use `caffeinate -u`.
 - **zsh does not word-split unquoted variables**; use arrays. BSD `sed` has no `-i` without a suffix; use Python or `perl -pi`.
 - Experiments that did not pay off are written down (`docs/BENCHMARKS.md`, "Tried and not kept"). Add yours there, with numbers.

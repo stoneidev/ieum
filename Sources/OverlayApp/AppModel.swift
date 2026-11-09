@@ -35,6 +35,9 @@ final class AppModel: ObservableObject {
 
     // MARK: Behavior
     @Published private(set) var showsWordsSooner = Preferences.showsWordsSooner
+    /// Set by the app delegate: the overlay's menu opens the windows it owns.
+    var openSettings: () -> Void = {}
+    var openSetup: () -> Void = {}
     @Published private(set) var clickThrough = Preferences.clickThrough
     @Published private(set) var globalShortcuts = Preferences.globalShortcuts
     @Published private(set) var uiLanguage = Preferences.uiLanguage
