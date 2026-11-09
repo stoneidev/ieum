@@ -250,6 +250,19 @@
       "priority": 23,
       "passes": true,
       "notes": ""
+    },
+    {
+      "id": "US-27",
+      "title": "First-run self test so new users see it work before a meeting",
+      "acceptanceCriteria": [
+        "Setup window has a Try it card that plays a sentence and shows recognized text and translation",
+        "Saved mode and source are restored; no transcript file is created",
+        "Failure messages cover volume, headphones and a closed MacBook lid",
+        "Released, site FAQ and download updated"
+      ],
+      "priority": 27,
+      "passes": true,
+      "notes": "v0.2.7. Verified end to end with system audio (lid closed during verification); mic path verified earlier with lid open."
     }
   ],
   "notes": {

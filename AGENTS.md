@@ -98,7 +98,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 
 ## State at hand-off
 
-- Latest release **v0.2.6** (app 0.2.6, build 7). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.6.
+- Latest release **v0.2.7** (app 0.2.7, build 8). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.7.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test, English user guide.
 - Domain `ieum.calmwork.today` is connected to the Pages project.

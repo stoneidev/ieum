@@ -26,3 +26,5 @@ Phase 6: three UX rounds on the app. Found but not fixed: vocabulary placeholder
 Phase 7: second UX pass. Setup marks screen audio optional; vocabulary example labelled; records empty state with Start button. Not shipped in a release yet (latest is v0.2.3).
 
 Phase 8: third UX pass (live view). Original transcript larger/brighter and shown as the main line until translated; panel Start/Stop buttons. Found, not fixed: after Stop the panel drops translations of earlier lines (translationActive turns false). Test with Developer ID re-signed local build (same designated requirement keeps TCC grants); ad-hoc builds lose them.
+
+Phase 9: Try it self test (v0.2.7). Learned: with the MacBook lid closed (clamshell) the built-in mic is off, so every mic based check fails silently; check ioreg AppleClamshellState before debugging the app. AVSpeechSynthesizer stayed silent in this app; use /usr/bin/say.

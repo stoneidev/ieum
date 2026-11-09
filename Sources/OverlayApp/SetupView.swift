@@ -78,6 +78,8 @@ struct SetupView: View {
             .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color(nsColor: .separatorColor)))
 
+            SelfTestCard(model: model, microphoneReady: permissions.microphone.isGranted)
+
             HStack {
                 Text(tr("You can open this screen again from the menu bar icon.", "메뉴 막대 아이콘에서 이 화면을 다시 열 수 있습니다."))
                     .font(.system(size: 12))
@@ -96,6 +98,78 @@ struct SetupView: View {
                 try? await Task.sleep(for: .seconds(1.5))
                 permissions.refresh()
             }
+        }
+    }
+}
+
+/// The first-run test: a sentence is played through the speakers and must come back as captions and a translation.
+private struct SelfTestCard: View {
+    @ObservedObject var model: AppModel
+    let microphoneReady: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                icon
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(tr("Try it", "체험해 보기")).font(.system(size: 14, weight: .medium))
+                    Text(detail)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 12)
+                if model.selfTest == .running {
+                    ProgressView().controlSize(.small)
+                } else {
+                    Button(model.selfTest == .idle ? tr("Run test", "테스트 실행") : tr("Run again", "다시 실행")) { model.runSelfTest() }
+                        .disabled(!microphoneReady || model.isRunning)
+                }
+            }
+            if case .passed(let heard, let translation) = model.selfTest {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(heard).font(.system(size: 12)).foregroundStyle(.secondary)
+                    if let translation { Text(translation).font(.system(size: 14, weight: .medium)) }
+                }
+                .textSelection(.enabled)
+                .padding(.leading, 32)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color(nsColor: .separatorColor)))
+    }
+
+    @ViewBuilder
+    private var icon: some View {
+        switch model.selfTest {
+        case .passed:
+            Image(systemName: "checkmark.circle.fill").font(.system(size: 20)).foregroundStyle(Color.green)
+                .accessibilityLabel(tr("Passed", "통과"))
+        case .failed:
+            Image(systemName: "exclamationmark.circle.fill").font(.system(size: 20)).foregroundStyle(Color.orange)
+                .accessibilityLabel(tr("Needs attention", "확인 필요"))
+        default:
+            Image(systemName: "play.circle").font(.system(size: 20)).foregroundStyle(Color.secondary)
+        }
+    }
+
+    private var detail: String {
+        switch model.selfTest {
+        case .idle:
+            return microphoneReady
+                ? tr("Plays a short English sentence through the speakers and shows it as captions with a Korean translation. About 15 seconds, and it is audible.",
+                     "짧은 영어 문장을 스피커로 들려주고 자막과 한국어 번역으로 보여 줍니다. 약 15초 걸리고 소리가 납니다.")
+                : tr("Allow the microphone first.", "먼저 마이크를 허용하세요.")
+        case .running:
+            return tr("Listening to the test sentence…", "테스트 문장을 듣는 중…")
+        case .passed(_, let translation):
+            return translation == nil
+                ? tr("Heard and recognized. The translation did not arrive yet: check the translation row above.", "들리고 인식됐습니다. 번역은 아직 오지 않았습니다. 위의 번역 항목을 확인하세요.")
+                : tr("It works: this Mac heard, recognized and translated the sentence. You are ready for a meeting.", "정상 작동합니다. 이 Mac이 문장을 듣고 인식하고 번역했습니다. 회의에 쓸 준비가 됐습니다.")
+        case .failed(let message):
+            return message
         }
     }
 }

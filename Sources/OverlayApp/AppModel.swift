@@ -1,6 +1,8 @@
 import AppKit
+import AVFoundation
 import Combine
 import Foundation
+import IOKit
 import CaptionCore
 
 /// Everything the overlay, the menu and the settings show, plus the recognition session that feeds them.
@@ -35,6 +37,10 @@ final class AppModel: ObservableObject {
 
     // MARK: Behavior
     @Published private(set) var showsWordsSooner = Preferences.showsWordsSooner
+    /// Result of the first-run test (see `runSelfTest`).
+    @Published private(set) var selfTest: SelfTestState = .idle
+    private var selfTestActive = false
+    private var testVoice: Process?
     /// Set by the app delegate: the overlay's menu opens the windows it owns.
     var openSettings: () -> Void = {}
     var openSetup: () -> Void = {}
@@ -143,6 +149,88 @@ final class AppModel: ObservableObject {
 
     private func restartIfRunning() {
         if isRunning { Task { await restart() } }
+    }
+
+    // MARK: First-run test
+
+    /// Plays a short English sentence through the speakers and checks that this Mac hears it, recognizes it and translates it.
+    /// A new user learns in seconds that everything works, instead of finding out in the middle of a meeting. It runs the
+    /// real pipeline (English to Korean, microphone) and then puts the saved mode and source back; nothing is saved.
+    func runSelfTest() {
+        guard !isRunning, selfTest != .running else { return }
+        selfTest = .running
+        Task { await performSelfTest() }
+    }
+
+    private func performSelfTest() async {
+        let savedMode = meetingMode, savedSource = source
+        selfTestActive = true
+        meetingMode = .englishToKorean
+        source = .microphone
+        updateSecondaryRow()
+        let firstNewLine = finalizedLines.count
+        start()
+
+        func wait(upTo seconds: Double, until done: () -> Bool) async {
+            var waited = 0.0
+            while !done(), waited < seconds {
+                try? await Task.sleep(for: .milliseconds(100))
+                waited += 0.1
+            }
+        }
+
+        await wait(upTo: 20) { status != .starting }
+        var result: SelfTestState
+        if status == .listening {
+            // `say` plays through the same speakers the meeting would; AVSpeechSynthesizer stayed silent in this agent-style app.
+            let voice = AVSpeechSynthesisVoice(language: "en-US")?.name
+            let say = Process()
+            say.executableURL = URL(fileURLWithPath: "/usr/bin/say")
+            say.arguments = (voice.map { ["-v", $0] } ?? []) + ["-r", "170", "Hello. This is a test. Can you see these words on your screen?"]
+            testVoice = (try? say.run()) != nil ? say : nil
+            // The sentence takes about four seconds. Stopping flushes the recognizer, so a sentence it was still holding open
+            // is delivered and translated (stop waits a moment for the translations of the last sentences).
+            await wait(upTo: 14) { !(testVoice?.isRunning ?? false) }
+            await wait(upTo: 2.5) { false }
+            testVoice?.terminate()
+            testVoice = nil
+            await stop()
+            let lines = Array(finalizedLines.dropFirst(firstNewLine))
+            if lines.isEmpty {
+                result = .failed(Self.lidIsClosed
+                    ? tr("Nothing was heard: the MacBook lid is closed, which turns its built-in microphone off. Open the lid or use an external microphone, then try again.",
+                         "아무것도 들리지 않았습니다. MacBook 덮개가 닫혀 있으면 내장 마이크가 꺼집니다. 덮개를 열거나 외장 마이크를 쓴 뒤 다시 시도하세요.")
+                    : tr("Nothing was heard. Turn the volume up and take off headphones (the microphone has to hear the speakers), then try again.",
+                         "아무것도 들리지 않았습니다. 소리를 키우고 헤드폰을 벗은 뒤(마이크가 스피커 소리를 들어야 합니다) 다시 시도하세요."))
+            } else {
+                let heard = lines.map(\.text).joined(separator: " ")
+                let translated = lines.compactMap(\.translation).joined(separator: " ")
+                result = .passed(heard: heard, translation: translated.isEmpty ? nil : translated)
+            }
+        } else if case .error(let message) = status {
+            result = .failed(message)
+        } else {
+            result = .failed(tr("Captions could not start.", "자막을 시작하지 못했습니다."))
+        }
+        await stop()   // no-op when already stopped
+        finalizedLines.removeSubrange(firstNewLine...)
+        barEntries.removeAll()
+        barFinalText = ""
+        barTranslation = ("", "")
+        meetingMode = savedMode
+        source = savedSource
+        updateSecondaryRow()
+        selfTestActive = false
+        selfTest = result
+    }
+
+    /// A closed MacBook lid (clamshell mode with an external display) switches the built-in microphone off.
+    private static var lidIsClosed: Bool {
+        let root = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPMrootDomain"))
+        guard root != 0 else { return false }
+        defer { IOObjectRelease(root) }
+        let state = IORegistryEntryCreateCFProperty(root, "AppleClamshellState" as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue()
+        return (state as? Bool) ?? false
     }
 
     // MARK: Settings: meeting
@@ -407,7 +495,8 @@ final class AppModel: ObservableObject {
         do {
             let directory = Preferences.scriptDirectory
             do {
-                recorder = try ScriptRecorder(
+                // The first-run test leaves no transcript behind.
+                recorder = selfTestActive ? nil : try ScriptRecorder(
                     directory: directory, locale: mode.isConversation ? "conversation" : locales[0], tagLanguages: mode.isConversation
                 )
             } catch {

@@ -106,6 +106,14 @@ extension MeetingMode {
     }
 }
 
+/// Outcome of the first-run test: did this Mac hear, recognize and translate a played sentence?
+enum SelfTestState: Equatable {
+    case idle
+    case running
+    case passed(heard: String, translation: String?)
+    case failed(String)
+}
+
 enum SessionStatus: Equatable {
     case idle
     case starting
