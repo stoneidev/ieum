@@ -276,6 +276,18 @@
       "priority": 28,
       "passes": true,
       "notes": "Verified with window ordering via CGWindowList: layer 3 when on top, layer 0 and coverable when off; bring-to-front and the covered check verified."
+    },
+    {
+      "id": "US-29",
+      "title": "Animated What's new tour after an update",
+      "acceptanceCriteria": [
+        "Shown once after an update with only the pages newer than the last seen version; never on first install, same version or downgrade (unit tested)",
+        "Five scenes with looping animation, back/next/skip, dots, keyboard, reduced motion respected",
+        "Reopenable from Settings > About",
+        "Docs updated"
+      ],
+      "passes": true,
+      "notes": "Pages and layout verified by window screenshots; Esc/Return/click could not be driven from the agent shell because the app is not activated there."
     }
   ],
   "notes": {

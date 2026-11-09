@@ -36,6 +36,7 @@ The other side talks and you read Korean. You answer in Korean and the English i
 
 | | |
 |---|---|
+| **What's new tour** | After an update, a short animated tour shows what changed since the version you last used. Settings → About reopens it. |
 | **Try it** | A built-in test plays a sentence through the speakers and shows it come back as captions and a translation, so you know it works before the meeting. Nothing is saved. |
 | **Meeting modes** | Korean → English, English → Korean, Korean captions, English captions (no translation), or **detect the language and translate** (both ways, decided per sentence). |
 | **Words as they are spoken** | The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |

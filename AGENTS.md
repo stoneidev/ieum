@@ -86,6 +86,14 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 - **zsh does not word-split unquoted variables**; use arrays. BSD `sed` has no `-i` without a suffix; use Python or `perl -pi`.
 - Experiments that did not pay off are written down (`docs/BENCHMARKS.md`, "Tried and not kept"). Add yours there, with numbers.
 
+## Release highlights ("What's new")
+
+`WhatsNewCatalog.pages()` in `Sources/OverlayApp/WhatsNewView.swift` lists the user-visible highlights, newest first, each with the version that introduced it.
+When a release adds something people should notice, add a page (title and body in both languages, and an `Art` scene or reuse one) before building the release.
+The window opens once after an update and shows only pages newer than `Preferences.lastSeenVersion`; selection logic is `WhatsNew.pending` (tested). Try it with
+`open -n .build/app/Ieum.app --args -lastSeenVersion 0.2.3`. Synthetic mouse/Esc input does not reach it from the agent shell (the app is not activated there), so judge the
+look from window screenshots.
+
 ## Conventions
 
 - Match the surrounding code: comments explain *why*, not what; no dead code; small diffs.

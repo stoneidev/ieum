@@ -4,6 +4,7 @@ import CaptionCore
 struct SettingsView: View {
     @ObservedObject var model: AppModel
     let openSetup: () -> Void
+    let openWhatsNew: () -> Void
     /// The last tab you used is the one you see next time.
     @AppStorage("settingsTab") private var tab = 0
 
@@ -18,7 +19,7 @@ struct SettingsView: View {
                 .tabItem { Label(tr("Vocabulary", "용어집"), systemImage: "text.book.closed") }
             TranscriptsTab(model: model).tag(3)
                 .tabItem { Label(tr("Transcripts", "기록"), systemImage: "doc.text") }
-            AboutTab(openSetup: openSetup).tag(4)
+            AboutTab(openSetup: openSetup, openWhatsNew: openWhatsNew).tag(4)
                 .tabItem { Label(tr("About", "정보"), systemImage: "info.circle") }
         }
         .frame(width: 600, height: 760)
@@ -402,6 +403,7 @@ private struct TranscriptsTab: View {
 
 private struct AboutTab: View {
     let openSetup: () -> Void
+    let openWhatsNew: () -> Void
 
     private var version: String {
         let info = Bundle.main.infoDictionary
@@ -426,7 +428,10 @@ private struct AboutTab: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: 420)
-            Button(tr("Permissions and setup…", "권한 및 설정 점검…"), action: openSetup)
+            HStack(spacing: 10) {
+                Button(tr("What's new…", "새로운 기능…"), action: openWhatsNew)
+                Button(tr("Permissions and setup…", "권한 및 설정 점검…"), action: openSetup)
+            }
             Spacer()
         }
         .padding(28)

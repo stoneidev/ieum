@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import CaptionCore
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -10,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKeys: HotKeyCenter?
     private var settingsWindow: AuxiliaryWindow?
     private var setupWindow: AuxiliaryWindow?
+    private let whatsNewWindow = WhatsNewWindow()
     private var observers: [Any] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -22,7 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             })
         }
         settingsWindow = AuxiliaryWindow(title: { tr("Ieum Settings", "Ieum 설정") }) { [weak self, model] in
-            NSHostingView(rootView: SettingsView(model: model) { self?.setupWindow?.show() })
+            NSHostingView(rootView: SettingsView(model: model, openSetup: { self?.setupWindow?.show() }, openWhatsNew: { self?.showWhatsNew() }))
         }
 
         model.openSettings = { [weak self] in self?.settingsWindow?.show() }
@@ -49,7 +51,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         })
 
         if !Preferences.didShowSetup { setupWindow?.show() }
+        showWhatsNewIfUpdated(firstInstall: !Preferences.didShowSetup)
         if Preferences.autoStart { model.start() }
+    }
+
+    /// After an update, a short tour of what changed. A first install gets the setup window instead.
+    private func showWhatsNewIfUpdated(firstInstall: Bool) {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let pages = WhatsNewCatalog.pending(lastSeen: Preferences.lastSeenVersion, current: version, isFirstInstall: firstInstall)
+        Preferences.lastSeenVersion = version
+        guard !pages.isEmpty else { return }
+        // Let the overlay appear first, so the tour opens over a finished launch.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { [whatsNewWindow] in whatsNewWindow.show(pages: pages, version: version) }
+    }
+
+    /// Opens the tour again with everything from the last few releases (Settings → About).
+    func showWhatsNew() {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        whatsNewWindow.show(pages: WhatsNewCatalog.pending(lastSeen: WhatsNew.baseline, current: version, isFirstInstall: false), version: version)
     }
 
     /// Let the recognizer deliver its last sentences and the transcript file close before quitting.

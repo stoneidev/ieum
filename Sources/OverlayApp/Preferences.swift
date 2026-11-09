@@ -84,6 +84,12 @@ enum Preferences {
     }
 
     /// Keep the captions above every other window. Off: they behave like an ordinary window and can sit behind others.
+    /// The app version whose "What's new" the person has seen (or that was current when they first installed it).
+    static var lastSeenVersion: String? {
+        get { defaults.string(forKey: "lastSeenVersion") }
+        set { defaults.set(newValue, forKey: "lastSeenVersion") }
+    }
+
     static var keepsOnTop: Bool {
         get { flag("keepsOnTop", default: true) }
         set { defaults.set(newValue, forKey: "keepsOnTop") }
