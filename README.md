@@ -1,12 +1,14 @@
 <div align="center">
 
+**[English](README.md)** · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
+
 # Ieum · 이음
 
-**Live captions and translation for meetings. On your Mac, fully offline.**
+**Live captions and translation for meetings, between English, Korean, Japanese and Chinese. On your Mac, fully offline.**
 
 Read what the other side says in your language, while they read what you say in theirs.
 
-![Ieum subtitle bar: the spoken English above, the Korean translation below](docs/images/bar-done.png)
+![Ieum demo: Japanese speech becomes Korean subtitles on the Mac, offline](docs/images/demo.gif)
 
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-lightgrey?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
@@ -25,11 +27,11 @@ Read what the other side says in your language, while they read what you say in 
 
 ## Why Ieum
 
-*Ieum* (이음) means "to connect". It is built for one situation: a Korean speaker in a meeting with native English speakers.
-The other side talks and you read Korean. You answer in Korean and the English is there for them.
+*Ieum* (이음) means "to connect". It is built for meetings across languages: English, Korean, Japanese and Chinese, in any pair.
+The other side talks and you read your language. You answer in yours and they read theirs.
 
 - **Nothing leaves the Mac.** Recognition uses Apple's Speech framework and translation uses Apple's Translation framework, both on-device. No account and no cloud. The only network request is an optional once-a-day check for a newer version (no audio, text or identifiers; off in Settings).
-- **Low delay.** The first words appear about half a second after you start speaking and then follow word by word; a finished sentence is translated about a second later.
+- **Low delay.** In English and Korean the first words appear about half a second after you start speaking and then follow word by word; a finished sentence is translated about a second later. Japanese and Chinese are shown sentence by sentence.
 - **Made for the table.** A large subtitle bar you can read from across the room, a transcript you can scroll back through, and a script saved for after the meeting.
 
 ## Features
@@ -40,7 +42,7 @@ The other side talks and you read Korean. You answer in Korean and the English i
 | **Updates** | Once a day Ieum checks for a newer version and asks before installing. It downloads the update, verifies the SHA-256, the developer signature and Apple's notarization, then replaces itself and reopens. |
 | **Try it** | A built-in test plays a sentence through the speakers and shows it come back as captions and a translation, so you know it works before the meeting. Nothing is saved. |
 | **Languages** | English, Korean, Japanese and Chinese (Simplified). Pick the language you hear and the language you read, any two of them (or none, for captions only). Turn on *Both sides speak* and Ieum detects the language of each sentence and translates it into the other. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. |
-| **Words as they are spoken** | The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
+| **Words as they are spoken** | (English and Korean) The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can stay above every window or behave like an ordinary one, and it can be click-through. |
 | **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. |
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. |
