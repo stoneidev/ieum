@@ -225,7 +225,7 @@ def lang_picker(lang):
         for c in LANGS
     )
     return (
-        f'<details class="langpick"><summary class="lang" aria-label="Language">{NATIVE[lang]}</summary>'
+        f'<details class="langpick"><summary class="lang" aria-label="Language: {NATIVE[lang]}">{NATIVE[lang]}</summary>'
         f"<ul>{items}</ul></details>"
     )
 

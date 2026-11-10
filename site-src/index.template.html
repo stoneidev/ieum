@@ -31,7 +31,7 @@
   --tx:#f1f5f9; --mute:#9eabb8; --dim:#7a8794;
   --teal:#5eead4; --mint:#a7f3d0; --coffee:#fbbf24;
   --grad:linear-gradient(110deg,#5eead4 0%,#a7f3d0 55%,#fde68a 100%);
-  --font:"Plus Jakarta Sans","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",system-ui,sans-serif;
+  --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",system-ui,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
   --max:1140px; --ease:cubic-bezier(.2,.7,.2,1);
 }
@@ -65,7 +65,7 @@ code{font:500 .9em var(--mono);padding:2px 6px;border-radius:6px;background:var(
 .nav .bar{pointer-events:auto;width:min(880px,100% - 24px);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 6px 6px 16px;border-radius:999px;background:rgba(12,17,23,.7);border:1px solid var(--bd);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5)}
 .brand{display:flex;align-items:center;gap:10px;min-height:44px;text-decoration:none;font:800 18px/1 var(--font);letter-spacing:-.02em}
 .brand img{width:28px;height:28px;border-radius:8px}
-.brand i{font-style:normal;font-weight:600;color:var(--teal)}
+.brand i{font-family:"Noto Sans KR",var(--font);font-style:normal;font-weight:600;color:var(--teal)}
 .nav nav{display:flex;align-items:center;gap:2px}
 .nav nav a:not(.btn){display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;font-weight:500;font-size:14.5px;color:var(--mute);transition:color .15s,background-color .15s}
 .nav nav a:not(.btn):hover{color:#fff;background:var(--surf-2)}
@@ -79,8 +79,8 @@ code{font:500 .9em var(--mono);padding:2px 6px;border-radius:6px;background:var(
 .langpick li a{display:block;padding:11px 14px;border-radius:12px;color:var(--tx);font:600 14px/1.2 var(--font);text-decoration:none}
 .langpick li a:hover,.langpick li a[aria-current]{background:var(--surf-2)}
 /* Japanese and Chinese punctuation and kanji come from the native font, not the Korean subset; Hangul still falls through to it */
-html[lang=ja]{--font:"Plus Jakarta Sans","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,"Noto Sans KR",sans-serif}
-html[lang=zh-Hans]{--font:"Plus Jakarta Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans KR",sans-serif}
+html[lang=ja]{--font:"Plus Jakarta Sans","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+html[lang=zh-Hans]{--font:"Plus Jakarta Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
 
 /* hero */
 .hero{position:relative;padding:150px 0 40px;text-align:center;overflow:hidden}
@@ -98,6 +98,7 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 .compat b{color:var(--tx);font-weight:700}
 .micro{margin:14px auto 0;max-width:62ch;font-size:13.5px;line-height:1.6;color:var(--dim)}
 .micro a{color:var(--mute)}
+.nw{white-space:nowrap}
 .hint{display:none;margin:14px auto 0;font-size:14.5px;color:var(--coffee)}
 .notmac .hint{display:block}
 .pill{display:none;margin-top:14px;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--teal)}
@@ -107,20 +108,13 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 .stagewrap{position:relative;margin:64px auto 0;max-width:980px;perspective:1400px}
 .stagewrap::before{content:"";position:absolute;inset:8% 6% -4%;background:var(--grad);opacity:.28;filter:blur(70px);border-radius:40px;z-index:0}
 @keyframes pulse{50%{opacity:.35}}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.cell{aspect-ratio:4/3;border-radius:12px;background:linear-gradient(160deg,#1c3a48,#10222c);position:relative;overflow:hidden;outline:2px solid transparent;outline-offset:-2px;transition:outline-color .3s}
-.cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.9) brightness(.82);transition:filter .3s}
-.cell.on img{filter:none}
-.cell>span{position:absolute;left:8px;bottom:6px;z-index:1;font-size:11.5px;font-weight:600;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:6px}
-.cell.on{outline-color:var(--teal)}
-.cell.on>span{background:var(--teal);color:#05110f}
 .sub-bar{margin:0;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);border-radius:18px;padding:18px 24px 20px;backdrop-filter:blur(10px)}
 .hpair{float:right;margin:2px 0 6px 14px;padding:4px 8px;border:1px solid rgba(94,234,212,.28);border-radius:7px;font:600 11px/1 var(--mono);letter-spacing:.08em;color:var(--teal);transition:opacity .25s}
 .hpair:empty{display:none}
 .sub-bar .src{min-height:2.9em;font-size:clamp(13.5px,1.3vw,15.5px);line-height:1.5;color:var(--mute)}
 .sub-bar .dst{margin-top:6px;min-height:2.7em;font-size:clamp(20px,2.5vw,30px);line-height:1.3;font-weight:700;letter-spacing:-.02em;transition:opacity .25s}
 .sub-bar .dst.fade{opacity:0}
-.pause{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--bd-2);background:transparent;color:var(--tx);font:600 13px/1 var(--font);cursor:pointer}
+.pause{flex:none;white-space:nowrap;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--bd-2);background:transparent;color:var(--tx);font:600 13px/1 var(--font);cursor:pointer}
 .pause:hover{background:var(--surf-2)}
 
 
@@ -144,7 +138,7 @@ mark.fix{background:rgba(94,234,212,.9);color:#04201c;border-radius:5px;padding:
 .lab[data-view=transcript] .tpanel{display:block}
 .controls{display:grid;gap:18px;padding:24px;border-radius:24px;background:var(--surf);border:1px solid var(--bd)}
 .controls fieldset{border:0;display:grid;gap:10px;min-width:0}
-.controls legend,.controls .lbl{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:2px}
+.controls legend{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:2px}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg label{position:relative}
 .seg input{position:absolute;opacity:0;inset:0;cursor:pointer;width:100%;height:100%;margin:0}
@@ -176,7 +170,6 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
 .tpanel [lang]{font-family:inherit}
 .tpanel :not(html)[lang=ja]{font-family:var(--mono),"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
 .tpanel :not(html)[lang=zh-Hans]{font-family:var(--mono),"PingFang SC","Hiragino Sans GB",sans-serif}
-.tpanel .g{color:var(--dim)}
 .labnote{margin-top:18px;text-align:center;font-size:13.5px;color:var(--dim)}
 @media (max-width:960px){
   .lab{grid-template-columns:minmax(0,1fr)}
@@ -191,7 +184,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
 .stagewrap .desk{transform:rotateX(4deg);transform-origin:50% 100%}
 .mbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 16px;background:rgba(0,0,0,.38);font-size:12.5px;color:rgba(255,255,255,.82)}
 .mbar b{font-weight:700;margin-right:12px}
-.mbar .ie{display:inline-flex;align-items:center;gap:7px;color:var(--teal);font-weight:600}
+.mbar .ie{flex:none;white-space:nowrap;display:inline-flex;align-items:center;gap:7px;color:var(--teal);font-weight:600}
 .mbar .ie::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite}
 .mbar .ie.off{color:var(--dim)}
 .mbar .ie.off::before{background:var(--dim);animation:none}
@@ -243,7 +236,6 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
 
 /* sections */
 section{padding:120px 0;position:relative}
-section:not(#top){content-visibility:auto;contain-intrinsic-size:auto 700px}
 .k{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
 h2{margin-top:14px;font:800 clamp(32px,4.6vw,56px)/1.08 var(--font);letter-spacing:-.04em;max-width:18ch;text-wrap:balance}
 .sub{margin-top:18px;max-width:56ch;font-size:18.5px;color:var(--mute)}
@@ -252,20 +244,22 @@ h2{margin-top:14px;font:800 clamp(32px,4.6vw,56px)/1.08 var(--font);letter-spaci
 .reveal{transition:opacity .6s var(--ease),transform .6s var(--ease)}
 .js .reveal{opacity:0;transform:translateY(18px)}
 .js .reveal.in{opacity:1;transform:none}
+html:not(.js) :is(.pause,.lab .controls,.labnote,.share button){display:none}
+html:not(.js) .lab{grid-template-columns:minmax(0,1fr)}
 
 .steps{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;list-style:none;counter-reset:s}
 .steps li{counter-increment:s;position:relative;padding:34px 30px 32px;border-radius:24px;background:var(--surf);border:1px solid var(--bd);overflow:hidden}
 .steps li::before{content:"0" counter(s);display:block;font:800 64px/1 var(--font);letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:26px}
 .steps h3{font:700 22px/1.25 var(--font);letter-spacing:-.02em}
 .steps p{margin-top:10px;color:var(--mute);font-size:16px}
-.steps pre.brew{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--surf-2);border:1px solid var(--bd);font:500 13px/1.5 var(--mono);white-space:pre-wrap;word-break:break-all;user-select:all}
+.steps pre.brew{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--surf-2);border:1px solid var(--bd);font:500 13px/1.5 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;user-select:all}
 kbd{font:700 12.5px/1 var(--font);padding:5px 8px 4px;border-radius:7px;background:var(--surf-2);border:1px solid var(--bd-2);border-bottom-width:2px;color:var(--tx);white-space:nowrap}
 
 /* bento */
 .bento{margin-top:64px;display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
 .tile{position:relative;padding:30px;border-radius:26px;background:var(--surf);border:1px solid var(--bd);overflow:hidden;transition:border-color .25s,background-color .25s}
 .tile:hover{border-color:var(--bd-2);background:var(--surf-2)}
-.tile.c2{grid-column:span 2}.tile.c3{grid-column:span 3}.tile.c4{grid-column:span 4}.tile.c6{grid-column:span 6}
+.tile.c2{grid-column:span 2}.tile.c3{grid-column:span 3}.tile.c4{grid-column:span 4}
 .tile .ic{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--surf-2);border:1px solid var(--bd-2);color:var(--teal);margin-bottom:20px}
 .tile h3{font:700 20px/1.25 var(--font);letter-spacing:-.02em}
 .tile p{margin-top:8px;color:var(--mute);font-size:15.5px}
@@ -323,18 +317,19 @@ details p{padding:0 0 24px;max-width:62ch;color:var(--mute);font-size:16.5px}
 .final .cta{margin-top:34px}
 .share{margin-top:48px;display:flex;flex-wrap:wrap;gap:12px 14px;align-items:center;justify-content:center;font-size:14.5px;color:var(--dim)}
 footer{border-top:1px solid var(--bd);padding:28px 0 40px;font-size:14px;color:var(--dim)}
-footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px}
-footer a{color:var(--mute)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0 24px}
+footer a{display:inline-flex;align-items:center;min-height:44px;color:var(--mute)}
 
 /* headings: balanced lines; Japanese and Chinese break only between phrases (<wbr>, punctuation, spaces) */
 h1,h2,h3{text-wrap:balance}
-.sub,.lead,.talk p,.facts p{text-wrap:pretty}
+p,summary,.priv b,.facts b,.sub-bar .dst,.tbar .d{text-wrap:pretty}
 .micro{text-wrap:balance}
-:lang(ja) :is(h1,h2,h3),:lang(zh) :is(h1,h2,h3){word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+:lang(ja) :is(h1,h2,h3),:lang(zh) :is(h1,h2,h3,.priv b,.facts b){word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+html[lang=ja] :is(.lead,.sub,.micro,.tongues small,figcaption,.langnote,.labnote,.uwnote,summary,.priv b,.facts b){word-break:auto-phrase}
 html[lang=ja] h1,html[lang=zh-Hans] h1{max-width:11.5em;letter-spacing:-.02em}
 html[lang=ja] h2,html[lang=zh-Hans] h2{max-width:15em;letter-spacing:-.02em}
 /* sample lines in another script than the page get that script's system font */
-:not(html)[lang=ja]{font-family:"Plus Jakarta Sans","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+:not(html)[lang=ja]{font-family:"Plus Jakarta Sans","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;word-break:auto-phrase}
 :not(html)[lang=zh-Hans]{font-family:"Plus Jakarta Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
 
 /* hero: what is new, and the four languages */
@@ -386,8 +381,7 @@ a.badge:hover .icon{transform:translateX(3px)}
   .nav nav a:not(.btn):not(.keep){display:none}
   .steps,.priv{grid-template-columns:minmax(0,1fr)}
   .bento{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-  .tile.c2,.tile.c3,.tile.c4,.tile.c6{grid-column:span 2}
-  .grid{grid-template-columns:repeat(2,1fr)}
+  .tile.c2,.tile.c3,.tile.c4{grid-column:span 2}
   .stagewrap .desk{transform:none}
   .appwin{margin:14px 14px 0}
   .barwrap{width:calc(100% - 28px)}
@@ -400,15 +394,16 @@ a.badge:hover .icon{transform:translateX(3px)}
   .cta .btn{width:100%}
   .nav .btn{display:none}
   .bento{grid-template-columns:minmax(0,1fr)}
-  .tile.c2,.tile.c3,.tile.c4,.tile.c6{grid-column:auto}
+  .tile.c2,.tile.c3,.tile.c4{grid-column:auto}
   .bridge .arc{stroke-width:4}.bridge .track{stroke-width:3}.bridge .dot{stroke-width:4}
   .tx .row{grid-template-columns:1fr}
   .tx .row>div+div{border-left:0;border-top:1px solid var(--bd)}
   .req th:nth-child(3),.req td:nth-child(3){display:none}
+  .appwin .tb .who{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  *,*::before{transition:none!important;animation:none!important}
+  *,*::before,*::after{transition:none!important;animation:none!important}
   .js .reveal{opacity:1;transform:none}
   .js .bridge .arc{stroke-dashoffset:0}
 }
@@ -482,10 +477,10 @@ a.badge:hover .icon{transform:translateX(3px)}
       <li><b>Apple silicon</b></li>
     </ul>
     <p class="micro">
-      <span class="en">Free and open source · v{{VERSION}} · {{SIZE}} · Signed and notarized by Apple · <a href="#requirements">What does my Mac get?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></span>
-      <span class="ko">무료 오픈소스 · v{{VERSION}} · {{SIZE}} · Apple 서명 및 공증 · <a href="#requirements">내 Mac은 어디까지 되나요?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">릴리스 노트</a></span>
-      <span class="ja">無料・オープンソース · v{{VERSION}} · {{SIZE}} · Apple による署名・公証済み · <a href="#requirements">私の Mac で使える機能は？</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">リリースノート</a></span>
-      <span class="zh">免费开源 · v{{VERSION}} · {{SIZE}} · 已由 Apple 签名并公证 · <a href="#requirements">我的 Mac 能用哪些功能？</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">发行说明</a></span>
+      <span class="en"><span class="nw">Free and open source</span> · <span class="nw">v{{VERSION}} · {{SIZE}}</span> · <span class="nw">Signed and notarized by Apple</span> · <a class="nw" href="#requirements">What does my Mac get?</a> · <a class="nw" href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></span>
+      <span class="ko"><span class="nw">무료 오픈소스</span> · <span class="nw">v{{VERSION}} · {{SIZE}}</span> · <span class="nw">Apple 서명 및 공증</span> · <a class="nw" href="#requirements">내 Mac은 어디까지 되나요?</a> · <a class="nw" href="https://github.com/stoneidev/ieum/releases/latest">릴리스 노트</a></span>
+      <span class="ja"><span class="nw">無料・オープンソース</span> · <span class="nw">v{{VERSION}} · {{SIZE}}</span> · <span class="nw">Apple による署名・公証済み</span> · <a class="nw" href="#requirements">私の Mac で使える機能は？</a> · <a class="nw" href="https://github.com/stoneidev/ieum/releases/latest">リリースノート</a></span>
+      <span class="zh"><span class="nw">免费开源</span> · <span class="nw">v{{VERSION}} · {{SIZE}}</span> · <span class="nw">已由 Apple 签名并公证</span> · <a class="nw" href="#requirements">我的 Mac 能用哪些功能？</a> · <a class="nw" href="https://github.com/stoneidev/ieum/releases/latest">发行说明</a></span>
     </p>
     <p class="pill" id="count"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span id="countn"></span></p>
 
@@ -507,9 +502,9 @@ a.badge:hover .icon{transform:translateX(3px)}
         <div class="barwrap">
           <span class="tag"><span class="en">Ieum subtitle bar</span><span class="ko">이음 자막 바</span><span class="ja">Ieum 字幕バー</span><span class="zh">Ieum 字幕栏</span></span>
           <div class="sub-bar" aria-hidden="true">
-            <span class="hpair" id="hpair"></span>
-            <div class="src" id="src"></div>
-            <div class="dst" id="dst"></div>
+            <span class="hpair" id="hpair"><span class="en">KO → EN</span><span class="ko">EN → KO</span><span class="ja">KO → JA</span><span class="zh">KO → ZH</span></span>
+            <div class="src" id="src"><span class="en"><span lang="ko">목요일에 베타를 출시할 수 있을까요?</span></span><span class="ko"><span lang="en">Can we ship the beta on Thursday?</span></span><span class="ja"><span lang="ko">목요일에 베타를 출시할 수 있을까요?</span></span><span class="zh"><span lang="ko">목요일에 베타를 출시할 수 있을까요?</span></span></div>
+            <div class="dst" id="dst"><span class="en"><span lang="en">Can we ship the beta on Thursday?</span></span><span class="ko"><span lang="ko">목요일에 베타를 출시할 수 있을까요?</span></span><span class="ja"><span lang="ja">木曜日にベータ版を出せますか？</span></span><span class="zh"><span lang="zh-Hans">我们周四能发布测试版吗？</span></span></div>
           </div>
         </div>
         <div class="desknote">
@@ -603,15 +598,15 @@ a.badge:hover .icon{transform:translateX(3px)}
         <h3><span class="en">Install</span><span class="ko">설치</span><span class="ja">インストール</span><span class="zh">安装</span></h3>
         <p><span class="en">Open Ieum.dmg and drag Ieum to Applications. It lives in the menu bar, and a short setup asks for microphone and speech permissions. Or with Homebrew:</span><span class="ko">Ieum.dmg를 열고 Ieum을 응용 프로그램으로 끌어다 놓으세요. 메뉴 막대에 상주하며, 처음 실행 시 마이크와 음성 인식 권한을 안내합니다. Homebrew를 쓴다면:</span><span class="ja">Ieum.dmg を開き、Ieum を「アプリケーション」にドラッグします。アプリはメニューバーに常駐し、短いセットアップでマイクと音声認識の許可を求めます。Homebrew でもインストールできます：</span><span class="zh">打开 Ieum.dmg，把 Ieum 拖到“应用程序”文件夹。它常驻在菜单栏，简短的设置会请求麦克风和语音识别权限。也可以用 Homebrew 安装：</span></p>
         <pre class="brew" aria-label="Homebrew install command">brew install --cask stoneidev/tap/ieum</pre>
-        <p style="font-size:14px"><span class="en">Apple silicon, macOS 14 or later. The cask lives in <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>.</span><span class="ko">Apple silicon, macOS 14 이상. 캐스크는 <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>에 있습니다.</span><span class="ja">Apple silicon、macOS 14 以降。cask は <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a> にあります。</span><span class="zh">需要 Apple silicon 和 macOS 14 或更高版本。cask 位于 <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>。</span></p>
+        <p style="font-size:14px"><span class="en">Apple silicon, macOS 14 or later. The cask lives in <a class="nw" href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>.</span><span class="ko">Apple silicon, macOS 14 이상. 캐스크는 <a class="nw" href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>에 있습니다.</span><span class="ja">Apple silicon、macOS 14 以降。cask は <a class="nw" href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a> にあります。</span><span class="zh">需要 Apple silicon 和 macOS 14 或更高版本。cask 位于 <a class="nw" href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>。</span></p>
       </li>
       <li class="reveal">
-        <h3><span class="en">Pick what you hear and read, then start</span><span class="ko">듣는 언어와 읽는 언어를 고르고 시작</span><span class="ja">聞く言語と見る言語を選んで、開始</span><span class="zh">选择听的语言和看的语言，然后开始</span></h3>
-        <p><span class="en">Choose the language you hear and the language you read, for example English → Korean, or turn on “Both sides speak”. Then press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> from any app.</span><span class="ko">듣는 언어와 읽을 언어(예: 영어→한국어)를 고르거나 “양쪽이 말함”을 켠 뒤 어떤 앱에서든 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 누르세요.</span><span class="ja">聞く言語と見る言語を選びます（例：英語 → 韓国語）。または「交互に話す」をオンにします。あとはどのアプリからでも <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> を押すだけです。</span><span class="zh">选择听的语言和看的语言（例如英语 → 韩语），或打开“双方轮流发言”。然后在任何应用中按 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>。</span></p>
+        <h3><span class="en">Pick what you hear and read, then start</span><span class="ko">듣는 언어와 읽는 언어를 고르고 시작</span><span class="ja">聞く言語と<wbr>見る言語を<wbr>選んで、<wbr>開始</span><span class="zh">选择听的语言和看的语言，然后开始</span></h3>
+        <p><span class="en">Choose the language you hear and the language you read, for example English → Korean, or turn on “Both sides speak”. Then press <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span> from any app.</span><span class="ko">듣는 언어와 읽을 언어(예: 영어→한국어)를 고르거나 “양쪽이 말함”을 켠 뒤 어떤 앱에서든 <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span>를 누르세요.</span><span class="ja">聞く言語と見る言語を選びます（例：英語 → 韓国語）。または「交互に話す」をオンにします。あとはどのアプリからでも <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span> を押すだけです。</span><span class="zh">选择听的语言和看的语言（例如英语 → 韩语），或打开“双方轮流发言”。然后在任何应用中按 <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span>。</span></p>
       </li>
       <li class="reveal">
         <h3><span class="en">Read along</span><span class="ko">자막으로 따라 읽기</span><span class="ja">字幕を読む</span><span class="zh">跟着读</span></h3>
-        <p><span class="en">A large subtitle bar appears at the bottom of the screen. Press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> for the scrollback transcript. A script is saved when you stop.</span><span class="ko">화면 하단에 큰 자막 바가 나타납니다. <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd>로 전체 기록을 볼 수 있고, 종료하면 스크립트가 저장됩니다.</span><span class="ja">画面下部に大きな字幕バーが表示されます。<kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> を押すと、さかのぼって読めるトランスクリプトが開きます。停止するとスクリプトが保存されます。</span><span class="zh">屏幕底部会出现一条大字幕栏。按 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> 可查看可回看的文字记录。停止时会保存一份文稿。</span></p>
+        <p><span class="en">A large subtitle bar appears at the bottom of the screen. Press <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span> for the scrollback transcript. A script is saved when you stop.</span><span class="ko">화면 하단에 큰 자막 바가 나타납니다. <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span>로 전체 기록을 볼 수 있고, 종료하면 스크립트가 저장됩니다.</span><span class="ja">画面下部に大きな字幕バーが表示されます。<span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span> を押すと、さかのぼって読めるトランスクリプトが開きます。停止するとスクリプトが保存されます。</span><span class="zh">屏幕底部会出现一条大字幕栏。按 <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span> 可查看可回看的文字记录。停止时会保存一份文稿。</span></p>
       </li>
     </ol>
     <div class="cta reveal" style="margin-top:44px">
@@ -625,7 +620,7 @@ a.badge:hover .icon{transform:translateX(3px)}
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Try it</span><span class="ko">직접 해보기</span><span class="ja">試してみる</span><span class="zh">试一试</span></p>
-      <h2 id="h-try"><span class="en">Change the settings. Watch the bar respond.</span><span class="ko">설정을 바꿔 보세요. 자막 바가 바로 반응합니다.</span><span class="ja">設定を変えて、<wbr>バーの反応を見てみましょう。</span><span class="zh">改改设置，看看字幕栏如何变化。</span></h2>
+      <h2 id="h-try"><span class="en">Change the settings. Watch the bar respond.</span><span class="ko">설정을 바꿔 보세요. 자막&nbsp;바가 바로 반응합니다.</span><span class="ja">設定を変えて、<wbr>バーの反応を<wbr>見てみましょう。</span><span class="zh">改改设置，看看字幕栏如何变化。</span></h2>
       <p class="sub"><span class="en">A simulated meeting with the same controls the app has. Real recognition and translation happen in the app, on your Mac.</span><span class="ko">앱과 같은 조작을 시뮬레이션한 회의입니다. 실제 인식과 번역은 Mac의 앱에서 이뤄집니다.</span><span class="ja">アプリと同じコントロールを備えた、会議のシミュレーションです。実際の音声認識と翻訳は、アプリの中で Mac 上で行われます。</span><span class="zh">这是一个模拟会议，控件与应用中的相同。真正的识别和翻译在应用里、在你的 Mac 上进行。</span></p>
     </div>
     <div class="lab" id="lab" data-run="off" data-view="bar">
@@ -644,7 +639,7 @@ a.badge:hover .icon{transform:translateX(3px)}
         </div>
         <div class="barwrap" aria-hidden="true">
           <span class="tag"><span class="when-bar"><span class="en">Ieum subtitle bar</span><span class="ko">이음 자막 바</span><span class="ja">Ieum 字幕バー</span><span class="zh">Ieum 字幕栏</span></span><span class="when-tr"><span class="en">Ieum transcript</span><span class="ko">이음 기록 창</span><span class="ja">Ieum トランスクリプト</span><span class="zh">Ieum 文字记录</span></span></span>
-          <div class="tbar" id="tbar" data-theme="dark"></div>
+          <div class="tbar" id="tbar" data-theme="dark"><div class="ent"><span class="en"><div class="s" lang="en">Can we ship the beta on Thursday?</div><div class="d" lang="ko">목요일에 베타를 출시할 수 있을까요?</div></span><span class="ko"><div class="s" lang="en">Can we ship the beta on Thursday?</div><div class="d" lang="ko">목요일에 베타를 출시할 수 있을까요?</div></span><span class="ja"><div class="s" lang="ko">다음 주 월요일부터 테스트를 시작해도 될까요?</div><div class="d" lang="ja">来週の月曜日からテストを始めてもいいですか？</div></span><span class="zh"><div class="s" lang="ko">샘플은 이번 주 금요일까지 보내 주실 수 있나요?</div><div class="d" lang="zh-Hans">样品能在这周五之前寄出吗？</div></span></div></div>
           <div class="tpanel" id="tpanel"></div>
         </div>
         <p class="desknote"><span class="en">Simulated. Ieum floats over any app. Real recognition happens in the app.</span><span class="ko">시뮬레이션입니다. 이음은 어떤 앱 위에도 뜹니다. 실제 인식은 앱에서 이뤄집니다.</span><span class="ja">シミュレーションです。Ieum はどのアプリの上にも表示されます。実際の音声認識はアプリの中で行われます。</span><span class="zh">这是模拟演示。Ieum 可浮在任何应用之上。真正的识别在应用中进行。</span></p>
@@ -675,13 +670,13 @@ a.badge:hover .icon{transform:translateX(3px)}
           <legend><span class="en">Subtitle bar</span><span class="ko">자막 바</span><span class="ja">字幕バー</span><span class="zh">字幕栏</span></legend>
           <div class="rowc"><label for="szr"><span class="en">Text size</span><span class="ko">글자 크기</span><span class="ja">文字サイズ</span><span class="zh">文字大小</span><output id="szo">24</output></label><input id="szr" type="range" min="16" max="36" value="24"></div>
           <div class="rowc"><label for="opr"><span class="en">Background opacity</span><span class="ko">배경 투명도</span><span class="ja">背景の不透明度</span><span class="zh">背景不透明度</span><output id="opo">88%</output></label><input id="opr" type="range" min="20" max="100" value="88"></div>
-          <div class="rowc"><span class="lbl2"><span class="en">Lines</span><span class="ko">줄 수</span><span class="ja">行数</span><span class="zh">行数</span></span>
-            <div class="seg" role="radiogroup">
+          <div class="rowc"><span class="lbl2" id="lb-lines"><span class="en">Lines</span><span class="ko">줄 수</span><span class="ja">行数</span><span class="zh">行数</span></span>
+            <div class="seg" role="radiogroup" aria-labelledby="lb-lines">
               <label><input type="radio" name="lines" value="1"><span><span class="en">1 line</span><span class="ko">1줄</span><span class="ja">1 行</span><span class="zh">1 行</span></span></label>
               <label><input type="radio" name="lines" value="2" checked><span><span class="en">2 lines</span><span class="ko">2줄</span><span class="ja">2 行</span><span class="zh">2 行</span></span></label>
             </div></div>
-          <div class="rowc"><span class="lbl2"><span class="en">Background</span><span class="ko">배경</span><span class="ja">背景</span><span class="zh">背景</span></span>
-            <div class="seg" role="radiogroup">
+          <div class="rowc"><span class="lbl2" id="lb-theme"><span class="en">Background</span><span class="ko">배경</span><span class="ja">背景</span><span class="zh">背景</span></span>
+            <div class="seg" role="radiogroup" aria-labelledby="lb-theme">
               <label><input type="radio" name="theme" value="dark" checked><span><span class="en">Dark</span><span class="ko">어둡게</span><span class="ja">ダーク</span><span class="zh">深色</span></span></label>
               <label><input type="radio" name="theme" value="light"><span><span class="en">Light</span><span class="ko">밝게</span><span class="ja">ライト</span><span class="zh">浅色</span></span></label>
             </div></div>
@@ -698,7 +693,7 @@ a.badge:hover .icon{transform:translateX(3px)}
         </div>
       </form>
     </div>
-    <p class="labnote"><span class="en">On a Mac, the real shortcuts <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> and <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> work here too.</span><span class="ko">Mac에서는 실제 단축키 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>, <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd>가 여기서도 동작합니다.</span><span class="ja">Mac では、実際のショートカット <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> と <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> もここで使えます。</span><span class="zh">在 Mac 上，真实的快捷键 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> 和 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd> 在这里同样可用。</span></p>
+    <p class="labnote"><span class="en">On a Mac, the real shortcuts <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span> and <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span> work here too.</span><span class="ko">Mac에서는 실제 단축키 <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span>, <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span>가 여기서도 동작합니다.</span><span class="ja">Mac では、実際のショートカット <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span> と <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span> もここで使えます。</span><span class="zh">在 Mac 上，真实的快捷键 <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span> 和 <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>D</kbd></span> 在这里同样可用。</span></p>
   </div>
 </section>
 
@@ -706,7 +701,7 @@ a.badge:hover .icon{transform:translateX(3px)}
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Built for the table</span><span class="ko">회의를 위해</span><span class="ja">会議の場のために</span><span class="zh">为会议桌而设计</span></p>
-      <h2 id="h-features"><span class="en">Both sides read their own language.</span><span class="ko">양쪽 모두 자기 언어로 읽습니다.</span><span class="ja">どちらの側も、<wbr>自分の言語で読めます。</span><span class="zh">双方都能读到<wbr>自己的语言。</span></h2>
+      <h2 id="h-features"><span class="en">Both sides read their own language.</span><span class="ko">양쪽 모두 자기 언어로 읽습니다.</span><span class="ja">どちらの側も、<wbr>自分の言語で<wbr>読めます。</span><span class="zh">双方都能读到<wbr>自己的语言。</span></h2>
       <p class="sub"><span class="en">Small details that matter in a real meeting.</span><span class="ko">실제 회의에서 중요한 디테일을 담았습니다.</span><span class="ja">実際の会議で効いてくる、細かな配慮。</span><span class="zh">在真实会议中真正有用的小细节。</span></p>
     </div>
     <div class="bento">
@@ -788,7 +783,7 @@ a.badge:hover .icon{transform:translateX(3px)}
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Privacy</span><span class="ko">개인정보</span><span class="ja">プライバシー</span><span class="zh">隐私</span></p>
-      <h2 id="h-privacy"><span class="en">Your meeting never leaves your Mac.</span><span class="ko">회의 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">会議の内容が <wbr>Mac の外に<wbr>出ることはありません。</span><span class="zh">你的会议内容<wbr>永远不会离开你的 Mac。</span></h2>
+      <h2 id="h-privacy"><span class="en">Your meeting never leaves your Mac.</span><span class="ko">회의 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">会議の内容が <wbr>Mac の外に<wbr>出ることは<wbr>ありません。</span><span class="zh">你的会议内容<wbr>永远不会离开你的 Mac。</span></h2>
       <p class="sub"><span class="en">Confidential calls are exactly where cloud captions are hard to justify. Ieum uses Apple's Speech and Translation frameworks, running on the device.</span><span class="ko">기밀 회의에 클라우드 자막을 쓰기는 부담스럽습니다. Ieum은 기기 안에서 동작하는 Apple의 음성 인식·번역 프레임워크를 사용합니다.</span><span class="ja">機密性の高い会議こそ、クラウド字幕を使う理由を説明しにくい場面です。Ieum は Apple の Speech フレームワークと Translation フレームワークを、デバイス上で使用します。</span><span class="zh">保密通话恰恰是最难说服自己使用云端字幕的场合。Ieum 使用 Apple 的 Speech 和 Translation 框架，全部在设备上运行。</span></p>
     </div>
     <ul class="priv">
@@ -850,7 +845,7 @@ a.badge:hover .icon{transform:translateX(3px)}
         <h2 id="h-coffee"><span class="en">Ieum is free. If it helps, buy me a coffee.</span><span class="ko">Ieum은 무료입니다. 도움이 됐다면 커피 한 잔 사주세요.</span><span class="ja">Ieum は無料です。役に立ったら、コーヒーを一杯ごちそうしてください。</span><span class="zh">Ieum 是免费的。如果对你有帮助，请我喝杯咖啡吧。</span></h2>
         <p><span class="en">Try it in a real meeting first. If it saves you from nodding along to words you missed, a coffee's worth of thanks keeps me building. No pressure, and it stays free either way.</span><span class="ko">먼저 실제 회의에서 써 보세요. 놓친 말에 고개만 끄덕이던 순간을 줄여 줬다면, 커피 한 잔 값의 응원이 계속 만들어 갈 힘이 됩니다. 부담은 갖지 마세요. 앞으로도 무료입니다.</span><span class="ja">まずは実際の会議で試してみてください。聞き逃した言葉にうなずいてごまかす場面が減ったなら、コーヒー一杯分のお礼が開発を続ける励みになります。無理にとは言いません。どちらにしても無料のままです。</span><span class="zh">先在真实的会议里试试。如果它让你不必再对没听清的话点头附和，一杯咖啡的谢意就能让我继续开发下去。不必勉强，无论如何它都会保持免费。</span></p>
       </div>
-      <a class="btn coffee" id="coffeebtn" href="#" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span><span class="ja">コーヒーをごちそうする</span><span class="zh">请我喝杯咖啡</span></a>
+      <a class="btn coffee" id="coffeebtn" href="https://buymeacoffee.com/stoni" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span><span class="ja">コーヒーをごちそうする</span><span class="zh">请我喝杯咖啡</span></a>
     </div>
   </div>
 </section>
@@ -865,8 +860,8 @@ a.badge:hover .icon{transform:translateX(3px)}
     <div class="share">
       <span class="en">Know someone who joins meetings in another language?</span><span class="ko">다른 언어로 회의하는 동료가 있나요?</span><span class="ja">ほかの言語で会議に参加している知り合いはいませんか？</span><span class="zh">身边有人用另一种语言开会吗？</span>
       <button class="btn ghost sm" type="button" data-share="copy"><span class="en">Copy link</span><span class="ko">링크 복사</span><span class="ja">リンクをコピー</span><span class="zh">复制链接</span></button>
-      <a class="btn ghost sm" href="#" data-share="x" target="_blank" rel="noopener">X</a>
-      <a class="btn ghost sm" href="#" data-share="li" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn ghost sm" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fieum.calmwork.today%2F" data-share="x" target="_blank" rel="noopener">X</a>
+      <a class="btn ghost sm" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fieum.calmwork.today%2F" data-share="li" target="_blank" rel="noopener">LinkedIn</a>
       <span class="sr" role="status" id="copied"></span>
     </div>
   </div>
@@ -876,7 +871,7 @@ a.badge:hover .icon{transform:translateX(3px)}
 <footer>
   <div class="wrap">
     <span>© 2026 Ieum <span lang="ko">이음</span> · <a href="https://github.com/stoneidev/ieum/blob/main/LICENSE">Apache License 2.0</a></span>
-    <span><a href="https://github.com/stoneidev/ieum">GitHub</a> · <a href="https://github.com/stoneidev/ieum/issues">Issues</a><span id="coffeefoot"> · <a href="#" target="_blank" rel="noopener"><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span><span class="ja">コーヒーをごちそうする</span><span class="zh">请我喝杯咖啡</span></a></span></span>
+    <span><a href="https://github.com/stoneidev/ieum">GitHub</a> · <a href="https://github.com/stoneidev/ieum/releases"><span class="en">Releases</span><span class="ko">릴리스</span><span class="ja">リリース</span><span class="zh">版本发布</span></a> · <a href="https://github.com/stoneidev/homebrew-tap">Homebrew</a> · <a href="https://github.com/stoneidev/ieum/issues">Issues</a> · <a href="/llms.txt">llms.txt</a> · <a href="/sitemap.xml"><span class="en">Sitemap</span><span class="ko">사이트맵</span><span class="ja">サイトマップ</span><span class="zh">网站地图</span></a><span id="coffeefoot"> · <a href="https://buymeacoffee.com/stoni" target="_blank" rel="noopener"><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span><span class="ja">コーヒーをごちそうする</span><span class="zh">请我喝杯咖啡</span></a></span></span>
   </div>
 </footer>
 
@@ -891,7 +886,7 @@ a.badge:hover .icon{transform:translateX(3px)}
   <ol>
     <li><span class="en"><b>Open</b> Ieum.dmg from your Downloads.</span><span class="ko">다운로드 폴더에서 <b>Ieum.dmg</b>를 여세요.</span><span class="ja">「ダウンロード」フォルダから Ieum.dmg を<b>開きます</b>。</span><span class="zh">从“下载”文件夹中<b>打开</b> Ieum.dmg。</span></li>
     <li><span class="en"><b>Drag</b> Ieum to Applications.</span><span class="ko">Ieum을 <b>응용 프로그램</b>으로 끌어다 놓으세요.</span><span class="ja">Ieum を「アプリケーション」に<b>ドラッグ</b>します。</span><span class="zh">把 Ieum <b>拖到</b>“应用程序”文件夹。</span></li>
-    <li><span class="en"><b>Press</b> <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> in your next meeting.</span><span class="ko">다음 회의에서 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 <b>누르세요</b>.</span><span class="ja"><b>開始</b>：次の会議で <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> を押します。</span><span class="zh">在下一次会议中<b>按下</b> <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>。</span></li>
+    <li><span class="en"><b>Press</b> <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span> in your next meeting.</span><span class="ko">다음 회의에서 <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span>를 <b>누르세요</b>.</span><span class="ja"><b>開始</b>：次の会議で <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span> を押します。</span><span class="zh">在下一次会议中<b>按下</b> <span class="nw"><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd></span>。</span></li>
   </ol>
   <button class="x" type="button" id="toastx" aria-label="Close"><span aria-hidden="true">×</span></button>
 </div>
@@ -900,6 +895,19 @@ a.badge:hover .icon{transform:translateX(3px)}
 (function(){
 var d=document.documentElement,$=function(i){return document.getElementById(i)};
 var reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+/* first, so an error further down cannot leave sections invisible */
+if("IntersectionObserver" in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el)});
+}else document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("in")});
+
+/* language picker: Esc, an outside click or tabbing away closes it */
+document.querySelectorAll(".langpick").forEach(function(dp){
+  var sm=dp.querySelector("summary");
+  document.addEventListener("click",function(e){if(dp.open&&!dp.contains(e.target))dp.open=false});
+  dp.addEventListener("keydown",function(e){if(e.key==="Escape"&&dp.open){dp.open=false;sm.focus()}});
+  dp.addEventListener("focusout",function(e){if(dp.open&&e.relatedTarget&&!dp.contains(e.relatedTarget))dp.open=false});
+});
 
 
 /* after-download guidance */
@@ -1149,10 +1157,6 @@ if(br)document.querySelectorAll(".talk[data-pair]").forEach(function(c){
   c.addEventListener("mouseleave",function(){hot(null)});
 });
 
-if("IntersectionObserver" in window){
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
-  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el)});
-}else document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("in")});
 })();
 </script>
 </body>
