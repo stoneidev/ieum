@@ -104,6 +104,8 @@ final class WhatsNewWindow {
 enum Style {
     static let ink = Color(red: 0.957, green: 0.949, blue: 0.933)
     static let muted = Color(red: 0.612, green: 0.639, blue: 0.671)
+    /// Running text on the dark background: lighter than `muted` so paragraphs stay comfortable to read.
+    static let body = Color(red: 0.769, green: 0.792, blue: 0.82)
     static let tint = Color(red: 0.082, green: 0.094, blue: 0.106)
     static let amber = Theme.live
 }
@@ -175,15 +177,15 @@ struct WhatsNewView: View {
                 .frame(width: 34, height: 34)
             VStack(alignment: .leading, spacing: 1) {
                 Text(tr("What's new in Ieum", "Ieum의 새로운 기능"))
-                    .font(.system(size: 17, weight: .semibold, design: .serif))
+                    .font(Typeface.font(17, .bold))
                     .foregroundStyle(Style.ink)
                 Text(tr("\(pages.count) things worth knowing", "알아두면 좋은 \(pages.count)가지"))
-                    .font(.system(size: 12))
+                    .font(Typeface.font(12))
                     .foregroundStyle(Style.muted)
             }
             Spacer()
             Text(version)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(Typeface.font(12, .semibold))
                 .foregroundStyle(Color.black.opacity(0.85))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
@@ -210,18 +212,22 @@ struct WhatsNewView: View {
     }
 
     private var text: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(tr("Added in \(page.introduced)", "\(page.introduced)에서 추가"))
+                .font(Typeface.font(12.5, .semibold))
+                .foregroundStyle(Style.amber)
             Text(page.title)
-                .font(.system(size: 27, weight: .semibold, design: .serif))
+                .font(Typeface.font(28, .bold))
                 .foregroundStyle(Style.ink)
+                .lineSpacing(2)
                 .fixedSize(horizontal: false, vertical: true)
             Text(page.body)
-                .font(.system(size: 15))
-                .lineSpacing(4)
-                .foregroundStyle(Style.muted)
+                .font(Typeface.font(15.5))
+                .lineSpacing(6)
+                .foregroundStyle(Style.body)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 128, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
         .id("text-\(page.id)")
         .transition(.opacity)
     }
@@ -229,13 +235,13 @@ struct WhatsNewView: View {
     private var footer: some View {
         HStack(spacing: 14) {
             if isLast {
-                Color.clear.frame(width: 56, height: 1)
+                Color.clear.frame(width: 64, height: 1)
             } else {
                 Button(tr("Skip", "건너뛰기"), action: onDone)
                     .buttonStyle(.plain)
-                    .font(.system(size: 13))
+                    .font(Typeface.font(14))
                     .foregroundStyle(Style.muted)
-                    .frame(width: 56, alignment: .leading)
+                    .frame(width: 64, alignment: .leading)
             }
             Spacer()
             HStack(spacing: 7) {
@@ -253,7 +259,7 @@ struct WhatsNewView: View {
                 if index > 0 {
                     Button(action: back) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(Typeface.font(13, .semibold))
                             .foregroundStyle(Style.ink)
                             .frame(width: 34, height: 34)
                             .background(Circle().fill(Color.white.opacity(0.09)))
@@ -263,7 +269,7 @@ struct WhatsNewView: View {
                 }
                 Button(action: advance) {
                     Text(isLast ? tr("Start using Ieum", "Ieum 시작하기") : tr("Next", "다음"))
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(Typeface.font(14, .semibold))
                         .foregroundStyle(Color.black.opacity(0.88))
                         .padding(.horizontal, 20)
                         .frame(height: 34)
@@ -373,12 +379,12 @@ private struct WordsScene: View {
             HStack(spacing: 10) {
                 TallyDot(t: t)
                 Text(english.prefix(shown).joined(separator: " "))
-                    .font(.system(size: 13))
+                    .font(Typeface.font(13))
                     .foregroundStyle(Style.muted.mix(with: Style.ink, by: confirmed))
                 Spacer(minLength: 0)
             }
             Text("다음 주 일정을 공유해 주시겠습니까?")
-                .font(.system(size: 23, weight: .semibold))
+                .font(Typeface.font(23, .semibold))
                 .foregroundStyle(Style.ink)
                 .opacity(korean)
                 .offset(y: (1 - korean) * 8)
@@ -387,11 +393,12 @@ private struct WordsScene: View {
         .opacity(fade)
         .overlay(alignment: .topTrailing) {
             Text(tr("first words ≈ 0.5 s", "첫 단어 약 0.5초"))
-                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .font(Typeface.font(12, .semibold))
                 .foregroundStyle(Style.amber)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 3)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
                 .background(Capsule().fill(Style.amber.opacity(0.14)))
+                .compositingGroup()
                 .opacity(ramp(time, from: 0.6, to: 1.2) * fade)
                 .offset(x: 12, y: -24)
         }
@@ -432,7 +439,7 @@ private struct ModesScene: View {
     private func chip(_ index: Int, _ active: Int) -> some View {
         let on = index == active
         return Text(names[index])
-            .font(.system(size: 14, weight: .semibold))
+            .font(Typeface.font(14, .semibold))
             .foregroundStyle(on ? Color.black.opacity(0.88) : Style.muted)
             .padding(.horizontal, 16)
             .padding(.vertical, 9)
@@ -458,7 +465,7 @@ private struct TryItScene: View {
         HStack(spacing: 20) {
             ZStack {
                 Image(systemName: "speaker.wave.3.fill")
-                    .font(.system(size: 34))
+                    .font(Typeface.font(34))
                     .foregroundStyle(Style.ink)
                     .symbolEffect(.variableColor.iterative, options: .repeating, isActive: waves > 0)
             }
@@ -466,18 +473,18 @@ private struct TryItScene: View {
             .opacity(0.5 + 0.5 * waves)
             travelDots(progress: travel)
             Image(systemName: "mic.fill")
-                .font(.system(size: 30))
+                .font(Typeface.font(30))
                 .foregroundStyle(Style.ink)
                 .frame(width: 40)
                 .opacity(0.5 + 0.5 * ramp(time, from: 2.4, to: 3.2))
             travelDots(progress: ramp(time, from: 3.0, to: 3.8))
             VStack(alignment: .leading, spacing: 6) {
                 Text("Hello. This is a test.")
-                    .font(.system(size: 12))
+                    .font(Typeface.font(12))
                     .foregroundStyle(Style.muted)
                     .opacity(english)
                 Text("안녕하세요. 이것은 테스트입니다.")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(Typeface.font(15, .semibold))
                     .foregroundStyle(Style.ink)
                     .opacity(korean)
             }
@@ -487,7 +494,7 @@ private struct TryItScene: View {
             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.10), lineWidth: 0.5))
             .overlay(alignment: .topTrailing) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 26))
+                    .font(Typeface.font(26))
                     .foregroundStyle(Color(red: 0.36, green: 0.82, blue: 0.45), Color.black.opacity(0.2))
                     .background(Circle().fill(Style.tint).padding(3))
                     .scaleEffect(0.4 + 0.6 * check)
@@ -527,9 +534,9 @@ private struct MenuScene: View {
                 RoundedRectangle(cornerRadius: 4, style: .continuous)
                     .strokeBorder(Style.amber.opacity(0.55), style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
                     .frame(width: 18, height: 12)
-                    .overlay(Image(systemName: "eye.slash").font(.system(size: 8)).foregroundStyle(Style.amber.opacity(0.8)))
+                    .overlay(Image(systemName: "eye.slash").font(Typeface.font(8)).foregroundStyle(Style.amber.opacity(0.8)))
                 Spacer(minLength: 0)
-                Text("9:41").font(.system(size: 11, weight: .medium)).foregroundStyle(Style.muted)
+                Text("9:41").font(Typeface.font(11, .medium)).foregroundStyle(Style.muted)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
@@ -541,12 +548,12 @@ private struct MenuScene: View {
                     HStack(spacing: 10) {
                         Circle().fill(Style.muted.opacity(0.6)).frame(width: 8, height: 8)
                         Text(tr("Captions are off", "자막이 꺼져 있습니다"))
-                            .font(.system(size: 13))
+                            .font(Typeface.font(13))
                             .foregroundStyle(Style.muted)
                         Spacer(minLength: 0)
                         Capsule().fill(Style.amber).frame(width: 64, height: 20)
                         Image(systemName: "ellipsis.circle")
-                            .font(.system(size: 17))
+                            .font(Typeface.font(17))
                             .foregroundStyle(press > 0.3 ? Style.amber : Style.muted)
                             .scaleEffect(1 + 0.25 * sin(press * .pi))
                     }
@@ -560,7 +567,7 @@ private struct MenuScene: View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach([tr("Start captions", "자막 시작"), tr("Meeting mode", "회의 모드"), tr("Settings…", "설정…")], id: \.self) { item in
                 Text(item)
-                    .font(.system(size: 12))
+                    .font(Typeface.font(12))
                     .foregroundStyle(Style.ink)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
@@ -594,7 +601,7 @@ private struct OnTopScene: View {
             HStack(spacing: 4) {
                 ForEach(["⌃", "⌥", "H"], id: \.self) { key in
                     Text(key)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .font(Typeface.font(12, .semibold))
                         .foregroundStyle(Style.ink)
                         .frame(minWidth: 24, minHeight: 24)
                         .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.14)))
@@ -618,7 +625,7 @@ private struct OnTopScene: View {
                 ForEach(0..<3, id: \.self) { tile in
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill(Color.white.opacity(tile == 1 ? 0.16 : 0.09))
-                        .overlay(Image(systemName: "person.fill").font(.system(size: 22)).foregroundStyle(Color.white.opacity(0.2)))
+                        .overlay(Image(systemName: "person.fill").font(Typeface.font(22)).foregroundStyle(Color.white.opacity(0.2)))
                 }
             }
             .padding(10)
@@ -635,12 +642,12 @@ private struct OnTopScene: View {
             HStack(spacing: 8) {
                 Circle().fill(Style.amber).frame(width: 7, height: 7)
                 Text("다음 주 일정을 공유해 주시겠습니까?")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(Typeface.font(13, .semibold))
                     .foregroundStyle(Style.ink)
                     .lineLimit(1)
                 Spacer(minLength: 0)
                 Image(systemName: pinned ? "pin.fill" : "pin.slash")
-                    .font(.system(size: 12))
+                    .font(Typeface.font(12))
                     .foregroundStyle(pinned ? Style.amber : Style.muted)
             }
         }
@@ -662,10 +669,10 @@ private struct UpdatesScene: View {
                     Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 38, height: 38)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(restart > 0.5 ? tr("Restarting Ieum…", "Ieum을 다시 시작합니다…") : tr("Ieum 0.3.1 is available", "Ieum 0.3.1 업데이트가 있습니다"))
-                            .font(.system(size: 16, weight: .semibold, design: .serif))
+                            .font(Typeface.font(16, .bold))
                             .foregroundStyle(Style.ink)
                         Text(progress > 0 && restart < 0.5 ? tr("Downloading… \(Int(progress * 100)) %", "내려받는 중… \(Int(progress * 100)) %") : tr("You have 0.3.0", "현재 버전 0.3.0"))
-                            .font(.system(size: 12))
+                            .font(Typeface.font(12))
                             .foregroundStyle(Style.muted)
                             .monospacedDigit()
                     }
@@ -679,12 +686,12 @@ private struct UpdatesScene: View {
                 HStack(spacing: 10) {
                     Spacer()
                     Text(tr("Later", "나중에"))
-                        .font(.system(size: 12))
+                        .font(Typeface.font(12))
                         .foregroundStyle(Style.ink)
                         .padding(.horizontal, 12).frame(height: 26)
                         .background(Capsule().fill(Color.white.opacity(0.09)))
                     Text(tr("Update now", "지금 업데이트"))
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(Typeface.font(12, .semibold))
                         .foregroundStyle(Color.black.opacity(0.88))
                         .padding(.horizontal, 14).frame(height: 26)
                         .background(Capsule().fill(Style.amber))

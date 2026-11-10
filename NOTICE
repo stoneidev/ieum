@@ -2,3 +2,6 @@ Ieum
 Copyright 2026 stoneidev@gmail.com
 
 The name "Ieum" and its logo are not licensed for use as the name of a derived product.
+
+The app's own windows use Ieum Sans, a renamed subset of Pretendard 1.3.9 (c) 2021 Kil Hyung-jin, under the SIL Open Font License 1.1.
+See Resources/App/Fonts/LICENSE-IeumSans-OFL.txt (also inside the app bundle).

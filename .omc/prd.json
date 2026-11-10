@@ -312,6 +312,18 @@
       ],
       "passes": true,
       "notes": "Code at 0.3.0, not released yet. Verified against a local feed with -updateFeedURL/-updateCurrentVersion."
+    },
+    {
+      "id": "US-32",
+      "title": "Popup windows: readable type and a clearer layout",
+      "acceptanceCriteria": [
+        "What's new and update windows use a bundled readable Korean/Latin typeface instead of the serif system design",
+        "Each tour page says which version added it; body text contrast raised",
+        "Font licence respected (renamed subset, licence text shipped)",
+        "Verified by screenshots in Korean and English"
+      ],
+      "passes": true,
+      "notes": "Ieum Sans (Pretendard subset), 3 weights, about 1 MB."
     }
   ],
   "notes": {

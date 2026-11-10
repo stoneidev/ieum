@@ -106,6 +106,14 @@ The window opens once after an update and shows only pages newer than `Preferenc
 `open -n .build/app/Ieum.app --args -lastSeenVersion 0.2.3`. Synthetic mouse/Esc input does not reach it from the agent shell (the app is not activated there), so judge the
 look from window screenshots.
 
+## Type in the app's own windows
+
+The What's new tour and the update window use **Ieum Sans** (`Typeface.font(size, weight)`): Pretendard 1.3.9 subset to KS X 1001 Hangul + Latin + the symbols used, renamed
+(the OFL reserves the name Pretendard), three weights in `Resources/App/Fonts`, copied into the bundle by `make app-bundle` and registered with `ATSApplicationFontsPath`.
+If a string needs a Hangul syllable outside the subset, macOS falls back to the system font for that glyph. To regenerate: download the Pretendard release, run `pyftsubset` with
+the syllable list, rename the name table (families "Ieum Sans", PostScript `IeumSans-<Weight>`). SwiftUI note: a text chip with `.opacity` inside an `.overlay` rendered upside
+down once; `.compositingGroup()` before `.opacity` fixed it.
+
 ## Conventions
 
 - Match the surrounding code: comments explain *why*, not what; no dead code; small diffs.

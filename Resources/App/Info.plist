@@ -18,6 +18,8 @@
     <string>11</string>
     <key>CFBundleShortVersionString</key>
     <string>0.3.0</string>
+    <key>ATSApplicationFontsPath</key>
+    <string>Fonts</string>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.productivity</string>
     <key>LSMinimumSystemVersion</key>

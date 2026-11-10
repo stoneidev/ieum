@@ -233,4 +233,4 @@ Version 0.2.9. Not yet verified: use in a real meeting room with several speaker
 
 Ieum is licensed under the [Apache License 2.0](LICENSE). You may use it freely, at work or at home, and modify and redistribute it. The name "Ieum" and its logo are not part of the license (see [NOTICE](NOTICE)).
 
-The fonts on the website (Plus Jakarta Sans, Noto Sans KR) are under the SIL Open Font License; see `site/fonts`.
+The fonts on the website (Plus Jakarta Sans, Noto Sans KR) and the app's own windows (Ieum Sans, a renamed subset of Pretendard) are under the SIL Open Font License; see `site/fonts` and `Resources/App/Fonts`.

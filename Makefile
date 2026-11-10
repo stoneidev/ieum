@@ -29,6 +29,7 @@ app-bundle:
 	cp .build/release/Ieum "$(APP)/Contents/MacOS/Ieum"
 	cp Resources/App/Info.plist "$(APP)/Contents/Info.plist"
 	cp Resources/App/AppIcon.icns "$(APP)/Contents/Resources/AppIcon.icns"
+	cp -R Resources/App/Fonts "$(APP)/Contents/Resources/Fonts"
 
 # Local build: ad-hoc signed with hardened runtime. Runs on this Mac only.
 app: app-bundle

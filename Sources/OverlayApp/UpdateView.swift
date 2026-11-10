@@ -37,7 +37,7 @@ final class UpdateWindow {
 }
 
 struct UpdateView: View {
-    static let size = CGSize(width: 520, height: 400)
+    static let size = CGSize(width: 520, height: 372)
 
     @ObservedObject var updater: Updater
     let close: () -> Void
@@ -102,36 +102,36 @@ struct UpdateView: View {
                 Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 52, height: 52)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(tr("Ieum \(feed.version) is available", "Ieum \(feed.version) 업데이트가 있습니다"))
-                        .font(.system(size: 22, weight: .semibold, design: .serif))
+                        .font(Typeface.font(22, .bold))
                         .foregroundStyle(Style.ink)
                     Text(tr("You have \(current).", "현재 버전 \(current)") + (feed.size.map { "  ·  " + sizeText($0) } ?? ""))
-                        .font(.system(size: 13))
+                        .font(Typeface.font(13))
                         .foregroundStyle(Style.muted)
                 }
             }
             if !notes.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 11) {
                     ForEach(Array(notes.prefix(5).enumerated()), id: \.offset) { _, note in
                         HStack(alignment: .firstTextBaseline, spacing: 10) {
                             Circle().fill(Style.amber).frame(width: 5, height: 5).offset(y: -2)
-                            Text(note).font(.system(size: 14)).foregroundStyle(Style.ink.opacity(0.92)).fixedSize(horizontal: false, vertical: true)
+                            Text(note).font(Typeface.font(15)).foregroundStyle(Style.body).fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
-                .padding(.top, 22)
+                .padding(.top, 24)
             }
-            Spacer(minLength: 12)
+            Spacer(minLength: 14)
             Text(tr("Installing replaces this app and reopens it. Your settings and transcripts are kept.",
                     "설치하면 이 앱이 새 버전으로 바뀌고 다시 열립니다. 설정과 기록은 그대로 남습니다."))
-                .font(.system(size: 12))
+                .font(Typeface.font(12))
                 .foregroundStyle(Style.muted)
                 .padding(.bottom, 14)
             HStack(spacing: 12) {
                 Button(tr("Skip this version", "이 버전 건너뛰기")) { updater.skip(feed); close() }
-                    .buttonStyle(.plain).font(.system(size: 13)).foregroundStyle(Style.muted)
+                    .buttonStyle(.plain).font(Typeface.font(13)).foregroundStyle(Style.muted)
                 Spacer()
                 Button(tr("Later", "나중에")) { updater.dismiss(); close() }
-                    .buttonStyle(.plain).font(.system(size: 14)).foregroundStyle(Style.ink)
+                    .buttonStyle(.plain).font(Typeface.font(14)).foregroundStyle(Style.ink)
                     .padding(.horizontal, 16).frame(height: 34).background(Capsule().fill(Color.white.opacity(0.09)))
                 primary(tr("Update now", "지금 업데이트")) { updater.install(feed) }
             }
@@ -141,9 +141,9 @@ struct UpdateView: View {
     private func progressView(title: String, value: Double) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             Spacer()
-            Text(title).font(.system(size: 20, weight: .semibold, design: .serif)).foregroundStyle(Style.ink)
+            Text(title).font(Typeface.font(20, .bold)).foregroundStyle(Style.ink)
             ProgressView(value: value).tint(Style.amber)
-            Text("\(Int(value * 100)) %").font(.system(size: 13, design: .rounded)).foregroundStyle(Style.muted).monospacedDigit()
+            Text("\(Int(value * 100)) %").font(Typeface.font(13)).foregroundStyle(Style.muted).monospacedDigit()
             Spacer()
         }
     }
@@ -152,10 +152,10 @@ struct UpdateView: View {
         VStack(spacing: 14) {
             Spacer()
             if spinner { ProgressView().controlSize(.large) }
-            if let icon { Image(systemName: icon.0).font(.system(size: 40)).foregroundStyle(icon.1) }
-            Text(title).font(.system(size: 21, weight: .semibold, design: .serif)).foregroundStyle(Style.ink).multilineTextAlignment(.center)
+            if let icon { Image(systemName: icon.0).font(Typeface.font(40)).foregroundStyle(icon.1) }
+            Text(title).font(Typeface.font(21, .bold)).foregroundStyle(Style.ink).multilineTextAlignment(.center)
             if let detail {
-                Text(detail).font(.system(size: 14)).foregroundStyle(Style.muted).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+                Text(detail).font(Typeface.font(14)).foregroundStyle(Style.muted).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
             if !buttons.isEmpty {
@@ -169,7 +169,7 @@ struct UpdateView: View {
 
     private func primary(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title).font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.black.opacity(0.88))
+            Text(title).font(Typeface.font(14, .semibold)).foregroundStyle(Color.black.opacity(0.88))
                 .padding(.horizontal, 20).frame(height: 34)
                 .background(Capsule().fill(Style.amber))
                 .shadow(color: Style.amber.opacity(0.35), radius: 10, y: 3)
@@ -179,7 +179,7 @@ struct UpdateView: View {
 
     private func secondary(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title).font(.system(size: 14)).foregroundStyle(Style.ink)
+            Text(title).font(Typeface.font(14)).foregroundStyle(Style.ink)
                 .padding(.horizontal, 18).frame(height: 34)
                 .background(Capsule().fill(Color.white.opacity(0.09)))
         }
