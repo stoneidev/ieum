@@ -241,6 +241,7 @@ h2{margin-top:14px;font:800 clamp(32px,4.6vw,56px)/1.08 var(--font);letter-spaci
 .steps li::before{content:"0" counter(s);display:block;font:800 64px/1 var(--font);letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:26px}
 .steps h3{font:700 22px/1.25 var(--font);letter-spacing:-.02em}
 .steps p{margin-top:10px;color:var(--mute);font-size:16px}
+.steps pre.brew{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--surf-2);border:1px solid var(--bd);font:500 13px/1.5 var(--mono);white-space:pre-wrap;word-break:break-all;user-select:all}
 kbd{font:700 12.5px/1 var(--font);padding:5px 8px 4px;border-radius:7px;background:var(--surf-2);border:1px solid var(--bd-2);border-bottom-width:2px;color:var(--tx);white-space:nowrap}
 
 /* bento */
@@ -440,7 +441,9 @@ footer a{color:var(--mute)}
     <ol class="steps">
       <li class="reveal">
         <h3><span class="en">Install</span><span class="ko">설치</span></h3>
-        <p><span class="en">Open Ieum.dmg and drag Ieum to Applications. It lives in the menu bar, and a short setup asks for microphone and speech permissions.</span><span class="ko">Ieum.dmg를 열고 Ieum을 응용 프로그램으로 끌어다 놓으세요. 메뉴 막대에 상주하며, 처음 실행 시 마이크와 음성 인식 권한을 안내합니다.</span></p>
+        <p><span class="en">Open Ieum.dmg and drag Ieum to Applications. It lives in the menu bar, and a short setup asks for microphone and speech permissions. Or with Homebrew:</span><span class="ko">Ieum.dmg를 열고 Ieum을 응용 프로그램으로 끌어다 놓으세요. 메뉴 막대에 상주하며, 처음 실행 시 마이크와 음성 인식 권한을 안내합니다. Homebrew를 쓴다면:</span></p>
+        <pre class="brew" aria-label="Homebrew install command">brew install --cask stoneidev/tap/ieum</pre>
+        <p style="font-size:14px"><span class="en">Apple silicon, macOS 14 or later. The cask lives in <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>.</span><span class="ko">Apple silicon, macOS 14 이상. 캐스크는 <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>에 있습니다.</span></p>
       </li>
       <li class="reveal">
         <h3><span class="en">Pick a mode, press start</span><span class="ko">모드 선택 후 시작</span></h3>
@@ -580,6 +583,16 @@ footer a{color:var(--mute)}
         <p><span class="en">Global shortcuts, open at login, and a Korean or English interface. Power users also get <code>caption-cli</code>, the same recognizer in a terminal as text or JSON Lines.</span><span class="ko">전역 단축키, 로그인 시 자동 실행, 한국어·영어 인터페이스. 터미널용 <code>caption-cli</code>로 같은 인식기를 텍스트나 JSON Lines로 쓸 수도 있습니다.</span></p>
         <p style="margin-top:20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px"><kbd>⌃ ⌥ S</kbd> <span class="en">start / stop</span><span class="ko">시작·중지</span> <kbd style="margin-left:10px">⌃ ⌥ D</kbd> <span class="en">bar / transcript</span><span class="ko">자막 바·기록</span></p>
       </div>
+      <div class="tile c3 reveal">
+        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div>
+        <h3><span class="en">Choose your microphone</span><span class="ko">마이크 선택</span></h3>
+        <p><span class="en">In Settings &gt; General &gt; Microphone, use the system default or pick a USB microphone, speakerphone or headset. If it is unplugged, Ieum falls back to the default.</span><span class="ko">설정 &gt; 일반 &gt; 마이크에서 시스템 기본값을 쓰거나 USB 마이크, 스피커폰, 헤드셋을 고를 수 있습니다. 연결이 빠지면 기본 마이크로 돌아갑니다.</span></p>
+      </div>
+      <div class="tile c3 reveal">
+        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div>
+        <h3><span class="en">Controls on the bar</span><span class="ko">자막 바 위의 조절 버튼</span></h3>
+        <p><span class="en">Smaller and larger text, bar or panel (also <kbd>⌃ ⌥ D</kbd>), and the ⋯ menu stay on the bar, also while captions run. They fade out until the pointer comes near.</span><span class="ko">글자 작게·크게, 바·패널 전환(<kbd>⌃ ⌥ D</kbd>도 가능), ⋯ 메뉴가 자막이 나오는 동안에도 바 위에 있습니다. 포인터가 가까이 올 때까지는 흐려져 있습니다.</span></p>
+      </div>
     </div>
   </div>
 </section>
@@ -630,6 +643,8 @@ footer a{color:var(--mute)}
       <details><summary><span class="en">Is my audio sent anywhere?</span><span class="ko">내 음성이 어딘가로 전송되나요?</span></summary><p><span class="en">No. Recognition and translation run on your Mac. The only request the app makes is a once-a-day check for a newer version, which carries no audio, text or identifiers and can be turned off in Settings. Only a text script is saved locally. No audio is recorded.</span><span class="ko">아니요. 인식과 번역은 Mac 안에서 이뤄집니다. 앱이 하는 요청은 하루에 한 번 새 버전을 확인하는 것뿐이며, 음성·글자·식별 정보는 담기지 않고 설정에서 끌 수 있습니다. 텍스트 스크립트만 로컬에 저장되며 음성은 녹음하지 않습니다.</span></p></details>
       <details><summary><span class="en">Which languages are supported?</span><span class="ko">어떤 언어를 지원하나요?</span></summary><p><span class="en">English and Korean, in both directions. Captions-only mode is also available.</span><span class="ko">영어와 한국어를 양방향으로 지원하며, 자막만 표시하는 모드도 있습니다.</span></p></details>
       <details><summary><span class="en">Why do I need macOS 26.4 for translation?</span><span class="ko">번역에 macOS 26.4가 필요한 이유는?</span></summary><p><span class="en">Ieum uses Apple's own on-device Translation framework instead of a cloud service. The version it needs for this use ships with macOS 26.4. On older versions you still get live captions.</span><span class="ko">Ieum은 클라우드 대신 Apple의 온디바이스 번역 프레임워크를 사용하며, 이 용도에 필요한 버전이 macOS 26.4에 포함됩니다. 이전 버전에서도 실시간 자막은 사용할 수 있습니다.</span></p></details>
+      <details><summary><span class="en">Can I use an external microphone?</span><span class="ko">외장 마이크를 쓸 수 있나요?</span></summary><p><span class="en">Yes. In Settings &gt; General &gt; Microphone, choose a USB microphone, speakerphone or headset instead of the system default. If it is unplugged, Ieum uses the default microphone again.</span><span class="ko">네. 설정 &gt; 일반 &gt; 마이크에서 시스템 기본값 대신 USB 마이크, 스피커폰, 헤드셋을 고를 수 있습니다. 연결이 빠지면 다시 기본 마이크를 씁니다.</span></p></details>
+      <details><summary><span class="en">How do I make the text bigger?</span><span class="ko">글자를 키우려면?</span></summary><p><span class="en">Use the larger and smaller text buttons on the subtitle bar. They work while captions are running and fade until the pointer comes near. The size is also in Settings.</span><span class="ko">자막 바의 글자 크게·작게 버튼을 쓰세요. 자막이 나오는 동안에도 쓸 수 있고, 포인터가 가까이 올 때까지는 흐려져 있습니다. 크기는 설정에서도 바꿀 수 있습니다.</span></p></details>
       <details><summary><span class="en">How do I update?</span><span class="ko">업데이트는 어떻게 하나요?</span></summary><p><span class="en">Ieum checks once a day and asks you when a new version is out. Say yes and it downloads the update, checks that it is exactly what was published, signed by the developer and approved by Apple, then replaces itself and reopens. You can also choose Check for updates in the menu.</span><span class="ko">Ieum이 하루에 한 번 확인해서 새 버전이 나오면 물어봅니다. 허락하면 업데이트를 내려받아 공개된 파일과 같은지, 개발자 서명과 애플 공증이 맞는지 확인한 뒤 스스로 교체하고 다시 열립니다. 메뉴의 "업데이트 확인"으로 직접 확인할 수도 있습니다.</span></p></details>
       <details><summary><span class="en">How do I know it works before the meeting?</span><span class="ko">회의 전에 잘 되는지 어떻게 확인하나요?</span></summary><p><span class="en">On first launch Ieum opens a short setup screen. Press “Run test” and it plays a sentence through your speakers, then shows it come back as captions and a Korean translation. It takes about 15 seconds, changes none of your settings and saves nothing.</span><span class="ko">처음 실행하면 짧은 설정 화면이 열립니다. “테스트 실행”을 누르면 문장을 스피커로 들려주고, 그것이 자막과 한국어 번역으로 나오는 것을 보여 줍니다. 약 15초 걸리고, 설정을 바꾸거나 아무것도 저장하지 않습니다.</span></p></details>
       <details><summary><span class="en">A permission is on but it still doesn't work.</span><span class="ko">권한을 켰는데도 동작하지 않아요.</span></summary><p><span class="en">After turning a permission on in System Settings, quit Ieum completely and open it again. If something else goes wrong, open an issue on GitHub.</span><span class="ko">시스템 설정에서 권한을 켠 뒤에는 Ieum을 완전히 종료하고 다시 여세요. 그래도 문제가 있으면 GitHub에 이슈를 남겨 주세요.</span></p></details>
