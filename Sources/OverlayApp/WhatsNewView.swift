@@ -21,6 +21,12 @@ enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "toggle", introduced: "0.3.0", art: .onTop,
+            title: tr("Bar or panel, one click", "바와 패널을 한 번에 오가세요"),
+            body: tr("The round button on the captions switches between the subtitle bar and the transcript panel. ⌃⌥D does the same from the keyboard.",
+                     "자막에 있는 원형 버튼으로 자막 바와 기록 패널을 바로 바꿉니다. 키보드에서는 ⌃⌥D입니다.")
+        ),
+        WhatsNewPage(
             id: "updates", introduced: "0.3.0", art: .updates,
             title: tr("Updates, when you say so", "업데이트는 허락하면 알아서"),
             body: tr("Ieum now checks once a day whether a newer version exists and asks before installing it. The check sends no audio, text or identifiers, and you can turn it off in Settings.",

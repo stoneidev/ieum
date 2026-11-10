@@ -126,7 +126,7 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 
 ## State at hand-off
 
-- Latest published release is v0.2.9; the code at `main` is **0.3.0** (build 11, adds in-app updates, not released yet). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.9.
+- Latest published release is v0.3.0 (build 11, adds in-app updates, popup type and the bar/panel toggle). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.9.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test, English user guide.
 - Domain `ieum.calmwork.today` is connected to the Pages project.
