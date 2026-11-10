@@ -21,8 +21,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var transcriptWarning: String?
 
     // MARK: Meeting
-    @Published private(set) var languagePair = Preferences.languagePair
-    @Published private(set) var meetingMode = Preferences.meetingMode
+    @Published private(set) var setup = Preferences.meetingSetup
     @Published private(set) var englishVariant = Preferences.englishVariant
     @Published private(set) var source = Preferences.source
     @Published private(set) var inputDeviceUID = Preferences.inputDeviceUID
@@ -110,9 +109,9 @@ final class AppModel: ObservableObject {
     func start() {
         guard !isRunning else { return }
         // A saved mode that needs a newer macOS than this one cannot run; fall back before anything starts.
-        if !meetingMode.isAvailableOnThisMac {
-            meetingMode = .secondToFirst
-            Preferences.meetingMode = .secondToFirst
+        if setup.bothWays, !MeetingSetup.bothWaysIsAvailableOnThisMac {
+            setup = setup.speakingBothWays(false)
+            Preferences.meetingSetup = setup
             updateSecondaryRow()
         }
         stopRequested = false
@@ -126,13 +125,13 @@ final class AppModel: ObservableObject {
         status = .starting
         startingNote = nil
         transcriptWarning = nil
-        let mode = meetingMode
-        let locales = mode.recognitionLocales(in: languagePair, englishLocale: englishVariant.rawValue)
+        let setup = self.setup
+        let locales = setup.recognitionLocales(englishLocale: englishVariant.rawValue)
         let source = self.source
         let vocabulary = self.vocabulary
         let deviceUID = InputDevices.resolve(preferredUID: inputDeviceUID, available: InputDevices.available())
         sessionTask = Task { [weak self] in
-            await self?.runSession(mode: mode, locales: locales, source: source, deviceUID: deviceUID, vocabulary: vocabulary)
+            await self?.runSession(setup: setup, locales: locales, source: source, deviceUID: deviceUID, vocabulary: vocabulary)
         }
         startPruning()
     }
@@ -173,10 +172,9 @@ final class AppModel: ObservableObject {
     }
 
     private func performSelfTest() async {
-        let savedPair = languagePair, savedMode = meetingMode, savedSource = source
+        let savedSetup = setup, savedSource = source
         selfTestActive = true
-        languagePair = .koreanEnglish
-        meetingMode = .secondToFirst
+        setup = MeetingSetup(heard: .english, shown: .korean)
         source = .microphone
         updateSecondaryRow()
         let firstNewLine = finalizedLines.count
@@ -228,8 +226,7 @@ final class AppModel: ObservableObject {
         barEntries.removeAll()
         barFinalText = ""
         barTranslation = ("", "")
-        languagePair = savedPair
-        meetingMode = savedMode
+        setup = savedSetup
         source = savedSource
         updateSecondaryRow()
         selfTestActive = false
@@ -247,25 +244,25 @@ final class AppModel: ObservableObject {
 
     // MARK: Settings: meeting
 
-    func setMeetingMode(_ mode: MeetingMode) {
-        guard mode != meetingMode, mode.isAvailableOnThisMac else { return }
-        meetingMode = mode
-        Preferences.meetingMode = mode
-        updateSecondaryRow()
-        restartIfRunning()
+    /// The language that is recognized. Choosing the language that is shown swaps the two.
+    func setHeard(_ language: SpokenLanguage) { apply(setup.hearing(language)) }
+
+    /// The language to read; nil shows captions only. Choosing the language that is heard swaps the two.
+    func setShown(_ language: SpokenLanguage?) { apply(setup.showing(language)) }
+
+    /// Both sides speak: each sentence is recognized in whichever language it was said in and translated into the other.
+    func setBothWays(_ on: Bool) {
+        guard !on || MeetingSetup.bothWaysIsAvailableOnThisMac else { return }
+        apply(setup.speakingBothWays(on))
     }
 
-    /// Manual fallback for the language direction: flips which of the two languages is heard. Handy when
-    /// automatic conversation mode is not available, and as a quick correction in any case.
-    func swapDirection() {
-        setMeetingMode(meetingMode.swappedDirection)
-    }
+    /// Manual fallback for the language direction, and a quick correction in any case.
+    func swapDirection() { apply(setup.swapped) }
 
-    /// The two languages of the meeting. The mode keeps its meaning (which side is heard) and takes the new languages.
-    func setLanguagePair(_ pair: LanguagePair) {
-        guard pair != languagePair else { return }
-        languagePair = pair
-        Preferences.languagePair = pair
+    private func apply(_ new: MeetingSetup) {
+        guard new != setup else { return }
+        setup = new
+        Preferences.meetingSetup = new
         updateSecondaryRow()
         restartIfRunning()
     }
@@ -274,7 +271,7 @@ final class AppModel: ObservableObject {
         guard language != englishVariant, language != .korean else { return }
         englishVariant = language
         Preferences.englishVariant = language
-        if meetingMode.recognizesEnglish(in: languagePair) { restartIfRunning() }
+        if setup.recognizesEnglish { restartIfRunning() }
     }
 
     func setSource(_ new: Source) {
@@ -394,7 +391,7 @@ final class AppModel: ObservableObject {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss"
         return finalizedLines.map { line in
-            let tag = meetingMode.isConversation && !line.language.isEmpty ? "[\(line.language.uppercased())] " : ""
+            let tag = setup.isConversation && !line.language.isEmpty ? "[\(line.language.uppercased())] " : ""
             var text = "[\(formatter.string(from: line.time))] \(tag)\(line.text)"
             if let translation = line.translation { text += "\n[\(formatter.string(from: line.time))] → \(translation)" }
             return text
@@ -404,7 +401,7 @@ final class AppModel: ObservableObject {
     // MARK: Translation
 
     private func updateSecondaryRow() {
-        let wanted = meetingMode.translates(in: languagePair) && (translationLayout == .both || translationNotice != nil)
+        let wanted = setup.translates && (translationLayout == .both || translationNotice != nil)
         if wanted != showsSecondaryRow { showsSecondaryRow = wanted }
     }
 
@@ -417,13 +414,13 @@ final class AppModel: ObservableObject {
         showsFailureNotice = false
         for pipeline in old { await pipeline.close() }
         guard generation == translationGeneration else { return }
-        guard isRunning, !stopRequested, meetingMode.translates(in: languagePair) else {
+        guard isRunning, !stopRequested, setup.translates else {
             updateSecondaryRow()
             return
         }
         var ready: [String: (final: any TextTranslator, interim: any TextTranslator)] = [:]
         var failures: [String] = []
-        for pair in meetingMode.translationPairs(in: languagePair) {
+        for pair in setup.translationPairs {
             // Sentences that just ended get a translator of their own, so they never wait behind the interim one.
             let finals = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target)
             let interims = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target)
@@ -506,7 +503,7 @@ final class AppModel: ObservableObject {
             finalizedLines[index].provisional = nil
             clearFailureNotice()
             let line = finalizedLines[index]
-            recorder?.appendTranslation(translation, forSentenceAt: line.time, targetLanguage: meetingMode.translationTarget(forSpeechIn: line.language, in: languagePair))
+            recorder?.appendTranslation(translation, forSentenceAt: line.time, targetLanguage: setup.translationTarget(forSpeechIn: line.language))
             refreshBar()
         case .failed(let id, let message):
             // A slow interim translation is just skipped: the next one replaces it. Only a sentence that never got
@@ -530,7 +527,7 @@ final class AppModel: ObservableObject {
 
     // MARK: Session body
 
-    private func runSession(mode: MeetingMode, locales: [String], source: Source, deviceUID: String?, vocabulary: [String]) async {
+    private func runSession(setup: MeetingSetup, locales: [String], source: Source, deviceUID: String?, vocabulary: [String]) async {
         let capture: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
         var failure: String?
         var recoverable = false
@@ -544,7 +541,7 @@ final class AppModel: ObservableObject {
             do {
                 // The first-run test leaves no transcript behind.
                 recorder = selfTestActive ? nil : try ScriptRecorder(
-                    directory: directory, locale: mode.isConversation ? "conversation" : locales[0], tagLanguages: mode.isConversation
+                    directory: directory, locale: setup.isConversation ? "conversation" : locales[0], tagLanguages: setup.isConversation
                 )
             } catch {
                 throw EngineError.captureFailed(
@@ -567,8 +564,8 @@ final class AppModel: ObservableObject {
             // (word error rate 7 % became 15 to 20 % on speech with pauses), and on its own it already closes English
             // sentences about 0.9 s after the speaker stops. Korean needs the pause (its sentences stay open for about
             // 2.6 s), and so does conversation mode, whose language decision waits for finished sentences.
-            if !mode.isConversation, locales[0].hasPrefix("en") { options.pauseFinalization = nil }
-            let started = mode.isConversation
+            if !setup.isConversation, locales[0].hasPrefix("en") { options.pauseFinalization = nil }
+            let started = setup.isConversation
                 ? try await EngineFactory.startConversation(locales: locales, options: options, capture: capture)
                 : try await EngineFactory.start(choice: .auto, localeID: locales[0], options: options, capture: capture)
             engine = started.engine

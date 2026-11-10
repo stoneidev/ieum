@@ -39,8 +39,7 @@ The other side talks and you read Korean. You answer in Korean and the English i
 | **What's new tour** | After an update, a short animated tour shows what changed since the version you last used. Settings → About reopens it. |
 | **Updates** | Once a day Ieum checks for a newer version and asks before installing. It downloads the update, verifies the SHA-256, the developer signature and Apple's notarization, then replaces itself and reopens. |
 | **Try it** | A built-in test plays a sentence through the speakers and shows it come back as captions and a translation, so you know it works before the meeting. Nothing is saved. |
-| **Languages** | English, Korean, Japanese and Chinese (Simplified), in the pairs Korean ↔ English, Korean ↔ Japanese, Korean ↔ Chinese, English ↔ Japanese and English ↔ Chinese. One setting picks the pair; the meeting modes below keep their meaning. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. |
-| **Meeting modes** | Korean → English, English → Korean, Korean captions, English captions (no translation), or **detect the language and translate** (both ways, decided per sentence). |
+| **Languages** | English, Korean, Japanese and Chinese (Simplified). Pick the language you hear and the language you read, any two of them (or none, for captions only). Turn on *Both sides speak* and Ieum detects the language of each sentence and translates it into the other. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. |
 | **Words as they are spoken** | The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can stay above every window or behave like an ordinary one, and it can be click-through. |
 | **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. |
@@ -82,7 +81,7 @@ After turning a permission on in System Settings, quit Ieum completely and open 
 
 ## Usage
 
-1. Click the Ieum icon in the menu bar and choose a **meeting mode**.
+1. Click the Ieum icon in the menu bar and choose the **language you hear** and the **language you read**.
 2. Press **⌃⌥S** (or *Start* in the menu). The subtitle bar appears at the bottom of the screen.
 3. Press **⌃⌥D** to switch between the subtitle bar and the transcript panel.
 4. Press **⌃⌥S** again to stop. The script is saved to `~/Documents/Ieum Transcripts`.
@@ -98,7 +97,7 @@ After turning a permission on in System Settings, quit Ieum completely and open 
 
 ### Settings
 
-General (meeting mode, caption language, audio source, open at login, global shortcuts, interface language) · Display (bar or panel, lines, text size, translation layout, background and opacity, click-through) · Vocabulary · Transcripts · About.
+General (languages,  audio source, open at login, global shortcuts, interface language) · Display (bar or panel, lines, text size, translation layout, background and opacity, click-through) · Vocabulary · Transcripts · About.
 
 ### Command line
 
@@ -152,7 +151,7 @@ flowchart LR
 - **Conversation mode** runs one English and one Korean recognizer on the same audio. `LanguageArbiter` picks the language per sentence from recognizer confidence and `NaturalLanguage` plausibility, and releases sentences in spoken order.
 - **Translation** uses the Apple Translation framework. Final sentences are translated in order; interim text is translated latest-wins, so a slow request never blocks newer speech. Late results from an older utterance are discarded.
 - **Vocabulary** correction runs after recognition, because Apple's `SpeechTranscriber` ignores contextual strings.
-- **Meeting modes** are plain rules in `MeetingMode`, kept apart from the UI.
+- **Languages** are plain rules in `MeetingSetup`, kept apart from the UI.
 
 ### Source layout
 

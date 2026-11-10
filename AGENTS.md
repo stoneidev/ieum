@@ -40,8 +40,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `.claude/skills` | Runbooks: `ieum-release`, `ieum-verify-app`, `ieum-benchmark` (plain Markdown, usable by any agent). Other skills the owner installed locally (for example `ui-ux-pro-max`, used for the UI/site design work) are not committed |
 | `.omc` | Planning artifacts from earlier sessions (`prd.json`, interview spec). History only; `docs/PRD.md` is the current statement |
 
-Key types: `SpokenLanguage` / `LanguagePair` (the five language pairs; `MeetingMode` is role-based, first/second language of the pair, and every mode function takes the pair), `InputDevices` (microphone list and the fallback when a saved device is unplugged), `BarControls` (text size, bar/panel, ⋯ menu on the subtitle bar), `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingMode` (five modes and
-their language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` (SpeechAnalyzer), `OnDeviceSpeechEngine` (SFSpeechRecognizer),
+Key types: `MeetingSetup` (the language the other side speaks, the language you read or none, and whether both sides speak; any two of `SpokenLanguage` en/ko/ja/zh work together; it replaced the five `MeetingMode`s and the language pairs), `InputDevices` (microphone list and the fallback when a saved device is unplugged), `BarControls` (text size, bar/panel, ⋯ menu on the subtitle bar), `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingSetup` (language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` (SpeechAnalyzer), `OnDeviceSpeechEngine` (SFSpeechRecognizer),
 `PreviewingEngine` (both together: early words), `ConversationEngine` + `LanguageArbiter` (auto-detect mode), `TranslationPipeline`
 (single-flight, ordered finals, latest-wins interims), `VocabularyCorrector`, `TranscriptCleaner`, `ScriptRecorder`.
 
@@ -60,7 +59,7 @@ After every release also update the Homebrew cask (`version` and `sha256` of the
 Release (signed + notarized, needs the owner's Developer ID and a `notarytool` keychain profile): see `.claude/skills/ieum-release/SKILL.md`.
 Build must stay warning-free; `make build` and `make app` print none today.
 
-Launch arguments override saved settings for one run: `-meetingMode koreanToEnglish|englishToKorean|koreanCaptions|englishCaptions|conversation`,
+Launch arguments override saved settings for one run: `-heardLanguage en|ko|ja|zh`, `-shownLanguage en|ko|ja|zh` (leave it out for captions only), `-bothWays YES|NO`,
 `-source microphone|system`, `-displayMode bar|panel`.
 
 ## Verifying the app

@@ -263,23 +263,29 @@ struct OverlayMenuButton: NSViewRepresentable {
             menu.autoenablesItems = false
             menu.addItem(ActionItem(model.isRunning ? tr("Stop captions", "자막 중지") : tr("Start captions", "자막 시작")) { model.toggleRunning() })
 
-            let modes = NSMenu()
-            modes.autoenablesItems = false
-            for mode in MeetingMode.allCases {
-                modes.addItem(ActionItem(mode.title(in: model.languagePair), checked: mode == model.meetingMode, enabled: mode.isAvailableOnThisMac) { model.setMeetingMode(mode) })
+            let heard = NSMenu()
+            heard.autoenablesItems = false
+            for language in SpokenLanguage.allCases {
+                heard.addItem(ActionItem(language.nativeName, checked: language == model.setup.heard) { model.setHeard(language) })
             }
-            let modeItem = NSMenuItem(title: tr("Meeting mode", "회의 모드"), action: nil, keyEquivalent: "")
-            modeItem.submenu = modes
-            menu.addItem(modeItem)
+            let heardItem = NSMenuItem(title: tr("Language you hear", "듣는 언어"), action: nil, keyEquivalent: "")
+            heardItem.submenu = heard
+            menu.addItem(heardItem)
 
-            let languages = NSMenu()
-            languages.autoenablesItems = false
-            for pair in LanguagePair.allCases {
-                languages.addItem(ActionItem(pair.title, checked: pair == model.languagePair) { model.setLanguagePair(pair) })
+            let shown = NSMenu()
+            shown.autoenablesItems = false
+            for language in SpokenLanguage.allCases {
+                shown.addItem(ActionItem(language.nativeName, checked: language == model.setup.shown) { model.setShown(language) })
             }
-            let languageItem = NSMenuItem(title: tr("Languages", "언어"), action: nil, keyEquivalent: "")
-            languageItem.submenu = languages
-            menu.addItem(languageItem)
+            shown.addItem(.separator())
+            shown.addItem(ActionItem(tr("No translation (captions only)", "번역 없음 (자막만)"), checked: model.setup.shown == nil) { model.setShown(nil) })
+            let shownItem = NSMenuItem(title: tr("Language you read", "보는 언어"), action: nil, keyEquivalent: "")
+            shownItem.submenu = shown
+            menu.addItem(shownItem)
+
+            menu.addItem(ActionItem(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), checked: model.setup.bothWays,
+                                    enabled: model.setup.translates && MeetingSetup.bothWaysIsAvailableOnThisMac) { model.setBothWays(!model.setup.bothWays) })
+            menu.addItem(ActionItem(tr("Swap languages", "언어 바꾸기")) { model.swapDirection() })
 
             let sizes = NSMenu()
             sizes.autoenablesItems = false
@@ -469,7 +475,7 @@ struct SubtitleBarView: View {
         let shown = model.translationNotice == nil && !showsOriginalAsMain ? originalLine : ""
         let small = BarMetrics.secondarySize(size) * ScriptScale.factor(for: shown, hangulScale: 0.92)
         return HStack(spacing: 8) {
-            if model.translationNotice == nil, model.meetingMode.isConversation, !originalLanguage.isEmpty {
+            if model.translationNotice == nil, model.setup.isConversation, !originalLanguage.isEmpty {
                 LanguageChip(language: originalLanguage, palette: palette, size: max(10, small - 4))
             }
             Group {
@@ -593,13 +599,13 @@ struct TranscriptPanelView: View {
         HStack(spacing: 10) {
             StatusDot(status: model.status, idleColor: palette.interim)
             // The controls on the right keep their size; the names give way (and are cut with an ellipsis) in a narrow panel.
-            Text(model.meetingMode.shortTitle(in: model.languagePair))
+            Text(model.setup.title)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(palette.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .layoutPriority(-1)
-                .help(model.meetingMode.title(in: model.languagePair))
+                .help(model.setup.explanation)
             Image(systemName: model.source == .microphone ? "mic.fill" : "speaker.wave.2.fill")
                 .font(.system(size: 12))
                 .foregroundStyle(palette.interim)
@@ -649,7 +655,7 @@ struct TranscriptPanelView: View {
                 Text(time)
                     .font(.system(size: max(11, (bodySize * 0.72).rounded()), weight: .regular).monospacedDigit())
                     .foregroundStyle(palette.interim)
-                if model.meetingMode.isConversation, !language.isEmpty {
+                if model.setup.isConversation, !language.isEmpty {
                     LanguageChip(language: language, palette: palette, size: 10)
                 }
             }
@@ -698,16 +704,9 @@ struct CaptionPreview: View {
     }
 
     private var sample: (original: String, shown: String, secondary: Bool) {
-        let pair = model.languagePair
-        func both(heard: SpokenLanguage, shown: SpokenLanguage) -> (String, String, Bool) {
-            (Self.sentence(in: heard), Self.sentence(in: shown), model.translationLayout == .both)
-        }
-        switch model.meetingMode {
-        case .secondToFirst, .conversation: return both(heard: pair.second, shown: pair.first)
-        case .firstToSecond: return both(heard: pair.first, shown: pair.second)
-        case .firstCaptions: return (Self.sentence(in: pair.first), Self.sentence(in: pair.first), false)
-        case .secondCaptions: return (Self.sentence(in: pair.second), Self.sentence(in: pair.second), false)
-        }
+        let heard = model.setup.heard
+        guard let shown = model.setup.shown else { return (Self.sentence(in: heard), Self.sentence(in: heard), false) }
+        return (Self.sentence(in: heard), Self.sentence(in: shown), model.translationLayout == .both)
     }
 
     var body: some View {

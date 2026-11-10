@@ -44,7 +44,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         switch status {
         case .idle: tr("Captions off", "자막 꺼짐")
         case .starting: tr("Starting…", "시작하는 중…")
-        case .listening: model.transcriptWarning.map { "⚠︎ " + $0 } ?? tr("Listening · \(model.meetingMode.title(in: model.languagePair))", "듣는 중 · \(model.meetingMode.title(in: model.languagePair))")
+        case .listening: model.transcriptWarning.map { "⚠︎ " + $0 } ?? tr("Listening · \(model.setup.title)", "듣는 중 · \(model.setup.title)")
         case .error(let message): message
         }
     }
@@ -66,35 +66,42 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         toggle.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(toggle)
 
-        let modes = NSMenu()
-        modes.autoenablesItems = false // otherwise AppKit re-enables the modes this Mac cannot run
-        for mode in MeetingMode.allCases {
-            let entry = action(mode.title(in: model.languagePair), #selector(chooseMode(_:)))
-            entry.representedObject = mode.rawValue
-            entry.state = mode == model.meetingMode ? .on : .off
-            entry.isEnabled = mode.isAvailableOnThisMac
-            entry.toolTip = mode.isAvailableOnThisMac ? mode.explanation(in: model.languagePair) : tr("Needs macOS 26 or later.", "macOS 26 이상이 필요합니다.")
-            modes.addItem(entry)
+        let heard = NSMenu()
+        heard.autoenablesItems = false
+        for language in SpokenLanguage.allCases {
+            let entry = action(language.nativeName, #selector(chooseHeard(_:)))
+            entry.representedObject = language.rawValue
+            entry.state = language == model.setup.heard ? .on : .off
+            heard.addItem(entry)
         }
-        modes.addItem(.separator())
-        let swap = action(tr("Swap language direction", "언어 방향 바꾸기"), #selector(swapDirection), key: "l")
-        swap.keyEquivalentModifierMask = [.control, .option]
-        modes.addItem(swap)
-        let modeItem = NSMenuItem(title: tr("Meeting mode", "회의 모드"), action: nil, keyEquivalent: "")
-        modeItem.submenu = modes
-        menu.addItem(modeItem)
+        let heardItem = NSMenuItem(title: tr("Language you hear", "듣는 언어"), action: nil, keyEquivalent: "")
+        heardItem.submenu = heard
+        menu.addItem(heardItem)
 
-        let languages = NSMenu()
-        languages.autoenablesItems = false
-        for pair in LanguagePair.allCases {
-            let entry = action(pair.title, #selector(chooseLanguages(_:)))
-            entry.representedObject = pair.rawValue
-            entry.state = pair == model.languagePair ? .on : .off
-            languages.addItem(entry)
+        let shown = NSMenu()
+        shown.autoenablesItems = false
+        for language in SpokenLanguage.allCases {
+            let entry = action(language.nativeName, #selector(chooseShown(_:)))
+            entry.representedObject = language.rawValue
+            entry.state = language == model.setup.shown ? .on : .off
+            shown.addItem(entry)
         }
-        let languageItem = NSMenuItem(title: tr("Languages", "언어"), action: nil, keyEquivalent: "")
-        languageItem.submenu = languages
-        menu.addItem(languageItem)
+        shown.addItem(.separator())
+        let none = action(tr("No translation (captions only)", "번역 없음 (자막만)"), #selector(chooseShown(_:)))
+        none.state = model.setup.shown == nil ? .on : .off
+        shown.addItem(none)
+        let shownItem = NSMenuItem(title: tr("Language you read", "보는 언어"), action: nil, keyEquivalent: "")
+        shownItem.submenu = shown
+        menu.addItem(shownItem)
+
+        let both = action(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), #selector(toggleBothWays))
+        both.state = model.setup.bothWays ? .on : .off
+        both.isEnabled = model.setup.translates && MeetingSetup.bothWaysIsAvailableOnThisMac
+        both.toolTip = MeetingSetup.bothWaysIsAvailableOnThisMac ? model.setup.explanation : tr("Needs macOS 26 or later.", "macOS 26 이상이 필요합니다.")
+        menu.addItem(both)
+        let swap = action(tr("Swap languages", "언어 바꾸기"), #selector(swapDirection), key: "l")
+        swap.keyEquivalentModifierMask = [.control, .option]
+        menu.addItem(swap)
         menu.addItem(.separator())
 
         let visibility = action(model.overlayVisible ? tr("Hide overlay", "오버레이 숨기기") : tr("Show overlay", "오버레이 보이기"), #selector(toggleOverlay), key: "h")
@@ -141,13 +148,16 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func showSetup() { openSetup() }
     @objc private func quit() { NSApp.terminate(nil) }
 
-    @objc private func chooseMode(_ sender: NSMenuItem) {
-        if let id = sender.representedObject as? String, let mode = MeetingMode(rawValue: id) { model.setMeetingMode(mode) }
+    @objc private func chooseHeard(_ sender: NSMenuItem) {
+        if let id = sender.representedObject as? String, let language = SpokenLanguage(rawValue: id) { model.setHeard(language) }
     }
 
-    @objc private func chooseLanguages(_ sender: NSMenuItem) {
-        if let id = sender.representedObject as? String, let pair = LanguagePair(rawValue: id) { model.setLanguagePair(pair) }
+    /// The "captions only" entry carries no language, which stands for no translation.
+    @objc private func chooseShown(_ sender: NSMenuItem) {
+        model.setShown((sender.representedObject as? String).flatMap(SpokenLanguage.init(rawValue:)))
     }
+
+    @objc private func toggleBothWays() { model.setBothWays(!model.setup.bothWays) }
 
     @objc private func copyTranscript() {
         NSPasteboard.general.clearContents()

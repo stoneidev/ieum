@@ -23,8 +23,8 @@ enum WhatsNewCatalog {
         WhatsNewPage(
             id: "languages", introduced: "0.4.0", art: .modes,
             title: tr("Japanese and Chinese, too", "일본어와 중국어도 됩니다"),
-            body: tr("Pick the two languages of your meeting under Languages, in Settings or the menu. Korean, English, Japanese and Chinese work in pairs, and the five modes stay the same. The first time you use Japanese or Chinese, macOS downloads its speech model once.",
-                     "설정이나 메뉴의 언어에서 회의의 두 언어를 고르세요. 한국어, 영어, 일본어, 중국어를 짝지어 쓰고 5가지 모드는 그대로입니다. 일본어나 중국어는 처음 한 번 macOS가 음성 모델을 내려받습니다.")
+            body: tr("Choose the language you hear and the language you read, any two of Korean, English, Japanese and Chinese. One switch for both sides speaking, one for captions only. The first time you use Japanese or Chinese, macOS downloads its speech model once.",
+                     "듣는 언어와 보는 언어를 고르세요. 한국어, 영어, 일본어, 중국어 중 어떤 두 언어든 됩니다. 서로 번갈아 말하는 회의는 스위치 하나, 자막만 볼 때는 보는 언어를 '번역 없음'으로 두면 됩니다. 일본어나 중국어는 처음 한 번 macOS가 음성 모델을 내려받습니다.")
         ),
         WhatsNewPage(
             id: "bar-controls", introduced: "0.3.2", art: .menu,

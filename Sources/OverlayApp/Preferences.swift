@@ -1,7 +1,7 @@
 import Foundation
 import CaptionCore
 
-/// User choices that survive relaunch. Launch arguments such as `-meetingMode conversation` override them for a run.
+/// User choices that survive relaunch. Launch arguments such as `-heardLanguage ja` override them for a run.
 enum Preferences {
     private static var defaults: UserDefaults { .standard }
 
@@ -15,18 +15,23 @@ enum Preferences {
 
     // MARK: Meeting
 
-    static var meetingMode: MeetingMode {
+    /// The languages of the meeting. Settings saved before languages could be chosen are carried over from the old "meetingMode".
+    static var meetingSetup: MeetingSetup {
         get {
-            // "Captions only" from earlier versions depended on a separate caption language.
-            MeetingMode.migrated(raw: defaults.string(forKey: "meetingMode") ?? "", legacyCaptionLanguage: defaults.string(forKey: "captionLanguage"))
-                ?? .secondToFirst
+            guard let heard = defaults.string(forKey: "heardLanguage").flatMap(SpokenLanguage.init(rawValue:)) else {
+                return MeetingSetup.migrated(mode: defaults.string(forKey: "meetingMode") ?? "", legacyCaptionLanguage: defaults.string(forKey: "captionLanguage"))
+                    ?? MeetingSetup(heard: .english, shown: .korean)
+            }
+            return MeetingSetup(
+                heard: heard, shown: defaults.string(forKey: "shownLanguage").flatMap(SpokenLanguage.init(rawValue:)),
+                bothWays: defaults.bool(forKey: "bothWays")
+            )
         }
-        set { defaults.set(newValue.rawValue, forKey: "meetingMode") }
-    }
-    /// The two languages of the meeting. Settings saved before this existed were Korean and English.
-    static var languagePair: LanguagePair {
-        get { value("languagePair", default: .koreanEnglish) }
-        set { defaults.set(newValue.rawValue, forKey: "languagePair") }
+        set {
+            defaults.set(newValue.heard.rawValue, forKey: "heardLanguage")
+            defaults.set(newValue.shown?.rawValue, forKey: "shownLanguage")
+            defaults.set(newValue.bothWays, forKey: "bothWays")
+        }
     }
     /// The English variant recognized in English modes.
     static var englishVariant: Language {

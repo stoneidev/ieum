@@ -29,37 +29,6 @@ struct SettingsView: View {
 
 // MARK: - General
 
-/// One meeting mode: its name and what it does, so the choice explains itself.
-private struct ModeRow: View {
-    let mode: MeetingMode
-    let pair: LanguagePair
-    let selected: Bool
-    let choose: () -> Void
-
-    var body: some View {
-        Button(action: choose) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
-                    .foregroundStyle(selected ? Color.accentColor : Color.secondary)
-                    .font(.system(size: 15))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(mode.title(in: pair)).font(.system(size: 13, weight: .medium))
-                    Text(mode.isAvailableOnThisMac ? mode.explanation(in: pair) : tr("Needs macOS 26 or later. Use one of the first two modes and swap with ⌃⌥L.", "macOS 26 이상이 필요합니다. 위의 두 방향 중 하나를 쓰고 ⌃⌥L로 방향을 바꾸세요."))
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer(minLength: 0)
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .disabled(!mode.isAvailableOnThisMac)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-    }
-}
-
 private struct GeneralTab: View {
     @ObservedObject var model: AppModel
     @ObservedObject var updater: Updater
@@ -85,17 +54,33 @@ private struct GeneralTab: View {
     var body: some View {
         Form {
             Section(tr("Meeting", "회의")) {
-                Picker(tr("Languages", "언어"), selection: Binding(get: { model.languagePair }, set: model.setLanguagePair)) {
-                    ForEach(LanguagePair.allCases, id: \.self) { Text($0.title).tag($0) }
+                HStack(spacing: 10) {
+                    Picker(tr("Language you hear", "듣는 언어"), selection: Binding(get: { model.setup.heard }, set: model.setHeard)) {
+                        ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag($0) }
+                    }
+                    Button(action: model.swapDirection) { Image(systemName: "arrow.left.arrow.right") }
+                        .buttonStyle(.borderless)
+                        .help(tr("Swap languages", "언어 바꾸기") + (model.globalShortcuts ? "  ⌃⌥L" : ""))
+                        .accessibilityLabel(tr("Swap languages", "언어 바꾸기"))
+                    Picker(tr("Language you read", "보는 언어"), selection: Binding(get: { model.setup.shown }, set: model.setShown)) {
+                        ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag(SpokenLanguage?.some($0)) }
+                        Divider()
+                        Text(tr("No translation (captions only)", "번역 없음 (자막만)")).tag(SpokenLanguage?.none)
+                    }
                 }
-                ForEach(MeetingMode.allCases, id: \.self) { mode in
-                    ModeRow(mode: mode, pair: model.languagePair, selected: mode == model.meetingMode) { model.setMeetingMode(mode) }
-                }
+                Toggle(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), isOn: Binding(get: { model.setup.bothWays }, set: model.setBothWays))
+                    .disabled(!model.setup.translates || !MeetingSetup.bothWaysIsAvailableOnThisMac)
+                Text(MeetingSetup.bothWaysIsAvailableOnThisMac || !model.setup.translates
+                     ? model.setup.explanation
+                     : model.setup.explanation + " " + tr("Detecting the language needs macOS 26 or later.", "언어 자동 인식은 macOS 26 이상이 필요합니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 if let warning = model.transcriptWarning {
                     Text(warning).font(.system(size: 12)).foregroundStyle(.orange)
                 }
 
-                if model.meetingMode.recognizesEnglish(in: model.languagePair) {
+                if model.setup.recognizesEnglish {
                     Picker(tr("English accent", "영어 억양"), selection: Binding(get: { model.englishVariant }, set: model.setEnglishVariant)) {
                         Text(Language.englishUS.title).tag(Language.englishUS)
                         Text(Language.englishAU.title).tag(Language.englishAU)
@@ -213,7 +198,7 @@ private struct DisplayTab: View {
                 Picker(tr("Text size", "글자 크기"), selection: Binding(get: { model.textSize }, set: model.setTextSize)) {
                     ForEach(TextSize.allCases, id: \.self) { Text($0.title).tag($0) }
                 }
-                if model.meetingMode.translates(in: model.languagePair) {
+                if model.setup.translates {
                     Picker(tr("Translation", "번역 표시"), selection: Binding(get: { model.translationLayout }, set: model.setTranslationLayout)) {
                         ForEach(TranslationLayout.allCases, id: \.self) { Text($0.title).tag($0) }
                     }

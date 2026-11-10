@@ -105,41 +105,23 @@ extension SpokenLanguage {
     }
 }
 
-extension LanguagePair {
-    @MainActor var title: String { "\(first.nativeName) ↔ \(second.nativeName)" }
-}
-
-/// Names and explanations for the meeting modes. The rules live in `MeetingMode` (CaptionCore); the names follow the language pair.
-extension MeetingMode {
-    @MainActor func title(in pair: LanguagePair) -> String {
-        let first = pair.first.name, second = pair.second.name
-        switch self {
-        case .firstToSecond: return tr("\(first) → \(second)", "\(first) → \(second)")
-        case .secondToFirst: return tr("\(second) → \(first)", "\(second) → \(first)")
-        case .firstCaptions: return tr("\(first) captions (no translation)", "\(first) 자막 (번역 없음)")
-        case .secondCaptions: return tr("\(second) captions (no translation)", "\(second) 자막 (번역 없음)")
-        case .conversation: return tr("Detect the language and translate", "언어 자동 인식 번역")
-        }
+extension MeetingSetup {
+    /// What the panel header and menus call the current setup: "English → Korean", "English ↔ Korean" or "Korean captions".
+    @MainActor var title: String {
+        guard let shown else { return tr("\(heard.name) captions", "\(heard.name) 자막") }
+        return bothWays ? "\(heard.name) ↔ \(shown.name)" : "\(heard.name) → \(shown.name)"
     }
 
-    /// The name for tight places such as the panel header; the full name says "(no translation)".
-    @MainActor func shortTitle(in pair: LanguagePair) -> String {
-        switch self {
-        case .firstCaptions: tr("\(pair.first.name) captions", "\(pair.first.name) 자막")
-        case .secondCaptions: tr("\(pair.second.name) captions", "\(pair.second.name) 자막")
-        default: title(in: pair)
+    /// One sentence that says what will happen, shown under the pickers.
+    @MainActor var explanation: String {
+        guard let shown else {
+            return tr("\(heard.name) speech is shown as \(heard.name) captions. Nothing is translated.", "\(heard.name) 말을 \(heard.name) 자막으로 보여 줍니다. 번역은 하지 않습니다.")
         }
-    }
-
-    @MainActor func explanation(in pair: LanguagePair) -> String {
-        let first = pair.first.name, second = pair.second.name
-        switch self {
-        case .firstToSecond: return tr("The other person speaks \(first). You read \(second).", "상대가 \(first)로 말합니다. \(second) 자막으로 봅니다.")
-        case .secondToFirst: return tr("The other person speaks \(second). You read \(first).", "상대가 \(second)로 말합니다. \(first) 자막으로 봅니다.")
-        case .firstCaptions: return tr("\(first) speech shown as \(first) captions. Nothing is translated.", "\(first) 말을 \(first) 자막으로 보여 줍니다. 번역은 하지 않습니다.")
-        case .secondCaptions: return tr("\(second) speech shown as \(second) captions. Nothing is translated.", "\(second) 말을 \(second) 자막으로 보여 줍니다. 번역은 하지 않습니다.")
-        case .conversation: return tr("You and the other person both speak. Each sentence is detected as \(first) or \(second) and translated into the other.", "나와 상대가 번갈아 말합니다. 문장마다 \(first)/\(second)를 자동으로 알아내 반대 언어로 번역합니다.")
+        if bothWays {
+            return tr("You and the other person take turns. Each sentence is detected as \(heard.name) or \(shown.name) and translated into the other.",
+                      "나와 상대가 번갈아 말합니다. 문장마다 \(heard.name)/\(shown.name)를 자동으로 알아내 반대 언어로 번역합니다.")
         }
+        return tr("The other person speaks \(heard.name). You read \(shown.name).", "상대가 \(heard.name)로 말합니다. \(shown.name) 자막으로 봅니다.")
     }
 }
 

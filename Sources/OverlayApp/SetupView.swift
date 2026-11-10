@@ -66,7 +66,7 @@ struct SetupView: View {
                 }
                 Divider()
                 PermissionRow(
-                    title: tr("\(Preferences.languagePair.title) translation", "\(Preferences.languagePair.title) 번역"),
+                    title: Preferences.meetingSetup.translates ? tr("\(Preferences.meetingSetup.title) translation", "\(Preferences.meetingSetup.title) 번역") : tr("Translation", "번역"),
                     detail: permissions.translationProblem
                         ?? tr("Offline translation is ready.", "오프라인 번역을 쓸 수 있습니다."),
                     state: permissions.translationProblem == nil ? .granted : .denied,
