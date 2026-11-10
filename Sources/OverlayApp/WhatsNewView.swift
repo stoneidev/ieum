@@ -21,6 +21,12 @@ enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "bar-controls", introduced: "0.3.2", art: .menu,
+            title: tr("The menu is always on the bar", "자막 중에도 메뉴가 바에 있습니다"),
+            body: tr("Smaller and larger text, bar or panel, and the ⋯ menu now sit at the end of the subtitle bar, also while captions run. They fade until you move the pointer near.",
+                     "글자 작게·크게, 바/패널 전환, ⋯ 메뉴가 자막이 나오는 중에도 바의 오른쪽 끝에 있습니다. 포인터를 가져가기 전에는 흐리게 보입니다.")
+        ),
+        WhatsNewPage(
             id: "microphone", introduced: "0.3.1", art: .tryIt,
             title: tr("Pick the microphone", "마이크를 직접 고르세요"),
             body: tr("A USB microphone or a speakerphone on the table now works as the input. Choose it in Settings → General → Microphone. If it is unplugged, Ieum falls back to the default.",
