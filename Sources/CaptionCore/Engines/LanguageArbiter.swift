@@ -171,7 +171,9 @@ public struct LanguageArbiter {
     public static func textPlausibility(text: String, locale: String) -> Double {
         let recognizer = NLLanguageRecognizer()
         recognizer.processString(text)
-        let language = NLLanguage(rawValue: String(locale.prefix(2)))
-        return max(recognizer.languageHypotheses(withMaximum: 6)[language] ?? 0, 0.05)
+        let hypotheses = recognizer.languageHypotheses(withMaximum: 6)
+        // NaturalLanguage tells the two Chinese scripts apart, so Chinese is whichever of them it thinks more likely.
+        let languages = locale.hasPrefix("zh") ? [NLLanguage.simplifiedChinese, .traditionalChinese] : [NLLanguage(rawValue: String(locale.prefix(2)))]
+        return max(languages.compactMap { hypotheses[$0] }.max() ?? 0, 0.05)
     }
 }

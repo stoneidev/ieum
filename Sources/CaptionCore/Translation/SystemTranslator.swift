@@ -19,8 +19,8 @@ final class SystemTranslator: TextTranslator, @unchecked Sendable {
     }
 
     static func make(from sourceCode: String, to targetCode: String) async -> Result<any TextTranslator, TranslationUnavailable> {
-        let source = Locale.Language(identifier: sourceCode)
-        let target = Locale.Language(identifier: targetCode)
+        let source = Locale.Language(identifier: SpokenLanguage(code: sourceCode)?.translationIdentifier ?? sourceCode)
+        let target = Locale.Language(identifier: SpokenLanguage(code: targetCode)?.translationIdentifier ?? targetCode)
         let low = await LanguageAvailability(preferredStrategy: .lowLatency).status(from: source, to: target)
         if low == .installed {
             return .success(SystemTranslator(source: source, target: target, lowLatency: true))

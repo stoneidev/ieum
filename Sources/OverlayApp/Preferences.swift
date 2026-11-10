@@ -19,9 +19,14 @@ enum Preferences {
         get {
             // "Captions only" from earlier versions depended on a separate caption language.
             MeetingMode.migrated(raw: defaults.string(forKey: "meetingMode") ?? "", legacyCaptionLanguage: defaults.string(forKey: "captionLanguage"))
-                ?? .englishToKorean
+                ?? .secondToFirst
         }
         set { defaults.set(newValue.rawValue, forKey: "meetingMode") }
+    }
+    /// The two languages of the meeting. Settings saved before this existed were Korean and English.
+    static var languagePair: LanguagePair {
+        get { value("languagePair", default: .koreanEnglish) }
+        set { defaults.set(newValue.rawValue, forKey: "languagePair") }
     }
     /// The English variant recognized in English modes.
     static var englishVariant: Language {

@@ -62,7 +62,7 @@ final class PermissionCenter: ObservableObject {
 
     private func refreshTranslation() async {
         var problems: [String] = []
-        for pair in MeetingMode.conversation.translationPairs {
+        for pair in MeetingMode.conversation.translationPairs(in: Preferences.languagePair) {
             if case .failure(let reason) = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target) {
                 problems.append(reason.message)
             }

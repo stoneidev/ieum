@@ -19,6 +19,17 @@ struct PlausibilityTests {
         #expect(LanguageArbiter.textPlausibility(text: goodKorean, locale: ko) > 0.8)
     }
 
+    @Test func japaneseAndChineseTextAreToldApartFromKorean() {
+        let japanese = "来週の月曜日から始めます。予算はまだ検討中で、明日までに確定してお知らせします。"
+        let chinese = "下周一开始。预算仍在审核中，我们会在明天之前确认。"
+        let korean = "다음 주 월요일부터 시작합니다. 예산은 아직 검토 중입니다."
+        #expect(LanguageArbiter.textPlausibility(text: japanese, locale: "ja-JP") > 0.8)
+        #expect(LanguageArbiter.textPlausibility(text: chinese, locale: "zh-CN") > 0.8)
+        #expect(LanguageArbiter.textPlausibility(text: korean, locale: "ja-JP") < 0.2)
+        #expect(LanguageArbiter.textPlausibility(text: japanese, locale: "ko-KR") < 0.2)
+        #expect(LanguageArbiter.textPlausibility(text: chinese, locale: "ja-JP") < 0.5)
+    }
+
     @Test func textInTheOtherLanguageScoresLow() {
         #expect(LanguageArbiter.textPlausibility(text: goodEnglish, locale: ko) < 0.2)
         #expect(LanguageArbiter.textPlausibility(text: goodKorean, locale: en) < 0.2)

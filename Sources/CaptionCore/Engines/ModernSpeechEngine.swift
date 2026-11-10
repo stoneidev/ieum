@@ -11,6 +11,18 @@ public enum ModernSpeechSupport {
         return false
     }
 
+    /// The locales among `localeIDs` whose recognition model is not on this Mac yet. The first use of one downloads it
+    /// (one time, managed by macOS), which can take a minute, so the app says so while it waits.
+    public static func uninstalledLocales(_ localeIDs: [String]) async -> [String] {
+        #if compiler(>=6.2)
+        if #available(macOS 26.0, *) {
+            let installed = Set(await SpeechTranscriber.installedLocales.map { $0.identifier(.bcp47) })
+            return localeIDs.filter { !installed.contains(Locale(identifier: $0).identifier(.bcp47)) }
+        }
+        #endif
+        return []
+    }
+
     static func makeEngine(localeID: String, options: EngineOptions) async throws -> (any TranscriberEngine)? {
         #if compiler(>=6.2)
         if #available(macOS 26.0, *) {

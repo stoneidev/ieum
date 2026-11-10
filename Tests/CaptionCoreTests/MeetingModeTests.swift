@@ -5,61 +5,120 @@ import Testing
 
 @Suite("Meeting mode")
 struct MeetingModeTests {
-    @Test func englishToKoreanTranslatesOnlyEnglish() {
-        #expect(MeetingMode.englishToKorean.translationTarget(forSpeechIn: "en") == "ko")
-        #expect(MeetingMode.englishToKorean.translationTarget(forSpeechIn: "ko") == nil)
+    private let koEn = LanguagePair.koreanEnglish
+
+    @Test func secondToFirstTranslatesOnlyTheSecondLanguage() {
+        #expect(MeetingMode.secondToFirst.translationTarget(forSpeechIn: "en", in: koEn) == "ko")
+        #expect(MeetingMode.secondToFirst.translationTarget(forSpeechIn: "ko", in: koEn) == nil)
     }
 
-    @Test func koreanToEnglishTranslatesOnlyKorean() {
-        #expect(MeetingMode.koreanToEnglish.translationTarget(forSpeechIn: "ko") == "en")
-        #expect(MeetingMode.koreanToEnglish.translationTarget(forSpeechIn: "en") == nil)
+    @Test func firstToSecondTranslatesOnlyTheFirstLanguage() {
+        #expect(MeetingMode.firstToSecond.translationTarget(forSpeechIn: "ko", in: koEn) == "en")
+        #expect(MeetingMode.firstToSecond.translationTarget(forSpeechIn: "en", in: koEn) == nil)
     }
 
     @Test func conversationTranslatesBothWaysAndNothingElse() {
-        #expect(MeetingMode.conversation.translationTarget(forSpeechIn: "en") == "ko")
-        #expect(MeetingMode.conversation.translationTarget(forSpeechIn: "ko") == "en")
-        #expect(MeetingMode.conversation.translationTarget(forSpeechIn: "ja") == nil)
+        #expect(MeetingMode.conversation.translationTarget(forSpeechIn: "en", in: koEn) == "ko")
+        #expect(MeetingMode.conversation.translationTarget(forSpeechIn: "ko", in: koEn) == "en")
+        #expect(MeetingMode.conversation.translationTarget(forSpeechIn: "ja", in: koEn) == nil)
     }
 
     @Test func captionModesNeverTranslate() {
-        for mode in [MeetingMode.koreanCaptions, .englishCaptions] {
-            #expect(mode.translationTarget(forSpeechIn: "en") == nil)
-            #expect(mode.translationTarget(forSpeechIn: "ko") == nil)
-            #expect(!mode.translates)
-            #expect(mode.translationPairs.isEmpty)
+        for pair in LanguagePair.allCases {
+            for mode in [MeetingMode.firstCaptions, .secondCaptions] {
+                for language in SpokenLanguage.allCases {
+                    #expect(mode.translationTarget(forSpeechIn: language.code, in: pair) == nil)
+                }
+                #expect(!mode.translates(in: pair))
+                #expect(mode.translationPairs(in: pair).isEmpty)
+            }
+            #expect(MeetingMode.conversation.translates(in: pair) && MeetingMode.secondToFirst.translates(in: pair))
         }
-        #expect(MeetingMode.conversation.translates && MeetingMode.englishToKorean.translates)
     }
 
     @Test func theModeNamesTheLanguageThatIsRecognized() {
-        #expect(MeetingMode.koreanCaptions.recognitionLocales(englishLocale: "en-AU") == ["ko-KR"])
-        #expect(MeetingMode.englishCaptions.recognitionLocales(englishLocale: "en-AU") == ["en-AU"])
-        #expect(MeetingMode.englishCaptions.recognizesEnglish && !MeetingMode.koreanCaptions.recognizesEnglish)
-        #expect(!MeetingMode.koreanToEnglish.recognizesEnglish && MeetingMode.conversation.recognizesEnglish)
+        #expect(MeetingMode.firstCaptions.recognitionLocales(in: koEn, englishLocale: "en-AU") == ["ko-KR"])
+        #expect(MeetingMode.secondCaptions.recognitionLocales(in: koEn, englishLocale: "en-AU") == ["en-AU"])
+        #expect(MeetingMode.secondCaptions.recognizesEnglish(in: koEn) && !MeetingMode.firstCaptions.recognizesEnglish(in: koEn))
+        #expect(!MeetingMode.firstToSecond.recognizesEnglish(in: koEn) && MeetingMode.conversation.recognizesEnglish(in: koEn))
     }
 
-    @Test func oldCaptionsOnlySettingBecomesALanguageSpecificMode() {
-        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: "ko-KR") == .koreanCaptions)
-        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: "en-AU") == .englishCaptions)
-        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: nil) == .englishCaptions)
+    @Test func earlierSettingsBecomeTheMatchingModeOfTheKoreanEnglishPair() {
+        #expect(MeetingMode.migrated(raw: "koreanToEnglish", legacyCaptionLanguage: nil) == .firstToSecond)
+        #expect(MeetingMode.migrated(raw: "englishToKorean", legacyCaptionLanguage: nil) == .secondToFirst)
+        #expect(MeetingMode.migrated(raw: "koreanCaptions", legacyCaptionLanguage: nil) == .firstCaptions)
+        #expect(MeetingMode.migrated(raw: "englishCaptions", legacyCaptionLanguage: nil) == .secondCaptions)
+        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: "ko-KR") == .firstCaptions)
+        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: "en-AU") == .secondCaptions)
+        #expect(MeetingMode.migrated(raw: "captionsOnly", legacyCaptionLanguage: nil) == .secondCaptions)
         #expect(MeetingMode.migrated(raw: "conversation", legacyCaptionLanguage: "ko-KR") == .conversation)
+        #expect(MeetingMode.migrated(raw: "secondToFirst", legacyCaptionLanguage: nil) == .secondToFirst)
         #expect(MeetingMode.migrated(raw: "nonsense", legacyCaptionLanguage: nil) == nil)
     }
 
-    @Test func recognitionLocalesFollowTheMode() {
-        #expect(MeetingMode.englishToKorean.recognitionLocales(englishLocale: "en-AU") == ["en-AU"])
-        #expect(MeetingMode.koreanToEnglish.recognitionLocales(englishLocale: "en-AU") == ["ko-KR"])
-        #expect(MeetingMode.conversation.recognitionLocales(englishLocale: "en-AU") == ["en-AU", "ko-KR"])
+    @Test func recognitionLocalesFollowTheModeAndThePair() {
+        #expect(MeetingMode.secondToFirst.recognitionLocales(in: koEn, englishLocale: "en-AU") == ["en-AU"])
+        #expect(MeetingMode.firstToSecond.recognitionLocales(in: koEn, englishLocale: "en-AU") == ["ko-KR"])
+        #expect(MeetingMode.conversation.recognitionLocales(in: koEn, englishLocale: "en-AU") == ["en-AU", "ko-KR"])
+        #expect(MeetingMode.firstToSecond.recognitionLocales(in: .koreanJapanese, englishLocale: "en-AU") == ["ko-KR"])
+        #expect(MeetingMode.secondToFirst.recognitionLocales(in: .koreanJapanese, englishLocale: "en-AU") == ["ja-JP"])
+        #expect(MeetingMode.firstCaptions.recognitionLocales(in: .englishChinese, englishLocale: "en-AU") == ["en-AU"])
+        #expect(MeetingMode.conversation.recognitionLocales(in: .englishChinese, englishLocale: "en-US") == ["en-US", "zh-CN"])
+        #expect(MeetingMode.conversation.recognitionLocales(in: .koreanChinese, englishLocale: "en-US") == ["ko-KR", "zh-CN"])
     }
 
     @Test func translatorsNeededMatchTheDirections() {
-        #expect(MeetingMode.conversation.translationPairs.map { "\($0.source)>\($0.target)" } == ["en>ko", "ko>en"])
-        #expect(MeetingMode.englishToKorean.translationPairs.map { "\($0.source)>\($0.target)" } == ["en>ko"])
-        #expect(MeetingMode.conversation.isConversation && !MeetingMode.englishToKorean.isConversation)
+        func names(_ mode: MeetingMode, _ pair: LanguagePair) -> [String] { mode.translationPairs(in: pair).map { "\($0.source)>\($0.target)" } }
+        #expect(names(.conversation, koEn) == ["en>ko", "ko>en"])
+        #expect(names(.secondToFirst, koEn) == ["en>ko"])
+        #expect(names(.firstToSecond, .koreanJapanese) == ["ko>ja"])
+        #expect(names(.conversation, .englishChinese) == ["en>zh", "zh>en"])
+        #expect(MeetingMode.conversation.isConversation && !MeetingMode.secondToFirst.isConversation)
+    }
+
+    @Test func swappingTheDirectionComesBack() {
+        for mode in [MeetingMode.firstToSecond, .secondToFirst, .firstCaptions, .secondCaptions] {
+            #expect(mode.swappedDirection.swappedDirection == mode)
+        }
+        #expect(MeetingMode.conversation.swappedDirection == .firstToSecond)
     }
 
     @Test func everyModeHasADistinctRawValue() {
         #expect(Set(MeetingMode.allCases.map(\.rawValue)).count == MeetingMode.allCases.count)
+    }
+}
+
+@Suite("Language pairs")
+struct LanguagePairTests {
+    @Test func everyPresetHasTwoDifferentLanguages() {
+        for pair in LanguagePair.allCases { #expect(pair.first != pair.second) }
+        #expect(Set(LanguagePair.allCases.map(\.rawValue)).count == LanguagePair.allCases.count)
+    }
+
+    @Test func koreanEnglishKeepsTheOrderTheModesAlwaysHad() {
+        #expect(LanguagePair.koreanEnglish.first == .korean && LanguagePair.koreanEnglish.second == .english)
+        #expect(LanguagePair.englishJapanese.second == .japanese && LanguagePair.englishChinese.second == .chinese)
+    }
+
+    @Test func languageCodesAndLocalesAreSpelledTheWayTheFrameworksExpectThem() {
+        #expect(SpokenLanguage(code: "ja-JP") == .japanese && SpokenLanguage(code: "zh") == .chinese && SpokenLanguage(code: "xx") == nil)
+        #expect(SpokenLanguage.chinese.translationIdentifier == "zh-Hans" && SpokenLanguage.korean.translationIdentifier == "ko")
+        #expect(SpokenLanguage.allCases.map(\.defaultLocale) == ["en-US", "ko-KR", "ja-JP", "zh-CN"])
+    }
+
+    @Test func piecesOfJapaneseAndChineseAreJoinedWithoutASpace() {
+        #expect(TextScript.joiner(between: "予算は", and: "確認します") == "")
+        #expect(TextScript.joiner(between: "预算", and: "已确认") == "")
+        #expect(TextScript.joiner(between: "예산은", and: "확인합니다") == " ")
+        #expect(TextScript.joiner(between: "The budget", and: "is final") == " ")
+        #expect(TextScript.joiner(between: "", and: "text") == "")
+    }
+
+    @Test func wideScriptsAreRecognizedByTheirLetters() {
+        #expect(TextScript.cjkRatio("予算は確認します") > 0.9)
+        #expect(TextScript.cjkRatio("预算已确认") > 0.9)
+        #expect(TextScript.cjkRatio("예산은 확인합니다") > 0.9)
+        #expect(TextScript.cjkRatio("The budget is final") == 0)
     }
 }
 

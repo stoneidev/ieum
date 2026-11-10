@@ -21,10 +21,13 @@ final class AppModel: ObservableObject {
     @Published private(set) var transcriptWarning: String?
 
     // MARK: Meeting
+    @Published private(set) var languagePair = Preferences.languagePair
     @Published private(set) var meetingMode = Preferences.meetingMode
     @Published private(set) var englishVariant = Preferences.englishVariant
     @Published private(set) var source = Preferences.source
     @Published private(set) var inputDeviceUID = Preferences.inputDeviceUID
+    /// Shown while starting when a language model has to be downloaded first.
+    @Published private(set) var startingNote: String?
     @Published private(set) var vocabulary = Preferences.vocabulary
 
     // MARK: Display
@@ -108,8 +111,8 @@ final class AppModel: ObservableObject {
         guard !isRunning else { return }
         // A saved mode that needs a newer macOS than this one cannot run; fall back before anything starts.
         if !meetingMode.isAvailableOnThisMac {
-            meetingMode = .englishToKorean
-            Preferences.meetingMode = .englishToKorean
+            meetingMode = .secondToFirst
+            Preferences.meetingMode = .secondToFirst
             updateSecondaryRow()
         }
         stopRequested = false
@@ -121,9 +124,10 @@ final class AppModel: ObservableObject {
         translatedPartial = ""
         partial = ""
         status = .starting
+        startingNote = nil
         transcriptWarning = nil
         let mode = meetingMode
-        let locales = mode.recognitionLocales(englishLocale: englishVariant.rawValue)
+        let locales = mode.recognitionLocales(in: languagePair, englishLocale: englishVariant.rawValue)
         let source = self.source
         let vocabulary = self.vocabulary
         let deviceUID = InputDevices.resolve(preferredUID: inputDeviceUID, available: InputDevices.available())
@@ -169,9 +173,10 @@ final class AppModel: ObservableObject {
     }
 
     private func performSelfTest() async {
-        let savedMode = meetingMode, savedSource = source
+        let savedPair = languagePair, savedMode = meetingMode, savedSource = source
         selfTestActive = true
-        meetingMode = .englishToKorean
+        languagePair = .koreanEnglish
+        meetingMode = .secondToFirst
         source = .microphone
         updateSecondaryRow()
         let firstNewLine = finalizedLines.count
@@ -223,6 +228,7 @@ final class AppModel: ObservableObject {
         barEntries.removeAll()
         barFinalText = ""
         barTranslation = ("", "")
+        languagePair = savedPair
         meetingMode = savedMode
         source = savedSource
         updateSecondaryRow()
@@ -249,23 +255,26 @@ final class AppModel: ObservableObject {
         restartIfRunning()
     }
 
-    /// Manual fallback for the language direction: flips English → Korean and Korean → English. Handy when
+    /// Manual fallback for the language direction: flips which of the two languages is heard. Handy when
     /// automatic conversation mode is not available, and as a quick correction in any case.
     func swapDirection() {
-        switch meetingMode {
-        case .englishToKorean: setMeetingMode(.koreanToEnglish)
-        case .koreanToEnglish: setMeetingMode(.englishToKorean)
-        case .englishCaptions: setMeetingMode(.koreanCaptions)
-        case .koreanCaptions: setMeetingMode(.englishCaptions)
-        case .conversation: setMeetingMode(.englishToKorean)
-        }
+        setMeetingMode(meetingMode.swappedDirection)
+    }
+
+    /// The two languages of the meeting. The mode keeps its meaning (which side is heard) and takes the new languages.
+    func setLanguagePair(_ pair: LanguagePair) {
+        guard pair != languagePair else { return }
+        languagePair = pair
+        Preferences.languagePair = pair
+        updateSecondaryRow()
+        restartIfRunning()
     }
 
     func setEnglishVariant(_ language: Language) {
         guard language != englishVariant, language != .korean else { return }
         englishVariant = language
         Preferences.englishVariant = language
-        if meetingMode.recognizesEnglish { restartIfRunning() }
+        if meetingMode.recognizesEnglish(in: languagePair) { restartIfRunning() }
     }
 
     func setSource(_ new: Source) {
@@ -395,7 +404,7 @@ final class AppModel: ObservableObject {
     // MARK: Translation
 
     private func updateSecondaryRow() {
-        let wanted = meetingMode.translates && (translationLayout == .both || translationNotice != nil)
+        let wanted = meetingMode.translates(in: languagePair) && (translationLayout == .both || translationNotice != nil)
         if wanted != showsSecondaryRow { showsSecondaryRow = wanted }
     }
 
@@ -408,13 +417,13 @@ final class AppModel: ObservableObject {
         showsFailureNotice = false
         for pipeline in old { await pipeline.close() }
         guard generation == translationGeneration else { return }
-        guard isRunning, !stopRequested, meetingMode.translates else {
+        guard isRunning, !stopRequested, meetingMode.translates(in: languagePair) else {
             updateSecondaryRow()
             return
         }
         var ready: [String: (final: any TextTranslator, interim: any TextTranslator)] = [:]
         var failures: [String] = []
-        for pair in meetingMode.translationPairs {
+        for pair in meetingMode.translationPairs(in: languagePair) {
             // Sentences that just ended get a translator of their own, so they never wait behind the interim one.
             let finals = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target)
             let interims = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target)
@@ -497,7 +506,7 @@ final class AppModel: ObservableObject {
             finalizedLines[index].provisional = nil
             clearFailureNotice()
             let line = finalizedLines[index]
-            recorder?.appendTranslation(translation, forSentenceAt: line.time, targetLanguage: meetingMode.translationTarget(forSpeechIn: line.language))
+            recorder?.appendTranslation(translation, forSentenceAt: line.time, targetLanguage: meetingMode.translationTarget(forSpeechIn: line.language, in: languagePair))
             refreshBar()
         case .failed(let id, let message):
             // A slow interim translation is just skipped: the next one replaces it. Only a sentence that never got
@@ -525,6 +534,11 @@ final class AppModel: ObservableObject {
         let capture: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
         var failure: String?
         var recoverable = false
+        let missing = await ModernSpeechSupport.uninstalledLocales(locales)
+        if !missing.isEmpty, status == .starting {
+            let names = missing.compactMap { SpokenLanguage(code: $0)?.name }.joined(separator: ", ")
+            startingNote = tr("Downloading the \(names) speech model (one time, needs internet)…", "\(names) 음성 모델을 내려받는 중 (처음 한 번, 인터넷 필요)…")
+        }
         do {
             let directory = Preferences.scriptDirectory
             do {

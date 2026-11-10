@@ -32,6 +32,7 @@ struct SettingsView: View {
 /// One meeting mode: its name and what it does, so the choice explains itself.
 private struct ModeRow: View {
     let mode: MeetingMode
+    let pair: LanguagePair
     let selected: Bool
     let choose: () -> Void
 
@@ -42,8 +43,8 @@ private struct ModeRow: View {
                     .foregroundStyle(selected ? Color.accentColor : Color.secondary)
                     .font(.system(size: 15))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(mode.title).font(.system(size: 13, weight: .medium))
-                    Text(mode.isAvailableOnThisMac ? mode.explanation : tr("Needs macOS 26 or later. Use English → Korean or Korean → English, and swap with ⌃⌥L.", "macOS 26 이상이 필요합니다. 영어 → 한국어나 한국어 → 영어를 쓰고 ⌃⌥L로 방향을 바꾸세요."))
+                    Text(mode.title(in: pair)).font(.system(size: 13, weight: .medium))
+                    Text(mode.isAvailableOnThisMac ? mode.explanation(in: pair) : tr("Needs macOS 26 or later. Use one of the first two modes and swap with ⌃⌥L.", "macOS 26 이상이 필요합니다. 위의 두 방향 중 하나를 쓰고 ⌃⌥L로 방향을 바꾸세요."))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -78,20 +79,23 @@ private struct GeneralTab: View {
         ("S", tr("Start / stop", "시작/중지")),
         ("H", tr("Show / hide", "보이기/숨기기")),
         ("D", tr("Bar / panel", "바/패널")),
-        ("L", tr("Swap English ⇄ Korean", "영어 ⇄ 한국어 방향 바꾸기")),
+        ("L", tr("Swap language direction", "언어 방향 바꾸기")),
     ] }
 
     var body: some View {
         Form {
             Section(tr("Meeting", "회의")) {
+                Picker(tr("Languages", "언어"), selection: Binding(get: { model.languagePair }, set: model.setLanguagePair)) {
+                    ForEach(LanguagePair.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
                 ForEach(MeetingMode.allCases, id: \.self) { mode in
-                    ModeRow(mode: mode, selected: mode == model.meetingMode) { model.setMeetingMode(mode) }
+                    ModeRow(mode: mode, pair: model.languagePair, selected: mode == model.meetingMode) { model.setMeetingMode(mode) }
                 }
                 if let warning = model.transcriptWarning {
                     Text(warning).font(.system(size: 12)).foregroundStyle(.orange)
                 }
 
-                if model.meetingMode.recognizesEnglish {
+                if model.meetingMode.recognizesEnglish(in: model.languagePair) {
                     Picker(tr("English accent", "영어 억양"), selection: Binding(get: { model.englishVariant }, set: model.setEnglishVariant)) {
                         Text(Language.englishUS.title).tag(Language.englishUS)
                         Text(Language.englishAU.title).tag(Language.englishAU)
@@ -209,7 +213,7 @@ private struct DisplayTab: View {
                 Picker(tr("Text size", "글자 크기"), selection: Binding(get: { model.textSize }, set: model.setTextSize)) {
                     ForEach(TextSize.allCases, id: \.self) { Text($0.title).tag($0) }
                 }
-                if model.meetingMode.translates {
+                if model.meetingMode.translates(in: model.languagePair) {
                     Picker(tr("Translation", "번역 표시"), selection: Binding(get: { model.translationLayout }, set: model.setTranslationLayout)) {
                         ForEach(TranslationLayout.allCases, id: \.self) { Text($0.title).tag($0) }
                     }

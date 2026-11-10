@@ -166,7 +166,7 @@ struct LanguageChip: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 1)
             .background(Capsule().fill(palette.interim.opacity(0.22)))
-            .accessibilityLabel(language == "ko" ? "Korean" : "English")
+            .accessibilityLabel(SpokenLanguage(code: language)?.name ?? language.uppercased())
     }
 }
 
@@ -266,11 +266,20 @@ struct OverlayMenuButton: NSViewRepresentable {
             let modes = NSMenu()
             modes.autoenablesItems = false
             for mode in MeetingMode.allCases {
-                modes.addItem(ActionItem(mode.title, checked: mode == model.meetingMode, enabled: mode.isAvailableOnThisMac) { model.setMeetingMode(mode) })
+                modes.addItem(ActionItem(mode.title(in: model.languagePair), checked: mode == model.meetingMode, enabled: mode.isAvailableOnThisMac) { model.setMeetingMode(mode) })
             }
             let modeItem = NSMenuItem(title: tr("Meeting mode", "회의 모드"), action: nil, keyEquivalent: "")
             modeItem.submenu = modes
             menu.addItem(modeItem)
+
+            let languages = NSMenu()
+            languages.autoenablesItems = false
+            for pair in LanguagePair.allCases {
+                languages.addItem(ActionItem(pair.title, checked: pair == model.languagePair) { model.setLanguagePair(pair) })
+            }
+            let languageItem = NSMenuItem(title: tr("Languages", "언어"), action: nil, keyEquivalent: "")
+            languageItem.submenu = languages
+            menu.addItem(languageItem)
 
             let sizes = NSMenu()
             sizes.autoenablesItems = false
@@ -369,7 +378,7 @@ enum ScriptScale {
     static let hangulPanel: CGFloat = 0.92
 
     static func factor(for text: String, hangulScale: CGFloat = hangul) -> CGFloat {
-        TextScript.hangulRatio(text) > 0.3 ? hangulScale : 1
+        TextScript.cjkRatio(text) > 0.3 ? hangulScale : 1
     }
 }
 
@@ -449,7 +458,7 @@ struct SubtitleBarView: View {
     }
 
     private func text(_ caption: Caption) -> Text {
-        let separator = caption.confirmed.isEmpty || caption.tentative.isEmpty ? "" : " "
+        let separator = TextScript.joiner(between: caption.confirmed, and: caption.tentative)
         return Text(caption.confirmed).foregroundColor(palette.ink)
             + Text(separator + caption.tentative).foregroundColor(palette.interim)
     }
@@ -502,7 +511,7 @@ struct SubtitleBarView: View {
         case .idle:
             return Caption()
         case .starting:
-            return Caption(tentative: tr("Starting…", "시작하는 중…"))
+            return Caption(tentative: model.startingNote ?? tr("Starting…", "시작하는 중…"))
         case .listening where model.translationActive:
             let t = model.barTranslation
             if t.confirmed.isEmpty && t.tentative.isEmpty {
@@ -513,7 +522,7 @@ struct SubtitleBarView: View {
             return Caption(confirmed: t.confirmed, tentative: t.tentative)
         case .listening:
             if model.barFinalText.isEmpty && model.partial.isEmpty { return Caption(tentative: tr("Listening…", "듣는 중…")) }
-            return Caption(confirmed: model.barFinalText, tentative: model.barFinalText.isEmpty || model.partial.isEmpty ? model.partial : " " + model.partial)
+            return Caption(confirmed: model.barFinalText, tentative: TextScript.joiner(between: model.barFinalText, and: model.partial) + model.partial)
         }
     }
 }
@@ -584,13 +593,13 @@ struct TranscriptPanelView: View {
         HStack(spacing: 10) {
             StatusDot(status: model.status, idleColor: palette.interim)
             // The controls on the right keep their size; the names give way (and are cut with an ellipsis) in a narrow panel.
-            Text(model.meetingMode.shortTitle)
+            Text(model.meetingMode.shortTitle(in: model.languagePair))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(palette.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .layoutPriority(-1)
-                .help(model.meetingMode.title)
+                .help(model.meetingMode.title(in: model.languagePair))
             Image(systemName: model.source == .microphone ? "mic.fill" : "speaker.wave.2.fill")
                 .font(.system(size: 12))
                 .foregroundStyle(palette.interim)
@@ -679,14 +688,25 @@ struct CaptionPreview: View {
 
     private static let layoutWidth: CGFloat = 760
 
+    private static func sentence(in language: SpokenLanguage) -> String {
+        switch language {
+        case .english: "Starting next Monday. The budget is still under review, and we will confirm it by tomorrow. Let us share the schedule today."
+        case .korean: "다음 주 월요일부터 시작합니다. 예산은 아직 검토 중이며 내일까지 확정해서 알려드리겠습니다. 일정은 오늘 안에 공유하겠습니다."
+        case .japanese: "来週の月曜日から始めます。予算はまだ検討中で、明日までに確定してお知らせします。スケジュールは今日中に共有します。"
+        case .chinese: "下周一开始。预算仍在审核中，我们会在明天之前确认。日程今天之内共享。"
+        }
+    }
+
     private var sample: (original: String, shown: String, secondary: Bool) {
-        let english = "Starting next Monday. The budget is still under review, and we will confirm it by tomorrow. Let us share the schedule today."
-        let korean = "다음 주 월요일부터 시작합니다. 예산은 아직 검토 중이며 내일까지 확정해서 알려드리겠습니다. 일정은 오늘 안에 공유하겠습니다."
+        let pair = model.languagePair
+        func both(heard: SpokenLanguage, shown: SpokenLanguage) -> (String, String, Bool) {
+            (Self.sentence(in: heard), Self.sentence(in: shown), model.translationLayout == .both)
+        }
         switch model.meetingMode {
-        case .englishToKorean, .conversation: return (english, korean, model.translationLayout == .both)
-        case .koreanToEnglish: return (korean, english, model.translationLayout == .both)
-        case .koreanCaptions: return (korean, korean, false)
-        case .englishCaptions: return (english, english, false)
+        case .secondToFirst, .conversation: return both(heard: pair.second, shown: pair.first)
+        case .firstToSecond: return both(heard: pair.first, shown: pair.second)
+        case .firstCaptions: return (Self.sentence(in: pair.first), Self.sentence(in: pair.first), false)
+        case .secondCaptions: return (Self.sentence(in: pair.second), Self.sentence(in: pair.second), false)
         }
     }
 
