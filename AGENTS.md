@@ -9,12 +9,12 @@ Ieum is a macOS menu-bar app that shows live captions and English ↔ Korean tra
 on the Mac (Apple Speech and Translation frameworks); there is no cloud and no account. Swift 6, Swift Package Manager, no Xcode project.
 
 - Product name **Ieum** (이음, "to connect"). Internal modules are named by function, not by product (`CaptionCore`, `OverlayApp`, …).
-- Repo: https://github.com/stoneidev/ieum (public, Apache-2.0, copyright holder in `NOTICE`). Site: https://ieum.calmwork.today (Cloudflare Pages project `ieum`).
+- Repo: https://github.com/stoneidev/ieum (public, Apache-2.0, copyright holder in `NOTICE`). Homebrew tap: https://github.com/stoneidev/homebrew-tap (`brew install --cask stoneidev/tap/ieum`; cask in `Casks/ieum.rb`, kept outside this repo, usually at `~/Projects/homebrew-tap`). Site: https://ieum.calmwork.today (Cloudflare Pages project `ieum`).
 - Bundle id `today.calmwork.ieum`. Distribution: Developer ID signed + notarized DMG attached to GitHub Releases.
 
 ## Working with the owner
 
-- The owner writes Korean. Answer in Korean; keep code, commit messages, README and release notes in English (`docs/PRD.md`, `docs/UX-REVIEW.md`
+- The owner writes Korean. Answer in Korean **all the way through, including the short progress lines between tool calls** (in a long session those drifted into Japanese once); keep code, commit messages, README and release notes in English (`docs/PRD.md`, `docs/UX-REVIEW.md`
   and `docs/USER-GUIDE.md` are Korean on purpose).
 - Report honestly: say what was verified (and how) and what was not. Unverified items are listed in `docs/PRD.md` §9.
 - Ask before outward-facing or hard-to-undo actions (publishing, notarizing, deleting, changing repo visibility). The owner has authorized releases
@@ -40,7 +40,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `.claude/skills` | Runbooks: `ieum-release`, `ieum-verify-app`, `ieum-benchmark` (plain Markdown, usable by any agent). Other skills the owner installed locally (for example `ui-ux-pro-max`, used for the UI/site design work) are not committed |
 | `.omc` | Planning artifacts from earlier sessions (`prd.json`, interview spec). History only; `docs/PRD.md` is the current statement |
 
-Key types: `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingMode` (five modes and
+Key types: `InputDevices` (microphone list and the fallback when a saved device is unplugged), `BarControls` (text size, bar/panel, ⋯ menu on the subtitle bar), `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingMode` (five modes and
 their language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` (SpeechAnalyzer), `OnDeviceSpeechEngine` (SFSpeechRecognizer),
 `PreviewingEngine` (both together: early words), `ConversationEngine` + `LanguageArbiter` (auto-detect mode), `TranslationPipeline`
 (single-flight, ordered finals, latest-wins interims), `VocabularyCorrector`, `TranscriptCleaner`, `ScriptRecorder`.
@@ -56,6 +56,7 @@ make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
 Scripts/deploy-site.sh        # site -> Cloudflare Pages
 ```
 
+After every release also update the Homebrew cask (`version` and `sha256` of the public DMG, `brew audit --cask --online stoneidev/tap/ieum`, push); it is step 10 of the runbook. The tap must be trusted on a Mac once (`brew trust stoneidev/tap`).
 Release (signed + notarized, needs the owner's Developer ID and a `notarytool` keychain profile): see `.claude/skills/ieum-release/SKILL.md`.
 Build must stay warning-free; `make build` and `make app` print none today.
 
@@ -126,7 +127,10 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 
 ## State at hand-off
 
-- Latest published release is v0.3.2 (build 13, adds the always-there bar controls and text size buttons; v0.3.1 added the microphone picker; v0.3.0 added in-app updates, popup type and the bar/panel toggle). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.9.
-- Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: early words in auto-detect mode, keeping the pause-finalization speed without the damage,
-  testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test, English user guide.
+- Latest published release is **v0.3.2** (build 13), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.3.2). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run).
+- Tests: 162 (`swift test`). Build is warning-free.
+- Site download counter is the sum of GitHub `download_count` over all releases, shown from 25 up. It includes the maintainer's own verification downloads and auto-updates, so it is not a user count.
+- Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: other language pairs (biggest reach), early words in auto-detect mode, keeping the pause-finalization speed without the damage,
+  testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test (including an external microphone: only the device switch was verified, not recognition from it), an English user guide.
+- Unverified: real-internet update from an older version, replacing an app in /Applications, first launch on another Mac, `brew install` on a clean Mac, the site on mobile widths.
 - Domain `ieum.calmwork.today` is connected to the Pages project.
