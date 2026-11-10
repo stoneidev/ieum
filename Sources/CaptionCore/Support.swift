@@ -30,6 +30,11 @@ public enum TextScript {
         return isUnspaced(end.value) || isUnspaced(start.value) ? "" : " "
     }
 
+    /// The pieces of one sentence run together, each pair separated the way `joiner` says. Empty pieces are skipped.
+    public static func join(_ pieces: [String]) -> String {
+        pieces.filter { !$0.isEmpty }.reduce("") { $0.isEmpty ? $1 : $0 + joiner(between: $0, and: $1) + $1 }
+    }
+
     private static func ratio(of text: String, matching: (UInt32) -> Bool) -> Double {
         var letters = 0
         var matches = 0

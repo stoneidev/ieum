@@ -114,6 +114,13 @@ struct LanguagePairTests {
         #expect(TextScript.joiner(between: "", and: "text") == "")
     }
 
+    @Test func sentencesAreJoinedTheWayTheirScriptNeedsIt() {
+        #expect(TextScript.join(["予算は確定です。", "明日共有します。"]) == "予算は確定です。明日共有します。")
+        #expect(TextScript.join(["예산은 확정입니다.", "내일 공유합니다."]) == "예산은 확정입니다. 내일 공유합니다.")
+        #expect(TextScript.join(["Budget is final.", "", "Share tomorrow."]) == "Budget is final. Share tomorrow.")
+        #expect(TextScript.join([]) == "")
+    }
+
     @Test func wideScriptsAreRecognizedByTheirLetters() {
         #expect(TextScript.cjkRatio("予算は確認します") > 0.9)
         #expect(TextScript.cjkRatio("预算已确认") > 0.9)

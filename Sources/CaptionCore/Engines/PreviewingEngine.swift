@@ -138,12 +138,17 @@ public final class PreviewingEngine: TranscriberEngine, @unchecked Sendable {
             for index in text.indices {
                 if text[index].unicodeScalars.allSatisfy({ CharacterSet.alphanumerics.contains($0) }) { seen += 1 }
                 let next = text.index(after: index)
-                if next == text.endIndex || text[next].isWhitespace { boundaries.append((next, seen)) }
+                // Japanese and Chinese have no spaces between words, so every character is a place to cut.
+                let unspaced = text[index].unicodeScalars.first.map { TextScript.isUnspaced($0.value) } ?? false
+                if next == text.endIndex || text[next].isWhitespace || unspaced { boundaries.append((next, seen)) }
             }
             if let best = boundaries.min(by: { abs($0.letters - letters) < abs($1.letters - letters) }) { cut = best.index }
             // The legacy text has not reached the end of the finished sentences yet.
             if seen <= letters, seen < letters - 2 { return "" }
-            return String(text[cut...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let rest = String(text[cut...])
+            // A cut right before the closing 。 would leave it standing alone at the start.
+            let leading = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters).union(CharacterSet(charactersIn: "。、，！？"))
+            return rest.trimmingCharacters(in: cut == text.startIndex ? .whitespacesAndNewlines : leading)
         }
     }
 

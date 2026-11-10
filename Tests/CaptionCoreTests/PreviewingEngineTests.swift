@@ -15,6 +15,10 @@ struct PreviewingEngineTests {
         // Word splitting differs between recognizers: "road map" and "roadmap" have the same letters.
         #expect(PreviewingEngine.Gate.dropping(letters: 7, from: "road map please open") == "please open")
         #expect(PreviewingEngine.Gate.dropping(letters: 0, from: " hello ") == "hello")
+        // Japanese and Chinese have no spaces: the cut falls between characters.
+        #expect(PreviewingEngine.Gate.dropping(letters: 6, from: "来週の月曜日から始めます") == "から始めます")
+        #expect(PreviewingEngine.Gate.dropping(letters: 5, from: "预算已确认。明天开始") == "明天开始")
+        #expect(PreviewingEngine.Gate.dropping(letters: 20, from: "来週の月曜日から始めます") == "")
     }
 
     @Test func showsNothingWhileTheLegacyTextHasNotReachedTheNewSentence() {

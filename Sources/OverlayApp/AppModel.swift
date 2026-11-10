@@ -214,8 +214,8 @@ final class AppModel: ObservableObject {
                     : tr("Nothing was heard. Turn the volume up and take off headphones (the microphone has to hear the speakers), then try again.",
                          "아무것도 들리지 않았습니다. 소리를 키우고 헤드폰을 벗은 뒤(마이크가 스피커 소리를 들어야 합니다) 다시 시도하세요."))
             } else {
-                let heard = lines.map(\.text).joined(separator: " ")
-                let translated = lines.compactMap(\.translation).joined(separator: " ")
+                let heard = TextScript.join(lines.map(\.text))
+                let translated = TextScript.join(lines.compactMap(\.translation))
                 result = .passed(heard: heard, translation: translated.isEmpty ? nil : translated)
             }
         } else if case .error(let message) = status {
@@ -682,7 +682,7 @@ final class AppModel: ObservableObject {
         let cutoff = Date().addingTimeInterval(-Self.barLinger)
         barEntries.removeAll { $0.time < cutoff }
         let recent = barEntries.suffix(3)
-        let text = recent.map(\.text).joined(separator: " ")
+        let text = TextScript.join(recent.map(\.text))
         if text != barFinalText { barFinalText = text }
 
         // Confirmed translations come first; everything after the first unconfirmed sentence is tentative.
@@ -697,7 +697,7 @@ final class AppModel: ObservableObject {
             }
         }
         if !translatedPartial.isEmpty { tentative.append(translatedPartial) }
-        let value = (confirmed.joined(separator: " "), tentative.joined(separator: " "))
+        let value = (TextScript.join(confirmed), TextScript.join(tentative))
         if value != barTranslation { barTranslation = value }
     }
 
