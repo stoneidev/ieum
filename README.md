@@ -65,6 +65,8 @@ Language models are downloaded by macOS the first time you use a language. After
 
 **From a disk image.** Open `Ieum.dmg`, drag Ieum to Applications and start it. Ieum appears in the menu bar and a short setup screen asks for the permissions below.
 
+**With Homebrew.** `brew install --cask stoneidev/tap/ieum` (the cask lives in [stoneidev/homebrew-tap](https://github.com/stoneidev/homebrew-tap)).
+
 **From source.** See [Build from source](#build-from-source).
 
 ### Permissions

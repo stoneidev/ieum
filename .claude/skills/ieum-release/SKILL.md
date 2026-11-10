@@ -36,7 +36,9 @@ export NOTARY_PROFILE=stt-notary
    ```
 9. **Site.** `Scripts/deploy-site.sh` (it stamps the page with the latest GitHub release's version and size and writes `latest.json`, the feed that offers the release to installed apps, so run it after the release exists) (only if `site/` changed or the owner said "배포"). The download button points at `releases/latest/download/Ieum.dmg`, so it
    needs no edit per release. Check `curl -s -o /dev/null -w "%{http_code}" https://ieum.calmwork.today/`.
-10. **Report** in Korean: version, release URL, what is in it, what was verified, what was not (for example first launch on another Mac).
+10. **Homebrew tap.** In the `stoneidev/homebrew-tap` repo (cloned next to this one, or `brew --repository stoneidev/tap`) set `version` and `sha256` in `Casks/ieum.rb`
+    to the new release (`shasum -a 256` of the public download), `brew audit --cask --online stoneidev/tap/ieum`, commit and push. Do it after step 8 so the hash is of the published file.
+11. **Report** in Korean: version, release URL, what is in it, what was verified, what was not (for example first launch on another Mac).
 
 Notes: the bundle id `today.calmwork.ieum` and the signing identity must not change between releases or users lose their permission grants.
 The site must never be deployed straight from `site/` (hook state in `site/.omc`): use the script.
