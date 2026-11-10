@@ -78,8 +78,9 @@ code{font:500 .9em var(--mono);padding:2px 6px;border-radius:6px;background:var(
 .langpick ul{position:absolute;right:0;top:calc(100% + 10px);z-index:60;min-width:150px;margin:0;padding:6px;list-style:none;border-radius:18px;background:rgba(12,16,22,.97);border:1px solid var(--bd-2);box-shadow:0 18px 50px rgba(0,0,0,.5)}
 .langpick li a{display:block;padding:11px 14px;border-radius:12px;color:var(--tx);font:600 14px/1.2 var(--font);text-decoration:none}
 .langpick li a:hover,.langpick li a[aria-current]{background:var(--surf-2)}
-html[lang=ja] body,html[lang=ja] button{font-family:var(--font),"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
-html[lang=zh-Hans] body,html[lang=zh-Hans] button{font-family:var(--font),"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+/* Japanese and Chinese punctuation and kanji come from the native font, not the Korean subset; Hangul still falls through to it */
+html[lang=ja]{--font:"Plus Jakarta Sans","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,"Noto Sans KR",sans-serif}
+html[lang=zh-Hans]{--font:"Plus Jakarta Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans KR",sans-serif}
 
 /* hero */
 .hero{position:relative;padding:150px 0 40px;text-align:center;overflow:hidden}
@@ -114,6 +115,8 @@ h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--
 .cell.on{outline-color:var(--teal)}
 .cell.on>span{background:var(--teal);color:#05110f}
 .sub-bar{margin:0;background:rgba(3,7,10,.82);border:1px solid var(--bd-2);border-radius:18px;padding:18px 24px 20px;backdrop-filter:blur(10px)}
+.hpair{float:right;margin:2px 0 6px 14px;padding:4px 8px;border:1px solid rgba(94,234,212,.28);border-radius:7px;font:600 11px/1 var(--mono);letter-spacing:.08em;color:var(--teal);transition:opacity .25s}
+.hpair:empty{display:none}
 .sub-bar .src{min-height:2.9em;font-size:clamp(13.5px,1.3vw,15.5px);line-height:1.5;color:var(--mute)}
 .sub-bar .dst{margin-top:6px;min-height:2.7em;font-size:clamp(20px,2.5vw,30px);line-height:1.3;font-weight:700;letter-spacing:-.02em;transition:opacity .25s}
 .sub-bar .dst.fade{opacity:0}
@@ -165,6 +168,15 @@ input[type=range]{width:100%;height:44px;accent-color:var(--teal);cursor:pointer
 .lab[data-view=bar] .when-tr,.lab[data-view=transcript] .when-bar{display:none!important}
 .nextbtn{display:none}
 .reduce .nextbtn{display:inline-flex}
+.seg.pairs label>span{font:700 13.5px/1 var(--font);letter-spacing:.05em;padding:0 14px}
+.vocnote{display:none;font-size:13px;line-height:1.5;color:var(--dim)}
+.lab.novoc .vocnote{display:block}
+.lab.novoc .chk{opacity:.45;cursor:not-allowed}
+.lab.novoc .chk input{cursor:not-allowed}
+.tpanel [lang]{font-family:inherit}
+.tpanel :not(html)[lang=ja]{font-family:var(--mono),"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif}
+.tpanel :not(html)[lang=zh-Hans]{font-family:var(--mono),"PingFang SC","Hiragino Sans GB",sans-serif}
+.tpanel .g{color:var(--dim)}
 .labnote{margin-top:18px;text-align:center;font-size:13.5px;color:var(--dim)}
 @media (max-width:960px){
   .lab{grid-template-columns:minmax(0,1fr)}
@@ -264,6 +276,11 @@ kbd{font:700 12.5px/1 var(--font);padding:5px 8px 4px;border-radius:7px;backgrou
 .tx .row>div+div{border-left:1px solid var(--bd);color:var(--mint)}
 .script{margin-top:20px;font:400 12.5px/1.8 var(--mono);color:#cfd8e0;background:rgba(0,0,0,.35);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;overflow:auto;white-space:pre}
 .script u{text-decoration:none;color:var(--teal)}
+.usewith{margin-top:20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 22px;padding:22px 28px;border-radius:22px;border:1px solid var(--bd);background:var(--surf)}
+.usewith ul{list-style:none;display:flex;flex-wrap:wrap;justify-content:center}
+.usewith ul{gap:8px}
+.usewith li{padding:7px 15px;border-radius:999px;border:1px solid var(--bd-2);font-size:15px;font-weight:600;color:var(--tx)}
+.uwnote{flex-basis:100%;text-align:center;font-size:13.5px;color:var(--dim)}
 .big{font:800 clamp(40px,5vw,60px)/1 var(--font);letter-spacing:-.04em}
 
 .priv{margin-top:56px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;list-style:none}
@@ -295,7 +312,7 @@ details p{padding:0 0 24px;max-width:62ch;color:var(--mute);font-size:16.5px}
 .coffeecard.nolink{grid-template-columns:auto 1fr}
 .coffeecard .cup{display:grid;place-items:center;width:72px;height:72px;border-radius:22px;background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.35);color:var(--coffee)}
 .coffeecard .cup .icon{width:34px;height:34px}
-.coffeecard h3{font:800 clamp(22px,2.6vw,30px)/1.2 var(--font);letter-spacing:-.03em}
+#coffeecard h2{margin:0;max-width:none;font:800 clamp(22px,2.6vw,30px)/1.2 var(--font);letter-spacing:-.03em}
 .coffeecard p{margin-top:8px;color:var(--mute);font-size:16px;max-width:54ch}
 
 .final{text-align:center;overflow:hidden}
@@ -431,10 +448,11 @@ a.badge:hover .icon{transform:translateX(3px)}
 </header>
 
 <main id="main">
-<section id="top" class="hero">
+<section id="top" class="hero" aria-labelledby="h-top">
   <div class="wrap">
+    <!-- revisit at the next release -->
     <a class="badge" href="#languages"><b>v{{VERSION}}</b><span class="en">New: Japanese and Chinese</span><span class="ko">새로 지원: 일본어·중국어</span><span class="ja">新機能：日本語と中国語に対応</span><span class="zh">新增：支持日语和中文</span><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-    <h1>
+    <h1 id="h-top">
       <span class="en">Follow every word of your <span class="grad">meeting</span>.</span>
       <span class="ko">회의, <span class="grad">한 마디도</span> 놓치지 마세요.</span>
       <span class="ja"><span class="grad">会議</span>の言葉を、<wbr>ひとつ残らず。</span>
@@ -471,14 +489,15 @@ a.badge:hover .icon{transform:translateX(3px)}
     </p>
     <p class="pill" id="count"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span id="countn"></span></p>
 
-    <figure class="stagewrap" aria-label="Your Mac screen: a slides app window, with the Ieum subtitle bar floating at the bottom of the screen">
+    <figure class="stagewrap">
+      <figcaption class="sr"><span class="en">Your Mac screen: a slides app window, with the Ieum subtitle bar floating at the bottom. Someone speaks in one language and the bar shows their words and the translation.</span><span class="ko">내 Mac 화면: 슬라이드 앱 창 아래쪽에 이음 자막 바가 떠 있습니다. 누군가 한 언어로 말하면 자막 바에 그 말과 번역이 나타납니다.</span><span class="ja">Mac の画面：スライドアプリのウインドウの下に、Ieum の字幕バーが表示されています。誰かがある言語で話すと、その言葉と翻訳がバーに表示されます。</span><span class="zh">你的 Mac 屏幕：幻灯片应用窗口下方浮着 Ieum 字幕栏。有人用一种语言说话，字幕栏就显示原话和译文。</span></figcaption>
       <div class="desk">
-        <div class="mbar"><span><b>Slides</b><span class="en">Ieum works over any app</span><span class="ko">이음은 어떤 앱 위에서도 동작합니다</span><span class="ja">Ieum はどのアプリの上でも動きます</span><span class="zh">Ieum 可以叠加在任何应用之上</span></span><span class="ie"><span class="en">Ieum · listening</span><span class="ko">이음 · 듣는 중</span><span class="ja">Ieum · 聞き取り中</span><span class="zh">Ieum · 正在聆听</span></span></div>
+        <div class="mbar"><span><b lang="en">Slides</b><span class="en">Ieum works over any app</span><span class="ko">이음은 어떤 앱 위에서도 동작합니다</span><span class="ja">Ieum はどのアプリの上でも動きます</span><span class="zh">Ieum 可以叠加在任何应用之上</span></span><span class="ie"><span class="en">Ieum · listening</span><span class="ko">이음 · 듣는 중</span><span class="ja">Ieum · 聞き取り中</span><span class="zh">Ieum · 正在聆听</span></span></div>
         <div class="appwin" aria-hidden="true">
-          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Q4 launch plan</span><span class="who"><span class="en">any app, e.g. slides</span><span class="ko">어떤 앱이든, 예: 슬라이드</span><span class="ja">任意のアプリ（例：スライド）</span><span class="zh">任意应用，例如幻灯片</span></span></div>
+          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t" lang="en">Q4 launch plan</span><span class="who"><span class="en">any app, e.g. slides</span><span class="ko">어떤 앱이든, 예: 슬라이드</span><span class="ja">任意のアプリ（例：スライド）</span><span class="zh">任意应用，例如幻灯片</span></span></div>
           <div class="slideapp">
             <div class="thumbs"><i class="on"></i><i></i><i></i><i></i></div>
-            <div class="slide">
+            <div class="slide" lang="en">
               <div class="h">Q4 launch plan</div>
               <ul><li>Beta build: Thursday</li><li>QA sign-off</li><li>Release notes</li></ul>
               <div class="chart"><i style="--h:38%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:70%"></i><i style="--h:86%"></i></div>
@@ -487,9 +506,10 @@ a.badge:hover .icon{transform:translateX(3px)}
         </div>
         <div class="barwrap">
           <span class="tag"><span class="en">Ieum subtitle bar</span><span class="ko">이음 자막 바</span><span class="ja">Ieum 字幕バー</span><span class="zh">Ieum 字幕栏</span></span>
-          <div class="sub-bar" role="img" aria-label="Example: someone says “Can we ship the beta on Thursday?” and Ieum shows “목요일에 베타를 출시할 수 있을까요?”">
-            <div class="src" id="src" aria-hidden="true"></div>
-            <div class="dst" id="dst" lang="ko" aria-hidden="true"></div>
+          <div class="sub-bar" aria-hidden="true">
+            <span class="hpair" id="hpair"></span>
+            <div class="src" id="src"></div>
+            <div class="dst" id="dst"></div>
           </div>
         </div>
         <div class="desknote">
@@ -508,11 +528,11 @@ a.badge:hover .icon{transform:translateX(3px)}
   </div>
 </section>
 
-<section id="languages">
+<section id="languages" aria-labelledby="h-languages">
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Four languages</span><span class="ko">네 가지 언어</span><span class="ja">4 つの言語</span><span class="zh">四种语言</span></p>
-      <h2><span class="en">Ieum means “to connect”.</span><span class="ko">말이 달라도, 이어집니다.</span><span class="ja">言葉が違っても、<wbr>つながる。</span><span class="zh">语言不同，<wbr>也能相通。</span></h2>
+      <h2 id="h-languages"><span class="en">Ieum means “to connect”.</span><span class="ko">말이 달라도, 이어집니다.</span><span class="ja">言葉が違っても、<wbr>つながる。</span><span class="zh">语言不同，<wbr>也能相通。</span></h2>
       <p class="sub"><span class="en">In Korean, <span lang="ko">이음</span> is the point where two things join. Ieum now speaks Japanese and Chinese as well as English and Korean, so colleagues and partners in Korea, Japan, China and the English-speaking world can follow the same meeting, each in their own language.</span><span class="ko">‘이음’은 둘을 잇는다는 뜻입니다. 이제 영어·한국어에 더해 일본어와 중국어까지. 한국, 일본, 중국, 그리고 영어권의 동료와 파트너가 같은 회의를 각자 자기 언어로 따라갑니다.</span><span class="ja">「<span lang="ko">이음</span>（イウム）」は、韓国語で「つなぐ」という意味です。英語と韓国語に加えて、日本語と中国語に対応しました。韓国、日本、中国、そして英語圏の同僚や取引先との会議を、それぞれが自分の言語で追えます。</span><span class="zh">“<span lang="ko">이음</span>”（Ieum）在韩语里是“连接”的意思。除了英语和韩语，Ieum 现在也支持日语和中文。和韩国、日本、中国以及英语国家的同事、合作伙伴开会时，每个人都能用自己的语言跟上会议。</span></p>
     </div>
 
@@ -567,16 +587,16 @@ a.badge:hover .icon{transform:translateX(3px)}
     <ul class="facts">
       <li class="reveal"><b><span class="en">Any two of the four</span><span class="ko">네 언어 중 어떤 두 언어든</span><span class="ja">4 つのうち、どの 2 つでも</span><span class="zh">四种语言，任选两种</span></b><p><span class="en">In Settings &gt; General, pick the language you hear and the language you read: English, Korean, Japanese or Chinese (Simplified). Choosing the same language in both places swaps them, and <kbd>⌃ ⌥ L</kbd> flips the two.</span><span class="ko">설정 &gt; 일반에서 듣는 언어와 읽는 언어를 영어, 한국어, 일본어, 중국어(간체) 중에서 고릅니다. 두 곳에 같은 언어를 고르면 서로 바뀌고, <kbd>⌃ ⌥ L</kbd>로 두 언어를 맞바꿀 수 있습니다.</span><span class="ja">設定 &gt; 一般 で、聞く言語と見る言語を英語・韓国語・日本語・中国語（簡体字）から選びます。両方に同じ言語を選ぶと入れ替わり、<kbd>⌃ ⌥ L</kbd> でも 2 つを入れ替えられます。</span><span class="zh">在 设置 &gt; 通用 中，从英语、韩语、日语和中文（简体）里选择听的语言和看的语言。两处选了同一种语言会自动互换，按 <kbd>⌃ ⌥ L</kbd> 也可以对调两种语言。</span></p></li>
       <li class="reveal"><b><span class="en">“Both sides speak”</span><span class="ko">“양쪽이 말함”</span><span class="ja">「交互に話す」</span><span class="zh">“双方轮流发言”</span></b><p><span class="en">Turn it on and Ieum detects the language of each sentence, then translates it into the other one. Nothing to switch when the speaker changes.</span><span class="ko">켜 두면 문장마다 언어를 감지해 다른 쪽 언어로 번역합니다. 말하는 사람이 바뀌어도 따로 전환할 필요가 없습니다.</span><span class="ja">オンにすると、文ごとに言語を判別して、もう一方の言語に翻訳します。話し手が替わっても、切り替える必要はありません。</span><span class="zh">打开后，Ieum 会识别每句话的语言，并翻译成另一种语言。换人发言时，无需手动切换。</span></p></li>
-      <li class="reveal"><b><span class="en">Downloaded once, then offline</span><span class="ko">한 번 내려받으면 오프라인</span><span class="ja">一度ダウンロードすれば、オフライン</span><span class="zh">下载一次，之后离线</span></b><p><span class="en">Japanese and Chinese need a speech model that macOS downloads once, the first time you use them. After that, everything runs on your Mac.</span><span class="ko">일본어와 중국어는 처음 쓸 때 macOS가 음성 인식 모델을 한 번 내려받습니다. 그 뒤로는 모두 내 Mac 안에서 동작합니다.</span><span class="ja">日本語と中国語は、初めて使うときに macOS が音声モデルを一度だけダウンロードします。その後は、すべて Mac の中で動作します。</span><span class="zh">日语和中文需要一个语音模型，macOS 会在你首次使用时下载一次。之后，一切都在你的 Mac 上运行。</span></p></li>
+      <li class="reveal"><b><span class="en">Set up once, then offline</span><span class="ko">한 번 준비하면, 그다음은 오프라인</span><span class="ja">準備は一度だけ、あとはオフライン</span><span class="zh">一次准备，之后离线</span></b><p><span class="en">The first time you start Japanese or Chinese, macOS downloads the speech model by itself, so that first start needs the internet. Translation languages are a separate macOS download: if one is missing, Ieum tells you to add it in System Settings &gt; General &gt; Language &amp; Region &gt; Translation Languages. After that, everything runs on your Mac.</span><span class="ko">일본어·중국어로 처음 시작하면 macOS가 음성 인식 모델을 알아서 내려받으므로 그때만 인터넷이 필요합니다. 번역 언어는 macOS에서 따로 내려받습니다. 없으면 Ieum이 시스템 설정 &gt; 일반 &gt; 언어 및 지역 &gt; 번역 언어에서 추가하라고 알려 줍니다. 그 뒤로는 모두 내 Mac 안에서 동작합니다.</span><span class="ja">日本語・中国語で初めて開始するとき、macOS が音声認識モデルを自動でダウンロードするため、その 1 回だけインターネットが必要です。翻訳の言語は macOS で別にダウンロードします。足りない場合は、システム設定 &gt; 一般 &gt; 言語と地域 &gt; 翻訳言語 で追加するよう Ieum が案内します。その後は、すべて Mac の中で動作します。</span><span class="zh">首次用日语或中文开始时，macOS 会自动下载语音识别模型，只有这一次需要联网。翻译语言需要在 macOS 中另外下载：如果缺少，Ieum 会提示你在 系统设置 &gt; 通用 &gt; 语言与地区 &gt; 翻译语言 中添加。之后，一切都在你的 Mac 上运行。</span></p></li>
     </ul>
   </div>
 </section>
 
-<section id="how">
+<section id="how" aria-labelledby="h-how">
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">How it works</span><span class="ko">사용법</span><span class="ja">仕組み</span><span class="zh">工作原理</span></p>
-      <h2><span class="en">Running in under a minute.</span><span class="ko">1분이면 시작합니다.</span><span class="ja">1 分もかからずに<wbr>使い始められます。</span><span class="zh">不到一分钟<wbr>即可开始使用。</span></h2>
+      <h2 id="h-how"><span class="en">Running in under a minute.</span><span class="ko">1분이면 시작합니다.</span><span class="ja">1 分もかからずに<wbr>使い始められます。</span><span class="zh">不到一分钟<wbr>即可开始使用。</span></h2>
     </div>
     <ol class="steps">
       <li class="reveal">
@@ -601,21 +621,21 @@ a.badge:hover .icon{transform:translateX(3px)}
 </section>
 
 
-<section id="try" style="padding-top:40px">
+<section id="try" aria-labelledby="h-try" style="padding-top:40px">
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Try it</span><span class="ko">직접 해보기</span><span class="ja">試してみる</span><span class="zh">试一试</span></p>
-      <h2><span class="en">Change the settings. Watch the bar respond.</span><span class="ko">설정을 바꿔 보세요. 자막 바가 바로 반응합니다.</span><span class="ja">設定を変えて、<wbr>バーの反応を見てみましょう。</span><span class="zh">改改设置，看看字幕栏如何变化。</span></h2>
+      <h2 id="h-try"><span class="en">Change the settings. Watch the bar respond.</span><span class="ko">설정을 바꿔 보세요. 자막 바가 바로 반응합니다.</span><span class="ja">設定を変えて、<wbr>バーの反応を見てみましょう。</span><span class="zh">改改设置，看看字幕栏如何变化。</span></h2>
       <p class="sub"><span class="en">A simulated meeting with the same controls the app has. Real recognition and translation happen in the app, on your Mac.</span><span class="ko">앱과 같은 조작을 시뮬레이션한 회의입니다. 실제 인식과 번역은 Mac의 앱에서 이뤄집니다.</span><span class="ja">アプリと同じコントロールを備えた、会議のシミュレーションです。実際の音声認識と翻訳は、アプリの中で Mac 上で行われます。</span><span class="zh">这是一个模拟会议，控件与应用中的相同。真正的识别和翻译在应用里、在你的 Mac 上进行。</span></p>
     </div>
     <div class="lab" id="lab" data-run="off" data-view="bar">
       <div class="desk">
-        <div class="mbar"><span><b>Slides</b><span class="en">Ieum works over any app</span><span class="ko">이음은 어떤 앱 위에서도 동작합니다</span><span class="ja">Ieum はどのアプリの上でも動きます</span><span class="zh">Ieum 可以叠加在任何应用之上</span></span><span class="ie off" id="labrec"><span class="en">Ieum · stopped</span><span class="ko">이음 · 중지됨</span><span class="ja">Ieum · 停止中</span><span class="zh">Ieum · 已停止</span></span></div>
+        <div class="mbar"><span><b lang="en">Slides</b><span class="en">Ieum works over any app</span><span class="ko">이음은 어떤 앱 위에서도 동작합니다</span><span class="ja">Ieum はどのアプリの上でも動きます</span><span class="zh">Ieum 可以叠加在任何应用之上</span></span><span class="ie off" id="labrec"><span class="en">Ieum · stopped</span><span class="ko">이음 · 중지됨</span><span class="ja">Ieum · 停止中</span><span class="zh">Ieum · 已停止</span></span></div>
         <div class="appwin" aria-hidden="true">
-          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t">Q4 launch plan</span><span class="who"><span class="en">any app, e.g. slides</span><span class="ko">어떤 앱이든, 예: 슬라이드</span><span class="ja">任意のアプリ（例：スライド）</span><span class="zh">任意应用，例如幻灯片</span></span></div>
+          <div class="tb"><span class="dots"><i></i><i></i><i></i></span><span class="t" lang="en">Q4 launch plan</span><span class="who"><span class="en">any app, e.g. slides</span><span class="ko">어떤 앱이든, 예: 슬라이드</span><span class="ja">任意のアプリ（例：スライド）</span><span class="zh">任意应用，例如幻灯片</span></span></div>
           <div class="slideapp">
             <div class="thumbs"><i class="on"></i><i></i><i></i><i></i></div>
-            <div class="slide">
+            <div class="slide" lang="en">
               <div class="h">Q4 launch plan</div>
               <ul><li>Beta build: Thursday</li><li>QA sign-off</li><li>Release notes</li></ul>
               <div class="chart"><i style="--h:38%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:70%"></i><i style="--h:86%"></i></div>
@@ -632,11 +652,22 @@ a.badge:hover .icon{transform:translateX(3px)}
 
       <form class="controls" onsubmit="return false" aria-label="Preview controls">
         <fieldset>
+          <legend><span class="en">Language pair</span><span class="ko">언어 조합</span><span class="ja">言語の組み合わせ</span><span class="zh">语言组合</span></legend>
+          <div class="seg pairs" id="pairs">
+            <label><input type="radio" name="pair" value="en-ko" checked><span>EN ↔ KO</span></label>
+            <label><input type="radio" name="pair" value="ko-ja"><span>KO ↔ JA</span></label>
+            <label><input type="radio" name="pair" value="ko-zh"><span>KO ↔ ZH</span></label>
+            <label><input type="radio" name="pair" value="en-ja"><span>EN ↔ JA</span></label>
+            <label><input type="radio" name="pair" value="en-zh"><span>EN ↔ ZH</span></label>
+            <label><input type="radio" name="pair" value="ja-zh"><span>JA ↔ ZH</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
           <legend><span class="en">Languages</span><span class="ko">언어</span><span class="ja">言語</span><span class="zh">语言</span></legend>
           <div class="seg">
             <label><input type="radio" name="mode" value="conv" checked><span><span class="en">Both sides speak</span><span class="ko">양쪽이 말함</span><span class="ja">交互に話す</span><span class="zh">双方轮流发言</span></span></label>
-            <label><input type="radio" name="mode" value="en2ko"><span>EN → KO</span></label>
-            <label><input type="radio" name="mode" value="ko2en"><span>KO → EN</span></label>
+            <label><input type="radio" name="mode" value="ab"><span id="m-ab">EN → KO</span></label>
+            <label><input type="radio" name="mode" value="ba"><span id="m-ba">KO → EN</span></label>
             <label><input type="radio" name="mode" value="caps"><span><span class="en">Captions only</span><span class="ko">자막만</span><span class="ja">字幕のみ</span><span class="zh">仅字幕</span></span></label>
           </div>
         </fieldset>
@@ -657,7 +688,8 @@ a.badge:hover .icon{transform:translateX(3px)}
         </fieldset>
         <fieldset>
           <legend><span class="en">Meeting vocabulary</span><span class="ko">회의 용어집</span><span class="ja">会議の用語</span><span class="zh">会议词汇</span></legend>
-          <label class="chk"><input type="checkbox" id="vocchk"><span><span class="en">Correct “Emma” before translating<small>The recognizer hears “Ema”. Watch the fix.</small></span><span class="ko">번역 전에 “Emma”로 바로잡기<small>인식기는 “Ema”로 듣습니다. 교정되는 모습을 보세요.</small></span><span class="ja">翻訳の前に「Emma」に修正<small>認識結果は「Ema」になります。修正される様子を見てください。</small></span><span class="zh">翻译前更正为“Emma”<small>识别器听到的是“Ema”。看看它如何被更正。</small></span></span></label>
+          <label class="chk"><input type="checkbox" id="vocchk"><span><span class="en">Fix a misheard name before translating<small>The recognizer mishears a name. Watch the fix.</small></span><span class="ko">번역 전에 잘못 들은 이름 바로잡기<small>인식기가 이름을 잘못 듣습니다. 바로잡히는 모습을 보세요.</small></span><span class="ja">翻訳の前に、聞き違えた名前を修正<small>認識結果で名前が聞き違えられます。修正される様子を見てください。</small></span><span class="zh">翻译前更正听错的名称<small>识别器听错了一个名称。看看它如何被更正。</small></span></span></label>
+          <p class="vocnote" id="vocnote"><span class="en">In this demo the example is an English line. Pick a pair with EN to try it.</span><span class="ko">이 체험에서는 영어 문장으로 보여 드립니다. EN이 들어간 조합을 고르세요.</span><span class="ja">このデモの例は英語の文です。試すには EN を含む組み合わせを選んでください。</span><span class="zh">本演示的示例是一句英文。请选择包含 EN 的组合来试试。</span></p>
         </fieldset>
         <div class="actions">
           <button class="btn" type="button" id="runbtn"><span class="when-off"><span class="en">Start</span><span class="ko">시작</span><span class="ja">開始</span><span class="zh">开始</span></span><span class="when-on"><span class="en">Stop</span><span class="ko">중지</span><span class="ja">停止</span><span class="zh">停止</span></span> <kbd>⌃⌥S</kbd></button>
@@ -670,11 +702,11 @@ a.badge:hover .icon{transform:translateX(3px)}
   </div>
 </section>
 
-<section id="features" style="padding-top:40px">
+<section id="features" aria-labelledby="h-features" style="padding-top:40px">
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Built for the table</span><span class="ko">회의를 위해</span><span class="ja">会議の場のために</span><span class="zh">为会议桌而设计</span></p>
-      <h2><span class="en">Both sides read their own language.</span><span class="ko">양쪽 모두 자기 언어로 읽습니다.</span><span class="ja">どちらの側も、<wbr>自分の言語で読めます。</span><span class="zh">双方都能读到<wbr>自己的语言。</span></h2>
+      <h2 id="h-features"><span class="en">Both sides read their own language.</span><span class="ko">양쪽 모두 자기 언어로 읽습니다.</span><span class="ja">どちらの側も、<wbr>自分の言語で読めます。</span><span class="zh">双方都能读到<wbr>自己的语言。</span></h2>
       <p class="sub"><span class="en">Small details that matter in a real meeting.</span><span class="ko">실제 회의에서 중요한 디테일을 담았습니다.</span><span class="ja">実際の会議で効いてくる、細かな配慮。</span><span class="zh">在真实会议中真正有用的小细节。</span></p>
     </div>
     <div class="bento">
@@ -682,10 +714,7 @@ a.badge:hover .icon{transform:translateX(3px)}
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div>
         <h3><span class="en">Both sides speak</span><span class="ko">양쪽이 말할 때</span><span class="ja">交互に話す</span><span class="zh">双方轮流发言</span></h3>
         <p><span class="en">Turn on “Both sides speak (detect the language)” and the two languages you chose run in one stream. Each sentence is detected and translated into the other language. Prefer one direction? Leave it off and pick what you hear and what you read.</span><span class="ko">“양쪽이 말함(언어 감지)”을 켜면 고른 두 언어가 하나의 흐름으로 이어집니다. 문장마다 언어를 감지해 다른 언어로 번역합니다. 한 방향만 원하면 끄고 듣는 언어와 읽는 언어를 고르세요.</span><span class="ja">「交互に話す（言語を自動判別）」をオンにすると、選んだ 2 つの言語がひとつの流れで扱われます。文ごとに言語を判別し、もう一方の言語に翻訳します。一方向だけでよければ、オフにして聞く言語と見る言語を選んでください。</span><span class="zh">打开“双方轮流发言（自动识别语言）”，你选的两种语言会在同一条字幕流中处理。每句话都会识别语言，并翻译成另一种语言。只需要单向翻译？关掉它，然后选择听的语言和看的语言。</span></p>
-        <div class="tx">
-          <div class="row"><div lang="en">Can we ship the beta on Thursday?</div><div lang="ko">목요일에 베타를 출시할 수 있을까요?</div></div>
-          <div class="row"><div lang="ko">QA가 끝나면 가능합니다.</div><div lang="en">It's possible once QA is done.</div></div>
-        </div>
+        <div class="tx"><span class="en"><div class="row"><div lang="en">Can we ship the beta on Thursday?</div><div lang="ko">목요일에 베타를 출시할 수 있을까요?</div></div><div class="row"><div lang="ko">QA가 끝나면 가능합니다.</div><div lang="en">It’s possible once QA is done.</div></div></span><span class="ko"><div class="row"><div lang="en">Can we ship the beta on Thursday?</div><div lang="ko">목요일에 베타를 출시할 수 있을까요?</div></div><div class="row"><div lang="ko">QA가 끝나면 가능합니다.</div><div lang="en">It’s possible once QA is done.</div></div></span><span class="ja"><div class="row"><div lang="ko">다음 주 월요일부터 테스트를 시작해도 될까요?</div><div lang="ja">来週の月曜日からテストを始めてもいいですか？</div></div><div class="row"><div lang="ja">はい、大丈夫です。環境は金曜日までに準備します。</div><div lang="ko">네, 괜찮습니다. 환경은 금요일까지 준비하겠습니다.</div></div></span><span class="zh"><div class="row"><div lang="ko">샘플은 이번 주 금요일까지 보내 주실 수 있나요?</div><div lang="zh-Hans">样品能在这周五之前寄出吗？</div></div><div class="row"><div lang="zh-Hans">可以，我们周四发货，周一就能到首尔。</div><div lang="ko">네, 목요일에 발송하니 월요일에는 서울에 도착합니다.</div></div></span></div>
       </div>
       <div class="tile c2 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-bolt"/></svg></div>
@@ -712,10 +741,19 @@ a.badge:hover .icon{transform:translateX(3px)}
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></div>
         <h3><span class="en">A script after every meeting</span><span class="ko">회의마다 스크립트 저장</span><span class="ja">会議ごとにスクリプトを保存</span><span class="zh">每次会议都留下文稿</span></h3>
         <p><span class="en">One timestamped text file per meeting, ready for notes and follow-ups.</span><span class="ko">회의마다 타임스탬프가 붙은 텍스트 파일이 저장됩니다.</span><span class="ja">会議ごとにタイムスタンプ付きのテキストファイルを 1 つ。メモやフォローアップにそのまま使えます。</span><span class="zh">每次会议一份带时间戳的文本文件，可直接用于笔记和后续跟进。</span></p>
-<pre class="script" aria-label="Example saved script"><u>[10:02:14] [EN]</u> Can we ship the beta on Thursday?
-           → 목요일에 베타를 출시할 수 있을까요?
-<u>[10:02:21] [KO]</u> QA가 끝나면 가능합니다.
-           → It's possible once QA is done.</pre>
+<pre class="script" aria-label="Example saved script"><span class="en"><u>[10:02:14] [EN]</u> <span lang="en">Can we ship the beta on Thursday?</span>
+<u>[10:02:14] [KO]</u> → <span lang="ko">목요일에 베타를 출시할 수 있을까요?</span>
+<u>[10:02:21] [KO]</u> <span lang="ko">QA가 끝나면 가능합니다.</span>
+<u>[10:02:21] [EN]</u> → <span lang="en">It’s possible once QA is done.</span></span><span class="ko"><u>[10:02:14] [EN]</u> <span lang="en">Can we ship the beta on Thursday?</span>
+<u>[10:02:14] [KO]</u> → <span lang="ko">목요일에 베타를 출시할 수 있을까요?</span>
+<u>[10:02:21] [KO]</u> <span lang="ko">QA가 끝나면 가능합니다.</span>
+<u>[10:02:21] [EN]</u> → <span lang="en">It’s possible once QA is done.</span></span><span class="ja"><u>[10:02:14] [KO]</u> <span lang="ko">다음 주 월요일부터 테스트를 시작해도 될까요?</span>
+<u>[10:02:14] [JA]</u> → <span lang="ja">来週の月曜日からテストを始めてもいいですか？</span>
+<u>[10:02:21] [JA]</u> <span lang="ja">はい、大丈夫です。</span>
+<u>[10:02:21] [KO]</u> → <span lang="ko">네, 괜찮습니다.</span></span><span class="zh"><u>[10:02:14] [KO]</u> <span lang="ko">샘플은 이번 주 금요일까지 보내 주실 수 있나요?</span>
+<u>[10:02:14] [ZH]</u> → <span lang="zh-Hans">样品能在这周五之前寄出吗？</span>
+<u>[10:02:21] [ZH]</u> <span lang="zh-Hans">可以，我们周四发货。</span>
+<u>[10:02:21] [KO]</u> → <span lang="ko">네, 목요일에 발송합니다.</span></span></pre>
       </div>
       <div class="tile c3 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div>
@@ -734,30 +772,39 @@ a.badge:hover .icon{transform:translateX(3px)}
         <p><span class="en">In Settings &gt; General &gt; Microphone, use the system default or pick a USB microphone, speakerphone or headset. If it is unplugged, Ieum falls back to the default.</span><span class="ko">설정 &gt; 일반 &gt; 마이크에서 시스템 기본값을 쓰거나 USB 마이크, 스피커폰, 헤드셋을 고를 수 있습니다. 연결이 빠지면 기본 마이크로 돌아갑니다.</span><span class="ja">設定 &gt; 一般 &gt; マイク で、システムのデフォルトを使うか、USB マイク、スピーカーフォン、ヘッドセットを選べます。接続が外れた場合は、Ieum がデフォルトに戻します。</span><span class="zh">在 设置 &gt; 通用 &gt; 麦克风 中，可以使用系统默认设备，或选择 USB 麦克风、免提会议电话或耳机。如果设备被拔出，Ieum 会改回默认设备。</span></p>
       </div>
     </div>
+    <div class="usewith reveal">
+      <p class="k" id="uw-l"><span class="en">Use it with</span><span class="ko">이런 곳에서 씁니다</span><span class="ja">使える場面</span><span class="zh">适用场景</span></p>
+      <ul aria-labelledby="uw-l">
+        <li>Zoom</li><li>Microsoft Teams</li><li>Google Meet</li>
+        <li><span class="en">any app that plays audio</span><span class="ko">소리가 나는 모든 앱</span><span class="ja">音声を再生するあらゆるアプリ</span><span class="zh">任何播放声音的应用</span></li>
+        <li><span class="en">a meeting room (microphone)</span><span class="ko">회의실 (마이크)</span><span class="ja">会議室（マイク）</span><span class="zh">会议室（麦克风）</span></li>
+      </ul>
+      <p class="uwnote"><span class="en">No plug-in, and no bot joins the call.</span><span class="ko">플러그인도, 통화에 들어오는 봇도 없습니다.</span><span class="ja">プラグインは不要で、会議にボットが参加することもありません。</span><span class="zh">无需插件，也不会有机器人加入会议。</span></p>
+    </div>
   </div>
 </section>
 
-<section id="privacy" style="padding-top:40px">
+<section id="privacy" aria-labelledby="h-privacy" style="padding-top:40px">
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Privacy</span><span class="ko">개인정보</span><span class="ja">プライバシー</span><span class="zh">隐私</span></p>
-      <h2><span class="en">Your meeting never leaves your Mac.</span><span class="ko">회의 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">会議の内容が <wbr>Mac の外に<wbr>出ることはありません。</span><span class="zh">你的会议内容<wbr>永远不会离开你的 Mac。</span></h2>
+      <h2 id="h-privacy"><span class="en">Your meeting never leaves your Mac.</span><span class="ko">회의 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">会議の内容が <wbr>Mac の外に<wbr>出ることはありません。</span><span class="zh">你的会议内容<wbr>永远不会离开你的 Mac。</span></h2>
       <p class="sub"><span class="en">Confidential calls are exactly where cloud captions are hard to justify. Ieum uses Apple's Speech and Translation frameworks, running on the device.</span><span class="ko">기밀 회의에 클라우드 자막을 쓰기는 부담스럽습니다. Ieum은 기기 안에서 동작하는 Apple의 음성 인식·번역 프레임워크를 사용합니다.</span><span class="ja">機密性の高い会議こそ、クラウド字幕を使う理由を説明しにくい場面です。Ieum は Apple の Speech フレームワークと Translation フレームワークを、デバイス上で使用します。</span><span class="zh">保密通话恰恰是最难说服自己使用云端字幕的场合。Ieum 使用 Apple 的 Speech 和 Translation 框架，全部在设备上运行。</span></p>
     </div>
     <ul class="priv">
       <li class="reveal"><b><span class="en">No account.</span><span class="ko">계정 없음.</span><span class="ja">アカウント不要。</span><span class="zh">无需账户。</span></b><p><span class="en">No sign-in and no server to trust.</span><span class="ko">로그인도, 믿어야 할 서버도 없습니다.</span><span class="ja">サインインも、信頼すべきサーバーもありません。</span><span class="zh">无需登录，也没有需要信任的服务器。</span></p></li>
-      <li class="reveal"><b><span class="en">One request, and it is optional.</span><span class="ko">요청은 단 하나, 그것도 선택입니다.</span><span class="ja">通信は 1 つだけ、しかも任意です。</span><span class="zh">只有一个请求，而且可以关闭。</span></b><p><span class="en">Once a day Ieum asks this website which version is newest. No audio, no text, no identifiers. Turn it off in Settings and the app makes no requests at all. macOS downloads language models the first time you use a language.</span><span class="ko">하루에 한 번 이 웹사이트에 최신 버전을 묻습니다. 음성도, 글자도, 식별 정보도 없습니다. 설정에서 끄면 앱은 어떤 요청도 하지 않습니다. 언어 모델은 처음 사용할 때 macOS가 내려받습니다.</span><span class="ja">Ieum は 1 日に 1 回、このウェブサイトに最新バージョンを問い合わせます。音声もテキストも識別子も送りません。設定でオフにすれば、アプリは一切通信しません。言語モデルは、その言語を初めて使うときに macOS がダウンロードします。</span><span class="zh">Ieum 每天向本网站询问一次最新版本。不含音频、不含文字、不含标识符。在设置中关闭后，应用将不发出任何请求。语言模型由 macOS 在你首次使用某种语言时下载。</span></p></li>
+      <li class="reveal"><b><span class="en">One request, and it is optional.</span><span class="ko">요청은 단 하나, 그것도 선택입니다.</span><span class="ja">通信は 1 つだけ、しかも任意です。</span><span class="zh">只有一个请求，而且可以关闭。</span></b><p><span class="en">Once a day Ieum asks this website which version is newest. No audio, no text, no identifiers. Turn it off in Settings and the app makes no requests at all. Speech and translation models are downloaded once by macOS from Apple and then stay on your Mac.</span><span class="ko">하루에 한 번 이 웹사이트에 최신 버전을 묻습니다. 음성도, 글자도, 식별 정보도 없습니다. 설정에서 끄면 앱은 어떤 요청도 하지 않습니다. 음성 인식·번역 모델은 macOS가 Apple에서 한 번 내려받고, 그 뒤로는 Mac에 남아 있습니다.</span><span class="ja">Ieum は 1 日に 1 回、このウェブサイトに最新バージョンを問い合わせます。音声もテキストも識別子も送りません。設定でオフにすれば、アプリは一切通信しません。音声認識と翻訳のモデルは、macOS が Apple から一度だけダウンロードし、その後は Mac に保存されます。</span><span class="zh">Ieum 每天向本网站询问一次最新版本。不含音频、不含文字、不含标识符。在设置中关闭后，应用将不发出任何请求。语音识别和翻译模型由 macOS 从 Apple 下载一次，之后保存在你的 Mac 上。</span></p></li>
       <li class="reveal"><b><span class="en">No recordings.</span><span class="ko">녹음 없음.</span><span class="ja">録音しません。</span><span class="zh">不录音。</span></b><p><span class="en">Only the text script is saved, in your Documents folder.</span><span class="ko">텍스트 스크립트만 문서 폴더에 저장됩니다.</span><span class="ja">保存されるのはテキストのスクリプトだけで、「書類」フォルダに保存されます。</span><span class="zh">只保存文字文稿，存放在你的“文稿”文件夹中。</span></p></li>
     </ul>
     <p class="fine head-c"><span class="en">The source is public, so you can check these claims yourself:</span><span class="ko">소스 코드가 공개되어 있어 직접 확인할 수 있습니다:</span><span class="ja">ソースコードは公開されているので、これらの主張をご自身で確認できます：</span><span class="zh">源代码公开，你可以亲自核实这些说法：</span> <a href="https://github.com/stoneidev/ieum">github.com/stoneidev/ieum</a></p>
   </div>
 </section>
 
-<section id="requirements" style="padding-top:40px">
+<section id="requirements" aria-labelledby="h-requirements" style="padding-top:40px">
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Check your Mac</span><span class="ko">내 Mac 확인</span><span class="ja">お使いの Mac を確認</span><span class="zh">检查你的 Mac</span></p>
-      <h2><span class="en">What you need.</span><span class="ko">필요한 환경.</span><span class="ja">必要な環境。</span><span class="zh">所需环境。</span></h2>
+      <h2 id="h-requirements"><span class="en">What you need.</span><span class="ko">필요한 환경.</span><span class="ja">必要な環境。</span><span class="zh">所需环境。</span></h2>
       <p class="sub"><span class="en">Translation relies on Apple's newest on-device models, so it needs a recent macOS. Check before you download.</span><span class="ko">번역은 Apple의 최신 온디바이스 모델을 사용하므로 최신 macOS가 필요합니다. 다운로드 전에 확인하세요.</span><span class="ja">翻訳には Apple の最新のオンデバイスモデルを使うため、新しい macOS が必要です。ダウンロードの前にご確認ください。</span><span class="zh">翻译依赖 Apple 最新的设备端模型，因此需要较新的 macOS。下载前请先确认。</span></p>
     </div>
     <table class="req">
@@ -771,18 +818,20 @@ a.badge:hover .icon{transform:translateX(3px)}
   </div>
 </section>
 
-<section id="faq" style="padding-top:40px">
+<section id="faq" aria-labelledby="h-faq" style="padding-top:40px">
   <div class="wrap">
     <div class="head-c">
       <p class="k">FAQ</p>
-      <h2><span class="en">Questions, answered.</span><span class="ko">궁금한 점.</span><span class="ja">よくある質問。</span><span class="zh">常见问题解答。</span></h2>
+      <h2 id="h-faq"><span class="en">Questions, answered.</span><span class="ko">궁금한 점.</span><span class="ja">よくある質問。</span><span class="zh">常见问题解答。</span></h2>
     </div>
     <div class="faq">
       <details><summary><span class="en">Is it really free?</span><span class="ko">정말 무료인가요?</span><span class="ja">本当に無料ですか？</span><span class="zh">真的免费吗？</span></summary><p><span class="en">Yes. Ieum is open source under the Apache License 2.0. Use it at work or at home, and modify or redistribute it. The name and logo are not part of the license.</span><span class="ko">네. Ieum은 Apache License 2.0의 오픈소스입니다. 업무든 개인용이든 자유롭게 쓰고 수정·재배포할 수 있습니다. 이름과 로고는 라이선스에 포함되지 않습니다.</span><span class="ja">はい。Ieum は Apache License 2.0 のもとで公開されているオープンソースです。仕事でも家庭でも使え、改変や再配布もできます。名前とロゴはライセンスの対象外です。</span><span class="zh">是的。Ieum 以 Apache License 2.0 开源。工作和家里都可以用，也可以修改或再分发。名称和标志不在许可范围内。</span></p></details>
-      <details><summary><span class="en">Does it work with Zoom, Google Meet and Teams?</span><span class="ko">Zoom, Google Meet, Teams에서도 되나요?</span><span class="ja">Zoom、Google Meet、Teams で使えますか？</span><span class="zh">能用于 Zoom、Google Meet 和 Teams 吗？</span></summary><p><span class="en">Yes. Pick the system audio source and Ieum reads the audio of any app, so it does not depend on the meeting software. The first time, macOS asks for Screen &amp; System Audio Recording permission. Ieum uses it for audio only.</span><span class="ko">네. 시스템 오디오를 소스로 고르면 어떤 앱의 소리든 읽으므로 회의 소프트웨어에 상관없이 동작합니다. 처음 한 번 macOS가 화면 및 시스템 오디오 녹음 권한을 묻습니다. 오디오 용도로만 사용합니다.</span><span class="ja">はい。音声ソースにシステム音声を選ぶと、Ieum はどのアプリの音声でも読み取るため、会議ソフトに依存しません。初回は macOS が「画面とシステムオーディオの録音」の許可を求めます。Ieum はこれを音声のためだけに使います。</span><span class="zh">可以。选择系统音频作为音源，Ieum 就能读取任何应用的音频，因此不依赖会议软件。首次使用时，macOS 会请求“录屏与系统录音”权限。Ieum 只将其用于音频。</span></p></details>
+      <details><summary><span class="en">Is there a free offline live captions and translation app for Mac?</span><span class="ko">Mac에서 쓸 수 있는 무료 오프라인 실시간 자막·번역 앱이 있나요?</span><span class="ja">Mac で使える、無料でオフラインのリアルタイム字幕・翻訳アプリはありますか？</span><span class="zh">有没有免费、可离线使用的 Mac 实时字幕和翻译应用？</span></summary><p><span class="en">Yes: Ieum. It is free and open source, runs on Mac with Apple silicon, and shows live captions and translation between English, Korean, Japanese and Chinese (Simplified) during meetings. Speech recognition and translation use Apple’s on-device models, so after a one-time language set-up it works without an internet connection. There is no account and no cloud service. Live captions need macOS 14 or later, translation macOS 26.4 or later.</span><span class="ko">네, Ieum(이음)이 그런 앱입니다. 무료 오픈소스이고 Apple silicon Mac에서 동작하며, 회의 중 영어·한국어·일본어·중국어(간체) 사이의 실시간 자막과 번역을 보여 줍니다. 음성 인식과 번역은 Apple의 온디바이스 모델을 쓰므로, 언어를 한 번 준비해 두면 인터넷 없이 동작합니다. 계정도 클라우드 서비스도 없습니다. 실시간 자막은 macOS 14 이상, 번역은 macOS 26.4 이상에서 쓸 수 있습니다.</span><span class="ja">はい、Ieum（イウム）がそのアプリです。無料のオープンソースで、Apple silicon 搭載の Mac で動作し、会議中に英語・韓国語・日本語・中国語（簡体字）の間でリアルタイムの字幕と翻訳を表示します。音声認識と翻訳には Apple のオンデバイスモデルを使うため、言語の準備を一度済ませれば、インターネットに接続しなくても使えます。アカウントもクラウドサービスも不要です。ライブ字幕は macOS 14 以降、翻訳は macOS 26.4 以降で使えます。</span><span class="zh">有，Ieum 就是这样的应用。它免费开源，运行在搭载 Apple 芯片的 Mac 上，能在会议中为英语、韩语、日语和中文（简体）之间提供实时字幕和翻译。语音识别和翻译使用 Apple 的设备端模型，语言只需一次性准备，之后无需联网即可使用。无需账户，也不使用云服务。实时字幕需要 macOS 14 或更高版本，翻译需要 macOS 26.4 或更高版本。</span></p></details>
+      <details><summary><span class="en">Does Ieum work with Zoom, Microsoft Teams and Google Meet?</span><span class="ko">Zoom, Microsoft Teams, Google Meet에서도 쓸 수 있나요?</span><span class="ja">Zoom、Microsoft Teams、Google Meet で使えますか？</span><span class="zh">Ieum 能用于 Zoom、Microsoft Teams 和 Google Meet 吗？</span></summary><p><span class="en">Yes. Ieum captions the audio your Mac plays, so it works with Zoom, Microsoft Teams, Google Meet and any other app: choose system audio as the source. For people in the same room, choose the microphone. It is not a plug-in and no bot joins the call, so nobody else has to install anything. The first time you use system audio, macOS asks for the Screen &amp; System Audio Recording permission. Ieum uses it for audio only.</span><span class="ko">네. Ieum은 Mac에서 재생되는 소리를 자막으로 만들기 때문에 Zoom, Microsoft Teams, Google Meet은 물론 어떤 앱과도 함께 쓸 수 있습니다. 소스를 시스템 오디오로 고르면 됩니다. 같은 회의실에 있는 사람의 말은 마이크로 듣습니다. 플러그인이 아니고 통화에 봇이 들어오지도 않으므로 다른 참석자는 아무것도 설치할 필요가 없습니다. 시스템 오디오를 처음 쓸 때 macOS가 ‘화면 및 시스템 오디오 녹음’ 권한을 묻습니다. Ieum은 이 권한을 오디오에만 씁니다.</span><span class="ja">はい。Ieum は Mac で再生されている音声を字幕にするので、Zoom、Microsoft Teams、Google Meet をはじめ、どのアプリとも一緒に使えます。音声ソースにシステム音声を選ぶだけです。同じ会議室にいる人の声は、マイクで聞き取ります。プラグインではなく、会議にボットが参加することもないため、ほかの参加者は何もインストールする必要がありません。システム音声を初めて使うとき、macOS が「画面収録とシステムオーディオ録音」の許可を求めます。Ieum はこれを音声のためだけに使います。</span><span class="zh">可以。Ieum 为 Mac 正在播放的声音生成字幕，所以 Zoom、Microsoft Teams、Google Meet 以及其他任何应用都能配合使用，只需把音源选为系统音频。同一间会议室里的人说话，则用麦克风收听。它不是插件，也不会有机器人加入会议，其他参会者无需安装任何东西。首次使用系统音频时，macOS 会请求“录屏与系统录音”权限，Ieum 只将其用于音频。</span></p></details>
       <details><summary><span class="en">Is my audio sent anywhere?</span><span class="ko">내 음성이 어딘가로 전송되나요?</span><span class="ja">音声はどこかに送信されますか？</span><span class="zh">我的音频会被发送到别处吗？</span></summary><p><span class="en">No. Recognition and translation run on your Mac. The only request the app makes is a once-a-day check for a newer version, which carries no audio, text or identifiers and can be turned off in Settings. Only a text script is saved locally. No audio is recorded.</span><span class="ko">아니요. 인식과 번역은 Mac 안에서 이뤄집니다. 앱이 하는 요청은 하루에 한 번 새 버전을 확인하는 것뿐이며, 음성·글자·식별 정보는 담기지 않고 설정에서 끌 수 있습니다. 텍스트 스크립트만 로컬에 저장되며 음성은 녹음하지 않습니다.</span><span class="ja">いいえ。音声認識と翻訳は Mac 上で行われます。アプリが行う通信は、新しいバージョンがあるかを 1 日 1 回確認するものだけです。音声・テキスト・識別子は含まれず、設定でオフにできます。保存されるのはローカルのテキストスクリプトだけで、音声は録音されません。</span><span class="zh">不会。识别和翻译都在你的 Mac 上运行。应用唯一发出的请求是每天一次检查新版本，不含音频、文字或标识符，并且可以在设置中关闭。只在本地保存文字文稿，不录制任何音频。</span></p></details>
       <details><summary><span class="en">Which languages does Ieum support?</span><span class="ko">Ieum은 어떤 언어를 지원하나요?</span><span class="ja">Ieum はどの言語に対応していますか？</span><span class="zh">Ieum 支持哪些语言？</span></summary><p><span class="en">English, Korean, Japanese and Chinese (Simplified), and any two of them work together. In Settings &gt; General choose the language you hear and the language you read (or “No translation (captions only)”). A switch, “Both sides speak”, detects each sentence’s language and translates it into the other.</span><span class="ko">영어, 한국어, 일본어, 중국어(간체)를 지원하며 이 중 어떤 두 언어든 함께 쓸 수 있습니다. 설정 &gt; 일반에서 듣는 언어와 읽는 언어(또는 “번역 안 함(자막만)”)를 고르세요. “양쪽이 말함” 스위치를 켜면 문장마다 언어를 감지해 다른 언어로 번역합니다.</span><span class="ja">英語、韓国語、日本語、中国語（簡体字）に対応し、そのうち任意の 2 つを組み合わせて使えます。設定 &gt; 一般 で、聞く言語と見る言語（または「翻訳なし（字幕のみ）」）を選びます。「交互に話す」スイッチをオンにすると、文ごとに言語を判別して、もう一方の言語に翻訳します。</span><span class="zh">支持英语、韩语、日语和中文（简体），其中任意两种都可以搭配使用。在 设置 &gt; 通用 中选择听的语言和看的语言（或“不翻译（仅字幕）”）。打开“双方轮流发言”开关，会识别每句话的语言，并翻译成另一种语言。</span></p></details>
-      <details><summary><span class="en">Does Japanese or Chinese work offline?</span><span class="ko">일본어나 중국어도 오프라인으로 되나요?</span><span class="ja">日本語や中国語はオフラインで使えますか？</span><span class="zh">日语或中文可以离线使用吗？</span></summary><p><span class="en">Yes, after a one-time download. The first time you use Japanese or Chinese, macOS downloads the speech-recognition model, so that moment needs an internet connection, and Ieum shows a notice at the first start. Translation and everything else stay offline.</span><span class="ko">네, 한 번 내려받은 뒤에는 됩니다. 일본어나 중국어를 처음 쓸 때 macOS가 음성 인식 모델을 내려받으므로 그때만 인터넷이 필요하며, 처음 시작할 때 Ieum이 안내를 보여 줍니다. 번역과 나머지 기능은 계속 오프라인입니다.</span><span class="ja">はい、最初に一度ダウンロードすれば使えます。日本語や中国語を初めて使うとき、macOS が音声認識モデルをダウンロードするため、そのときだけインターネット接続が必要です。Ieum は最初の開始時にお知らせを表示します。翻訳をはじめ、それ以外はすべてオフラインのままです。</span><span class="zh">可以，只需下载一次。首次使用日语或中文时，macOS 会下载语音识别模型，因此那一次需要联网，Ieum 会在首次开始时显示提示。翻译以及其他一切仍然离线进行。</span></p></details>
+      <details><summary><span class="en">Can I use Ieum between Korean and Japanese, or Korean and Chinese?</span><span class="ko">한국어와 일본어, 한국어와 중국어 사이에서도 쓸 수 있나요?</span><span class="ja">日本語と韓国語、日本語と中国語の間でも使えますか？</span><span class="zh">可以在中文和韩语、中文和日语之间使用吗？</span></summary><p><span class="en">Yes. Any two of English, Korean, Japanese and Chinese (Simplified) work together, in either direction, including Korean and Japanese, Korean and Chinese, and Japanese and Chinese. Choose the language you hear and the language you read in Settings &gt; General, or turn on “Both sides speak” so each person talks in their own language and the other reads the translation.</span><span class="ko">네. 영어, 한국어, 일본어, 중국어(간체) 중 어떤 두 언어든 어느 방향으로든 함께 쓸 수 있습니다. 한국어와 일본어, 한국어와 중국어, 일본어와 중국어도 됩니다. 설정 &gt; 일반에서 듣는 언어와 읽는 언어를 고르거나, “양쪽이 말함”을 켜 두면 각자 자기 언어로 말하고 상대는 번역을 읽습니다.</span><span class="ja">はい。英語・韓国語・日本語・中国語（簡体字）のうち、どの 2 つでも、どちらの向きでも組み合わせて使えます。日本語と韓国語、日本語と中国語、韓国語と中国語も同様です。設定 &gt; 一般 で聞く言語と見る言語を選ぶか、「交互に話す」をオンにすれば、それぞれが自分の言語で話し、相手は翻訳を読めます。</span><span class="zh">可以。英语、韩语、日语和中文（简体）中的任意两种都可以搭配使用，双向皆可，包括中文和韩语、中文和日语，以及韩语和日语。在 设置 &gt; 通用 中选择听的语言和看的语言，或打开“双方轮流发言”，每个人都用自己的语言说话，对方读到的是译文。</span></p></details>
+      <details><summary><span class="en">Does Japanese or Chinese work offline?</span><span class="ko">일본어나 중국어도 오프라인으로 되나요?</span><span class="ja">日本語や中国語はオフラインで使えますか？</span><span class="zh">日语或中文可以离线使用吗？</span></summary><p><span class="en">Yes, after a one-time set-up. The first time you start captions in Japanese or Chinese, macOS downloads the speech-recognition model by itself, so that start needs an internet connection; the subtitle bar tells you while it waits. Translation languages are a separate macOS download: if the one you need is missing, Ieum shows a note telling you to add it in System Settings &gt; General &gt; Language &amp; Region &gt; Translation Languages. After that, captions and translation run offline.</span><span class="ko">네, 처음 한 번만 준비하면 됩니다. 일본어나 중국어로 처음 자막을 시작하면 macOS가 음성 인식 모델을 알아서 내려받으므로 그때는 인터넷 연결이 필요하며, 기다리는 동안 자막 바에 안내가 나옵니다. 번역 언어는 macOS에서 따로 내려받습니다. 필요한 언어가 없으면 Ieum이 시스템 설정 &gt; 일반 &gt; 언어 및 지역 &gt; 번역 언어에서 추가하라고 알려 줍니다. 그다음부터는 자막과 번역 모두 오프라인으로 동작합니다.</span><span class="ja">はい、最初に一度だけ準備すれば使えます。日本語や中国語で初めて字幕を開始するとき、macOS が音声認識モデルを自動でダウンロードします。このときだけインターネット接続が必要で、待っている間は字幕バーにその旨が表示されます。翻訳の言語は macOS で別にダウンロードします。必要な言語が入っていない場合は、システム設定 &gt; 一般 &gt; 言語と地域 &gt; 翻訳言語 で追加するよう Ieum が案内します。以降は、字幕も翻訳もオフラインで動作します。</span><span class="zh">可以，只需一次性准备。首次用日语或中文开始字幕时，macOS 会自动下载语音识别模型，这一次需要联网，等待期间字幕栏会显示提示。翻译语言需要在 macOS 中另外下载：如果缺少所需的语言，Ieum 会提示你在 系统设置 &gt; 通用 &gt; 语言与地区 &gt; 翻译语言 中添加。之后，字幕和翻译都可离线运行。</span></p></details>
       <details><summary><span class="en">Why do I need macOS 26.4 for translation?</span><span class="ko">번역에 macOS 26.4가 필요한 이유는?</span><span class="ja">翻訳にはなぜ macOS 26.4 が必要なのですか？</span><span class="zh">为什么翻译需要 macOS 26.4？</span></summary><p><span class="en">Ieum uses Apple's own on-device Translation framework instead of a cloud service. The version it needs for this use ships with macOS 26.4. On older versions you still get live captions.</span><span class="ko">Ieum은 클라우드 대신 Apple의 온디바이스 번역 프레임워크를 사용하며, 이 용도에 필요한 버전이 macOS 26.4에 포함됩니다. 이전 버전에서도 실시간 자막은 사용할 수 있습니다.</span><span class="ja">Ieum はクラウドサービスではなく、Apple 自身のオンデバイス Translation フレームワークを使います。この用途に必要なバージョンは macOS 26.4 に含まれています。それより前のバージョンでも、ライブ字幕は使えます。</span><span class="zh">Ieum 使用 Apple 自己的设备端 Translation 框架，而不是云服务。这一用途所需的版本随 macOS 26.4 提供。在较早的版本上，你仍然可以使用实时字幕。</span></p></details>
       <details><summary><span class="en">Can I use an external microphone?</span><span class="ko">외장 마이크를 쓸 수 있나요?</span><span class="ja">外部マイクは使えますか？</span><span class="zh">可以使用外接麦克风吗？</span></summary><p><span class="en">Yes. In Settings &gt; General &gt; Microphone, choose a USB microphone, speakerphone or headset instead of the system default. If it is unplugged, Ieum uses the default microphone again.</span><span class="ko">네. 설정 &gt; 일반 &gt; 마이크에서 시스템 기본값 대신 USB 마이크, 스피커폰, 헤드셋을 고를 수 있습니다. 연결이 빠지면 다시 기본 마이크를 씁니다.</span><span class="ja">はい。設定 &gt; 一般 &gt; マイク で、システムのデフォルトの代わりに USB マイク、スピーカーフォン、ヘッドセットを選べます。接続が外れた場合、Ieum は再びデフォルトのマイクを使います。</span><span class="zh">可以。在 设置 &gt; 通用 &gt; 麦克风 中，选择 USB 麦克风、免提会议电话或耳机来代替系统默认设备。如果设备被拔出，Ieum 会重新使用默认麦克风。</span></p></details>
       <details><summary><span class="en">How do I make the text bigger?</span><span class="ko">글자를 키우려면?</span><span class="ja">文字を大きくするには？</span><span class="zh">怎样把文字调大？</span></summary><p><span class="en">Use the larger and smaller text buttons on the subtitle bar. They work while captions are running and fade until the pointer comes near. The size is also in Settings.</span><span class="ko">자막 바의 글자 크게·작게 버튼을 쓰세요. 자막이 나오는 동안에도 쓸 수 있고, 포인터가 가까이 올 때까지는 흐려져 있습니다. 크기는 설정에서도 바꿀 수 있습니다.</span><span class="ja">字幕バーにある文字の拡大・縮小ボタンを使います。字幕の表示中も使え、ポインタが近づくまでは薄く表示されます。サイズは設定でも変更できます。</span><span class="zh">使用字幕栏上的放大和缩小文字按钮。字幕运行时也能用，指针靠近之前会淡出隐去。大小也可以在设置中调整。</span></p></details>
@@ -793,12 +842,12 @@ a.badge:hover .icon{transform:translateX(3px)}
   </div>
 </section>
 
-<section id="coffee" style="padding:40px 0 0">
+<section id="coffee" aria-labelledby="h-coffee" style="padding:40px 0 0">
   <div class="wrap">
     <div class="coffeecard reveal" id="coffeecard">
       <div class="cup"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg></div>
       <div>
-        <h3><span class="en">Ieum is free. If it helps, buy me a coffee.</span><span class="ko">Ieum은 무료입니다. 도움이 됐다면 커피 한 잔 사주세요.</span><span class="ja">Ieum は無料です。役に立ったら、コーヒーを一杯ごちそうしてください。</span><span class="zh">Ieum 是免费的。如果对你有帮助，请我喝杯咖啡吧。</span></h3>
+        <h2 id="h-coffee"><span class="en">Ieum is free. If it helps, buy me a coffee.</span><span class="ko">Ieum은 무료입니다. 도움이 됐다면 커피 한 잔 사주세요.</span><span class="ja">Ieum は無料です。役に立ったら、コーヒーを一杯ごちそうしてください。</span><span class="zh">Ieum 是免费的。如果对你有帮助，请我喝杯咖啡吧。</span></h2>
         <p><span class="en">Try it in a real meeting first. If it saves you from nodding along to words you missed, a coffee's worth of thanks keeps me building. No pressure, and it stays free either way.</span><span class="ko">먼저 실제 회의에서 써 보세요. 놓친 말에 고개만 끄덕이던 순간을 줄여 줬다면, 커피 한 잔 값의 응원이 계속 만들어 갈 힘이 됩니다. 부담은 갖지 마세요. 앞으로도 무료입니다.</span><span class="ja">まずは実際の会議で試してみてください。聞き逃した言葉にうなずいてごまかす場面が減ったなら、コーヒー一杯分のお礼が開発を続ける励みになります。無理にとは言いません。どちらにしても無料のままです。</span><span class="zh">先在真实的会议里试试。如果它让你不必再对没听清的话点头附和，一杯咖啡的谢意就能让我继续开发下去。不必勉强，无论如何它都会保持免费。</span></p>
       </div>
       <a class="btn coffee" id="coffeebtn" href="#" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span><span class="ja">コーヒーをごちそうする</span><span class="zh">请我喝杯咖啡</span></a>
@@ -806,9 +855,9 @@ a.badge:hover .icon{transform:translateX(3px)}
   </div>
 </section>
 
-<section class="final">
+<section class="final" aria-labelledby="h-final">
   <div class="wrap">
-    <h2><span class="en">Your next meeting, in your language.</span><span class="ko">다음 회의는 내 언어 자막과 함께.</span><span class="ja">次の会議は、<wbr>あなたの言語で。</span><span class="zh">下一场会议，<wbr>用你的语言。</span></h2>
+    <h2 id="h-final"><span class="en">Your next meeting, in your language.</span><span class="ko">다음 회의는 내 언어 자막과 함께.</span><span class="ja">次の会議は、<wbr>あなたの言語で。</span><span class="zh">下一场会议，<wbr>用你的语言。</span></h2>
     <p class="sub"><span class="en">{{SIZE}}, free, and nothing leaves your Mac.</span><span class="ko">{{SIZE}}, 무료, 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">{{SIZE}}、無料、そして何も Mac の外に出ません。</span><span class="zh">{{SIZE}}，免费，没有任何内容离开你的 Mac。</span></p>
     <div class="cta">
       <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span><span class="ja">Mac 版をダウンロード</span><span class="zh">下载 Mac 版</span></a>
@@ -826,7 +875,7 @@ a.badge:hover .icon{transform:translateX(3px)}
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Ieum 이음 · <a href="https://github.com/stoneidev/ieum/blob/main/LICENSE">Apache License 2.0</a></span>
+    <span>© 2026 Ieum <span lang="ko">이음</span> · <a href="https://github.com/stoneidev/ieum/blob/main/LICENSE">Apache License 2.0</a></span>
     <span><a href="https://github.com/stoneidev/ieum">GitHub</a> · <a href="https://github.com/stoneidev/ieum/issues">Issues</a><span id="coffeefoot"> · <a href="#" target="_blank" rel="noopener"><span class="en">Buy me a coffee</span><span class="ko">커피 사주기</span><span class="ja">コーヒーをごちそうする</span><span class="zh">请我喝杯咖啡</span></a></span></span>
   </div>
 </footer>
@@ -903,24 +952,28 @@ fetch("https://api.github.com/repos/stoneidev/ieum/releases?per_page=30").then(f
   if(n>=25){$("countn").textContent=T.downloads.replace("{n}",n.toLocaleString());$("count").classList.add("on")}
 }).catch(function(){});
 
-/* hero demo */
+/* hero demo: one meeting, four languages; the reader's language (this page) comes first */
+var PL=d.dataset.lang||"en",LG={en:"en",ko:"ko",ja:"ja",zh:"zh-Hans"};
+var PARTNER={en:"ko",ko:"en",ja:"ko",zh:"ko"}[PL]||"ko";
+var ORDER=[PL,PARTNER].concat(["en","ko","ja","zh"].filter(function(x){return x!==PL&&x!==PARTNER}));
 var script=[
- {who:0,en:"Can we ship the beta on Thursday?",ko:"목요일에 베타를 출시할 수 있을까요?"},
- {who:1,en:"It's possible once QA is done.",ko:"QA가 끝나면 가능합니다."},
- {who:2,en:"I can review the build tonight.",ko:"오늘 밤에 빌드를 검토할 수 있어요."},
- {who:3,en:"Great. I'll update the release notes.",ko:"좋아요. 제가 릴리스 노트를 업데이트할게요."}
+ {en:"Can we ship the beta on Thursday?",ko:"목요일에 베타를 출시할 수 있을까요?",ja:"木曜日にベータ版を出せますか？",zh:"我们周四能发布测试版吗？"},
+ {en:"It's possible once QA is done.",ko:"QA가 끝나면 가능합니다.",ja:"QA が終われば出せます。",zh:"QA 完成后就可以。"},
+ {en:"I can review the build tonight.",ko:"오늘 밤에 빌드를 검토할 수 있어요.",ja:"今夜ビルドを確認できます。",zh:"我今晚可以检查一下构建版本。"},
+ {en:"Great. I'll update the release notes.",ko:"좋아요. 제가 릴리스 노트를 업데이트할게요.",ja:"いいですね。リリースノートは私が更新します。",zh:"太好了。我来更新发行说明。"}
 ];
-var src=$("src"),dst=$("dst"),cells=[0,1,2,3].map(function(i){return $("c"+i)}).filter(Boolean);
+/* who speaks each line: the partner, the reader, then the other two; the reader reads every line in their language */
+var speak=[PARTNER,PL,ORDER[2],ORDER[3]];
+var src=$("src"),dst=$("dst"),hp=$("hpair");
 var i=0,timer,paused=false,typer;
 function show(n){
-  var s=script[n],fromKo=s.who===1;
-  cells.forEach(function(c,k){c.classList.toggle("on",k===s.who)});
-  var a=fromKo?s.ko:s.en,b=fromKo?s.en:s.ko;
-  dst.lang=fromKo?"en":"ko";
+  var s=script[n],from=speak[n],to=from===PL?PARTNER:PL;
+  var a=s[from],b=s[to];
+  src.lang=LG[from];dst.lang=LG[to];hp.textContent=from.toUpperCase()+" → "+to.toUpperCase();
   clearInterval(typer);dst.classList.add("fade");
   if(reduce){src.textContent=a;dst.textContent=b;dst.classList.remove("fade");return}
   var c=0;src.textContent="";
-  typer=setInterval(function(){c+=2;src.textContent=a.slice(0,c);
+  typer=setInterval(function(){c+=from==="en"||from==="ko"?2:1;src.textContent=a.slice(0,c);
     if(c>=a.length){clearInterval(typer);setTimeout(function(){dst.textContent=b;dst.classList.remove("fade")},350)}},34);
 }
 function play(n){clearTimeout(timer);i=n;show(i);
@@ -937,23 +990,67 @@ play(0);
 /* try it: interactive preview */
 (function(){
 var lab=$("lab"),bar=$("tbar"),tp=$("tpanel");if(!lab)return;
-var cells=[0,1,2,3].map(function(i){return $("t"+i)}).filter(Boolean);
-var L=[
- {l:"en",who:0,src:"Can we ship the beta on Thursday?",dst:"목요일에 베타를 출시할 수 있을까요?"},
- {l:"ko",who:1,src:"QA가 끝나면 가능합니다.",dst:"It's possible once QA is done."},
- {l:"en",who:2,src:"Thanks, Ema. Can you review the build tonight?",fix:"Thanks, Emma. Can you review the build tonight?",dst:"고마워요, 에마. 오늘 밤에 빌드를 검토해 줄래요?",dstFix:"고마워요, 엠마. 오늘 밤에 빌드를 검토해 줄래요?"},
- {l:"en",who:3,src:"Sure, I'll check it tonight.",dst:"물론이죠, 오늘 밤에 확인할게요."},
- {l:"ko",who:1,src:"내일 오전까지 공유드릴게요.",dst:"I'll share it by tomorrow morning."},
- {l:"en",who:0,src:"Great. I'll update the release notes.",dst:"좋아요. 제가 릴리스 노트를 업데이트할게요."},
- {l:"ko",who:1,src:"감사합니다. 회의록은 제가 정리하겠습니다.",dst:"Thank you. I'll write up the minutes."}
-];
+/* one short meeting per pair; l = language spoken, the translation goes into the other language of the pair.
+   fix/dstFix: what the meeting vocabulary corrects (only English lines here, the corrector works on words) */
+var C={
+ "en-ko":[
+  {l:"en",src:"Can we ship the beta on Thursday?",dst:"목요일에 베타를 출시할 수 있을까요?"},
+  {l:"ko",src:"QA가 끝나면 가능합니다.",dst:"It's possible once QA is done."},
+  {l:"en",src:"Thanks, Ema. Can you review the build tonight?",fix:"Thanks, Emma. Can you review the build tonight?",term:"Emma",dst:"고마워요, 에마. 오늘 밤에 빌드를 검토해 줄래요?",dstFix:"고마워요, 엠마. 오늘 밤에 빌드를 검토해 줄래요?"},
+  {l:"ko",src:"내일 오전까지 공유드릴게요.",dst:"I'll share it by tomorrow morning."},
+  {l:"en",src:"Great. I'll update the release notes.",dst:"좋아요. 제가 릴리스 노트를 업데이트할게요."},
+  {l:"ko",src:"감사합니다. 회의록은 제가 정리하겠습니다.",dst:"Thank you. I'll write up the minutes."}],
+ "ko-ja":[
+  {l:"ko",src:"다음 주 월요일부터 테스트를 시작해도 될까요?",dst:"来週の月曜日からテストを始めてもいいですか？"},
+  {l:"ja",src:"はい、大丈夫です。環境は金曜日までに準備します。",dst:"네, 괜찮습니다. 환경은 금요일까지 준비하겠습니다."},
+  {l:"ko",src:"감사합니다. 결과는 매일 오후에 공유드릴게요.",dst:"ありがとうございます。結果は毎日午後に共有します。"},
+  {l:"ja",src:"助かります。議事録は私がまとめておきます。",dst:"감사합니다. 회의록은 제가 정리해 두겠습니다."}],
+ "ko-zh":[
+  {l:"ko",src:"샘플은 이번 주 금요일까지 보내 주실 수 있나요?",dst:"样品能在这周五之前寄出吗？"},
+  {l:"zh",src:"可以，我们周四发货，周一就能到首尔。",dst:"네, 목요일에 발송하니 월요일에는 서울에 도착합니다."},
+  {l:"ko",src:"좋습니다. 포장 사양도 함께 확인 부탁드립니다.",dst:"好的。也请一起确认一下包装规格。"},
+  {l:"zh",src:"没问题，我今天把规格表发给您。",dst:"문제없습니다. 오늘 사양서를 보내 드리겠습니다."}],
+ "en-ja":[
+  {l:"en",src:"Let's keep the current layout and only change the colors.",dst:"今のレイアウトはそのままで、色だけ変えましょう。"},
+  {l:"ja",src:"わかりました。修正版は水曜日にお送りします。",dst:"Understood. I'll send the revised version on Wednesday."},
+  {l:"en",src:"Thanks. Can you add the feedback to Jera?",fix:"Thanks. Can you add the feedback to Jira?",term:"Jira",dst:"ありがとうございます。フィードバックを Jera に追加してもらえますか？",dstFix:"ありがとうございます。フィードバックを Jira に追加してもらえますか？"},
+  {l:"ja",src:"はい、今日中に追加しておきます。",dst:"Sure, I'll add it by the end of today."}],
+ "en-zh":[
+  {l:"en",src:"Can you share the Q3 budget before Friday?",dst:"你能在周五之前分享第三季度的预算吗？"},
+  {l:"zh",src:"可以，不过市场部的数字还要再确认一下。",dst:"Yes, but the marketing numbers still need to be checked."},
+  {l:"en",src:"No problem. Please track it in Jera.",fix:"No problem. Please track it in Jira.",term:"Jira",dst:"没问题。请在 Jera 里跟进这件事。",dstFix:"没问题。请在 Jira 里跟进这件事。"},
+  {l:"zh",src:"好的，我周四之前更新。",dst:"OK, I'll update it by Thursday."}],
+ "ja-zh":[
+  {l:"ja",src:"量産の開始は来月の中旬でよろしいですか？",dst:"量产从下个月中旬开始可以吗？"},
+  {l:"zh",src:"可以。不过我们需要先确认最终版的图纸。",dst:"大丈夫です。ただ、先に最終版の図面を確認する必要があります。"},
+  {l:"ja",src:"承知しました。図面は明日までにお送りします。",dst:"明白了。图纸我们明天之前发给您。"},
+  {l:"zh",src:"谢谢，收到后我们马上安排。",dst:"ありがとうございます。届きしだい、すぐに手配します。"}]
+};
+/* this page's language first: its pairs lead the chips, and each pair reads "page language ↔ other" */
+var LG={en:"en",ko:"ko",ja:"ja",zh:"zh-Hans"},PL=d.dataset.lang||"en";
+var RANK=[PL,{en:"ko",ko:"en",ja:"ko",zh:"ko"}[PL]||"ko"];["en","ko","ja","zh"].forEach(function(x){if(RANK.indexOf(x)<0)RANK.push(x)});
+var pairsEl=$("pairs"),pr={};
+Array.prototype.slice.call(pairsEl.querySelectorAll("label")).map(function(lb){
+  var inp=lb.querySelector("input"),ab=inp.value.split("-");
+  if(RANK.indexOf(ab[1])<RANK.indexOf(ab[0]))ab.reverse();
+  pr[inp.value]=ab;lb.querySelector("span").textContent=ab[0].toUpperCase()+" ↔ "+ab[1].toUpperCase();
+  return {lb:lb,k:RANK.indexOf(ab[0])*4+RANK.indexOf(ab[1])};
+}).sort(function(x,y){return x.k-y.k}).forEach(function(x,n){pairsEl.appendChild(x.lb);x.lb.querySelector("input").checked=n===0});
+var pairKey=pairsEl.querySelector("input:checked").value;
 var st={mode:"conv",n:2,fade:false,voc:false,run:false,stopped:false,vis:false,i:0,view:[],clock:37334};
 var timers=[],typer;
 var reduceM=matchMedia("(prefers-reduced-motion:reduce)").matches;
 if(reduceM)lab.classList.add("reduce"),d.classList.add("reduce");
 function later(fn,ms){var t=setTimeout(fn,ms);timers.push(t)}
 function clear(){timers.forEach(clearTimeout);timers=[];clearInterval(typer)}
-function list(){return L.filter(function(x){return st.mode==="en2ko"?x.l==="en":st.mode==="ko2en"?x.l==="ko":true})}
+function other(l){var ab=pr[pairKey];return l===ab[0]?ab[1]:ab[0]}
+function list(){var ab=pr[pairKey];return C[pairKey].filter(function(x){return st.mode==="ab"?x.l===ab[0]:st.mode==="ba"?x.l===ab[1]:true})}
+function setPair(k){
+  pairKey=k;var ab=pr[k],A=ab[0].toUpperCase(),B=ab[1].toUpperCase();
+  $("m-ab").textContent=A+" → "+B;$("m-ba").textContent=B+" → "+A;
+  var hasFix=C[k].some(function(x){return x.fix});
+  lab.classList.toggle("novoc",!hasFix);$("vocchk").disabled=!hasFix;
+}
 function hms(sec){var h=Math.floor(sec/3600)%24,m=Math.floor(sec/60)%60,s=sec%60;return [h,m,s].map(function(v){return(v<10?"0":"")+v}).join(":")}
 function render(){
   bar.className="tbar"+(st.mode==="caps"?" caps":"");
@@ -963,8 +1060,8 @@ function render(){
   if(!st.run&&!v.length){var p=document.createElement("div");p.className="idle";p.textContent=T.idle;bar.appendChild(p);return}
   v.forEach(function(e,k){
     var g=document.createElement("div");g.className="ent"+(k<v.length-1?" old":"");
-    var a=document.createElement("div");a.className="s";a.lang=e.l;
-    var b=document.createElement("div");b.className="d";b.lang=e.l==="en"?"ko":"en";
+    var a=document.createElement("div");a.className="s";a.lang=LG[e.l];
+    var b=document.createElement("div");b.className="d";b.lang=LG[other(e.l)];
     e.sEl=a;e.dEl=b;a.innerHTML=e.sHtml||"";b.textContent=e.dTxt||"";
     g.appendChild(a);g.appendChild(b);bar.appendChild(g);
   });
@@ -974,13 +1071,13 @@ function setRun(on){
   st.run=on;lab.dataset.run=on?"on":"off";
   $("labrec").classList.toggle("off",!on);
   $("labrec").textContent=on?T.listening:T.stopped;
-  if(!on){clear();bar.classList.remove("faded");cells.forEach(function(c){c.classList.remove("on")});render()}
+  if(!on){clear();bar.classList.remove("faded");render()}
 }
 function row(e){
   var ts=hms(st.clock);st.clock+=7;
-  var tag=e.l==="en"?"EN":"KO";
-  var h='<span class="t">['+ts+']'+(st.mode==="conv"?' ['+tag+']':'')+'</span> '+esc(e.srcFinal);
-  if(st.mode!=="caps")h+='<br><span class="a">&nbsp;&nbsp;&nbsp;&nbsp;→ '+esc(e.dTxt)+'</span>';
+  var conv=st.mode==="conv",to=other(e.l);
+  var h='<span class="t">['+ts+']'+(conv?' ['+e.l.toUpperCase()+']':'')+'</span> <span lang="'+LG[e.l]+'">'+esc(e.srcFinal)+'</span>';
+  if(st.mode!=="caps")h+='<br><span class="t">['+ts+']'+(conv?' ['+to.toUpperCase()+']':'')+'</span> <span class="a">→ <span lang="'+LG[to]+'">'+esc(e.dTxt)+'</span></span>';
   var div=document.createElement("div");div.innerHTML=h;tp.appendChild(div);
   while(tp.children.length>14)tp.removeChild(tp.firstChild);
   tp.scrollTop=tp.scrollHeight;
@@ -988,7 +1085,6 @@ function row(e){
 function step(instant){
   if(!st.run)return;
   var F=list(),x=F[st.i%F.length];st.i++;
-  cells.forEach(function(c,k){c.classList.toggle("on",k===x.who)});
   bar.classList.remove("faded");
   var useFix=st.voc&&x.fix;
   var e={l:x.l,sHtml:"",dTxt:"",srcFinal:useFix?x.fix:x.src};
@@ -996,7 +1092,7 @@ function step(instant){
   render();
   var raw=x.src,fin=e.srcFinal,dst=useFix?x.dstFix:x.dst;
   function finish(){
-    e.sHtml=useFix?esc(fin).replace("Emma",'<mark class="fix">Emma</mark>'):esc(fin);
+    e.sHtml=useFix?esc(fin).replace(x.term,'<mark class="fix">'+x.term+'</mark>'):esc(fin);
     if(e.sEl)e.sEl.innerHTML=e.sHtml;
     if(st.mode==="caps"){row(e);return after()}
     later(function(){e.dTxt=dst;if(e.dEl)e.dEl.textContent=dst;row(e);after()},instant?0:700);
@@ -1007,9 +1103,9 @@ function step(instant){
     later(function(){step()},4200);
   }
   if(instant){finish();return}
-  var c=0;
+  var c=0,wide=x.l==="en"||x.l==="ko"?2:1;
   typer=setInterval(function(){
-    c+=2;e.sHtml=esc(raw.slice(0,c));if(e.sEl)e.sEl.innerHTML=e.sHtml;
+    c+=wide;e.sHtml=esc(raw.slice(0,c));if(e.sEl)e.sEl.innerHTML=e.sHtml;
     if(c>=raw.length){clearInterval(typer);later(finish,useFix?450:150)}
   },34);
 }
@@ -1024,6 +1120,7 @@ $("runbtn").addEventListener("click",function(){st.run?stop():start()});
 $("nextbtn").addEventListener("click",function(){if(!st.run){st.stopped=false;setRun(true)}step(true)});
 function toggleView(){lab.dataset.view=lab.dataset.view==="bar"?"transcript":"bar";tp.scrollTop=tp.scrollHeight}
 $("viewbtn").addEventListener("click",toggleView);
+lab.querySelectorAll("input[name=pair]").forEach(function(r){r.addEventListener("change",function(){setPair(r.value);reset()})});
 lab.querySelectorAll("input[name=mode]").forEach(function(r){r.addEventListener("change",function(){st.mode=r.value;reset()})});
 lab.querySelectorAll("input[name=lines]").forEach(function(r){r.addEventListener("change",function(){st.n=+r.value;render()})});
 lab.querySelectorAll("input[name=theme]").forEach(function(r){r.addEventListener("change",function(){bar.dataset.theme=r.value})});
@@ -1036,7 +1133,7 @@ document.addEventListener("keydown",function(e){
   else if(e.code==="KeyD"){e.preventDefault();toggleView()}
 });
 bar.style.setProperty("--sz","24px");bar.style.setProperty("--op",.88);
-render();
+setPair(pairKey);render();
 if("IntersectionObserver" in window){
   new IntersectionObserver(function(es){st.vis=es[0].isIntersecting;sync()},{threshold:.35}).observe(lab);
 }
