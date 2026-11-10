@@ -20,10 +20,7 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/plusjakarta-latin.woff2" as="font" type="font/woff2" crossorigin>
-<script>
-(function(){var d=document.documentElement,l;try{l=localStorage.getItem("lang")}catch(e){}
-if(l!=="ko")l="en";d.dataset.lang=l;d.lang=l;d.classList.add("js")})();
-</script>
+<script>document.documentElement.classList.add("js")</script>
 <style>
 @font-face{font-family:"Plus Jakarta Sans";src:url(/fonts/plusjakarta-latin.woff2) format("woff2");font-weight:300 800;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Noto Sans KR";src:url(/fonts/notosanskr-subset.woff2) format("woff2");font-weight:100 900;font-display:swap}
@@ -51,7 +48,6 @@ a{color:inherit}
 .skip:focus{left:8px}
 .icon{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 :lang(ko){word-break:keep-all}
-[data-lang=en] .ko,[data-lang=ko] .en{display:none!important}
 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 code{font:500 .9em var(--mono);padding:2px 6px;border-radius:6px;background:var(--surf-2)}
 
@@ -75,6 +71,15 @@ code{font:500 .9em var(--mono);padding:2px 6px;border-radius:6px;background:var(
 .nav nav a:not(.btn):hover{color:#fff;background:var(--surf-2)}
 .lang{min-height:44px;min-width:44px;padding:0 14px;margin:0 4px;border-radius:999px;border:1px solid var(--bd-2);background:transparent;color:var(--tx);font:600 13.5px/1 var(--font);cursor:pointer}
 .lang:hover{background:var(--surf-2)}
+.langpick{position:relative;display:inline-block}
+.langpick summary{display:inline-flex;align-items:center;justify-content:center;list-style:none}
+.langpick summary::-webkit-details-marker{display:none}
+.langpick summary::after{content:none}
+.langpick ul{position:absolute;right:0;top:calc(100% + 10px);z-index:60;min-width:150px;margin:0;padding:6px;list-style:none;border-radius:18px;background:rgba(12,16,22,.97);border:1px solid var(--bd-2);box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.langpick li a{display:block;padding:11px 14px;border-radius:12px;color:var(--tx);font:600 14px/1.2 var(--font);text-decoration:none}
+.langpick li a:hover,.langpick li a[aria-current]{background:var(--surf-2)}
+html[lang=ja] body,html[lang=ja] button{font-family:var(--font),"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+html[lang=zh-Hans] body,html[lang=zh-Hans] button{font-family:var(--font),"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
 
 /* hero */
 .hero{position:relative;padding:150px 0 40px;text-align:center;overflow:hidden}
@@ -358,7 +363,7 @@ footer a{color:var(--mute)}
       <a href="#try"><span class="en">Try it</span><span class="ko">체험</span></a>
       <a href="#privacy"><span class="en">Privacy</span><span class="ko">개인정보</span></a>
       <a href="#faq"><span class="en">FAQ</span><span class="ko">질문</span></a>
-      <button class="lang" type="button" id="langbtn" aria-label="Switch language / 언어 전환"><span class="en" lang="ko">한국어</span><span class="ko" lang="en">English</span></button>
+      <!--LANGPICK-->
       <a class="btn sm dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><span class="en">Download</span><span class="ko">다운로드</span></a>
     </nav>
   </div>
@@ -743,22 +748,16 @@ var COFFEE_URL="https://buymeacoffee.com/stoni";
 if(COFFEE_URL){$("coffeebtn").href=COFFEE_URL;$("coffeefoot").querySelector("a").href=COFFEE_URL}
 else{$("coffeebtn").hidden=true;$("coffeecard").classList.add("nolink");$("coffeefoot").hidden=true}
 
-$("langbtn").addEventListener("click",function(){
-  var l=d.dataset.lang==="ko"?"en":"ko";d.dataset.lang=l;d.lang=l;
-  try{localStorage.setItem("lang",l)}catch(e){}
-  play(0);
-});
-
 var isMac=/Mac/i.test(navigator.platform||navigator.userAgent)&&!/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!(navigator.maxTouchPoints>1);
 if(!isMac)d.classList.add("notmac");
 
 var url="https://ieum.calmwork.today/";
-var msg=function(){return d.dataset.lang==="ko"?"Ieum 이음: 회의에 실시간 자막과 번역을 띄워 주는 Mac 앱 (영·한·일·중, 무료, 100% 기기 내 처리)":"Ieum: live captions and translation for meetings on Mac (English, Korean, Japanese, Chinese). Free, 100% on-device."};
+var msg=function(){return T.share};
 document.querySelectorAll("[data-share]").forEach(function(el){
   el.addEventListener("click",function(e){
     var k=el.dataset.share,t=msg();e.preventDefault();
     if(k==="copy"){
-      (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(function(){$("copied").textContent=d.dataset.lang==="ko"?"링크를 복사했습니다":"Link copied"},function(){prompt("Copy:",url)});
+      (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(function(){$("copied").textContent=T.copied},function(){prompt("Copy:",url)});
     }else{
       var h=k==="x"?"https://twitter.com/intent/tweet?text="+encodeURIComponent(t)+"&url="+encodeURIComponent(url)
         :k==="li"?"https://www.linkedin.com/sharing/share-offsite/?url="+encodeURIComponent(url)
@@ -771,7 +770,7 @@ document.querySelectorAll("[data-share]").forEach(function(el){
 /* real download count from the GitHub releases, shown only once it is meaningful */
 fetch("https://api.github.com/repos/stoneidev/ieum/releases?per_page=30").then(function(r){return r.json()}).then(function(rs){
   var n=0;rs.forEach(function(r){(r.assets||[]).forEach(function(a){if(/\.dmg$/.test(a.name))n+=a.download_count})});
-  if(n>=25){$("countn").textContent=n.toLocaleString()+(d.dataset.lang==="ko"?"회 다운로드":" downloads");$("count").classList.add("on")}
+  if(n>=25){$("countn").textContent=T.downloads.replace("{n}",n.toLocaleString());$("count").classList.add("on")}
 }).catch(function(){});
 
 /* hero demo */
@@ -798,8 +797,7 @@ function play(n){clearTimeout(timer);i=n;show(i);
   if(!paused&&!reduce)timer=setTimeout(function(){play((i+1)%script.length)},4200)}
 $("pause").addEventListener("click",function(){
   paused=!paused;
-  this.querySelector(".en").textContent=paused?"Play":"Pause";
-  this.querySelector(".ko").textContent=paused?"재생":"일시정지";
+  this.textContent=paused?T.play:T.pause;
   if(paused)clearTimeout(timer);else play((i+1)%script.length);
 });
 if(reduce)$("pause").hidden=true;
@@ -832,7 +830,7 @@ function render(){
   bar.style.setProperty("--n",st.n);
   bar.innerHTML="";
   var v=st.view.slice(-st.n);
-  if(!st.run&&!v.length){var p=document.createElement("div");p.className="idle";p.textContent=d.dataset.lang==="ko"?"시작을 누르거나 ⌃⌥S를 누르세요":"Press Start or ⌃⌥S";bar.appendChild(p);return}
+  if(!st.run&&!v.length){var p=document.createElement("div");p.className="idle";p.textContent=T.idle;bar.appendChild(p);return}
   v.forEach(function(e,k){
     var g=document.createElement("div");g.className="ent"+(k<v.length-1?" old":"");
     var a=document.createElement("div");a.className="s";a.lang=e.l;
@@ -845,8 +843,7 @@ function esc(t){return t.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&l
 function setRun(on){
   st.run=on;lab.dataset.run=on?"on":"off";
   $("labrec").classList.toggle("off",!on);
-  $("labrec").querySelector(".en").textContent=on?"Ieum · listening":"Ieum · stopped";
-  $("labrec").querySelector(".ko").textContent=on?"이음 · 듣는 중":"이음 · 중지됨";
+  $("labrec").textContent=on?T.listening:T.stopped;
   if(!on){clear();bar.classList.remove("faded");cells.forEach(function(c){c.classList.remove("on")});render()}
 }
 function row(e){

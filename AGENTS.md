@@ -35,7 +35,8 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
-| `site` | The product website (static HTML, self-hosted fonts); deployed with `Scripts/deploy-site.sh` |
+| `site-src` | The website template: every sentence in English, Korean, Japanese and Chinese as adjacent `<span class="en|ko|ja|zh">`. `Scripts/build-site.py` writes one page per language (`/`, `/ko/`, `/ja/`, `/zh/`) with its own head (hreflang, JSON-LD), plus `sitemap.xml` and `llms-full.txt` |
+| `site` | Static site files that are copied as they are (fonts, icons, `og.png`, `robots.txt`, `llms.txt`, `_headers`); deployed with `Scripts/deploy-site.sh` (`--preview` for a preview URL) |
 | `docs` | `PRD.md`, `USER-GUIDE.md`, `BENCHMARKS.md`, `UX-REVIEW.md` |
 | `.claude/skills` | Runbooks: `ieum-release`, `ieum-verify-app`, `ieum-benchmark` (plain Markdown, usable by any agent). Other skills the owner installed locally (for example `ui-ux-pro-max`, used for the UI/site design work) are not committed |
 | `.omc` | Planning artifacts from earlier sessions (`prd.json`, interview spec). History only; `docs/PRD.md` is the current statement |
@@ -80,7 +81,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 - **`contextualStrings` do nothing for SpeechTranscriber** (measured). The meeting vocabulary is applied afterwards by `VocabularyCorrector`.
 - **macOS has a case-insensitive file system**: the CLI is `caption-cli` so it cannot collide with the app executable `Ieum`.
 - **Notarization uploads can hang** (no network connection, no submission in `notarytool history`). Kill `notarytool submit` and rerun only `make dmg`.
-- **Do not publish `site/.omc`** (hook state): deploy through `Scripts/deploy-site.sh`.
+- **Do not publish `site/.omc`** (hook state): deploy through `Scripts/deploy-site.sh`. Edit the site in `site-src/index.template.html` (all four languages in the same place); `python3 Scripts/build-site.py /tmp/out --allow-missing` builds it for a local look, and the real build fails on any sentence without a translation.
 - **Status items are hosted by Control Center on macOS 26** (window owner "제어 센터"/Control Center, layer 25, named by `autosaveName`) and the left-most ones are hidden when the bar is full. The status item has its own `autosaveName` (unnamed items share "Item-0" visibility with other apps), and the overlay carries a ⋯ menu with the same actions so the app is never out of reach.
 - **Display sleep breaks ScreenCaptureKit and screenshots.** Use `caffeinate -u`.
 - **zsh does not word-split unquoted variables**; use arrays. BSD `sed` has no `-i` without a suffix; use Python or `perl -pi`.

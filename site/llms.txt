@@ -1,0 +1,27 @@
+# Ieum (이음)
+
+> Ieum is a free, open-source macOS app that shows live captions and translation during meetings, between English, Korean, Japanese and Chinese (Simplified). Speech recognition and translation run entirely on the Mac (Apple Speech and Translation frameworks): no account, no cloud, no audio leaves the device. "Ieum" (이음) means "to connect". Latest version: {{VERSION}} ({{SIZE}}). Requires an Apple silicon Mac with macOS 14 or later (macOS 26.4 or later for translation).
+
+Choose the language you hear and the language you read (any two of English, Korean, Japanese, Chinese), or captions only. Turn on "Both sides speak" and Ieum detects the language of each sentence and translates it into the other. A transcript with timestamps is saved as a text file after every meeting. Japanese and Chinese speech models are downloaded once by macOS on first use; after that everything works offline.
+
+## Install
+- [Download Ieum.dmg](https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg): signed and notarized by Apple
+- Homebrew: `brew install --cask stoneidev/tap/ieum`
+- [Release notes](https://github.com/stoneidev/ieum/releases)
+
+## Documentation
+- [Website, English](https://ieum.calmwork.today/)
+- [Website, 한국어](https://ieum.calmwork.today/ko/)
+- [Website, 日本語](https://ieum.calmwork.today/ja/)
+- [Website, 中文](https://ieum.calmwork.today/zh/)
+- [Full text of the website in all four languages](https://ieum.calmwork.today/llms-full.txt)
+- [User guide (Korean)](https://github.com/stoneidev/ieum/blob/main/docs/USER-GUIDE.md)
+- [Product requirements and decisions (Korean)](https://github.com/stoneidev/ieum/blob/main/docs/PRD.md)
+- [Benchmarks: latency and accuracy measurements](https://github.com/stoneidev/ieum/blob/main/docs/BENCHMARKS.md)
+- [Source code and architecture](https://github.com/stoneidev/ieum)
+
+## Facts
+- Languages: English, Korean, Japanese, Chinese (Simplified). Any two together.
+- Privacy: audio is processed in memory and never stored; the only network request is an optional once-a-day check for a newer version.
+- License: Apache-2.0. Price: free.
+- Platform: macOS only, Apple silicon.

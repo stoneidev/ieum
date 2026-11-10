@@ -1,0 +1,6 @@
+# Ieum — everything on this site is public. Search engines and AI agents are welcome.
+User-agent: *
+Allow: /
+
+# Machine-readable overview for AI agents: https://ieum.calmwork.today/llms.txt
+Sitemap: https://ieum.calmwork.today/sitemap.xml
