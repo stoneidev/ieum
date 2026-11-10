@@ -309,6 +309,61 @@ footer{border-top:1px solid var(--bd);padding:28px 0 40px;font-size:14px;color:v
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px}
 footer a{color:var(--mute)}
 
+/* headings: balanced lines; Japanese and Chinese break only between phrases (<wbr>, punctuation, spaces) */
+h1,h2,h3{text-wrap:balance}
+.sub,.lead,.talk p,.facts p{text-wrap:pretty}
+.micro{text-wrap:balance}
+:lang(ja) :is(h1,h2,h3),:lang(zh) :is(h1,h2,h3){word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+html[lang=ja] h1,html[lang=zh-Hans] h1{max-width:11.5em;letter-spacing:-.02em}
+html[lang=ja] h2,html[lang=zh-Hans] h2{max-width:15em;letter-spacing:-.02em}
+/* sample lines in another script than the page get that script's system font */
+:not(html)[lang=ja]{font-family:"Plus Jakarta Sans","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+:not(html)[lang=zh-Hans]{font-family:"Plus Jakarta Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+
+/* hero: what is new, and the four languages */
+a.badge{min-height:44px;text-decoration:none;transition:border-color .2s,color .2s,background-color .2s}
+a.badge:hover{border-color:var(--bd-2);background:var(--surf-2);color:var(--tx)}
+a.badge .icon{width:16px;height:16px;margin-left:-2px;color:var(--teal);transition:transform .2s var(--ease)}
+a.badge:hover .icon{transform:translateX(3px)}
+.tongues{margin:30px auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;row-gap:10px}
+.tongues b{font:700 clamp(17px,1.8vw,22px)/1.2 var(--font);color:var(--tx)}
+.tongues b:lang(en){letter-spacing:-.01em}
+.tongues i{width:clamp(16px,3vw,36px);height:1px;margin:0 clamp(10px,1.3vw,16px);background:linear-gradient(90deg,transparent,var(--teal),transparent)}
+.tongues small{flex-basis:100%;font-size:13.5px;font-weight:500;color:var(--dim)}
+
+/* languages: the bridge */
+.bridge{margin:60px auto 0;max-width:920px}
+.bridge svg{display:block;width:100%;height:auto;overflow:visible}
+.bridge .track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:1.5}
+.bridge .arc{fill:none;stroke:url(#bridge-grad);stroke-width:2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 1.3s var(--ease) var(--d,0s),opacity .3s,stroke-width .3s}
+.js .bridge:not(.in) .arc{stroke-dashoffset:1}
+.bridge .halo{fill:rgba(94,234,212,.1)}
+.bridge .dot{fill:var(--bg);stroke:var(--teal);stroke-width:2}
+.bridge.focus .arc{opacity:.15}
+.bridge.focus .arc.hot{opacity:1;stroke-width:3.5}
+.bridge .names{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:16px;text-align:center}
+.bridge .names li{display:grid;gap:8px;font:800 clamp(17px,2.4vw,28px)/1.1 var(--font);transition:color .3s}
+.bridge .names small{font:600 11.5px/1 var(--mono);letter-spacing:.14em;color:var(--dim)}
+.bridge.focus .names li{color:var(--dim)}
+.bridge .names li.hot{color:var(--teal)}
+.bridge figcaption{margin-top:22px;text-align:center;font-size:14px;color:var(--dim)}
+.talks{margin-top:64px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.talk{padding:22px 26px 26px;border-radius:22px;background:rgba(3,7,10,.55);border:1px solid var(--bd);transition:border-color .25s}
+.talk:hover{border-color:rgba(94,234,212,.35)}
+.talk .ctx{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:13.5px;color:var(--dim)}
+.talk .pair{font:600 11.5px/1 var(--mono);letter-spacing:.08em;color:var(--teal);padding:5px 8px;border:1px solid rgba(94,234,212,.28);border-radius:7px}
+.talk .said{margin-top:18px;font-size:15.5px;line-height:1.55;color:var(--mute)}
+.talk .read{margin-top:6px;font-size:clamp(19px,1.9vw,23px);line-height:1.4;font-weight:700;color:#fff}
+.talk .read:lang(en){letter-spacing:-.015em}
+.talk p:is(:lang(ja),:lang(zh)){word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+#languages{padding-bottom:24px}
+.langnote{margin-top:18px;text-align:center;font-size:13.5px;color:var(--dim)}
+.facts{margin-top:64px;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 40px}
+.facts li{position:relative;padding-top:24px;border-top:1px solid var(--bd)}
+.facts li::before{content:"";position:absolute;left:0;top:-1px;width:36px;height:1px;background:var(--teal)}
+.facts b{display:block;font:700 18.5px/1.3 var(--font)}
+.facts p{margin-top:8px;font-size:15.5px;color:var(--mute)}
+
 @media (max-width:960px){
   .hero{padding:118px 0 24px}
   .nav nav a:not(.btn):not(.keep){display:none}
@@ -321,12 +376,15 @@ footer a{color:var(--mute)}
   .barwrap{width:calc(100% - 28px)}
   section{padding:84px 0}
   .coffeecard,.coffeecard.nolink{grid-template-columns:minmax(0,1fr);padding:30px 26px}
+  .talks,.facts{grid-template-columns:minmax(0,1fr)}
+  .bridge{margin-top:44px}
 }
 @media (max-width:560px){
   .cta .btn{width:100%}
   .nav .btn{display:none}
   .bento{grid-template-columns:minmax(0,1fr)}
   .tile.c2,.tile.c3,.tile.c4,.tile.c6{grid-column:auto}
+  .bridge .arc{stroke-width:4}.bridge .track{stroke-width:3}.bridge .dot{stroke-width:4}
   .tx .row{grid-template-columns:1fr}
   .tx .row>div+div{border-left:0;border-top:1px solid var(--bd)}
   .req th:nth-child(3),.req td:nth-child(3){display:none}
@@ -335,11 +393,13 @@ footer a{color:var(--mute)}
   html{scroll-behavior:auto}
   *,*::before{transition:none!important;animation:none!important}
   .js .reveal{opacity:1;transform:none}
+  .js .bridge .arc{stroke-dashoffset:0}
 }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/><path d="m3 3 18 18"/></symbol>
@@ -359,6 +419,7 @@ footer a{color:var(--mute)}
   <div class="bar">
     <a class="brand" href="#top" aria-label="Ieum 이음"><img src="/icon-512.png" alt="" width="28" height="28">Ieum <i lang="ko">이음</i></a>
     <nav aria-label="Main">
+      <a href="#languages"><span class="en">Languages</span><span class="ko">언어</span><span class="ja">言語</span><span class="zh">语言</span></a>
       <a href="#how"><span class="en">How it works</span><span class="ko">사용법</span><span class="ja">仕組み</span><span class="zh">工作原理</span></a>
       <a href="#try"><span class="en">Try it</span><span class="ko">체험</span><span class="ja">試してみる</span><span class="zh">试一试</span></a>
       <a href="#privacy"><span class="en">Privacy</span><span class="ko">개인정보</span><span class="ja">プライバシー</span><span class="zh">隐私</span></a>
@@ -372,13 +433,15 @@ footer a{color:var(--mute)}
 <main id="main">
 <section id="top" class="hero">
   <div class="wrap">
-    <p class="badge"><b>v{{VERSION}}</b><span class="en">Free and open source · works offline</span><span class="ko">무료 오픈소스 · 오프라인 동작</span><span class="ja">無料・オープンソース · オフラインで動作</span><span class="zh">免费开源 · 离线可用</span></p>
+    <a class="badge" href="#languages"><b>v{{VERSION}}</b><span class="en">New: Japanese and Chinese</span><span class="ko">새로 지원: 일본어·중국어</span><span class="ja">新機能：日本語と中国語に対応</span><span class="zh">新增：支持日语和中文</span><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
     <h1>
       <span class="en">Follow every word of your <span class="grad">meeting</span>.</span>
       <span class="ko">회의, <span class="grad">한 마디도</span> 놓치지 마세요.</span>
-      <span class="ja"><span class="grad">会議</span>の言葉を、ひとつ残らず。</span>
-      <span class="zh"><span class="grad">会议</span>里的每一句话，都跟得上。</span>
+      <span class="ja"><span class="grad">会議</span>の言葉を、<wbr>ひとつ残らず。</span>
+      <span class="zh"><span class="grad">会议</span>里的<wbr>每一句话，<wbr>都跟得上。</span>
     </h1>
+    <p class="tongues"><b lang="ko">한국어</b><i aria-hidden="true"></i><b lang="en">English</b><i aria-hidden="true"></i><b lang="ja">日本語</b><i aria-hidden="true"></i><b lang="zh-Hans">中文</b>
+      <small><span class="en">Any two, in either direction</span><span class="ko">어떤 두 언어든, 어느 방향으로든</span><span class="ja">どの 2 つでも、どちらの向きでも</span><span class="zh">任选两种，双向互译</span></small></p>
     <p class="lead">
       <span class="en">Live captions and translation on your Mac screen while people talk, between English, Korean, Japanese and Chinese. Answer in your language and they read theirs. Everything runs on your Mac.</span>
       <span class="ko">상대가 말하는 동안 Mac 화면에 실시간 자막과 번역이 뜹니다. 한국어·영어·일본어·중국어 사이에서 쓸 수 있고, 내 언어로 답하면 상대는 자기 언어로 읽습니다. 모든 처리는 내 Mac 안에서만 이뤄집니다.</span>
@@ -401,10 +464,10 @@ footer a{color:var(--mute)}
       <li><b>Apple silicon</b></li>
     </ul>
     <p class="micro">
-      <span class="en">v{{VERSION}} · {{SIZE}} · Signed and notarized by Apple · <a href="#requirements">What does my Mac get?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></span>
-      <span class="ko">v{{VERSION}} · {{SIZE}} · Apple 서명 및 공증 · <a href="#requirements">내 Mac은 어디까지 되나요?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">릴리스 노트</a></span>
-      <span class="ja">v{{VERSION}} · {{SIZE}} · Apple による署名・公証済み · <a href="#requirements">私の Mac で使える機能は？</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">リリースノート</a></span>
-      <span class="zh">v{{VERSION}} · {{SIZE}} · 已由 Apple 签名并公证 · <a href="#requirements">我的 Mac 能用哪些功能？</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">发行说明</a></span>
+      <span class="en">Free and open source · v{{VERSION}} · {{SIZE}} · Signed and notarized by Apple · <a href="#requirements">What does my Mac get?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">Release notes</a></span>
+      <span class="ko">무료 오픈소스 · v{{VERSION}} · {{SIZE}} · Apple 서명 및 공증 · <a href="#requirements">내 Mac은 어디까지 되나요?</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">릴리스 노트</a></span>
+      <span class="ja">無料・オープンソース · v{{VERSION}} · {{SIZE}} · Apple による署名・公証済み · <a href="#requirements">私の Mac で使える機能は？</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">リリースノート</a></span>
+      <span class="zh">免费开源 · v{{VERSION}} · {{SIZE}} · 已由 Apple 签名并公证 · <a href="#requirements">我的 Mac 能用哪些功能？</a> · <a href="https://github.com/stoneidev/ieum/releases/latest">发行说明</a></span>
     </p>
     <p class="pill" id="count"><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span id="countn"></span></p>
 
@@ -445,11 +508,75 @@ footer a{color:var(--mute)}
   </div>
 </section>
 
+<section id="languages">
+  <div class="wrap">
+    <div class="head-c">
+      <p class="k"><span class="en">Four languages</span><span class="ko">네 가지 언어</span><span class="ja">4 つの言語</span><span class="zh">四种语言</span></p>
+      <h2><span class="en">Ieum means “to connect”.</span><span class="ko">말이 달라도, 이어집니다.</span><span class="ja">言葉が違っても、<wbr>つながる。</span><span class="zh">语言不同，<wbr>也能相通。</span></h2>
+      <p class="sub"><span class="en">In Korean, <span lang="ko">이음</span> is the point where two things join. Ieum now speaks Japanese and Chinese as well as English and Korean, so colleagues and partners in Korea, Japan, China and the English-speaking world can follow the same meeting, each in their own language.</span><span class="ko">‘이음’은 둘을 잇는다는 뜻입니다. 이제 영어·한국어에 더해 일본어와 중국어까지. 한국, 일본, 중국, 그리고 영어권의 동료와 파트너가 같은 회의를 각자 자기 언어로 따라갑니다.</span><span class="ja">「<span lang="ko">이음</span>（イウム）」は、韓国語で「つなぐ」という意味です。英語と韓国語に加えて、日本語と中国語に対応しました。韓国、日本、中国、そして英語圏の同僚や取引先との会議を、それぞれが自分の言語で追えます。</span><span class="zh">“<span lang="ko">이음</span>”（Ieum）在韩语里是“连接”的意思。除了英语和韩语，Ieum 现在也支持日语和中文。和韩国、日本、中国以及英语国家的同事、合作伙伴开会时，每个人都能用自己的语言跟上会议。</span></p>
+    </div>
+
+    <figure class="bridge reveal" id="bridge">
+      <svg viewBox="0 0 960 240" aria-hidden="true" focusable="false">
+        <defs><linearGradient id="bridge-grad" gradientUnits="userSpaceOnUse" x1="120" y1="0" x2="840" y2="0"><stop offset="0" stop-color="#5eead4"/><stop offset=".55" stop-color="#a7f3d0"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
+        <g class="tracks">
+          <path class="track" d="M120 225A120 70 0 0 1 360 225"/><path class="track" d="M360 225A120 70 0 0 1 600 225"/><path class="track" d="M600 225A120 70 0 0 1 840 225"/>
+          <path class="track" d="M120 225A240 125 0 0 1 600 225"/><path class="track" d="M360 225A240 125 0 0 1 840 225"/><path class="track" d="M120 225A360 180 0 0 1 840 225"/>
+        </g>
+        <path class="arc" data-pair="zh-ko" pathLength="1" style="--d:0s" d="M120 225A120 70 0 0 1 360 225"/>
+        <path class="arc" data-pair="ko-ja" pathLength="1" style="--d:.12s" d="M360 225A120 70 0 0 1 600 225"/>
+        <path class="arc" data-pair="ja-en" pathLength="1" style="--d:.24s" d="M600 225A120 70 0 0 1 840 225"/>
+        <path class="arc" data-pair="zh-ja" pathLength="1" style="--d:.42s" d="M120 225A240 125 0 0 1 600 225"/>
+        <path class="arc" data-pair="ko-en" pathLength="1" style="--d:.54s" d="M360 225A240 125 0 0 1 840 225"/>
+        <path class="arc" data-pair="zh-en" pathLength="1" style="--d:.74s" d="M120 225A360 180 0 0 1 840 225"/>
+        <g><circle class="halo" cx="120" cy="225" r="15"/><circle class="dot" cx="120" cy="225" r="6"/><circle class="halo" cx="360" cy="225" r="15"/><circle class="dot" cx="360" cy="225" r="6"/><circle class="halo" cx="600" cy="225" r="15"/><circle class="dot" cx="600" cy="225" r="6"/><circle class="halo" cx="840" cy="225" r="15"/><circle class="dot" cx="840" cy="225" r="6"/></g>
+      </svg>
+      <ul class="names">
+        <li data-l="zh"><span lang="zh-Hans">中文</span><small>ZH</small></li>
+        <li data-l="ko"><span lang="ko">한국어</span><small>KO</small></li>
+        <li data-l="ja"><span lang="ja">日本語</span><small>JA</small></li>
+        <li data-l="en"><span lang="en">English</span><small>EN</small></li>
+      </ul>
+      <figcaption><span class="en">Six pairs, each in either direction.</span><span class="ko">여섯 가지 조합, 어느 방향으로든.</span><span class="ja">6 通りの組み合わせを、どちらの向きでも。</span><span class="zh">六种组合，双向皆可。</span></figcaption>
+    </figure>
+
+    <div class="talks">
+      <article class="talk reveal" data-pair="ko-ja">
+        <p class="ctx"><span class="pair">JA → KO</span><span class="en">Kickoff, Tokyo and Seoul</span><span class="ko">킥오프 · 도쿄와 서울</span><span class="ja">キックオフ · 東京とソウル</span><span class="zh">启动会 · 东京与首尔</span></p>
+        <p class="said" lang="ja">来週の<wbr>月曜日から<wbr>始めます。</p>
+        <p class="read" lang="ko">다음 주 월요일부터 시작합니다.</p>
+      </article>
+      <article class="talk reveal" data-pair="zh-ko">
+        <p class="ctx"><span class="pair">KO → ZH</span><span class="en">Supplier call, Seoul and Shenzhen</span><span class="ko">공급업체 통화 · 서울과 선전</span><span class="ja">サプライヤーとの通話 · ソウルと深圳</span><span class="zh">供应商通话 · 首尔与深圳</span></p>
+        <p class="said" lang="ko">샘플은 이번 주 금요일까지 보내 주실 수 있나요?</p>
+        <p class="read" lang="zh-Hans">样品能在<wbr>这周五之前<wbr>寄出吗？</p>
+      </article>
+      <article class="talk reveal" data-pair="ja-en">
+        <p class="ctx"><span class="pair">EN → JA</span><span class="en">Design review, London and Osaka</span><span class="ko">디자인 리뷰 · 런던과 오사카</span><span class="ja">デザインレビュー · ロンドンと大阪</span><span class="zh">设计评审 · 伦敦与大阪</span></p>
+        <p class="said" lang="en">Let’s keep the current layout and only change the colors.</p>
+        <p class="read" lang="ja">今のレイアウトは<wbr>そのままで、<wbr>色だけ<wbr>変えましょう。</p>
+      </article>
+      <article class="talk reveal" data-pair="zh-en">
+        <p class="ctx"><span class="pair">ZH → EN</span><span class="en">Budget sync, Shanghai and New York</span><span class="ko">예산 회의 · 상하이와 뉴욕</span><span class="ja">予算の打ち合わせ · 上海とニューヨーク</span><span class="zh">预算会议 · 上海与纽约</span></p>
+        <p class="said" lang="zh-Hans">第三季度的预算，<wbr>我们下周<wbr>再确认一下。</p>
+        <p class="read" lang="en">Let’s confirm the Q3 budget again next week.</p>
+      </article>
+    </div>
+    <p class="langnote"><span class="en">Example lines. In the app, translation comes from Apple’s on-device models.</span><span class="ko">예시 문장입니다. 앱의 번역은 Apple의 온디바이스 모델이 만듭니다.</span><span class="ja">例文です。アプリでの翻訳は、Apple のオンデバイスモデルが行います。</span><span class="zh">以上为示例。应用中的翻译由 Apple 的设备端模型完成。</span></p>
+
+    <ul class="facts">
+      <li class="reveal"><b><span class="en">Any two of the four</span><span class="ko">네 언어 중 어떤 두 언어든</span><span class="ja">4 つのうち、どの 2 つでも</span><span class="zh">四种语言，任选两种</span></b><p><span class="en">In Settings &gt; General, pick the language you hear and the language you read: English, Korean, Japanese or Chinese (Simplified). Choosing the same language in both places swaps them, and <kbd>⌃ ⌥ L</kbd> flips the two.</span><span class="ko">설정 &gt; 일반에서 듣는 언어와 읽는 언어를 영어, 한국어, 일본어, 중국어(간체) 중에서 고릅니다. 두 곳에 같은 언어를 고르면 서로 바뀌고, <kbd>⌃ ⌥ L</kbd>로 두 언어를 맞바꿀 수 있습니다.</span><span class="ja">設定 &gt; 一般 で、聞く言語と見る言語を英語・韓国語・日本語・中国語（簡体字）から選びます。両方に同じ言語を選ぶと入れ替わり、<kbd>⌃ ⌥ L</kbd> でも 2 つを入れ替えられます。</span><span class="zh">在 设置 &gt; 通用 中，从英语、韩语、日语和中文（简体）里选择听的语言和看的语言。两处选了同一种语言会自动互换，按 <kbd>⌃ ⌥ L</kbd> 也可以对调两种语言。</span></p></li>
+      <li class="reveal"><b><span class="en">“Both sides speak”</span><span class="ko">“양쪽이 말함”</span><span class="ja">「交互に話す」</span><span class="zh">“双方轮流发言”</span></b><p><span class="en">Turn it on and Ieum detects the language of each sentence, then translates it into the other one. Nothing to switch when the speaker changes.</span><span class="ko">켜 두면 문장마다 언어를 감지해 다른 쪽 언어로 번역합니다. 말하는 사람이 바뀌어도 따로 전환할 필요가 없습니다.</span><span class="ja">オンにすると、文ごとに言語を判別して、もう一方の言語に翻訳します。話し手が替わっても、切り替える必要はありません。</span><span class="zh">打开后，Ieum 会识别每句话的语言，并翻译成另一种语言。换人发言时，无需手动切换。</span></p></li>
+      <li class="reveal"><b><span class="en">Downloaded once, then offline</span><span class="ko">한 번 내려받으면 오프라인</span><span class="ja">一度ダウンロードすれば、オフライン</span><span class="zh">下载一次，之后离线</span></b><p><span class="en">Japanese and Chinese need a speech model that macOS downloads once, the first time you use them. After that, everything runs on your Mac.</span><span class="ko">일본어와 중국어는 처음 쓸 때 macOS가 음성 인식 모델을 한 번 내려받습니다. 그 뒤로는 모두 내 Mac 안에서 동작합니다.</span><span class="ja">日本語と中国語は、初めて使うときに macOS が音声モデルを一度だけダウンロードします。その後は、すべて Mac の中で動作します。</span><span class="zh">日语和中文需要一个语音模型，macOS 会在你首次使用时下载一次。之后，一切都在你的 Mac 上运行。</span></p></li>
+    </ul>
+  </div>
+</section>
+
 <section id="how">
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">How it works</span><span class="ko">사용법</span><span class="ja">仕組み</span><span class="zh">工作原理</span></p>
-      <h2><span class="en">Running in under a minute.</span><span class="ko">1분이면 시작합니다.</span><span class="ja">1 分もかからずに使い始められます。</span><span class="zh">不到一分钟即可开始使用。</span></h2>
+      <h2><span class="en">Running in under a minute.</span><span class="ko">1분이면 시작합니다.</span><span class="ja">1 分もかからずに<wbr>使い始められます。</span><span class="zh">不到一分钟<wbr>即可开始使用。</span></h2>
     </div>
     <ol class="steps">
       <li class="reveal">
@@ -478,7 +605,7 @@ footer a{color:var(--mute)}
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Try it</span><span class="ko">직접 해보기</span><span class="ja">試してみる</span><span class="zh">试一试</span></p>
-      <h2><span class="en">Change the settings. Watch the bar respond.</span><span class="ko">설정을 바꿔 보세요. 자막 바가 바로 반응합니다.</span><span class="ja">設定を変えて、バーの反応を見てみましょう。</span><span class="zh">改改设置，看看字幕栏如何变化。</span></h2>
+      <h2><span class="en">Change the settings. Watch the bar respond.</span><span class="ko">설정을 바꿔 보세요. 자막 바가 바로 반응합니다.</span><span class="ja">設定を変えて、<wbr>バーの反応を見てみましょう。</span><span class="zh">改改设置，看看字幕栏如何变化。</span></h2>
       <p class="sub"><span class="en">A simulated meeting with the same controls the app has. Real recognition and translation happen in the app, on your Mac.</span><span class="ko">앱과 같은 조작을 시뮬레이션한 회의입니다. 실제 인식과 번역은 Mac의 앱에서 이뤄집니다.</span><span class="ja">アプリと同じコントロールを備えた、会議のシミュレーションです。実際の音声認識と翻訳は、アプリの中で Mac 上で行われます。</span><span class="zh">这是一个模拟会议，控件与应用中的相同。真正的识别和翻译在应用里、在你的 Mac 上进行。</span></p>
     </div>
     <div class="lab" id="lab" data-run="off" data-view="bar">
@@ -547,7 +674,7 @@ footer a{color:var(--mute)}
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Built for the table</span><span class="ko">회의를 위해</span><span class="ja">会議の場のために</span><span class="zh">为会议桌而设计</span></p>
-      <h2><span class="en">Both sides read their own language.</span><span class="ko">양쪽 모두 자기 언어로 읽습니다.</span><span class="ja">どちらの側も、自分の言語で読めます。</span><span class="zh">双方都能读到自己的语言。</span></h2>
+      <h2><span class="en">Both sides read their own language.</span><span class="ko">양쪽 모두 자기 언어로 읽습니다.</span><span class="ja">どちらの側も、<wbr>自分の言語で読めます。</span><span class="zh">双方都能读到<wbr>自己的语言。</span></h2>
       <p class="sub"><span class="en">Small details that matter in a real meeting.</span><span class="ko">실제 회의에서 중요한 디테일을 담았습니다.</span><span class="ja">実際の会議で効いてくる、細かな配慮。</span><span class="zh">在真实会议中真正有用的小细节。</span></p>
     </div>
     <div class="bento">
@@ -567,14 +694,14 @@ footer a{color:var(--mute)}
         <p><span class="en">Words appear about a second after they are spoken. A finished sentence is translated about a second later.</span><span class="ko">말하고 약 1초 뒤에 글자가 나타나고, 문장이 끝나면 약 1초 뒤에 번역됩니다.</span><span class="ja">話された言葉は約 1 秒後に表示されます。文が終わると、その約 1 秒後に翻訳されます。</span><span class="zh">话音落下约 1 秒，文字就会出现。一句话说完后，约 1 秒内完成翻译。</span></p>
       </div>
       <div class="tile c2 reveal">
-        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div>
-        <h3><span class="en">Readable subtitle bar</span><span class="ko">읽기 쉬운 자막 바</span><span class="ja">読みやすい字幕バー</span><span class="zh">易读的字幕栏</span></h3>
-        <p><span class="en">Large text with adjustable lines, size, background and opacity. It stays in view, and can be click-through.</span><span class="ko">줄 수·크기·배경·투명도를 조절할 수 있습니다. 계속 보이는 상태로 유지되며 클릭이 통과되게 할 수도 있습니다.</span><span class="ja">大きな文字で、行数・サイズ・背景・不透明度を調整できます。常に前面に表示され、クリックを透過させることもできます。</span><span class="zh">大字号显示，可调整行数、大小、背景和不透明度。始终保持可见，也可以设为点击穿透。</span></p>
-      </div>
-      <div class="tile c2 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div>
         <h3><span class="en">Mic or system audio</span><span class="ko">마이크 또는 시스템 오디오</span><span class="ja">マイクまたはシステム音声</span><span class="zh">麦克风或系统音频</span></h3>
         <p><span class="en">Hear the room, or capture the audio of any video-call app. Zoom, Meet and Teams all work.</span><span class="ko">주변 소리를 듣거나 어떤 화상 회의 앱이든 소리를 가져옵니다. Zoom, Meet, Teams 모두 됩니다.</span><span class="ja">会議室の音を聞き取るか、任意のビデオ会議アプリの音声をキャプチャします。Zoom、Meet、Teams のいずれにも対応します。</span><span class="zh">可以收听会议室里的声音，也可以捕获任何视频会议应用的音频。Zoom、Meet 和 Teams 都可以使用。</span></p>
+      </div>
+      <div class="tile c2 reveal">
+        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div>
+        <h3><span class="en">Readable subtitle bar</span><span class="ko">읽기 쉬운 자막 바</span><span class="ja">読みやすい字幕バー</span><span class="zh">易读的字幕栏</span></h3>
+        <p><span class="en">Large text with adjustable lines, size, background and opacity. It stays in view, and can be click-through.</span><span class="ko">줄 수·크기·배경·투명도를 조절할 수 있습니다. 계속 보이는 상태로 유지되며 클릭이 통과되게 할 수도 있습니다.</span><span class="ja">大きな文字で、行数・サイズ・背景・不透明度を調整できます。常に前面に表示され、クリックを透過させることもできます。</span><span class="zh">大字号显示，可调整行数、大小、背景和不透明度。始终保持可见，也可以设为点击穿透。</span></p>
       </div>
       <div class="tile c2 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></div>
@@ -591,6 +718,11 @@ footer a{color:var(--mute)}
            → It's possible once QA is done.</pre>
       </div>
       <div class="tile c3 reveal">
+        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div>
+        <h3><span class="en">Controls on the bar</span><span class="ko">자막 바 위의 조절 버튼</span><span class="ja">バー上のコントロール</span><span class="zh">字幕栏上的控件</span></h3>
+        <p><span class="en">Smaller and larger text, bar or panel (also <kbd>⌃ ⌥ D</kbd>), and the ⋯ menu stay on the bar, also while captions run. They fade out until the pointer comes near.</span><span class="ko">글자 작게·크게, 바·패널 전환(<kbd>⌃ ⌥ D</kbd>도 가능), ⋯ 메뉴가 자막이 나오는 동안에도 바 위에 있습니다. 포인터가 가까이 올 때까지는 흐려져 있습니다.</span><span class="ja">文字の縮小・拡大、バーとパネルの切り替え（<kbd>⌃ ⌥ D</kbd> でも可）、⋯ メニューは、字幕の表示中もバー上にあります。ポインタが近づくまでは目立たないよう薄く表示されます。</span><span class="zh">缩小和放大文字、切换字幕栏或面板（也可按 <kbd>⌃ ⌥ D</kbd>），以及 ⋯ 菜单都留在字幕栏上，字幕运行时也一样。指针靠近之前，它们会淡出隐去。</span></p>
+      </div>
+      <div class="tile c3 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg></div>
         <h3><span class="en">Lives in the menu bar</span><span class="ko">메뉴 막대에 상주</span><span class="ja">メニューバーに常駐</span><span class="zh">常驻菜单栏</span></h3>
         <p><span class="en">Global shortcuts, open at login, and a Korean or English interface. Power users also get <code>caption-cli</code>, the same recognizer in a terminal as text or JSON Lines.</span><span class="ko">전역 단축키, 로그인 시 자동 실행, 한국어·영어 인터페이스. 터미널용 <code>caption-cli</code>로 같은 인식기를 텍스트나 JSON Lines로 쓸 수도 있습니다.</span><span class="ja">グローバルショートカット、ログイン時に起動、韓国語または英語のインターフェイス。上級ユーザー向けには、同じ認識エンジンをターミナルで使える <code>caption-cli</code> もあり、テキストまたは JSON Lines で出力します。</span><span class="zh">全局快捷键、登录时启动，界面可选韩语或英语。高级用户还可以使用 <code>caption-cli</code>，在终端中使用同一个识别器，输出文本或 JSON Lines。</span></p>
@@ -601,16 +733,6 @@ footer a{color:var(--mute)}
         <h3><span class="en">Choose your microphone</span><span class="ko">마이크 선택</span><span class="ja">マイクを選ぶ</span><span class="zh">选择麦克风</span></h3>
         <p><span class="en">In Settings &gt; General &gt; Microphone, use the system default or pick a USB microphone, speakerphone or headset. If it is unplugged, Ieum falls back to the default.</span><span class="ko">설정 &gt; 일반 &gt; 마이크에서 시스템 기본값을 쓰거나 USB 마이크, 스피커폰, 헤드셋을 고를 수 있습니다. 연결이 빠지면 기본 마이크로 돌아갑니다.</span><span class="ja">設定 &gt; 一般 &gt; マイク で、システムのデフォルトを使うか、USB マイク、スピーカーフォン、ヘッドセットを選べます。接続が外れた場合は、Ieum がデフォルトに戻します。</span><span class="zh">在 设置 &gt; 通用 &gt; 麦克风 中，可以使用系统默认设备，或选择 USB 麦克风、免提会议电话或耳机。如果设备被拔出，Ieum 会改回默认设备。</span></p>
       </div>
-      <div class="tile c3 reveal">
-        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-cap"/></svg></div>
-        <h3><span class="en">Controls on the bar</span><span class="ko">자막 바 위의 조절 버튼</span><span class="ja">バー上のコントロール</span><span class="zh">字幕栏上的控件</span></h3>
-        <p><span class="en">Smaller and larger text, bar or panel (also <kbd>⌃ ⌥ D</kbd>), and the ⋯ menu stay on the bar, also while captions run. They fade out until the pointer comes near.</span><span class="ko">글자 작게·크게, 바·패널 전환(<kbd>⌃ ⌥ D</kbd>도 가능), ⋯ 메뉴가 자막이 나오는 동안에도 바 위에 있습니다. 포인터가 가까이 올 때까지는 흐려져 있습니다.</span><span class="ja">文字の縮小・拡大、バーとパネルの切り替え（<kbd>⌃ ⌥ D</kbd> でも可）、⋯ メニューは、字幕の表示中もバー上にあります。ポインタが近づくまでは目立たないよう薄く表示されます。</span><span class="zh">缩小和放大文字、切换字幕栏或面板（也可按 <kbd>⌃ ⌥ D</kbd>），以及 ⋯ 菜单都留在字幕栏上，字幕运行时也一样。指针靠近之前，它们会淡出隐去。</span></p>
-      </div>
-      <div class="tile c6 reveal">
-        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div>
-        <h3><span class="en">More languages</span><span class="ko">더 많은 언어</span><span class="ja">対応言語の追加</span><span class="zh">更多语言</span></h3>
-        <p><span class="en">In Settings &gt; General, pick the language you hear and the language you read: English, Korean, Japanese or Chinese (Simplified), any two together. Choosing the same language in both places swaps them, and <kbd>⌃ ⌥ L</kbd> flips the two. Japanese and Chinese (Simplified) need a speech model that macOS downloads once, the first time you use them. After that it runs offline.</span><span class="ko">설정 &gt; 일반에서 듣는 언어와 읽는 언어를 고릅니다. 영어, 한국어, 일본어, 중국어(간체) 중 어떤 두 언어든 함께 쓸 수 있습니다. 두 곳에 같은 언어를 고르면 서로 바뀌고, <kbd>⌃ ⌥ L</kbd>로도 두 언어를 맞바꿉니다. 일본어와 중국어(간체)는 처음 쓸 때 macOS가 음성 인식 모델을 한 번 내려받으며, 그 뒤에는 오프라인으로 동작합니다.</span><span class="ja">設定 &gt; 一般 で、聞く言語と見る言語を選びます。英語、韓国語、日本語、中国語（簡体字）のうち、任意の 2 つを組み合わせられます。両方に同じ言語を選ぶと入れ替わり、<kbd>⌃ ⌥ L</kbd> でも 2 つを入れ替えられます。日本語と中国語（簡体字）は、初めて使うときに macOS が音声モデルを一度だけダウンロードします。その後はオフラインで動作します。</span><span class="zh">在 设置 &gt; 通用 中选择听的语言和看的语言：英语、韩语、日语或中文（简体），任意两种都可以搭配。在两处选择同一种语言会将二者互换，按 <kbd>⌃ ⌥ L</kbd> 也可以对调两种语言。日语和中文（简体）需要一个语音模型，macOS 会在你首次使用时下载一次。之后即可离线运行。</span></p>
-      </div>
     </div>
   </div>
 </section>
@@ -619,7 +741,7 @@ footer a{color:var(--mute)}
   <div class="wrap">
     <div class="head-c">
       <p class="k"><span class="en">Privacy</span><span class="ko">개인정보</span><span class="ja">プライバシー</span><span class="zh">隐私</span></p>
-      <h2><span class="en">Your meeting never leaves your Mac.</span><span class="ko">회의 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">会議の内容が Mac の外に出ることはありません。</span><span class="zh">你的会议内容永远不会离开你的 Mac。</span></h2>
+      <h2><span class="en">Your meeting never leaves your Mac.</span><span class="ko">회의 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">会議の内容が <wbr>Mac の外に<wbr>出ることはありません。</span><span class="zh">你的会议内容<wbr>永远不会离开你的 Mac。</span></h2>
       <p class="sub"><span class="en">Confidential calls are exactly where cloud captions are hard to justify. Ieum uses Apple's Speech and Translation frameworks, running on the device.</span><span class="ko">기밀 회의에 클라우드 자막을 쓰기는 부담스럽습니다. Ieum은 기기 안에서 동작하는 Apple의 음성 인식·번역 프레임워크를 사용합니다.</span><span class="ja">機密性の高い会議こそ、クラウド字幕を使う理由を説明しにくい場面です。Ieum は Apple の Speech フレームワークと Translation フレームワークを、デバイス上で使用します。</span><span class="zh">保密通话恰恰是最难说服自己使用云端字幕的场合。Ieum 使用 Apple 的 Speech 和 Translation 框架，全部在设备上运行。</span></p>
     </div>
     <ul class="priv">
@@ -686,7 +808,7 @@ footer a{color:var(--mute)}
 
 <section class="final">
   <div class="wrap">
-    <h2><span class="en">Your next meeting, in your language.</span><span class="ko">다음 회의는 내 언어 자막과 함께.</span><span class="ja">次の会議は、あなたの言語で。</span><span class="zh">下一场会议，用你的语言。</span></h2>
+    <h2><span class="en">Your next meeting, in your language.</span><span class="ko">다음 회의는 내 언어 자막과 함께.</span><span class="ja">次の会議は、<wbr>あなたの言語で。</span><span class="zh">下一场会议，<wbr>用你的语言。</span></h2>
     <p class="sub"><span class="en">{{SIZE}}, free, and nothing leaves your Mac.</span><span class="ko">{{SIZE}}, 무료, 내용은 Mac 밖으로 나가지 않습니다.</span><span class="ja">{{SIZE}}、無料、そして何も Mac の外に出ません。</span><span class="zh">{{SIZE}}，免费，没有任何内容离开你的 Mac。</span></p>
     <div class="cta">
       <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span><span class="ja">Mac 版をダウンロード</span><span class="zh">下载 Mac 版</span></a>
@@ -920,6 +1042,15 @@ if("IntersectionObserver" in window){
 }
 document.addEventListener("visibilitychange",function(){if(document.hidden&&st.run)setRun(false);else if(!document.hidden)sync()});
 })();
+
+/* languages: hovering a conversation lights its pair on the bridge */
+var br=$("bridge");
+if(br)document.querySelectorAll(".talk[data-pair]").forEach(function(c){
+  function hot(p){br.classList.toggle("focus",!!p);br.querySelectorAll("[data-pair],[data-l]").forEach(function(el){
+    el.classList.toggle("hot",!!p&&(el.dataset.pair===p||p.split("-").indexOf(el.dataset.l)>=0))})}
+  c.addEventListener("mouseenter",function(){hot(c.dataset.pair)});
+  c.addEventListener("mouseleave",function(){hot(null)});
+});
 
 if("IntersectionObserver" in window){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
