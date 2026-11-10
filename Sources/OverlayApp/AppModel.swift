@@ -24,6 +24,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var meetingMode = Preferences.meetingMode
     @Published private(set) var englishVariant = Preferences.englishVariant
     @Published private(set) var source = Preferences.source
+    @Published private(set) var inputDeviceUID = Preferences.inputDeviceUID
     @Published private(set) var vocabulary = Preferences.vocabulary
 
     // MARK: Display
@@ -125,8 +126,9 @@ final class AppModel: ObservableObject {
         let locales = mode.recognitionLocales(englishLocale: englishVariant.rawValue)
         let source = self.source
         let vocabulary = self.vocabulary
+        let deviceUID = InputDevices.resolve(preferredUID: inputDeviceUID, available: InputDevices.available())
         sessionTask = Task { [weak self] in
-            await self?.runSession(mode: mode, locales: locales, source: source, vocabulary: vocabulary)
+            await self?.runSession(mode: mode, locales: locales, source: source, deviceUID: deviceUID, vocabulary: vocabulary)
         }
         startPruning()
     }
@@ -271,6 +273,13 @@ final class AppModel: ObservableObject {
         source = new
         Preferences.source = new
         restartIfRunning()
+    }
+
+    func setInputDevice(_ uid: String?) {
+        guard uid != inputDeviceUID else { return }
+        inputDeviceUID = uid
+        Preferences.inputDeviceUID = uid
+        if source == .microphone { restartIfRunning() }
     }
 
     /// One term per element. Applies to the very next sentence: the correction runs on the text, so no restart.
@@ -505,8 +514,8 @@ final class AppModel: ObservableObject {
 
     // MARK: Session body
 
-    private func runSession(mode: MeetingMode, locales: [String], source: Source, vocabulary: [String]) async {
-        let capture: any AudioCapture = source == .microphone ? MicrophoneCapture() : SystemAudioCapture()
+    private func runSession(mode: MeetingMode, locales: [String], source: Source, deviceUID: String?, vocabulary: [String]) async {
+        let capture: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
         var failure: String?
         var recoverable = false
         do {

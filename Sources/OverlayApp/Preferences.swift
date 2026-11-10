@@ -35,6 +35,11 @@ enum Preferences {
         get { value("source", default: .microphone) }
         set { defaults.set(newValue.rawValue, forKey: "source") }
     }
+    /// CoreAudio UID of the chosen microphone; nil follows the system default input.
+    static var inputDeviceUID: String? {
+        get { defaults.string(forKey: "inputDeviceUID") }
+        set { defaults.set(newValue, forKey: "inputDeviceUID") }
+    }
     static var vocabulary: [String] {
         get { defaults.stringArray(forKey: "vocabulary") ?? [] }
         set { defaults.set(newValue, forKey: "vocabulary") }

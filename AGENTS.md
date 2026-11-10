@@ -31,7 +31,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
 | `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
 | `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
-| `Tests/CaptionCoreTests` | Swift Testing suites for the library (143 tests) |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (162 tests) |
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
@@ -50,7 +50,7 @@ their language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` 
 ```sh
 make build                    # caption-cli (release, ad-hoc signed)
 make app                      # .build/app/Ieum.app (ad-hoc signed; runs on this Mac)
-make test                     # or: swift test   (143 tests; must stay green)
+make test                     # or: swift test   (162 tests; must stay green)
 Scripts/dev-run.sh [launch args]   # build, re-sign with $SIGN_IDENTITY, relaunch the app
 make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
 Scripts/deploy-site.sh        # site -> Cloudflare Pages
@@ -126,7 +126,7 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 
 ## State at hand-off
 
-- Latest published release is v0.3.0 (build 11, adds in-app updates, popup type and the bar/panel toggle). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.9.
+- Latest published release is v0.3.1 (build 12, adds the microphone picker; v0.3.0 added in-app updates, popup type and the bar/panel toggle). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.9.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test, English user guide.
 - Domain `ieum.calmwork.today` is connected to the Pages project.

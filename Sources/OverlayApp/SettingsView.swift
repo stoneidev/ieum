@@ -65,6 +65,7 @@ private struct GeneralTab: View {
     @State private var autoCheck = Preferences.autoCheckUpdates
     @State private var loginEnabled = LaunchAtLogin.isEnabled
     @State private var loginError: String?
+    @State private var inputDevices = InputDevices.available()
 
     private var lastCheckText: String {
         guard let date = updater.lastCheck else { return tr("Not checked yet", "아직 확인하지 않았습니다") }
@@ -98,6 +99,16 @@ private struct GeneralTab: View {
                 }
                 Picker(tr("Audio source", "소리 입력"), selection: Binding(get: { model.source }, set: model.setSource)) {
                     ForEach(Source.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                if model.source == .microphone {
+                    Picker(tr("Microphone", "마이크"), selection: Binding(get: { model.inputDeviceUID }, set: model.setInputDevice)) {
+                        Text(tr("System default", "시스템 기본값")).tag(String?.none)
+                        ForEach(inputDevices) { Text($0.name).tag(String?.some($0.uid)) }
+                        // A saved microphone that is not plugged in stays selectable so the choice is not lost silently.
+                        if let saved = model.inputDeviceUID, !inputDevices.contains(where: { $0.uid == saved }) {
+                            Text(tr("Not connected (using the default)", "연결 안 됨 (기본값 사용)")).tag(String?.some(saved))
+                        }
+                    }
                 }
                 if model.source == .system {
                     Text(tr("Captions what plays on this Mac (calls, videos). Needs the Screen & System Audio Recording permission.",
@@ -152,6 +163,7 @@ private struct GeneralTab: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear { inputDevices = InputDevices.available() }
     }
 }
 
