@@ -9,12 +9,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private let item: NSStatusItem
     private let openSettings: () -> Void
     private let openSetup: () -> Void
+    private let checkForUpdates: () -> Void
     private var cancellables: Set<AnyCancellable> = []
 
-    init(model: AppModel, openSettings: @escaping () -> Void, openSetup: @escaping () -> Void) {
+    init(model: AppModel, openSettings: @escaping () -> Void, openSetup: @escaping () -> Void, checkForUpdates: @escaping () -> Void) {
         self.model = model
         self.openSettings = openSettings
         self.openSetup = openSetup
+        self.checkForUpdates = checkForUpdates
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         // A name of its own: unnamed items are saved as "Item-0", "Item-1"… and share their visibility (and a hidden
         // state set for another app's item) with every other app's unnamed item.
@@ -101,6 +103,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(action(tr("Open transcript folder", "기록 폴더 열기"), #selector(openFolder)))
         menu.addItem(.separator())
 
+        menu.addItem(action(tr("Check for updates…", "업데이트 확인…"), #selector(updateCheck)))
         menu.addItem(action(tr("Permissions and setup…", "권한 및 설정 점검…"), #selector(showSetup)))
         menu.addItem(action(tr("Settings…", "설정…"), #selector(showSettings), key: ","))
         menu.addItem(.separator())
@@ -122,6 +125,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func swapDirection() { model.swapDirection() }
     @objc private func cycleDisplay() { model.cycleDisplayMode() }
     @objc private func showSettings() { openSettings() }
+    @objc private func updateCheck() { checkForUpdates() }
     @objc private func showSetup() { openSetup() }
     @objc private func quit() { NSApp.terminate(nil) }
 

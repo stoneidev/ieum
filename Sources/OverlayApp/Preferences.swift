@@ -90,6 +90,30 @@ enum Preferences {
         set { defaults.set(newValue, forKey: "lastSeenVersion") }
     }
 
+    // MARK: Updates
+
+    /// Ask the website once a day whether a newer version exists (and offer it).
+    static var autoCheckUpdates: Bool {
+        get { flag("autoCheckUpdates", default: true) }
+        set { defaults.set(newValue, forKey: "autoCheckUpdates") }
+    }
+    static var lastUpdateCheck: Date? {
+        get { defaults.object(forKey: "lastUpdateCheck") as? Date }
+        set { defaults.set(newValue, forKey: "lastUpdateCheck") }
+    }
+    /// A version the person chose to skip.
+    static var skippedUpdateVersion: String? {
+        get { defaults.string(forKey: "skippedUpdateVersion") }
+        set { defaults.set(newValue, forKey: "skippedUpdateVersion") }
+    }
+    /// For testing: read the update feed from this address instead of the website (`-updateFeedURL http://localhost:8765/latest.json`).
+    /// For testing: pretend to be this version when comparing with the feed (`-updateCurrentVersion 0.0.1`).
+    static var updateCurrentVersionOverride: String? { defaults.string(forKey: "updateCurrentVersion") }
+
+    static var updateFeedOverride: URL? {
+        defaults.string(forKey: "updateFeedURL").flatMap(URL.init(string:))
+    }
+
     static var keepsOnTop: Bool {
         get { flag("keepsOnTop", default: true) }
         set { defaults.set(newValue, forKey: "keepsOnTop") }

@@ -86,6 +86,18 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 - **zsh does not word-split unquoted variables**; use arrays. BSD `sed` has no `-i` without a suffix; use Python or `perl -pi`.
 - Experiments that did not pay off are written down (`docs/BENCHMARKS.md`, "Tried and not kept"). Add yours there, with numbers.
 
+## Updates (the app updates itself)
+
+`Updater.swift` reads the feed `https://ieum.calmwork.today/latest.json` (written by `Scripts/deploy-site.sh` from the latest GitHub release: version, DMG url,
+SHA-256, size, notes), asks, downloads, verifies (SHA-256, same Team ID, `codesign`, `spctl`, bundle version) and swaps the app with a small shell script after quit.
+Pure decisions (`UpdateCheck`, `UpdateFeed`) live in CaptionCore and are tested. Rules:
+- **Ship order matters**: create the GitHub release first, then run `Scripts/deploy-site.sh`; publishing the feed is what offers the release to installed apps.
+- Release notes: English bullets, a line `---`, then Korean bullets (both become the update window's notes).
+- The privacy statement is "the only request is the optional update check". Do not add other requests, and keep the toggle.
+- Test without publishing anything: serve a folder with `python3 -m http.server 8765` containing `latest.json` (+ a DMG whose app version equals the feed version) and run
+  a **copy** of the app: `open -n /tmp/X/Ieum.app --args -updateFeedURL http://localhost:8765/latest.json -updateCurrentVersion 0.0.1`. Reset `defaults delete today.calmwork.ieum lastUpdateCheck`
+  between runs (checks are once a day). The copy is replaced by the DMG's app and relaunched. A feed with a wrong sha256 must be refused.
+
 ## Release highlights ("What's new")
 
 `WhatsNewCatalog.pages()` in `Sources/OverlayApp/WhatsNewView.swift` lists the user-visible highlights, newest first, each with the version that introduced it.
@@ -106,7 +118,7 @@ look from window screenshots.
 
 ## State at hand-off
 
-- Latest release **v0.2.9** (app 0.2.9, build 10). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.9.
+- Latest published release is v0.2.9; the code at `main` is **0.3.0** (build 11, adds in-app updates, not released yet). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → releases up to v0.2.9.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test, English user guide.
 - Domain `ieum.calmwork.today` is connected to the Pages project.

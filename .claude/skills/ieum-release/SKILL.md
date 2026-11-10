@@ -26,7 +26,7 @@ export NOTARY_PROFILE=stt-notary
    kill `notarytool submit` and rerun `make dmg` only.
 6. **Commit and tag.** `git add -A; git commit` (message "Release x.y.z" + one-paragraph summary + trailer), `git tag -a vx.y.z -m "Ieum x.y.z"`,
    `git push origin main --tags`. Never move an existing tag.
-7. **GitHub Release.** `gh release create vx.y.z .build/app/Ieum.dmg --title "Ieum x.y.z" --notes "<English bullets>"`. If `gh` answers 504 the release may exist
+7. **GitHub Release.** `gh release create vx.y.z .build/app/Ieum.dmg --title "Ieum x.y.z" --notes "<English bullets>\n---\n<Korean bullets>"` (English bullets first, then a `---` line, then the same in Korean: the in-app update window shows them). If `gh` answers 504 the release may exist
    as a draft with no asset: `gh release upload vx.y.z .build/app/Ieum.dmg --clobber` then `gh release edit vx.y.z --draft=false`.
 8. **Verify the public download** (no login):
    ```sh
@@ -34,7 +34,7 @@ export NOTARY_PROFILE=stt-notary
    shasum -a 256 /tmp/dl.dmg .build/app/Ieum.dmg     # the two hashes must be equal
    xcrun stapler validate /tmp/dl.dmg
    ```
-9. **Site.** `Scripts/deploy-site.sh` (it stamps the page with the latest GitHub release's version and size, so run it after the release exists) (only if `site/` changed or the owner said "배포"). The download button points at `releases/latest/download/Ieum.dmg`, so it
+9. **Site.** `Scripts/deploy-site.sh` (it stamps the page with the latest GitHub release's version and size and writes `latest.json`, the feed that offers the release to installed apps, so run it after the release exists) (only if `site/` changed or the owner said "배포"). The download button points at `releases/latest/download/Ieum.dmg`, so it
    needs no edit per release. Check `curl -s -o /dev/null -w "%{http_code}" https://ieum.calmwork.today/`.
 10. **Report** in Korean: version, release URL, what is in it, what was verified, what was not (for example first launch on another Mac).
 

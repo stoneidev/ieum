@@ -44,6 +44,7 @@ final class AppModel: ObservableObject {
     /// Set by the app delegate: the overlay's menu opens the windows it owns.
     var openSettings: () -> Void = {}
     var bringOverlayToFront: () -> Void = {}
+    var checkForUpdates: () -> Void = {}
     var overlayIsCovered: () -> Bool = { false }
     var openSetup: () -> Void = {}
     @Published private(set) var clickThrough = Preferences.clickThrough

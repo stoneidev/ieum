@@ -28,7 +28,7 @@ Read what the other side says in your language, while they read what you say in 
 *Ieum* (이음) means "to connect". It is built for one situation: a Korean speaker in a meeting with native English speakers.
 The other side talks and you read Korean. You answer in Korean and the English is there for them.
 
-- **Nothing leaves the Mac.** Recognition uses Apple's Speech framework and translation uses Apple's Translation framework, both on-device. No account, no cloud, no network use.
+- **Nothing leaves the Mac.** Recognition uses Apple's Speech framework and translation uses Apple's Translation framework, both on-device. No account and no cloud. The only network request is an optional once-a-day check for a newer version (no audio, text or identifiers; off in Settings).
 - **Low delay.** The first words appear about half a second after you start speaking and then follow word by word; a finished sentence is translated about a second later.
 - **Made for the table.** A large subtitle bar you can read from across the room, a transcript you can scroll back through, and a script saved for after the meeting.
 
@@ -37,6 +37,7 @@ The other side talks and you read Korean. You answer in Korean and the English i
 | | |
 |---|---|
 | **What's new tour** | After an update, a short animated tour shows what changed since the version you last used. Settings → About reopens it. |
+| **Updates** | Once a day Ieum checks for a newer version and asks before installing. It downloads the update, verifies the SHA-256, the developer signature and Apple's notarization, then replaces itself and reopens. |
 | **Try it** | A built-in test plays a sentence through the speakers and shows it come back as captions and a translation, so you know it works before the meeting. Nothing is saved. |
 | **Meeting modes** | Korean → English, English → Korean, Korean captions, English captions (no translation), or **detect the language and translate** (both ways, decided per sentence). |
 | **Words as they are spoken** | The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
@@ -222,7 +223,7 @@ These numbers come from clean synthesized speech, not a real room. Distant speak
 ## Privacy
 
 Audio is processed in memory on the Mac and is never written to disk. Only text is saved, as the meeting script, in the folder shown in Settings.
-Ieum makes no network requests of its own. macOS may download a language model the first time you use a language.
+The only network request Ieum makes is the optional update check: once a day it reads `https://ieum.calmwork.today/latest.json` (a few hundred bytes). Nothing else is sent, and an update is downloaded and installed only after you say yes. Turn the check off in Settings → General and the app makes no requests at all. macOS may download a language model the first time you use a language.
 
 ## Status
 

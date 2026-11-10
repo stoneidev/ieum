@@ -299,6 +299,19 @@
       ],
       "passes": true,
       "notes": "v0.2.9"
+    },
+    {
+      "id": "US-31",
+      "title": "Offer and install updates from inside the app",
+      "acceptanceCriteria": [
+        "Once-a-day opt-out check of a small feed; asks before installing",
+        "Install verifies SHA-256, Team ID, codesign and notarization before replacing; a wrong checksum is refused",
+        "End to end: a copy of the app was replaced by the notarized 0.2.9 DMG and relaunched (about 5 s)",
+        "Privacy copy (site, README, guide, PRD) says the update check is the only request and can be turned off",
+        "Release script writes the feed"
+      ],
+      "passes": true,
+      "notes": "Code at 0.3.0, not released yet. Verified against a local feed with -updateFeedURL/-updateCurrentVersion."
     }
   ],
   "notes": {

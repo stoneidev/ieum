@@ -6,7 +6,7 @@ import SwiftUI
 
 /// One highlight of the "What's new" tour.
 struct WhatsNewPage: Identifiable {
-    enum Art { case wordsLive, modes, tryIt, menu, onTop }
+    enum Art { case wordsLive, modes, tryIt, menu, onTop, updates }
 
     let id: String
     /// The first version that has it; a person who last saw an older version is shown this page.
@@ -20,6 +20,12 @@ struct WhatsNewPage: Identifiable {
 enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
+        WhatsNewPage(
+            id: "updates", introduced: "0.3.0", art: .updates,
+            title: tr("Updates, when you say so", "업데이트는 허락하면 알아서"),
+            body: tr("Ieum now checks once a day whether a newer version exists and asks before installing it. The check sends no audio, text or identifiers, and you can turn it off in Settings.",
+                     "Ieum이 하루에 한 번 새 버전이 있는지 확인하고, 설치하기 전에 먼저 물어봅니다. 확인에는 음성도, 글자도, 식별 정보도 보내지 않으며 설정에서 끌 수 있습니다.")
+        ),
         WhatsNewPage(
             id: "on-top", introduced: "0.2.8", art: .onTop,
             title: tr("You decide where the captions sit", "자막이 놓일 자리를 직접 정하세요"),
@@ -76,6 +82,7 @@ final class WhatsNewWindow {
             backing: .buffered,
             defer: false
         )
+        window.title = tr("What's new", "새로운 기능")
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true
@@ -94,7 +101,7 @@ final class WhatsNewWindow {
 
 // MARK: - View
 
-private enum Style {
+enum Style {
     static let ink = Color(red: 0.957, green: 0.949, blue: 0.933)
     static let muted = Color(red: 0.612, green: 0.639, blue: 0.671)
     static let tint = Color(red: 0.082, green: 0.094, blue: 0.106)
@@ -300,6 +307,7 @@ private struct WhatsNewArt: View {
             case .tryIt: TryItScene(t: t)
             case .menu: MenuScene(t: t)
             case .onTop: OnTopScene(t: t)
+            case .updates: UpdatesScene(t: t)
             }
         }
     }
@@ -312,6 +320,7 @@ private struct WhatsNewArt: View {
         case .tryIt: 5.2
         case .menu: 3
         case .onTop: 1
+        case .updates: 3.2
         }
     }
 }
@@ -635,5 +644,61 @@ private struct OnTopScene: View {
                     .foregroundStyle(pinned ? Style.amber : Style.muted)
             }
         }
+    }
+}
+
+private struct UpdatesScene: View {
+    let t: Double
+
+    var body: some View {
+        let time = t.truncatingRemainder(dividingBy: 8.0)
+        let press = easeOut(ramp(time, from: 2.2, to: 2.5))
+        let progress = ramp(time, from: 2.6, to: 5.4)
+        let restart = ramp(time, from: 5.6, to: 6.0)
+        let fade = 1 - ramp(time, from: 7.4, to: 8.0)
+        ZStack {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 38, height: 38)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(restart > 0.5 ? tr("Restarting Ieum…", "Ieum을 다시 시작합니다…") : tr("Ieum 0.3.1 is available", "Ieum 0.3.1 업데이트가 있습니다"))
+                            .font(.system(size: 16, weight: .semibold, design: .serif))
+                            .foregroundStyle(Style.ink)
+                        Text(progress > 0 && restart < 0.5 ? tr("Downloading… \(Int(progress * 100)) %", "내려받는 중… \(Int(progress * 100)) %") : tr("You have 0.3.0", "현재 버전 0.3.0"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(Style.muted)
+                            .monospacedDigit()
+                    }
+                }
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.1))
+                    Capsule().fill(Style.amber).frame(width: 300 * progress)
+                }
+                .frame(width: 300, height: 5)
+                .opacity(progress > 0 ? 1 : 0)
+                HStack(spacing: 10) {
+                    Spacer()
+                    Text(tr("Later", "나중에"))
+                        .font(.system(size: 12))
+                        .foregroundStyle(Style.ink)
+                        .padding(.horizontal, 12).frame(height: 26)
+                        .background(Capsule().fill(Color.white.opacity(0.09)))
+                    Text(tr("Update now", "지금 업데이트"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.black.opacity(0.88))
+                        .padding(.horizontal, 14).frame(height: 26)
+                        .background(Capsule().fill(Style.amber))
+                        .scaleEffect(1 - 0.08 * sin(press * .pi))
+                        .shadow(color: Style.amber.opacity(0.4 * (1 - press)), radius: 10)
+                }
+                .opacity(progress > 0 ? 0.3 : 1)
+            }
+            .padding(18)
+            .frame(width: 350)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Style.tint.opacity(0.92)))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.white.opacity(0.10), lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.35), radius: 14, y: 6)
+        }
+        .opacity(fade)
     }
 }

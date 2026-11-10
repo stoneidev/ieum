@@ -3,6 +3,7 @@ import CaptionCore
 
 struct SettingsView: View {
     @ObservedObject var model: AppModel
+    @ObservedObject var updater: Updater
     let openSetup: () -> Void
     let openWhatsNew: () -> Void
     /// The last tab you used is the one you see next time.
@@ -11,7 +12,7 @@ struct SettingsView: View {
     var body: some View {
         let _ = model.uiLanguage // follow the language setting
         TabView(selection: $tab) {
-            GeneralTab(model: model).tag(0)
+            GeneralTab(model: model, updater: updater).tag(0)
                 .tabItem { Label(tr("General", "일반"), systemImage: "gearshape") }
             DisplayTab(model: model).tag(1)
                 .tabItem { Label(tr("Display", "화면"), systemImage: "captions.bubble") }
@@ -19,7 +20,7 @@ struct SettingsView: View {
                 .tabItem { Label(tr("Vocabulary", "용어집"), systemImage: "text.book.closed") }
             TranscriptsTab(model: model).tag(3)
                 .tabItem { Label(tr("Transcripts", "기록"), systemImage: "doc.text") }
-            AboutTab(openSetup: openSetup, openWhatsNew: openWhatsNew).tag(4)
+            AboutTab(updater: updater, openSetup: openSetup, openWhatsNew: openWhatsNew).tag(4)
                 .tabItem { Label(tr("About", "정보"), systemImage: "info.circle") }
         }
         .frame(width: 600, height: 760)
@@ -60,8 +61,17 @@ private struct ModeRow: View {
 
 private struct GeneralTab: View {
     @ObservedObject var model: AppModel
+    @ObservedObject var updater: Updater
+    @State private var autoCheck = Preferences.autoCheckUpdates
     @State private var loginEnabled = LaunchAtLogin.isEnabled
     @State private var loginError: String?
+
+    private var lastCheckText: String {
+        guard let date = updater.lastCheck else { return tr("Not checked yet", "아직 확인하지 않았습니다") }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale(identifier: L10n.isKorean ? "ko" : "en")
+        return tr("Last checked ", "마지막 확인: ") + formatter.localizedString(for: date, relativeTo: Date())
+    }
 
     private var shortcuts: [(key: String, title: String)] { [
         ("S", tr("Start / stop", "시작/중지")),
@@ -121,6 +131,18 @@ private struct GeneralTab: View {
                             .accessibilityLabel("Control Option \(shortcut.key)")
                         }
                     }
+                }
+                Toggle(tr("Check for updates automatically", "업데이트를 자동으로 확인"), isOn: Binding(get: { autoCheck }, set: { value in
+                    autoCheck = value
+                    Preferences.autoCheckUpdates = value
+                }))
+                Text(tr("Once a day Ieum asks ieum.calmwork.today which version is newest, and asks you before installing anything. That request carries no audio, no text and no identifiers. Turn it off and Ieum makes no network requests at all.",
+                        "하루에 한 번 ieum.calmwork.today에 최신 버전을 묻고, 설치하기 전에 먼저 물어봅니다. 이 요청에는 음성도, 글자도, 식별 정보도 없습니다. 끄면 Ieum은 네트워크 요청을 전혀 하지 않습니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                HStack {
+                    Button(tr("Check now", "지금 확인")) { updater.checkNow() }
+                    Text(lastCheckText).font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 Picker(tr("Interface language", "화면 언어"), selection: Binding(get: { model.uiLanguage }, set: model.setUILanguage)) {
                     Text(tr("Follow the system", "시스템 설정 따르기")).tag("system")
@@ -402,6 +424,7 @@ private struct TranscriptsTab: View {
 // MARK: - About
 
 private struct AboutTab: View {
+    let updater: Updater
     let openSetup: () -> Void
     let openWhatsNew: () -> Void
 
@@ -429,6 +452,7 @@ private struct AboutTab: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: 420)
             HStack(spacing: 10) {
+                Button(tr("Check for updates…", "업데이트 확인…")) { updater.checkNow() }
                 Button(tr("What's new…", "새로운 기능…"), action: openWhatsNew)
                 Button(tr("Permissions and setup…", "권한 및 설정 점검…"), action: openSetup)
             }

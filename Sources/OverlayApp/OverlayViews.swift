@@ -279,6 +279,7 @@ struct OverlayMenuButton: NSViewRepresentable {
             }
             menu.addItem(.separator())
             menu.addItem(ActionItem(tr("Settings…", "설정…")) { model.openSettings() })
+            menu.addItem(ActionItem(tr("Check for updates…", "업데이트 확인…")) { model.checkForUpdates() })
             menu.addItem(ActionItem(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() })
             menu.addItem(.separator())
             menu.addItem(ActionItem(tr("Quit Ieum", "Ieum 종료")) { NSApp.terminate(nil) })

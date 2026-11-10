@@ -12,6 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: AuxiliaryWindow?
     private var setupWindow: AuxiliaryWindow?
     private let whatsNewWindow = WhatsNewWindow()
+    private let updater = Updater()
+    private var updateWindow: UpdateWindow?
     private var observers: [Any] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -23,10 +25,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.setupWindow?.close()
             })
         }
-        settingsWindow = AuxiliaryWindow(title: { tr("Ieum Settings", "Ieum 설정") }) { [weak self, model] in
-            NSHostingView(rootView: SettingsView(model: model, openSetup: { self?.setupWindow?.show() }, openWhatsNew: { self?.showWhatsNew() }))
+        settingsWindow = AuxiliaryWindow(title: { tr("Ieum Settings", "Ieum 설정") }) { [weak self, model, updater] in
+            NSHostingView(rootView: SettingsView(model: model, updater: updater, openSetup: { self?.setupWindow?.show() }, openWhatsNew: { self?.showWhatsNew() }))
         }
 
+        updateWindow = UpdateWindow(updater: updater)
+        updater.present = { [weak self] in self?.updateWindow?.show() }
+        updater.isBusy = { [model] in model.isRunning }
+        model.checkForUpdates = { [weak self] in self?.updater.checkNow() }
         model.openSettings = { [weak self] in self?.settingsWindow?.show() }
         model.openSetup = { [weak self] in self?.setupWindow?.show() }
         overlay = OverlayWindowController(model: model)
@@ -35,9 +41,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu = MenuBarController(
             model: model,
             openSettings: { [weak self] in self?.settingsWindow?.show() },
-            openSetup: { [weak self] in self?.setupWindow?.show() }
+            openSetup: { [weak self] in self?.setupWindow?.show() },
+            checkForUpdates: { [weak self] in self?.updater.checkNow() }
         )
         overlay?.show()
+        updater.start()
 
         hotKeys = HotKeyCenter(shortcuts: [
             .init(keyCode: 1) { [model] in model.toggleRunning() },          // S
