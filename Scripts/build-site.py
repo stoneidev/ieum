@@ -52,8 +52,8 @@ T = {
 
 HEAD = {
     "en": {
-        "title": "Ieum 이음 · Live captions and translation for English, Korean, Japanese and Chinese meetings, on your Mac",
-        "description": "Ieum shows live captions and translation between English, Korean, Japanese and Chinese on your Mac during meetings. Recognition and translation run on the device: no account, no cloud, free and open source.",
+        "title": "Ieum 이음 · Live captions and translation for Mac (EN, KO, JA, ZH)",
+        "description": "Live meeting captions and translation between English, Korean, Japanese and Chinese, fully on your Mac. Offline, no account, free and open source.",
         "og_title": "Ieum 이음 · Live captions and translation for meetings, in your language",
         "og_description": "Read the other side in your language while they read you in theirs. Fully on-device, free for Mac.",
     },
@@ -188,6 +188,7 @@ def head_block(lang, page):
     lines = [
         f"<title>{e(h['title'])}</title>",
         f'<meta name="description" content="{e(h["description"])}">',
+        '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">',
         f'<link rel="canonical" href="{SITE}{PATH[lang]}">',
     ]
     for code in LANGS:
