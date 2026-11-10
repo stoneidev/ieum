@@ -30,10 +30,11 @@ final class SystemTranslator: TextTranslator, @unchecked Sendable {
             return .success(SystemTranslator(source: source, target: target, lowLatency: false))
         case .supported:
             return .failure(TranslationUnavailable(
-                "The \(sourceCode) → \(targetCode) translation language is not downloaded. Add it in System Settings > General > Language & Region > Translation Languages."
+                "The \(sourceCode) → \(targetCode) translation language is not downloaded. Add it in System Settings > General > Language & Region > Translation Languages.",
+                kind: .notDownloaded(source: sourceCode, target: targetCode)
             ))
         case .unsupported:
-            return .failure(TranslationUnavailable("Translating \(sourceCode) → \(targetCode) is not supported on this Mac."))
+            return .failure(TranslationUnavailable("Translating \(sourceCode) → \(targetCode) is not supported on this Mac.", kind: .unsupported(source: sourceCode, target: targetCode)))
         @unknown default:
             return .failure(TranslationUnavailable("Translation is not available for \(sourceCode) → \(targetCode)."))
         }

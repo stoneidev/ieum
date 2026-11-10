@@ -427,7 +427,7 @@ final class AppModel: ObservableObject {
             let interims = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target)
             switch (finals, interims) {
             case (.success(let final), .success(let interim)): ready[pair.source] = (final, interim)
-            case (.failure(let reason), _), (_, .failure(let reason)): failures.append(reason.message)
+            case (.failure(let reason), _), (_, .failure(let reason)): failures.append(reason.localizedMessage)
             }
             // A newer configure, a stop, or the end of the session may have happened while this one was preparing.
             guard generation == translationGeneration, isRunning, !stopRequested else { return }

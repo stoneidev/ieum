@@ -64,7 +64,7 @@ final class PermissionCenter: ObservableObject {
         var problems: [String] = []
         for pair in Preferences.meetingSetup.translationPairs {
             if case .failure(let reason) = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target) {
-                problems.append(reason.message)
+                problems.append(reason.localizedMessage)
             }
         }
         translationProblem = problems.first

@@ -152,8 +152,20 @@ public actor TranslationPipeline {
 
 /// Why translation cannot be used right now, in words the user can act on.
 public struct TranslationUnavailable: Error, LocalizedError, Equatable, Sendable {
+    /// What is wrong, so an app can word it in the user's language. `message` is the English text for logs and the command line.
+    public enum Kind: Equatable, Sendable {
+        case notDownloaded(source: String, target: String)
+        case unsupported(source: String, target: String)
+        case needsNewerMacOS
+        case other
+    }
+
     public let message: String
-    public init(_ message: String) { self.message = message }
+    public let kind: Kind
+    public init(_ message: String, kind: Kind = .other) {
+        self.message = message
+        self.kind = kind
+    }
     public var errorDescription: String? { message }
 }
 
@@ -166,6 +178,6 @@ public enum SystemTranslation {
             return await SystemTranslator.make(from: source, to: target)
         }
         #endif
-        return .failure(TranslationUnavailable("Offline translation needs macOS 26.4 or later."))
+        return .failure(TranslationUnavailable("Offline translation needs macOS 26.4 or later.", kind: .needsNewerMacOS))
     }
 }

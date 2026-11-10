@@ -105,6 +105,24 @@ extension SpokenLanguage {
     }
 }
 
+extension TranslationUnavailable {
+    /// The same message in the interface language, naming the languages the way the rest of the app does.
+    @MainActor var localizedMessage: String {
+        func name(_ code: String) -> String { SpokenLanguage(code: code)?.name ?? code }
+        switch kind {
+        case .notDownloaded(let source, let target):
+            return tr("Translation from \(name(source)) to \(name(target)) is not downloaded yet. Add it in System Settings > General > Language & Region > Translation Languages.",
+                      "\(name(source)) → \(name(target)) 번역 언어를 아직 내려받지 않았습니다. 시스템 설정 > 일반 > 언어 및 지역 > 번역 언어에서 추가하세요.")
+        case .unsupported(let source, let target):
+            return tr("Translating \(name(source)) to \(name(target)) is not supported on this Mac.", "이 Mac에서는 \(name(source)) → \(name(target)) 번역을 지원하지 않습니다.")
+        case .needsNewerMacOS:
+            return tr("Offline translation needs macOS 26.4 or later.", "오프라인 번역은 macOS 26.4 이상이 필요합니다.")
+        case .other:
+            return message
+        }
+    }
+}
+
 extension MeetingSetup {
     /// What the panel header and menus call the current setup: "English → Korean", "English ↔ Korean" or "Korean captions".
     @MainActor var title: String {
