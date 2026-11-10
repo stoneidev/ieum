@@ -1,0 +1,16 @@
+# Follow-ups: shorter pause rule (say leaves only 0.2-0.3 s between sentences), the lost tail of the code-switching
+# sample, and words lost at the very start of a session.
+clean-ko-p04:ko-KR:clean-ko-KR:--pause+0.4
+clean-ko-p025:ko-KR:clean-ko-KR:--pause+0.25
+numbers-ko-p04:ko-KR:numbers-ko-KR:--pause+0.4
+ja-p025:ja-JP:ja-JP:--pause+0.25
+zh-p04:zh-CN:zh-CN:--pause+0.4
+zh-p025:zh-CN:zh-CN:--pause+0.25
+codeswitch-ko-p04:ko-KR:codeswitch-ko-KR:--pause+0.4
+codeswitch-ko-novad:ko-KR:codeswitch-ko-KR:--no-vad
+codeswitch-ko-nofast:ko-KR:codeswitch-ko-KR:--no-fast
+codeswitch-ko-nopf:ko-KR:codeswitch-ko-KR:--no-pause-finalization
+codeswitch-ko-legacy:ko-KR:codeswitch-ko-KR:--legacy
+pad-codeswitch-ko:ko-KR:pad-codeswitch-ko-KR
+pad-numbers-en:en-US:pad-numbers-en-US:--no-pause-finalization
+pad-numbers-ko:ko-KR:pad-numbers-ko-KR

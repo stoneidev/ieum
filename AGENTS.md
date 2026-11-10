@@ -85,6 +85,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 - **Status items are hosted by Control Center on macOS 26** (window owner "제어 센터"/Control Center, layer 25, named by `autosaveName`) and the left-most ones are hidden when the bar is full. The status item has its own `autosaveName` (unnamed items share "Item-0" visibility with other apps), and the overlay carries a ⋯ menu with the same actions so the app is never out of reach.
 - **Display sleep breaks ScreenCaptureKit and screenshots.** Use `caffeinate -u`.
 - **zsh does not word-split unquoted variables**; use arrays. BSD `sed` has no `-i` without a suffix; use Python or `perl -pi`.
+- **Early words do not work for Japanese and Chinese on this Mac**: the legacy recognizer has no on-device ja-JP / zh-CN model, so `PreviewingEngine` quietly runs without the preview there (docs/TRANSCRIPTION-RESEARCH.md). The pause rule stays on for ja/zh like Korean (it costs no accuracy there).
 - Experiments that did not pay off are written down (`docs/BENCHMARKS.md`, "Tried and not kept"). Add yours there, with numbers.
 
 ## Updates (the app updates itself)

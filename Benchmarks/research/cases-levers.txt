@@ -1,0 +1,23 @@
+# Latency/accuracy levers and the legacy recognizer, one change at a time against cases-quality.txt.
+clean-en-nofast:en-US:clean-en-US:--no-pause-finalization+--no-fast
+clean-en-novad:en-US:clean-en-US:--no-pause-finalization+--no-vad
+clean-ko-nofast:ko-KR:clean-ko-KR:--no-fast
+clean-ko-novad:ko-KR:clean-ko-KR:--no-vad
+pink10-en-novad:en-US:pink10-en-US:--no-pause-finalization+--no-vad
+pink10-en-nofast:en-US:pink10-en-US:--no-pause-finalization+--no-fast
+babble10-en-nofast:en-US:babble10-en-US:--no-pause-finalization+--no-fast
+pink10-ko-novad:ko-KR:pink10-ko-KR:--no-vad
+gaps-ko-p04:ko-KR:gaps-ko-KR:--pause+0.4
+gaps-ko-p10:ko-KR:gaps-ko-KR:--pause+1.0
+gaps-ja-p04:ja-JP:gaps-ja-JP:--pause+0.4
+gaps-zh-p04:zh-CN:gaps-zh-CN:--pause+0.4
+ja-p04:ja-JP:ja-JP:--pause+0.4
+clean-ko-early:ko-KR:clean-ko-KR:--early-words
+ja-early:ja-JP:ja-JP:--early-words
+zh-early:zh-CN:zh-CN:--early-words
+clean-en-legacy:en-US:clean-en-US:--legacy
+numbers-en-legacy:en-US:numbers-en-US:--legacy
+clean-ko-legacy:ko-KR:clean-ko-KR:--legacy
+numbers-ko-legacy:ko-KR:numbers-ko-KR:--legacy
+ja-legacy:ja-JP:ja-JP:--legacy
+zh-legacy:zh-CN:zh-CN:--legacy

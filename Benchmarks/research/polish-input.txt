@@ -1,0 +1,11 @@
+안녕하세요 오늘 회의에서는 분기별 예산과 제품 로드맵을 검토하겠습니다. 공유된 스프레드 시트를 열어서 2분기 숫자를 확인해주세요.
+안녕하세요 오늘 회의에서 행풍기면 예산과 제품 로드맵을 검토하겠습니다. 공유된 스프레드 시크를 열어서 2분기 숫자를 확인해주세요.
+이번 스프린트에서는 API 응답 속도와 AWS 비용을 점검하겠습니다. 그 포는 큐버닉스 클러스터에서 진행하고 디자인 시야는 피그모로 공유해주세요. 금요일까지 PR 리뷰를 끝내고 슬랙에 올려주세요.
+올해 3분기 예산은 2억 4천백 원으로 작년보다 15% 늘었습니다. 회의는 3월 3일 오전 9시 30분에 204호에서 합니다. 송장번호 7730일은 6월 21일까지 보내주세요.
+Thanks for joining the call. Today we will review the quarterly budget end of product roadmap.
+Please open the sheriff's spreadsheet and check the numbers for the second quarter.
+We will meet on March 3rd at 9.30 in the morning in room 204.
+Please open the shared spreadsheet and check the numbers for the 2nd quarter.
+今天的会议我们将讨论季度预算和产品路线图 ，请打开共享的电子表格查看第二季度的数据。请各个团队在下周一之前汇报进度。
+我们现在开始今天的会议 首先我来介绍一下上个月的销售情况。 新产品的销量比预期要好 接下来我们确认一下下个月的计划
+本日の会議では、四半期の予算と製品のロードマップを確認します。共有されたスプレッドシートを開いて、第二4半期の数字を確認してください。

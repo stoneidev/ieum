@@ -1,0 +1,15 @@
+Let us start with a quick update from the platform team.
+The migration to the new database finished on Tuesday without any downtime.
+We still see slower queries on the reporting page, and we are looking into the cause.
+Marketing would like the launch date moved by one week.
+That gives the design team more time to finish the onboarding screens.
+I think we can agree to that, as long as the press release is not delayed.
+Next, the hiring plan.
+We have two open roles for backend engineers and one for a product designer.
+The interviews for the designer role start next Monday.
+Please send me your availability by the end of the day.
+On the budget side, travel costs were higher than planned this quarter.
+We will review the policy and share a short proposal next week.
+Does anyone have questions so far?
+If not, let us move on to the customer feedback from the last survey.
+Most customers liked the new search, but many asked for better export options.
