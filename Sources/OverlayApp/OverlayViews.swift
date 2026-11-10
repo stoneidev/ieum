@@ -272,6 +272,15 @@ struct OverlayMenuButton: NSViewRepresentable {
             modeItem.submenu = modes
             menu.addItem(modeItem)
 
+            let sizes = NSMenu()
+            sizes.autoenablesItems = false
+            for size in TextSize.allCases {
+                sizes.addItem(ActionItem(size.title, checked: size == model.textSize) { model.setTextSize(size) })
+            }
+            let sizeItem = NSMenuItem(title: tr("Text size", "글자 크기"), action: nil, keyEquivalent: "")
+            sizeItem.submenu = sizes
+            menu.addItem(sizeItem)
+
             menu.addItem(ActionItem(model.displayMode == .bar ? tr("Show transcript panel", "기록 패널로 전환") : tr("Show subtitle bar", "자막 바로 전환")) { model.cycleDisplayMode() })
             menu.addItem(ActionItem(tr("Keep on top of other windows", "다른 창 위에 항상 표시"), checked: model.keepsOnTop) { model.setKeepsOnTop(!model.keepsOnTop) })
             if !model.keepsOnTop {
@@ -288,12 +297,50 @@ struct OverlayMenuButton: NSViewRepresentable {
     }
 }
 
+/// Text size, bar/panel and the menu, together in the corner of the subtitle bar. On the live bar they stay quiet
+/// until the pointer comes near, so nothing competes with the words, but the menu is always one click away.
+struct BarControls: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+    let subdued: Bool
+    @State private var hovering = false
+
+    var body: some View {
+        HStack(spacing: 6) {
+            sizeButton(delta: -1, label: "A", pointSize: 12, help: tr("Smaller text", "글자 작게"))
+            sizeButton(delta: 1, label: "A", pointSize: 17, help: tr("Larger text", "글자 크게"))
+            DisplayToggleButton(model: model, palette: palette)
+            OverlayMenuButton(model: model, palette: palette)
+        }
+        .opacity(subdued && !hovering ? 0.5 : 1)
+        .onHover { hovering = $0 }
+        .animation(.easeOut(duration: 0.15), value: hovering)
+    }
+
+    private func sizeButton(delta: Int, label: String, pointSize: CGFloat, help: String) -> some View {
+        let all = TextSize.allCases
+        let target = all.firstIndex(of: model.textSize).map { $0 + delta }
+        let enabled = target.map(all.indices.contains) ?? false
+        return Button(action: { model.stepTextSize(by: delta) }) {
+            Text(label)
+                .font(.system(size: pointSize, weight: .semibold))
+                .foregroundStyle(palette.interim)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(palette.ink.opacity(0.08)))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .opacity(enabled ? 1 : 0.3)
+        .disabled(!enabled)
+        .help(help)
+        .accessibilityLabel(help)
+    }
+}
+
 /// One click between the subtitle bar and the transcript panel (⌃⌥D does the same). It sits on both, in the same corner.
 struct DisplayToggleButton: View {
     @ObservedObject var model: AppModel
     let palette: Theme.Palette
-    /// Quieter on the live subtitle bar, where nothing should compete with the words.
-    var subdued = false
     @State private var hovering = false
 
     var body: some View {
@@ -308,7 +355,6 @@ struct DisplayToggleButton: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .opacity(subdued && !hovering ? 0.55 : 1)
         .onHover { hovering = $0 }
         .help(label + (model.globalShortcuts ? "  ⌃⌥D" : ""))
         .accessibilityLabel(label)
@@ -357,8 +403,7 @@ struct SubtitleBarView: View {
                 .foregroundStyle(palette.interim)
             Spacer(minLength: 12)
             StartCaptionsButton(model: model, fontSize: fontSize)
-            DisplayToggleButton(model: model, palette: palette)
-            OverlayMenuButton(model: model, palette: palette)
+            BarControls(model: model, palette: palette, subdued: false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .padding(.horizontal, BarMetrics.horizontalPadding)
@@ -393,7 +438,8 @@ struct SubtitleBarView: View {
                     .clipped()
                     .animation(.easeOut(duration: 0.25), value: model.barFinalText)
                     .animation(.easeOut(duration: 0.25), value: model.barTranslation.confirmed)
-                DisplayToggleButton(model: model, palette: palette, subdued: true)
+                BarControls(model: model, palette: palette, subdued: true)
+                    .padding(.bottom, max(0, (BarMetrics.fontLineHeight(fontSize) - 28) / 2))
             }
         }
         // The window is fixed-height; the original row and the text sit together at the bottom of it.

@@ -312,6 +312,13 @@ final class AppModel: ObservableObject {
         Preferences.textSize = size
     }
 
+    /// One step smaller or larger; stops at the ends of the scale.
+    func stepTextSize(by delta: Int) {
+        let all = TextSize.allCases
+        guard let index = all.firstIndex(of: textSize), all.indices.contains(index + delta) else { return }
+        setTextSize(all[index + delta])
+    }
+
     func setBackground(_ style: BackgroundStyle) {
         background = style
         Preferences.background = style
