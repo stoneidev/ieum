@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="ieum-version" content="{{VERSION}}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ieum 이음 · Live Korean subtitles for English meetings, on your Mac</title>
-<meta name="description" content="Ieum shows live captions and English–Korean translation on your Mac during meetings. Recognition and translation run on the device: no account, no cloud, free and open source.">
+<title>Ieum 이음 · Live captions and translation for English, Korean, Japanese and Chinese meetings, on your Mac</title>
+<meta name="description" content="Ieum shows live captions and translation between English, Korean, Japanese and Chinese on your Mac during meetings. Recognition and translation run on the device: no account, no cloud, free and open source.">
 <meta name="theme-color" content="#07090d">
 <meta name="color-scheme" content="dark">
-<meta property="og:title" content="Ieum 이음 · Live Korean subtitles for English meetings">
+<meta property="og:title" content="Ieum 이음 · Live captions and translation for meetings, in your language">
 <meta property="og:description" content="Read the other side in your language while they read you in theirs. Fully on-device, free for Mac.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ieum.calmwork.today/">
@@ -248,7 +248,7 @@ kbd{font:700 12.5px/1 var(--font);padding:5px 8px 4px;border-radius:7px;backgrou
 .bento{margin-top:64px;display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
 .tile{position:relative;padding:30px;border-radius:26px;background:var(--surf);border:1px solid var(--bd);overflow:hidden;transition:border-color .25s,background-color .25s}
 .tile:hover{border-color:var(--bd-2);background:var(--surf-2)}
-.tile.c2{grid-column:span 2}.tile.c3{grid-column:span 3}.tile.c4{grid-column:span 4}
+.tile.c2{grid-column:span 2}.tile.c3{grid-column:span 3}.tile.c4{grid-column:span 4}.tile.c6{grid-column:span 6}
 .tile .ic{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--surf-2);border:1px solid var(--bd-2);color:var(--teal);margin-bottom:20px}
 .tile h3{font:700 20px/1.25 var(--font);letter-spacing:-.02em}
 .tile p{margin-top:8px;color:var(--mute);font-size:15.5px}
@@ -309,7 +309,7 @@ footer a{color:var(--mute)}
   .nav nav a:not(.btn):not(.keep){display:none}
   .steps,.priv{grid-template-columns:minmax(0,1fr)}
   .bento{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-  .tile.c2,.tile.c3,.tile.c4{grid-column:span 2}
+  .tile.c2,.tile.c3,.tile.c4,.tile.c6{grid-column:span 2}
   .grid{grid-template-columns:repeat(2,1fr)}
   .stagewrap .desk{transform:none}
   .appwin{margin:14px 14px 0}
@@ -321,7 +321,7 @@ footer a{color:var(--mute)}
   .cta .btn{width:100%}
   .nav .btn{display:none}
   .bento{grid-template-columns:minmax(0,1fr)}
-  .tile.c2,.tile.c3,.tile.c4{grid-column:auto}
+  .tile.c2,.tile.c3,.tile.c4,.tile.c6{grid-column:auto}
   .tx .row{grid-template-columns:1fr}
   .tx .row>div+div{border-left:0;border-top:1px solid var(--bd)}
   .req th:nth-child(3),.req td:nth-child(3){display:none}
@@ -369,12 +369,12 @@ footer a{color:var(--mute)}
   <div class="wrap">
     <p class="badge"><b>v{{VERSION}}</b><span class="en">Free and open source · works offline</span><span class="ko">무료 오픈소스 · 오프라인 동작</span></p>
     <h1>
-      <span class="en">Follow every word of your <span class="grad">English meeting</span>.</span>
-      <span class="ko">영어 회의, <span class="grad">한 마디도</span> 놓치지 마세요.</span>
+      <span class="en">Follow every word of your <span class="grad">meeting</span>.</span>
+      <span class="ko">회의, <span class="grad">한 마디도</span> 놓치지 마세요.</span>
     </h1>
     <p class="lead">
-      <span class="en">Live captions and Korean subtitles on your Mac screen while people talk. Answer in Korean and the English is there for them. Everything runs on your Mac.</span>
-      <span class="ko">상대가 말하는 동안 Mac 화면에 실시간 자막과 한국어 번역이 뜹니다. 한국어로 답하면 상대는 영어로 읽습니다. 모든 처리는 내 Mac 안에서만 이뤄집니다.</span>
+      <span class="en">Live captions and translation on your Mac screen while people talk, between English, Korean, Japanese and Chinese. Answer in your language and they read theirs. Everything runs on your Mac.</span>
+      <span class="ko">상대가 말하는 동안 Mac 화면에 실시간 자막과 번역이 뜹니다. 한국어·영어·일본어·중국어 사이에서 쓸 수 있고, 내 언어로 답하면 상대는 자기 언어로 읽습니다. 모든 처리는 내 Mac 안에서만 이뤄집니다.</span>
     </p>
     <div class="cta">
       <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span></a>
@@ -447,7 +447,7 @@ footer a{color:var(--mute)}
       </li>
       <li class="reveal">
         <h3><span class="en">Pick a mode, press start</span><span class="ko">모드 선택 후 시작</span></h3>
-        <p><span class="en">Choose English → Korean, Korean → English, or Conversation. Then press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> from any app.</span><span class="ko">영어→한국어, 한국어→영어, 또는 대화 모드를 고른 뒤 어떤 앱에서든 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 누르세요.</span></p>
+        <p><span class="en">Choose a direction such as English → Korean, or Conversation. Then press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> from any app.</span><span class="ko">영어→한국어 같은 방향, 또는 대화 모드를 고른 뒤 어떤 앱에서든 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 누르세요.</span></p>
       </li>
       <li class="reveal">
         <h3><span class="en">Read along</span><span class="ko">자막으로 따라 읽기</span></h3>
@@ -541,7 +541,7 @@ footer a{color:var(--mute)}
       <div class="tile c4 glow reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div>
         <h3><span class="en">Conversation mode</span><span class="ko">대화 모드</span></h3>
-        <p><span class="en">English and Korean in one stream. The language is detected sentence by sentence, and each line carries its translation. Prefer one direction? Use English → Korean when you listen, Korean → English when you present.</span><span class="ko">영어와 한국어가 하나의 흐름으로 이어집니다. 문장마다 언어를 감지해 번역을 붙입니다. 한 방향만 원하면 들을 때는 영어→한국어, 발표할 때는 한국어→영어를 쓰세요.</span></p>
+        <p><span class="en">Both languages of your pair in one stream. The language is detected sentence by sentence, and each line carries its translation. Prefer one direction? Use English → Korean when you listen, Korean → English when you present.</span><span class="ko">고른 두 언어가 하나의 흐름으로 이어집니다. 문장마다 언어를 감지해 번역을 붙입니다. 한 방향만 원하면 들을 때는 영어→한국어, 발표할 때는 한국어→영어를 쓰세요.</span></p>
         <div class="tx">
           <div class="row"><div lang="en">Can we ship the beta on Thursday?</div><div lang="ko">목요일에 베타를 출시할 수 있을까요?</div></div>
           <div class="row"><div lang="ko">QA가 끝나면 가능합니다.</div><div lang="en">It's possible once QA is done.</div></div>
@@ -593,6 +593,11 @@ footer a{color:var(--mute)}
         <h3><span class="en">Controls on the bar</span><span class="ko">자막 바 위의 조절 버튼</span></h3>
         <p><span class="en">Smaller and larger text, bar or panel (also <kbd>⌃ ⌥ D</kbd>), and the ⋯ menu stay on the bar, also while captions run. They fade out until the pointer comes near.</span><span class="ko">글자 작게·크게, 바·패널 전환(<kbd>⌃ ⌥ D</kbd>도 가능), ⋯ 메뉴가 자막이 나오는 동안에도 바 위에 있습니다. 포인터가 가까이 올 때까지는 흐려져 있습니다.</span></p>
       </div>
+      <div class="tile c6 reveal">
+        <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div>
+        <h3><span class="en">More languages</span><span class="ko">더 많은 언어</span></h3>
+        <p><span class="en">Settings &gt; Languages sets the pair for your meeting: Korean ↔ English (the default), Korean ↔ Japanese, Korean ↔ Chinese, English ↔ Japanese or English ↔ Chinese. The modes take the names of that pair. Japanese and Chinese (Simplified) need a speech model that macOS downloads once, the first time you use them. After that it runs offline.</span><span class="ko">설정 &gt; 언어에서 회의의 언어 쌍을 고릅니다. 한국어↔영어(기본), 한국어↔일본어, 한국어↔중국어, 영어↔일본어, 영어↔중국어입니다. 모드 이름도 고른 언어 쌍에 맞게 바뀝니다. 일본어와 중국어(간체)는 처음 쓸 때 macOS가 음성 인식 모델을 한 번 내려받으며, 그 뒤에는 오프라인으로 동작합니다.</span></p>
+      </div>
     </div>
   </div>
 </section>
@@ -641,7 +646,8 @@ footer a{color:var(--mute)}
       <details><summary><span class="en">Is it really free?</span><span class="ko">정말 무료인가요?</span></summary><p><span class="en">Yes. Ieum is open source under the Apache License 2.0. Use it at work or at home, and modify or redistribute it. The name and logo are not part of the license.</span><span class="ko">네. Ieum은 Apache License 2.0의 오픈소스입니다. 업무든 개인용이든 자유롭게 쓰고 수정·재배포할 수 있습니다. 이름과 로고는 라이선스에 포함되지 않습니다.</span></p></details>
       <details><summary><span class="en">Does it work with Zoom, Google Meet and Teams?</span><span class="ko">Zoom, Google Meet, Teams에서도 되나요?</span></summary><p><span class="en">Yes. Pick the system audio source and Ieum reads the audio of any app, so it does not depend on the meeting software. The first time, macOS asks for Screen &amp; System Audio Recording permission. Ieum uses it for audio only.</span><span class="ko">네. 시스템 오디오를 소스로 고르면 어떤 앱의 소리든 읽으므로 회의 소프트웨어에 상관없이 동작합니다. 처음 한 번 macOS가 화면 및 시스템 오디오 녹음 권한을 묻습니다. 오디오 용도로만 사용합니다.</span></p></details>
       <details><summary><span class="en">Is my audio sent anywhere?</span><span class="ko">내 음성이 어딘가로 전송되나요?</span></summary><p><span class="en">No. Recognition and translation run on your Mac. The only request the app makes is a once-a-day check for a newer version, which carries no audio, text or identifiers and can be turned off in Settings. Only a text script is saved locally. No audio is recorded.</span><span class="ko">아니요. 인식과 번역은 Mac 안에서 이뤄집니다. 앱이 하는 요청은 하루에 한 번 새 버전을 확인하는 것뿐이며, 음성·글자·식별 정보는 담기지 않고 설정에서 끌 수 있습니다. 텍스트 스크립트만 로컬에 저장되며 음성은 녹음하지 않습니다.</span></p></details>
-      <details><summary><span class="en">Which languages are supported?</span><span class="ko">어떤 언어를 지원하나요?</span></summary><p><span class="en">English and Korean, in both directions. Captions-only mode is also available.</span><span class="ko">영어와 한국어를 양방향으로 지원하며, 자막만 표시하는 모드도 있습니다.</span></p></details>
+      <details><summary><span class="en">Which languages does Ieum support?</span><span class="ko">Ieum은 어떤 언어를 지원하나요?</span></summary><p><span class="en">English, Korean, Japanese and Chinese (Simplified), in pairs: Korean ↔ English (the default), Korean ↔ Japanese, Korean ↔ Chinese, English ↔ Japanese and English ↔ Chinese. Choose the pair in Settings &gt; Languages. Each pair translates in both directions, and a captions-only mode is also available.</span><span class="ko">영어, 한국어, 일본어, 중국어(간체)를 두 언어씩 짝지어 지원합니다. 한국어↔영어(기본), 한국어↔일본어, 한국어↔중국어, 영어↔일본어, 영어↔중국어이며 설정 &gt; 언어에서 고릅니다. 각 쌍은 양방향으로 번역하고, 자막만 표시하는 모드도 있습니다.</span></p></details>
+      <details><summary><span class="en">Does Japanese or Chinese work offline?</span><span class="ko">일본어나 중국어도 오프라인으로 되나요?</span></summary><p><span class="en">Yes, after a one-time download. The first time you use Japanese or Chinese, macOS downloads the speech-recognition model, so that moment needs an internet connection, and Ieum shows a notice at the first start. Translation and everything else stay offline.</span><span class="ko">네, 한 번 내려받은 뒤에는 됩니다. 일본어나 중국어를 처음 쓸 때 macOS가 음성 인식 모델을 내려받으므로 그때만 인터넷이 필요하며, 처음 시작할 때 Ieum이 안내를 보여 줍니다. 번역과 나머지 기능은 계속 오프라인입니다.</span></p></details>
       <details><summary><span class="en">Why do I need macOS 26.4 for translation?</span><span class="ko">번역에 macOS 26.4가 필요한 이유는?</span></summary><p><span class="en">Ieum uses Apple's own on-device Translation framework instead of a cloud service. The version it needs for this use ships with macOS 26.4. On older versions you still get live captions.</span><span class="ko">Ieum은 클라우드 대신 Apple의 온디바이스 번역 프레임워크를 사용하며, 이 용도에 필요한 버전이 macOS 26.4에 포함됩니다. 이전 버전에서도 실시간 자막은 사용할 수 있습니다.</span></p></details>
       <details><summary><span class="en">Can I use an external microphone?</span><span class="ko">외장 마이크를 쓸 수 있나요?</span></summary><p><span class="en">Yes. In Settings &gt; General &gt; Microphone, choose a USB microphone, speakerphone or headset instead of the system default. If it is unplugged, Ieum uses the default microphone again.</span><span class="ko">네. 설정 &gt; 일반 &gt; 마이크에서 시스템 기본값 대신 USB 마이크, 스피커폰, 헤드셋을 고를 수 있습니다. 연결이 빠지면 다시 기본 마이크를 씁니다.</span></p></details>
       <details><summary><span class="en">How do I make the text bigger?</span><span class="ko">글자를 키우려면?</span></summary><p><span class="en">Use the larger and smaller text buttons on the subtitle bar. They work while captions are running and fade until the pointer comes near. The size is also in Settings.</span><span class="ko">자막 바의 글자 크게·작게 버튼을 쓰세요. 자막이 나오는 동안에도 쓸 수 있고, 포인터가 가까이 올 때까지는 흐려져 있습니다. 크기는 설정에서도 바꿀 수 있습니다.</span></p></details>
@@ -667,13 +673,13 @@ footer a{color:var(--mute)}
 
 <section class="final">
   <div class="wrap">
-    <h2><span class="en">Your next English meeting, in Korean.</span><span class="ko">다음 영어 회의는 한국어 자막과 함께.</span></h2>
+    <h2><span class="en">Your next meeting, in your language.</span><span class="ko">다음 회의는 내 언어 자막과 함께.</span></h2>
     <p class="sub"><span class="en">{{SIZE}}, free, and nothing leaves your Mac.</span><span class="ko">{{SIZE}}, 무료, 내용은 Mac 밖으로 나가지 않습니다.</span></p>
     <div class="cta">
       <a class="btn dl" href="https://github.com/stoneidev/ieum/releases/latest/download/Ieum.dmg" download><svg class="icon" aria-hidden="true"><use href="#i-dl"/></svg><span class="en">Download for Mac</span><span class="ko">Mac용 다운로드</span></a>
     </div>
     <div class="share">
-      <span class="en">Know someone who joins English meetings?</span><span class="ko">영어 회의에 들어가는 동료가 있나요?</span>
+      <span class="en">Know someone who joins meetings in another language?</span><span class="ko">다른 언어로 회의하는 동료가 있나요?</span>
       <button class="btn ghost sm" type="button" data-share="copy"><span class="en">Copy link</span><span class="ko">링크 복사</span></button>
       <a class="btn ghost sm" href="#" data-share="x" target="_blank" rel="noopener">X</a>
       <a class="btn ghost sm" href="#" data-share="li" target="_blank" rel="noopener">LinkedIn</a>
@@ -747,7 +753,7 @@ var isMac=/Mac/i.test(navigator.platform||navigator.userAgent)&&!/iPhone|iPad|iP
 if(!isMac)d.classList.add("notmac");
 
 var url="https://ieum.calmwork.today/";
-var msg=function(){return d.dataset.lang==="ko"?"Ieum 이음: 영어 회의에 한국어 실시간 자막을 띄워 주는 Mac 앱 (무료, 100% 기기 내 처리)":"Ieum: live Korean subtitles for English meetings on Mac. Free, 100% on-device."};
+var msg=function(){return d.dataset.lang==="ko"?"Ieum 이음: 회의에 실시간 자막과 번역을 띄워 주는 Mac 앱 (영·한·일·중, 무료, 100% 기기 내 처리)":"Ieum: live captions and translation for meetings on Mac (English, Korean, Japanese, Chinese). Free, 100% on-device."};
 document.querySelectorAll("[data-share]").forEach(function(el){
   el.addEventListener("click",function(e){
     var k=el.dataset.share,t=msg();e.preventDefault();
