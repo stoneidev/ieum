@@ -13,7 +13,7 @@ Read what the other side says in your language, while they read what you say in 
 ![Build](https://img.shields.io/badge/build-Swift%20Package%20Manager-blue)
 ![Tests](https://img.shields.io/badge/tests-162%20passing-brightgreen)
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
-![Languages](https://img.shields.io/badge/languages-English%20%E2%86%94%20%ED%95%9C%EA%B5%AD%EC%96%B4-informational)
+![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Version](https://img.shields.io/badge/version-0.3.2-orange)
 
@@ -39,6 +39,7 @@ The other side talks and you read Korean. You answer in Korean and the English i
 | **What's new tour** | After an update, a short animated tour shows what changed since the version you last used. Settings → About reopens it. |
 | **Updates** | Once a day Ieum checks for a newer version and asks before installing. It downloads the update, verifies the SHA-256, the developer signature and Apple's notarization, then replaces itself and reopens. |
 | **Try it** | A built-in test plays a sentence through the speakers and shows it come back as captions and a translation, so you know it works before the meeting. Nothing is saved. |
+| **Languages** | English, Korean, Japanese and Chinese (Simplified), in the pairs Korean ↔ English, Korean ↔ Japanese, Korean ↔ Chinese, English ↔ Japanese and English ↔ Chinese. One setting picks the pair; the meeting modes below keep their meaning. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. |
 | **Meeting modes** | Korean → English, English → Korean, Korean captions, English captions (no translation), or **detect the language and translate** (both ways, decided per sentence). |
 | **Words as they are spoken** | The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can stay above every window or behave like an ordinary one, and it can be click-through. |

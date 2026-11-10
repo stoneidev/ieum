@@ -21,6 +21,12 @@ enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "languages", introduced: "0.4.0", art: .modes,
+            title: tr("Japanese and Chinese, too", "일본어와 중국어도 됩니다"),
+            body: tr("Pick the two languages of your meeting under Languages, in Settings or the menu. Korean, English, Japanese and Chinese work in pairs, and the five modes stay the same. The first time you use Japanese or Chinese, macOS downloads its speech model once.",
+                     "설정이나 메뉴의 언어에서 회의의 두 언어를 고르세요. 한국어, 영어, 일본어, 중국어를 짝지어 쓰고 5가지 모드는 그대로입니다. 일본어나 중국어는 처음 한 번 macOS가 음성 모델을 내려받습니다.")
+        ),
+        WhatsNewPage(
             id: "bar-controls", introduced: "0.3.2", art: .menu,
             title: tr("The menu is always on the bar", "자막 중에도 메뉴가 바에 있습니다"),
             body: tr("Smaller and larger text, bar or panel, and the ⋯ menu now sit at the end of the subtitle bar, also while captions run. They fade until you move the pointer near.",
