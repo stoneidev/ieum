@@ -183,6 +183,8 @@ struct StartCaptionsButton: View {
                     Text("⌃⌥S").font(.system(size: max(12, fontSize - 4), weight: .medium, design: .rounded)).opacity(0.6)
                 }
             }
+            .lineLimit(1)
+            .fixedSize()
             .foregroundStyle(Color.black.opacity(0.88))
             .padding(.horizontal, 16)
             .padding(.vertical, 7)
@@ -195,40 +197,93 @@ struct StartCaptionsButton: View {
 
 /// The menu-bar menu, inside the overlay. macOS hides status items when the menu bar is full (the left-most one goes first),
 /// and then the menu would be out of reach; this keeps mode, settings and quit one click away.
-struct OverlayMenuButton: View {
-    @ObservedObject var model: AppModel
+///
+/// It is a real `NSMenu` shown from an `NSButton`, built when it is clicked. A SwiftUI `Menu` is rebuilt whenever the view
+/// around it updates, which in the transcript panel is every time a word is recognized, and that closed it under the pointer.
+struct OverlayMenuButton: NSViewRepresentable {
+    let model: AppModel
     let palette: Theme.Palette
 
-    var body: some View {
-        Menu {
-            Button(model.isRunning ? tr("Stop captions", "자막 중지") : tr("Start captions", "자막 시작")) { model.toggleRunning() }
-            Menu(tr("Meeting mode", "회의 모드")) {
-                ForEach(MeetingMode.allCases, id: \.self) { mode in
-                    Button { model.setMeetingMode(mode) } label: {
-                        if mode == model.meetingMode { Label(mode.title, systemImage: "checkmark") } else { Text(mode.title) }
-                    }
-                    .disabled(!mode.isAvailableOnThisMac)
-                }
-            }
-            Button(model.displayMode == .bar ? tr("Show transcript panel", "기록 패널로 전환") : tr("Show subtitle bar", "자막 바로 전환")) { model.cycleDisplayMode() }
-            Toggle(tr("Keep on top of other windows", "다른 창 위에 항상 표시"), isOn: Binding(get: { model.keepsOnTop }, set: model.setKeepsOnTop))
-            if !model.keepsOnTop {
-                Button(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() }
-            }
-            Divider()
-            Button(tr("Settings…", "설정…")) { model.openSettings() }
-            Button(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() }
-            Divider()
-            Button(tr("Quit Ieum", "Ieum 종료")) { NSApp.terminate(nil) }
-        } label: {
-            Image(systemName: "ellipsis.circle")
-                .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(palette.interim)
+    func makeCoordinator() -> Coordinator { Coordinator(model: model) }
+
+    func makeNSView(context: Context) -> NSButton {
+        let button = FirstClickButton()
+        button.isBordered = false
+        button.imagePosition = .imageOnly
+        button.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: tr("Menu", "메뉴"))?
+            .withSymbolConfiguration(.init(pointSize: 17, weight: .regular))
+        button.setAccessibilityLabel(tr("Menu", "메뉴"))
+        button.target = context.coordinator
+        button.action = #selector(Coordinator.show(_:))
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        return button
+    }
+
+    func updateNSView(_ button: NSButton, context: Context) {
+        button.contentTintColor = NSColor(palette.interim)
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSButton, context: Context) -> CGSize? { CGSize(width: 24, height: 24) }
+
+    /// A click on the overlay while another app is active opens the menu at once instead of only bringing the window forward.
+    private final class FirstClickButton: NSButton {
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    }
+
+    /// A menu item that runs a closure.
+    private final class ActionItem: NSMenuItem {
+        private let handler: () -> Void
+
+        init(_ title: String, checked: Bool = false, enabled: Bool = true, handler: @escaping () -> Void) {
+            self.handler = handler
+            super.init(title: title, action: #selector(fire), keyEquivalent: "")
+            target = self
+            state = checked ? .on : .off
+            isEnabled = enabled
         }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .fixedSize()
-        .accessibilityLabel(tr("Menu", "메뉴"))
+
+        required init(coder: NSCoder) { fatalError("not used") }
+
+        @objc private func fire() { handler() }
+    }
+
+    @MainActor
+    final class Coordinator: NSObject {
+        private let model: AppModel
+        init(model: AppModel) { self.model = model }
+
+        @objc func show(_ sender: NSButton) {
+            // Just below the button, whichever way the hosting view's y axis points.
+            buildMenu().popUp(positioning: nil, at: NSPoint(x: 0, y: sender.isFlipped ? sender.bounds.maxY + 2 : -2), in: sender)
+        }
+
+        private func buildMenu() -> NSMenu {
+            let model = self.model
+            let menu = NSMenu()
+            menu.autoenablesItems = false
+            menu.addItem(ActionItem(model.isRunning ? tr("Stop captions", "자막 중지") : tr("Start captions", "자막 시작")) { model.toggleRunning() })
+
+            let modes = NSMenu()
+            modes.autoenablesItems = false
+            for mode in MeetingMode.allCases {
+                modes.addItem(ActionItem(mode.title, checked: mode == model.meetingMode, enabled: mode.isAvailableOnThisMac) { model.setMeetingMode(mode) })
+            }
+            let modeItem = NSMenuItem(title: tr("Meeting mode", "회의 모드"), action: nil, keyEquivalent: "")
+            modeItem.submenu = modes
+            menu.addItem(modeItem)
+
+            menu.addItem(ActionItem(model.displayMode == .bar ? tr("Show transcript panel", "기록 패널로 전환") : tr("Show subtitle bar", "자막 바로 전환")) { model.cycleDisplayMode() })
+            menu.addItem(ActionItem(tr("Keep on top of other windows", "다른 창 위에 항상 표시"), checked: model.keepsOnTop) { model.setKeepsOnTop(!model.keepsOnTop) })
+            if !model.keepsOnTop {
+                menu.addItem(ActionItem(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() })
+            }
+            menu.addItem(.separator())
+            menu.addItem(ActionItem(tr("Settings…", "설정…")) { model.openSettings() })
+            menu.addItem(ActionItem(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() })
+            menu.addItem(.separator())
+            menu.addItem(ActionItem(tr("Quit Ieum", "Ieum 종료")) { NSApp.terminate(nil) })
+            return menu
+        }
     }
 }
 
@@ -452,13 +507,20 @@ struct TranscriptPanelView: View {
     private var header: some View {
         HStack(spacing: 10) {
             StatusDot(status: model.status, idleColor: palette.interim)
-            Text(model.meetingMode.title)
+            // The controls on the right keep their size; the names give way (and are cut with an ellipsis) in a narrow panel.
+            Text(model.meetingMode.shortTitle)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(palette.ink)
-            Text(model.source.title)
-                .font(.system(size: 13))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .layoutPriority(-1)
+                .help(model.meetingMode.title)
+            Image(systemName: model.source == .microphone ? "mic.fill" : "speaker.wave.2.fill")
+                .font(.system(size: 12))
                 .foregroundStyle(palette.interim)
-            Spacer()
+                .help(model.source.title)
+                .accessibilityLabel(model.source.title)
+            Spacer(minLength: 8)
             if model.status == .idle {
                 StartCaptionsButton(model: model, fontSize: 13)
             } else if model.status == .listening, model.translationNotice == nil {
@@ -469,6 +531,8 @@ struct TranscriptPanelView: View {
                             Text("⌃⌥S").font(.system(size: 11, weight: .medium, design: .rounded)).opacity(0.6)
                         }
                     }
+                    .lineLimit(1)
+                    .fixedSize()
                     .foregroundStyle(palette.ink)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)

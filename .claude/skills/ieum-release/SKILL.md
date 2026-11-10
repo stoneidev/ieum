@@ -15,7 +15,7 @@ export NOTARY_PROFILE=stt-notary
 ```
 
 1. **Version.** Bump `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/App/Info.plist` (build number +1), the version badge and the
-   "Version x.y.z." line in `README.md`. Pick the next patch (0.2.8 → 0.2.9) unless told otherwise.
+   "Version x.y.z." line in `README.md`. Pick the next patch (0.2.9 → 0.2.10) unless told otherwise.
 2. **What's new.** If the release has something users should notice, add a page to `WhatsNewCatalog.pages()` (see AGENTS.md) and look at it with
    `open -n .build/app/Ieum.app --args -lastSeenVersion <previous version>`.
 3. **Tests.** `swift test` (143+ pass).
@@ -34,7 +34,7 @@ export NOTARY_PROFILE=stt-notary
    shasum -a 256 /tmp/dl.dmg .build/app/Ieum.dmg     # the two hashes must be equal
    xcrun stapler validate /tmp/dl.dmg
    ```
-9. **Site.** `Scripts/deploy-site.sh` (only if `site/` changed or the owner said "배포"). The download button points at `releases/latest/download/Ieum.dmg`, so it
+9. **Site.** `Scripts/deploy-site.sh` (it stamps the page with the latest GitHub release's version and size, so run it after the release exists) (only if `site/` changed or the owner said "배포"). The download button points at `releases/latest/download/Ieum.dmg`, so it
    needs no edit per release. Check `curl -s -o /dev/null -w "%{http_code}" https://ieum.calmwork.today/`.
 10. **Report** in Korean: version, release URL, what is in it, what was verified, what was not (for example first launch on another Mac).
 

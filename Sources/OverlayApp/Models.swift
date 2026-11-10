@@ -95,6 +95,15 @@ extension MeetingMode {
         }
     }
 
+    /// The name for tight places such as the panel header; the full name says "(no translation)".
+    @MainActor var shortTitle: String {
+        switch self {
+        case .koreanCaptions: tr("Korean captions", "한국어 자막")
+        case .englishCaptions: tr("English captions", "영어 자막")
+        default: title
+        }
+    }
+
     @MainActor var explanation: String {
         switch self {
         case .koreanToEnglish: tr("The other person speaks Korean. You read English.", "상대가 한국어로 말합니다. 영어 자막으로 봅니다.")
