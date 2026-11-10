@@ -446,8 +446,8 @@ footer a{color:var(--mute)}
         <p style="font-size:14px"><span class="en">Apple silicon, macOS 14 or later. The cask lives in <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>.</span><span class="ko">Apple silicon, macOS 14 이상. 캐스크는 <a href="https://github.com/stoneidev/homebrew-tap">stoneidev/homebrew-tap</a>에 있습니다.</span></p>
       </li>
       <li class="reveal">
-        <h3><span class="en">Pick a mode, press start</span><span class="ko">모드 선택 후 시작</span></h3>
-        <p><span class="en">Choose a direction such as English → Korean, or Conversation. Then press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> from any app.</span><span class="ko">영어→한국어 같은 방향, 또는 대화 모드를 고른 뒤 어떤 앱에서든 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 누르세요.</span></p>
+        <h3><span class="en">Pick what you hear and read, then start</span><span class="ko">듣는 언어와 읽는 언어를 고르고 시작</span></h3>
+        <p><span class="en">Choose the language you hear and the language you read, for example English → Korean, or turn on “Both sides speak”. Then press <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd> from any app.</span><span class="ko">듣는 언어와 읽을 언어(예: 영어→한국어)를 고르거나 “양쪽이 말함”을 켠 뒤 어떤 앱에서든 <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>S</kbd>를 누르세요.</span></p>
       </li>
       <li class="reveal">
         <h3><span class="en">Read along</span><span class="ko">자막으로 따라 읽기</span></h3>
@@ -492,9 +492,9 @@ footer a{color:var(--mute)}
 
       <form class="controls" onsubmit="return false" aria-label="Preview controls">
         <fieldset>
-          <legend><span class="en">Meeting mode</span><span class="ko">회의 모드</span></legend>
+          <legend><span class="en">Languages</span><span class="ko">언어</span></legend>
           <div class="seg">
-            <label><input type="radio" name="mode" value="conv" checked><span><span class="en">Conversation</span><span class="ko">대화</span></span></label>
+            <label><input type="radio" name="mode" value="conv" checked><span><span class="en">Both sides speak</span><span class="ko">양쪽이 말함</span></span></label>
             <label><input type="radio" name="mode" value="en2ko"><span>EN → KO</span></label>
             <label><input type="radio" name="mode" value="ko2en"><span>KO → EN</span></label>
             <label><input type="radio" name="mode" value="caps"><span><span class="en">Captions only</span><span class="ko">자막만</span></span></label>
@@ -540,8 +540,8 @@ footer a{color:var(--mute)}
     <div class="bento">
       <div class="tile c4 glow reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div>
-        <h3><span class="en">Conversation mode</span><span class="ko">대화 모드</span></h3>
-        <p><span class="en">Both languages of your pair in one stream. The language is detected sentence by sentence, and each line carries its translation. Prefer one direction? Use English → Korean when you listen, Korean → English when you present.</span><span class="ko">고른 두 언어가 하나의 흐름으로 이어집니다. 문장마다 언어를 감지해 번역을 붙입니다. 한 방향만 원하면 들을 때는 영어→한국어, 발표할 때는 한국어→영어를 쓰세요.</span></p>
+        <h3><span class="en">Both sides speak</span><span class="ko">양쪽이 말할 때</span></h3>
+        <p><span class="en">Turn on “Both sides speak (detect the language)” and the two languages you chose run in one stream. Each sentence is detected and translated into the other language. Prefer one direction? Leave it off and pick what you hear and what you read.</span><span class="ko">“양쪽이 말함(언어 감지)”을 켜면 고른 두 언어가 하나의 흐름으로 이어집니다. 문장마다 언어를 감지해 다른 언어로 번역합니다. 한 방향만 원하면 끄고 듣는 언어와 읽는 언어를 고르세요.</span></p>
         <div class="tx">
           <div class="row"><div lang="en">Can we ship the beta on Thursday?</div><div lang="ko">목요일에 베타를 출시할 수 있을까요?</div></div>
           <div class="row"><div lang="ko">QA가 끝나면 가능합니다.</div><div lang="en">It's possible once QA is done.</div></div>
@@ -596,7 +596,7 @@ footer a{color:var(--mute)}
       <div class="tile c6 reveal">
         <div class="ic"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div>
         <h3><span class="en">More languages</span><span class="ko">더 많은 언어</span></h3>
-        <p><span class="en">Settings &gt; Languages sets the pair for your meeting: Korean ↔ English (the default), Korean ↔ Japanese, Korean ↔ Chinese, English ↔ Japanese or English ↔ Chinese. The modes take the names of that pair. Japanese and Chinese (Simplified) need a speech model that macOS downloads once, the first time you use them. After that it runs offline.</span><span class="ko">설정 &gt; 언어에서 회의의 언어 쌍을 고릅니다. 한국어↔영어(기본), 한국어↔일본어, 한국어↔중국어, 영어↔일본어, 영어↔중국어입니다. 모드 이름도 고른 언어 쌍에 맞게 바뀝니다. 일본어와 중국어(간체)는 처음 쓸 때 macOS가 음성 인식 모델을 한 번 내려받으며, 그 뒤에는 오프라인으로 동작합니다.</span></p>
+        <p><span class="en">In Settings &gt; General, pick the language you hear and the language you read: English, Korean, Japanese or Chinese (Simplified), any two together. Choosing the same language in both places swaps them, and <kbd>⌃ ⌥ L</kbd> flips the two. Japanese and Chinese (Simplified) need a speech model that macOS downloads once, the first time you use them. After that it runs offline.</span><span class="ko">설정 &gt; 일반에서 듣는 언어와 읽는 언어를 고릅니다. 영어, 한국어, 일본어, 중국어(간체) 중 어떤 두 언어든 함께 쓸 수 있습니다. 두 곳에 같은 언어를 고르면 서로 바뀌고, <kbd>⌃ ⌥ L</kbd>로도 두 언어를 맞바꿉니다. 일본어와 중국어(간체)는 처음 쓸 때 macOS가 음성 인식 모델을 한 번 내려받으며, 그 뒤에는 오프라인으로 동작합니다.</span></p>
       </div>
     </div>
   </div>
@@ -630,7 +630,7 @@ footer a{color:var(--mute)}
       <tbody>
         <tr><td>14+</td><td><span class="en">Live captions with the standard recognizer</span><span class="ko">기본 인식기로 실시간 자막</span></td><td>Apple silicon</td></tr>
         <tr><td>26+</td><td><span class="en">Faster recognizer (SpeechAnalyzer)</span><span class="ko">더 빠른 인식기 (SpeechAnalyzer)</span></td><td>Apple silicon</td></tr>
-        <tr><td>26.4+</td><td><span class="en">Offline translation and Conversation mode</span><span class="ko">오프라인 번역 및 대화 모드</span></td><td>Apple silicon</td></tr>
+        <tr><td>26.4+</td><td><span class="en">Offline translation and “Both sides speak” detection</span><span class="ko">오프라인 번역 및 “양쪽이 말함” 감지</span></td><td>Apple silicon</td></tr>
       </tbody>
     </table>
   </div>
@@ -646,7 +646,7 @@ footer a{color:var(--mute)}
       <details><summary><span class="en">Is it really free?</span><span class="ko">정말 무료인가요?</span></summary><p><span class="en">Yes. Ieum is open source under the Apache License 2.0. Use it at work or at home, and modify or redistribute it. The name and logo are not part of the license.</span><span class="ko">네. Ieum은 Apache License 2.0의 오픈소스입니다. 업무든 개인용이든 자유롭게 쓰고 수정·재배포할 수 있습니다. 이름과 로고는 라이선스에 포함되지 않습니다.</span></p></details>
       <details><summary><span class="en">Does it work with Zoom, Google Meet and Teams?</span><span class="ko">Zoom, Google Meet, Teams에서도 되나요?</span></summary><p><span class="en">Yes. Pick the system audio source and Ieum reads the audio of any app, so it does not depend on the meeting software. The first time, macOS asks for Screen &amp; System Audio Recording permission. Ieum uses it for audio only.</span><span class="ko">네. 시스템 오디오를 소스로 고르면 어떤 앱의 소리든 읽으므로 회의 소프트웨어에 상관없이 동작합니다. 처음 한 번 macOS가 화면 및 시스템 오디오 녹음 권한을 묻습니다. 오디오 용도로만 사용합니다.</span></p></details>
       <details><summary><span class="en">Is my audio sent anywhere?</span><span class="ko">내 음성이 어딘가로 전송되나요?</span></summary><p><span class="en">No. Recognition and translation run on your Mac. The only request the app makes is a once-a-day check for a newer version, which carries no audio, text or identifiers and can be turned off in Settings. Only a text script is saved locally. No audio is recorded.</span><span class="ko">아니요. 인식과 번역은 Mac 안에서 이뤄집니다. 앱이 하는 요청은 하루에 한 번 새 버전을 확인하는 것뿐이며, 음성·글자·식별 정보는 담기지 않고 설정에서 끌 수 있습니다. 텍스트 스크립트만 로컬에 저장되며 음성은 녹음하지 않습니다.</span></p></details>
-      <details><summary><span class="en">Which languages does Ieum support?</span><span class="ko">Ieum은 어떤 언어를 지원하나요?</span></summary><p><span class="en">English, Korean, Japanese and Chinese (Simplified), in pairs: Korean ↔ English (the default), Korean ↔ Japanese, Korean ↔ Chinese, English ↔ Japanese and English ↔ Chinese. Choose the pair in Settings &gt; Languages. Each pair translates in both directions, and a captions-only mode is also available.</span><span class="ko">영어, 한국어, 일본어, 중국어(간체)를 두 언어씩 짝지어 지원합니다. 한국어↔영어(기본), 한국어↔일본어, 한국어↔중국어, 영어↔일본어, 영어↔중국어이며 설정 &gt; 언어에서 고릅니다. 각 쌍은 양방향으로 번역하고, 자막만 표시하는 모드도 있습니다.</span></p></details>
+      <details><summary><span class="en">Which languages does Ieum support?</span><span class="ko">Ieum은 어떤 언어를 지원하나요?</span></summary><p><span class="en">English, Korean, Japanese and Chinese (Simplified), and any two of them work together. In Settings &gt; General choose the language you hear and the language you read (or “No translation (captions only)”). A switch, “Both sides speak”, detects each sentence’s language and translates it into the other.</span><span class="ko">영어, 한국어, 일본어, 중국어(간체)를 지원하며 이 중 어떤 두 언어든 함께 쓸 수 있습니다. 설정 &gt; 일반에서 듣는 언어와 읽는 언어(또는 “번역 안 함(자막만)”)를 고르세요. “양쪽이 말함” 스위치를 켜면 문장마다 언어를 감지해 다른 언어로 번역합니다.</span></p></details>
       <details><summary><span class="en">Does Japanese or Chinese work offline?</span><span class="ko">일본어나 중국어도 오프라인으로 되나요?</span></summary><p><span class="en">Yes, after a one-time download. The first time you use Japanese or Chinese, macOS downloads the speech-recognition model, so that moment needs an internet connection, and Ieum shows a notice at the first start. Translation and everything else stay offline.</span><span class="ko">네, 한 번 내려받은 뒤에는 됩니다. 일본어나 중국어를 처음 쓸 때 macOS가 음성 인식 모델을 내려받으므로 그때만 인터넷이 필요하며, 처음 시작할 때 Ieum이 안내를 보여 줍니다. 번역과 나머지 기능은 계속 오프라인입니다.</span></p></details>
       <details><summary><span class="en">Why do I need macOS 26.4 for translation?</span><span class="ko">번역에 macOS 26.4가 필요한 이유는?</span></summary><p><span class="en">Ieum uses Apple's own on-device Translation framework instead of a cloud service. The version it needs for this use ships with macOS 26.4. On older versions you still get live captions.</span><span class="ko">Ieum은 클라우드 대신 Apple의 온디바이스 번역 프레임워크를 사용하며, 이 용도에 필요한 버전이 macOS 26.4에 포함됩니다. 이전 버전에서도 실시간 자막은 사용할 수 있습니다.</span></p></details>
       <details><summary><span class="en">Can I use an external microphone?</span><span class="ko">외장 마이크를 쓸 수 있나요?</span></summary><p><span class="en">Yes. In Settings &gt; General &gt; Microphone, choose a USB microphone, speakerphone or headset instead of the system default. If it is unplugged, Ieum uses the default microphone again.</span><span class="ko">네. 설정 &gt; 일반 &gt; 마이크에서 시스템 기본값 대신 USB 마이크, 스피커폰, 헤드셋을 고를 수 있습니다. 연결이 빠지면 다시 기본 마이크를 씁니다.</span></p></details>
