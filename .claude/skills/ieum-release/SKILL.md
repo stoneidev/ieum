@@ -15,7 +15,7 @@ export NOTARY_PROFILE=stt-notary
 ```
 
 1. **Version.** Bump `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/App/Info.plist` (build number +1), the version badge and the
-   "Version x.y.z." line in `README.md`. Pick the next patch (0.2.7 → 0.2.8) unless told otherwise.
+   "Version x.y.z." line in `README.md`. Pick the next patch (0.2.8 → 0.2.9) unless told otherwise.
 2. **What's new.** If the release has something users should notice, add a page to `WhatsNewCatalog.pages()` (see AGENTS.md) and look at it with
    `open -n .build/app/Ieum.app --args -lastSeenVersion <previous version>`.
 3. **Tests.** `swift test` (143+ pass).
