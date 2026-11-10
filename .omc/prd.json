@@ -288,6 +288,17 @@
       ],
       "passes": true,
       "notes": "Pages and layout verified by window screenshots; Esc/Return/click could not be driven from the agent shell because the app is not activated there."
+    },
+    {
+      "id": "US-30",
+      "title": "Fix English panel header wrap and the menu closing during recognition; show deployed version",
+      "acceptanceCriteria": [
+        "Panel header on one line in English for every mode",
+        "Overlay menu stays open while sentences are recognized (verified with system audio)",
+        "Site shows the latest release version and size"
+      ],
+      "passes": true,
+      "notes": "v0.2.9"
     }
   ],
   "notes": {
