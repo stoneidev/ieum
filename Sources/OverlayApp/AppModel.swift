@@ -261,10 +261,11 @@ final class AppModel: ObservableObject {
 
     private func apply(_ new: MeetingSetup) {
         guard new != setup else { return }
+        let carriesOn = new.runsLike(setup)
         setup = new
         Preferences.meetingSetup = new
         updateSecondaryRow()
-        restartIfRunning()
+        if !carriesOn { restartIfRunning() }
     }
 
     func setEnglishVariant(_ language: Language) {

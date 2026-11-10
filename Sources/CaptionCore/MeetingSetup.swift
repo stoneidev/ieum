@@ -82,6 +82,13 @@ public struct MeetingSetup: Equatable, Sendable {
         return shown == .english ? [shown, heard] : [heard, shown]
     }
 
+    /// Whether a running session can carry on when the setup changes from `other` to this one: the same languages are
+    /// recognized and translated, only the order of the two is different (swapping in the both-ways case).
+    public func runsLike(_ other: MeetingSetup) -> Bool {
+        func key(_ setup: MeetingSetup) -> [String] { setup.recognizedLanguages.map(\.code) + setup.translationPairs.map { "\($0.source)>\($0.target)" } }
+        return Set(key(self)) == Set(key(other))
+    }
+
     /// Whether English speech is recognized, which is when the accent choice matters.
     public var recognizesEnglish: Bool { recognizedLanguages.contains(.english) }
     public var involvesEnglish: Bool { heard == .english || shown == .english }

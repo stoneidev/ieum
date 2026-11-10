@@ -68,6 +68,16 @@ struct MeetingSetupTests {
         #expect(captions.swapped.heard == .korean && captions.swapped.shown == nil)
     }
 
+    @Test func swappingWhileBothSidesSpeakDoesNotNeedANewSession() {
+        let both = enKo.speakingBothWays(true)
+        #expect(both.swapped.runsLike(both))
+        #expect(!enKo.swapped.runsLike(enKo))
+        let koJa = MeetingSetup(heard: .korean, shown: .japanese, bothWays: true)
+        #expect(koJa.swapped.runsLike(koJa))
+        #expect(!both.showing(.japanese).runsLike(both))
+        #expect(!both.speakingBothWays(false).runsLike(both))
+    }
+
     @Test func englishAccentOnlyMattersWhenEnglishIsRecognized() {
         #expect(enKo.recognizesEnglish && !MeetingSetup(heard: .korean, shown: .english).recognizesEnglish)
         #expect(MeetingSetup(heard: .korean, shown: .english, bothWays: true).recognizesEnglish)
