@@ -45,6 +45,7 @@ final class OverlayWindowController {
         model.$displayMode
             .removeDuplicates()
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] mode in self?.applyMode(mode) }
             .store(in: &cancellables)
 

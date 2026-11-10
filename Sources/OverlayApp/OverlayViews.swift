@@ -288,6 +288,33 @@ struct OverlayMenuButton: NSViewRepresentable {
     }
 }
 
+/// One click between the subtitle bar and the transcript panel (⌃⌥D does the same). It sits on both, in the same corner.
+struct DisplayToggleButton: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+    /// Quieter on the live subtitle bar, where nothing should compete with the words.
+    var subdued = false
+    @State private var hovering = false
+
+    var body: some View {
+        let toPanel = model.displayMode == .bar
+        let label = toPanel ? tr("Show the transcript panel", "기록 패널로 전환") : tr("Show the subtitle bar", "자막 바로 전환")
+        Button(action: { model.cycleDisplayMode() }) {
+            Image(systemName: toPanel ? "list.bullet.rectangle" : "captions.bubble")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(palette.interim)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(palette.ink.opacity(hovering ? 0.16 : 0.08)))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .opacity(subdued && !hovering ? 0.55 : 1)
+        .onHover { hovering = $0 }
+        .help(label + (model.globalShortcuts ? "  ⌃⌥D" : ""))
+        .accessibilityLabel(label)
+    }
+}
+
 // MARK: - Subtitle bar
 
 /// Hangul is drawn smaller than Latin at the same point size so both read as equally large.
@@ -330,6 +357,7 @@ struct SubtitleBarView: View {
                 .foregroundStyle(palette.interim)
             Spacer(minLength: 12)
             StartCaptionsButton(model: model, fontSize: fontSize)
+            DisplayToggleButton(model: model, palette: palette)
             OverlayMenuButton(model: model, palette: palette)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -365,6 +393,7 @@ struct SubtitleBarView: View {
                     .clipped()
                     .animation(.easeOut(duration: 0.25), value: model.barFinalText)
                     .animation(.easeOut(duration: 0.25), value: model.barTranslation.confirmed)
+                DisplayToggleButton(model: model, palette: palette, subdued: true)
             }
         }
         // The window is fixed-height; the original row and the text sit together at the bottom of it.
@@ -552,6 +581,7 @@ struct TranscriptPanelView: View {
                     .foregroundStyle(Theme.alert)
                     .lineLimit(2)
             }
+            DisplayToggleButton(model: model, palette: palette)
             OverlayMenuButton(model: model, palette: palette)
         }
         .padding(.horizontal, 18)
