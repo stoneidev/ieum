@@ -302,6 +302,7 @@ struct OverlayMenuButton: NSViewRepresentable {
                 menu.addItem(ActionItem(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() })
             }
             menu.addItem(.separator())
+            menu.addItem(ActionItem(tr("Name this meeting…", "이 회의에 이름 붙이기…"), enabled: model.canNameLastTranscript) { model.renameLastTranscript() })
             menu.addItem(ActionItem(tr("Settings…", "설정…")) { model.openSettings() })
             menu.addItem(ActionItem(tr("Check for updates…", "업데이트 확인…")) { model.checkForUpdates() })
             menu.addItem(ActionItem(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() })

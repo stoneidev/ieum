@@ -23,8 +23,8 @@ enum WhatsNewCatalog {
         WhatsNewPage(
             id: "export", introduced: "0.5.0", art: .tryIt,
             title: tr("Subtitle files from your meetings", "회의 기록을 자막 파일로"),
-            body: tr("In Settings > Transcripts, Export turns a saved transcript into subtitles (.srt, .vtt) or Markdown notes. Times now show when each sentence was spoken, not when it was recognized.",
-                     "설정 > 기록에서 '내보내기'를 누르면 저장된 기록이 자막 파일(.srt, .vtt)이나 Markdown 노트가 됩니다. 시각은 이제 인식된 때가 아니라 문장을 말한 때입니다.")
+            body: tr("In Settings > Transcripts, Export turns a saved transcript into subtitles (.srt, .vtt) or Markdown notes. Times now show when each sentence was spoken, not when it was recognized. You can also give a transcript a name, like \"Budget meeting\", with Rename.",
+                     "설정 > 기록에서 '내보내기'를 누르면 저장된 기록이 자막 파일(.srt, .vtt)이나 Markdown 노트가 됩니다. 시각은 이제 인식된 때가 아니라 문장을 말한 때입니다. '이름 바꾸기'로 \"대책회의\"처럼 이름도 붙일 수 있습니다.")
         ),
         WhatsNewPage(
             id: "languages", introduced: "0.4.0", art: .languages,

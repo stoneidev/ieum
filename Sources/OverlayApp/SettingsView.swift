@@ -319,6 +319,9 @@ private struct TranscriptsTab: View {
     @ObservedObject var model: AppModel
     @State private var files: [TranscriptFile] = []
     @State private var pendingDelete: TranscriptFile?
+    @State private var renaming: TranscriptFile?
+    @State private var newName = ""
+    @State private var renameError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -371,6 +374,13 @@ private struct TranscriptsTab: View {
                         }
                         Spacer()
                         Button(tr("Open", "열기")) { NSWorkspace.shared.open(file.url) }.controlSize(.small)
+                        Button(tr("Rename…", "이름 바꾸기…")) {
+                            newName = file.url.deletingPathExtension().lastPathComponent
+                            renaming = file
+                        }
+                        .controlSize(.small)
+                        .disabled(model.isRunning && file.url == model.scriptFile)
+                        .help(model.isRunning && file.url == model.scriptFile ? tr("Stop captions first.", "먼저 자막을 중지하세요.") : "")
                         Button(tr("Show in Finder", "Finder에서 보기")) { NSWorkspace.shared.activateFileViewerSelecting([file.url]) }.controlSize(.small)
                         Menu(tr("Export", "내보내기")) {
                             Button(tr("Subtitles (.srt)", "자막 파일 (.srt)")) { export(file, .srt, .both) }
@@ -392,6 +402,18 @@ private struct TranscriptsTab: View {
         .onAppear(perform: reload)
         .onChange(of: model.scriptFile) { _, _ in reload() }
         .onChange(of: model.status) { _, _ in reload() }
+        .alert(tr("Name this meeting", "이 회의에 이름 붙이기"), isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+            TextField(tr("For example: Budget meeting", "예: 대책회의"), text: $newName)
+            Button(tr("Rename", "이름 바꾸기")) { rename() }
+            Button(tr("Cancel", "취소"), role: .cancel) { renaming = nil }
+        } message: {
+            Text(tr("The transcript and the subtitle files made from it take this name.", "기록과 그 기록에서 만든 자막 파일의 이름이 됩니다."))
+        }
+        .alert(tr("Could not rename the transcript", "기록의 이름을 바꾸지 못했습니다"), isPresented: Binding(get: { renameError != nil }, set: { if !$0 { renameError = nil } })) {
+            Button("OK") { renameError = nil }
+        } message: {
+            Text(renameError ?? "")
+        }
         .confirmationDialog(
             tr("Delete this transcript?", "이 기록을 삭제할까요?"),
             isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
@@ -406,6 +428,17 @@ private struct TranscriptsTab: View {
         } message: {
             Text(pendingDelete?.url.lastPathComponent ?? "")
         }
+    }
+
+    private func rename() {
+        guard let file = renaming else { return }
+        renaming = nil
+        do {
+            if let renamed = try TranscriptFiles.rename(file.url, to: newName), file.url == model.scriptFile { model.transcriptMoved(to: renamed) }
+        } catch {
+            renameError = error.localizedDescription
+        }
+        reload()
     }
 
     /// Writes the transcript as subtitles or notes next to the original and shows it in Finder.

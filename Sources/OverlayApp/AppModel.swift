@@ -635,6 +635,35 @@ final class AppModel: ObservableObject {
         await tearDownTranslation()
     }
 
+    /// Asks for a name for the transcript of the meeting that just ended ("Budget meeting") and renames the file and its exports.
+    func renameLastTranscript() {
+        guard !isRunning, let url = scriptFile, FileManager.default.fileExists(atPath: url.path) else { return }
+        let alert = NSAlert()
+        alert.messageText = tr("Name this meeting", "이 회의에 이름 붙이기")
+        alert.informativeText = tr("The transcript and the subtitle files made from it take this name.", "기록과 그 기록에서 만든 자막 파일의 이름이 됩니다.")
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
+        field.stringValue = url.deletingPathExtension().lastPathComponent
+        alert.accessoryView = field
+        alert.addButton(withTitle: tr("Rename", "이름 바꾸기"))
+        alert.addButton(withTitle: tr("Cancel", "취소"))
+        alert.window.initialFirstResponder = field
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        do {
+            if let renamed = try TranscriptFiles.rename(url, to: field.stringValue) { scriptFile = renamed }
+        } catch {
+            let failure = NSAlert()
+            failure.messageText = tr("Could not rename the transcript", "기록의 이름을 바꾸지 못했습니다")
+            failure.informativeText = error.localizedDescription
+            failure.runModal()
+        }
+    }
+
+    func transcriptMoved(to url: URL) { scriptFile = url }
+
+    /// Whether there is a finished transcript from this run of the app that can be named.
+    var canNameLastTranscript: Bool { !isRunning && scriptFile.map { FileManager.default.fileExists(atPath: $0.path) } == true }
+
     /// When the first audio of this listening run was heard; the clock for `spokenTime`.
     private var listeningSince: Date?
 

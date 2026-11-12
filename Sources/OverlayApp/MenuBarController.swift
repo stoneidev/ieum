@@ -119,6 +119,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         menu.addItem(action(tr("Copy transcript", "기록 복사"), #selector(copyTranscript)))
+        let nameMeeting = action(tr("Name this meeting…", "이 회의에 이름 붙이기…"), #selector(nameMeeting))
+        nameMeeting.isEnabled = model.canNameLastTranscript
+        menu.addItem(nameMeeting)
         menu.addItem(action(tr("Open transcript folder", "기록 폴더 열기"), #selector(openFolder)))
         menu.addItem(.separator())
 
@@ -158,6 +161,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func toggleBothWays() { model.setBothWays(!model.setup.bothWays) }
+
+    @objc private func nameMeeting() { model.renameLastTranscript() }
 
     @objc private func copyTranscript() {
         NSPasteboard.general.clearContents()
