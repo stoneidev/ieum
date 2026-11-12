@@ -322,6 +322,18 @@ private struct TranscriptFile: Identifiable {
     var id: URL { url }
 }
 
+/// The minutes draft being written for one transcript.
+private struct MinutesJob {
+    let file: URL
+    var done = 0
+    var total = 1
+    var task: Task<Void, Never>?
+}
+
+private struct MinutesError: LocalizedError {
+    let errorDescription: String?
+}
+
 private struct TranscriptsTab: View {
     @ObservedObject var model: AppModel
     @State private var files: [TranscriptFile] = []
@@ -329,6 +341,7 @@ private struct TranscriptsTab: View {
     @State private var renaming: TranscriptFile?
     @State private var newName = ""
     @State private var renameError: String?
+    @State private var minutesJob: MinutesJob?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -386,20 +399,32 @@ private struct TranscriptsTab: View {
                             renaming = file
                         }
                         .controlSize(.small)
-                        .disabled(model.isRunning && file.url == model.scriptFile)
+                        .disabled((model.isRunning && file.url == model.scriptFile) || minutesJob?.file == file.url)
                         .help(model.isRunning && file.url == model.scriptFile ? tr("Stop captions first.", "먼저 자막을 중지하세요.") : "")
                         Button(tr("Show in Finder", "Finder에서 보기")) { NSWorkspace.shared.activateFileViewerSelecting([file.url]) }.controlSize(.small)
-                        Menu(tr("Export", "내보내기")) {
-                            Button(tr("Subtitles (.srt)", "자막 파일 (.srt)")) { export(file, .srt, .both) }
-                            Button(tr("Subtitles (.srt), translation only", "자막 파일 (.srt), 번역만")) { export(file, .srt, .translation) }
-                            Button(tr("Web subtitles (.vtt)", "웹 자막 (.vtt)")) { export(file, .vtt, .both) }
-                            Button(tr("Notes (.md)", "노트 (.md)")) { export(file, .markdown, .both) }
+                        if let job = minutesJob, job.file == file.url {
+                            ProgressView(value: Double(job.done), total: Double(max(job.total, 1)))
+                                .frame(width: 70)
+                                .controlSize(.small)
+                            Button(tr("Stop", "중지")) { job.task?.cancel() }.controlSize(.small)
+                        } else {
+                            Menu(tr("Export", "내보내기")) {
+                                Button(tr("Subtitles (.srt)", "자막 파일 (.srt)")) { export(file, .srt, .both) }
+                                Button(tr("Subtitles (.srt), translation only", "자막 파일 (.srt), 번역만")) { export(file, .srt, .translation) }
+                                Button(tr("Web subtitles (.vtt)", "웹 자막 (.vtt)")) { export(file, .vtt, .both) }
+                                Button(tr("Notes (.md)", "노트 (.md)")) { export(file, .markdown, .both) }
+                                Divider()
+                                Button(tr("Meeting minutes draft (.md)", "회의록 초안 (.md)")) { writeMinutes(file) }
+                                    .disabled(minutesJob != nil || minutesUnavailable != nil)
+                                if let reason = minutesUnavailable { Text(reason) }
+                            }
+                            .menuStyle(.borderlessButton)
+                            .fixedSize()
+                            .controlSize(.small)
                         }
-                        .menuStyle(.borderlessButton)
-                        .fixedSize()
-                        .controlSize(.small)
                         Button(role: .destructive) { pendingDelete = file } label: { Image(systemName: "trash") }
                             .controlSize(.small)
+                            .disabled(minutesJob?.file == file.url)
                             .accessibilityLabel(tr("Delete", "삭제"))
                     }
                 }
@@ -469,6 +494,49 @@ private struct TranscriptsTab: View {
             alert.informativeText = error.localizedDescription
             alert.runModal()
         }
+    }
+
+    /// The language the minutes are written in: the one the person reads, else the one that was heard.
+    private var minutesLanguage: SpokenLanguage { model.setup.shown ?? model.setup.heard }
+
+    private var minutesUnavailable: String? { MinutesGenerator.unavailableReason(for: minutesLanguage) }
+
+    /// Writes `<name>-minutes.md` next to the transcript with the on-device language model, and shows it in Finder.
+    private func writeMinutes(_ file: TranscriptFile) {
+        guard #available(macOS 26.0, *), minutesJob == nil else { return }
+        let language = minutesLanguage
+        let url = file.url
+        var job = MinutesJob(file: url)
+        job.task = Task {
+            defer { minutesJob = nil }
+            do {
+                let script = ScriptParser.parse(try String(contentsOf: url, encoding: .utf8))
+                guard !script.entries.isEmpty else { throw MinutesError(errorDescription: tr("This transcript has no sentences.", "이 기록에는 문장이 없습니다.")) }
+                let minutes = try await MinutesGenerator.generate(entries: script.entries, language: language) { done, total in
+                    await MainActor.run { minutesJob?.done = done; minutesJob?.total = total }
+                }
+                try Task.checkCancellation()
+                let base = url.deletingPathExtension()
+                var destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix).appendingPathExtension("md")
+                var number = 2
+                while FileManager.default.fileExists(atPath: destination.path) {
+                    destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix + "-\(number)").appendingPathExtension("md")
+                    number += 1
+                }
+                try MinutesMarkdown.render(minutes, entries: script.entries, title: base.lastPathComponent, language: language)
+                    .write(to: destination, atomically: true, encoding: .utf8)
+                NSWorkspace.shared.activateFileViewerSelecting([destination])
+            } catch is CancellationError {
+                return
+            } catch {
+                if Task.isCancelled { return }
+                let alert = NSAlert()
+                alert.messageText = tr("Could not write the minutes", "회의록 초안을 만들지 못했습니다")
+                alert.informativeText = error.localizedDescription
+                alert.runModal()
+            }
+        }
+        minutesJob = job
     }
 
     private func reload() {

@@ -31,7 +31,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
 | `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
 | `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
-| `Tests/CaptionCoreTests` | Swift Testing suites for the library (203 tests) |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (215 tests) |
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
@@ -43,14 +43,14 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 
 Key types: `MeetingSetup` (the language the other side speaks, the language you read or none, and whether both sides speak; any two of `SpokenLanguage` en/ko/ja/zh work together; it replaced the five `MeetingMode`s and the language pairs), `InputDevices` (microphone list and the fallback when a saved device is unplugged), `BarControls` (text size, bar/panel, ⋯ menu on the subtitle bar), `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingSetup` (language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` (SpeechAnalyzer), `OnDeviceSpeechEngine` (SFSpeechRecognizer),
 `PreviewingEngine` (both together: early words), `ConversationEngine` + `LanguageArbiter` (auto-detect mode), `TranslationPipeline`
-(single-flight, ordered finals, latest-wins interims), `VocabularyCorrector`, `TranscriptCleaner`, `ScriptRecorder`.
+(single-flight, ordered finals, latest-wins interims), `VocabularyCorrector`, `TranscriptCleaner`, `ScriptRecorder`, `MeetingMinutes` + `MinutesSource` + `MinutesMarkdown` (pure minutes logic: parts, validated line citations, Markdown) with `MinutesGenerator` in OverlayApp (Foundation Models, macOS 26).
 
 ## Commands
 
 ```sh
 make build                    # caption-cli (release, ad-hoc signed)
 make app                      # .build/app/Ieum.app (ad-hoc signed; runs on this Mac)
-make test                     # or: swift test   (162 tests; must stay green)
+make test                     # or: swift test   (215 tests; must stay green)
 Scripts/dev-run.sh [launch args]   # build, re-sign with $SIGN_IDENTITY, relaunch the app
 make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
 Scripts/deploy-site.sh        # site -> Cloudflare Pages
@@ -86,6 +86,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 - **Display sleep breaks ScreenCaptureKit and screenshots.** Use `caffeinate -u`.
 - **zsh does not word-split unquoted variables**; use arrays. BSD `sed` has no `-i` without a suffix; use Python or `perl -pi`.
 - **Early words do not work for Japanese and Chinese on this Mac**: the legacy recognizer has no on-device ja-JP / zh-CN model, so `PreviewingEngine` quietly runs without the preview there (docs/TRANSCRIPTION-RESEARCH.md). The pause rule stays on for ja/zh like Korean (it costs no accuracy there).
+- **Minutes draft (Foundation Models)**: the model must be given a small part (`MinutesSource.chunks`) and bounded output (`.maximumCount(6)` on the lists); repetitive input without the cap made one part take minutes. Output is always a draft: every point cites transcript line numbers and invalid ones are dropped in `MeetingMinutes.validated`. Do not present it as a record, and do not call it from a path that is not behind `#available(macOS 26.0, *)` and `unavailableReason`.
 - Experiments that did not pay off are written down (`docs/BENCHMARKS.md`, "Tried and not kept"). Add yours there, with numbers.
 
 ## Updates (the app updates itself)
@@ -128,8 +129,8 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 
 ## State at hand-off
 
-- Latest published release is **v0.6.0** (build 17), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.6.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`).
-- Tests: 203 (`swift test`). Build is warning-free.
+- Latest published release is **v0.7.0** (build 18), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.7.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models).
+- Tests: 215 (`swift test`). Build is warning-free.
 - Site download counter is the sum of GitHub `download_count` over all releases, shown from 25 up. It includes the maintainer's own verification downloads and auto-updates, so it is not a user count.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: other language pairs (biggest reach), early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test (including an external microphone: only the device switch was verified, not recognition from it), an English user guide.

@@ -14,6 +14,8 @@ public enum TranscriptNaming {
     }
 
     public static let exportExtensions = ["srt", "vtt", "md"]
+    /// The meeting minutes draft sits beside the transcript as `<name>-minutes.md`.
+    public static let minutesSuffix = "-minutes"
     public static let maxLength = 80
 
     /// A name safe to use as a file name, or nil when nothing usable is left. Slashes and colons (not allowed in
@@ -42,6 +44,7 @@ public enum TranscriptNaming {
         let taken = Set(existing.map { $0.lowercased() })
         func isFree(_ base: String) -> Bool {
             (["txt"] + exportExtensions).allSatisfy { !taken.contains("\(base).\($0)".lowercased()) }
+                && !taken.contains("\(base)\(minutesSuffix).md".lowercased())
         }
         var newBase = wanted
         var number = 2
@@ -58,9 +61,13 @@ public enum TranscriptNaming {
                 let suffix = ".\(ext)"
                 guard name.hasSuffix(suffix) else { continue }
                 let stem = String(name.dropLast(suffix.count))
-                if stem == oldBase {
-                    moves.append(Move(from: name, to: "\(newBase)\(suffix)"))
-                } else if stem.hasPrefix(oldBase + "-"), Int(stem.dropFirst(oldBase.count + 1)) != nil {
+                // `<name>`, `<name>-2` for a second export, and for the minutes `<name>-minutes`, `<name>-minutes-2`
+                var tail = Substring(stem)
+                guard tail.hasPrefix(oldBase) else { continue }
+                tail = tail.dropFirst(oldBase.count)
+                if ext == "md", tail.hasPrefix(minutesSuffix) { tail = tail.dropFirst(minutesSuffix.count) }
+                let isRepeat = tail.hasPrefix("-") && Int(tail.dropFirst()) != nil
+                if tail.isEmpty || isRepeat {
                     moves.append(Move(from: name, to: "\(newBase)\(stem.dropFirst(oldBase.count))\(suffix)"))
                 }
             }

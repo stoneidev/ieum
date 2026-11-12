@@ -52,3 +52,24 @@ struct TranscriptNamingTests {
         #expect(plan?.newBase == "Weekly sync")
     }
 }
+
+@Suite("Transcript naming: minutes")
+struct TranscriptNamingMinutesTests {
+    @Test func theMinutesDraftFollowsARename() {
+        let existing = [
+            "a.txt", "a.md", "a-minutes.md", "a-minutes-2.md", "a-minutes-x.md", "a-minutes.srt", "a-2.srt",
+        ]
+        let plan = TranscriptNaming.renamePlan(oldBase: "a", title: "Budget", existing: existing)
+        let moves = Set(plan?.moves.map { "\($0.from)>\($0.to)" } ?? [])
+        #expect(moves == ["a.txt>Budget.txt", "a.md>Budget.md", "a-minutes.md>Budget-minutes.md",
+                          "a-minutes-2.md>Budget-minutes-2.md", "a-2.srt>Budget-2.srt"])
+    }
+}
+
+@Suite("Transcript naming: taken names")
+struct TranscriptNamingTakenTests {
+    @Test func aLeftoverMinutesFileMakesTheNameTaken() {
+        let plan = TranscriptNaming.renamePlan(oldBase: "a", title: "Budget", existing: ["a.txt", "Budget-minutes.md"])
+        #expect(plan?.newBase == "Budget 2")
+    }
+}

@@ -21,6 +21,12 @@ enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "minutes", introduced: "0.7.0", art: .tryIt,
+            title: tr("A minutes draft, with sources", "근거가 붙은 회의록 초안"),
+            body: tr("In Settings > Transcripts, Export > Meeting minutes draft has the language model on your Mac (Apple Intelligence) write a summary, decisions and action items. Every point cites the transcript lines it came from. It is a draft: check those lines before you rely on it.",
+                     "설정 > 기록에서 '내보내기 > 회의록 초안'을 누르면 Mac 안의 언어 모델(Apple Intelligence)이 요약, 결정 사항, 할 일을 씁니다. 항목마다 근거가 된 기록 줄이 붙습니다. 초안이니 믿기 전에 그 줄을 확인하세요.")
+        ),
+        WhatsNewPage(
             id: "call", introduced: "0.6.0", art: .menu,
             title: tr("Calls: who said what", "통화: 누가 말했는지"),
             body: tr("Pick Call (microphone + system audio) as the audio source. Your microphone is read in your language and the other side in theirs, every line says Me or Them, and both directions are translated. Headphones work best.",
