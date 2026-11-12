@@ -372,6 +372,15 @@ private struct TranscriptsTab: View {
                         Spacer()
                         Button(tr("Open", "열기")) { NSWorkspace.shared.open(file.url) }.controlSize(.small)
                         Button(tr("Show in Finder", "Finder에서 보기")) { NSWorkspace.shared.activateFileViewerSelecting([file.url]) }.controlSize(.small)
+                        Menu(tr("Export", "내보내기")) {
+                            Button(tr("Subtitles (.srt)", "자막 파일 (.srt)")) { export(file, .srt, .both) }
+                            Button(tr("Subtitles (.srt), translation only", "자막 파일 (.srt), 번역만")) { export(file, .srt, .translation) }
+                            Button(tr("Web subtitles (.vtt)", "웹 자막 (.vtt)")) { export(file, .vtt, .both) }
+                            Button(tr("Notes (.md)", "노트 (.md)")) { export(file, .markdown, .both) }
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
+                        .controlSize(.small)
                         Button(role: .destructive) { pendingDelete = file } label: { Image(systemName: "trash") }
                             .controlSize(.small)
                             .accessibilityLabel(tr("Delete", "삭제"))
@@ -396,6 +405,29 @@ private struct TranscriptsTab: View {
             Button(tr("Cancel", "취소"), role: .cancel) { pendingDelete = nil }
         } message: {
             Text(pendingDelete?.url.lastPathComponent ?? "")
+        }
+    }
+
+    /// Writes the transcript as subtitles or notes next to the original and shows it in Finder.
+    private func export(_ file: TranscriptFile, _ format: TranscriptExport.Format, _ content: TranscriptExport.Content) {
+        do {
+            let text = try String(contentsOf: file.url, encoding: .utf8)
+            let base = file.url.deletingPathExtension()
+            var destination = base.appendingPathExtension(format.fileExtension)
+            var number = 2
+            while FileManager.default.fileExists(atPath: destination.path) {
+                destination = URL(fileURLWithPath: base.path + "-\(number)").appendingPathExtension(format.fileExtension)
+                number += 1
+            }
+            let script = ScriptParser.parse(text)
+            try TranscriptExport.render(script, format: format, content: content, title: base.lastPathComponent)
+                .write(to: destination, atomically: true, encoding: .utf8)
+            NSWorkspace.shared.activateFileViewerSelecting([destination])
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = tr("Could not export the transcript", "기록을 내보내지 못했습니다")
+            alert.informativeText = error.localizedDescription
+            alert.runModal()
         }
     }
 

@@ -574,6 +574,7 @@ final class AppModel: ObservableObject {
                 await started.engine.stop()
             } else {
                 status = .listening
+                listeningSince = Date()
                 // Translation is prepared in the background so it never delays the first captions.
                 Task { await configureTranslation() }
             }
@@ -634,6 +635,17 @@ final class AppModel: ObservableObject {
         await tearDownTranslation()
     }
 
+    /// When the first audio of this listening run was heard; the clock for `spokenTime`.
+    private var listeningSince: Date?
+
+    /// When a sentence was said: the start of the audio plus where in it the sentence begins. Its arrival time is much
+    /// later, because a recognizer reports a sentence only after it ended (Korean and Japanese sentences stay open for
+    /// about 15 seconds), and the transcript is for finding the moment again.
+    private func spokenTime(_ event: TranscriptionEvent) -> Date {
+        guard let start = event.audioStart, start >= 0, let since = listeningSince else { return event.timestamp }
+        return min(since.addingTimeInterval(start), event.timestamp)
+    }
+
     private func apply(_ event: TranscriptionEvent) {
         let text = corrector.correct(RepetitionGuard.collapse(TranscriptCleaner.clean(event.text)))
         let language = String(event.locale.prefix(2))
@@ -642,7 +654,8 @@ final class AppModel: ObservableObject {
             partial = ""
             translatedPartial = ""
             guard !text.isEmpty else { return }
-            var line = TranscriptLine(time: event.timestamp, text: text)
+            let spoken = spokenTime(event)
+            var line = TranscriptLine(time: spoken, text: text)
             line.language = language
             line.session = sessionIndex
             line.provisional = translationActive ? provisional : nil
@@ -650,7 +663,7 @@ final class AppModel: ObservableObject {
             if finalizedLines.count > Self.maxLines { finalizedLines.removeFirst(finalizedLines.count - Self.maxLines) }
             barEntries.append(BarEntry(id: line.id, time: event.timestamp, text: text))
             refreshBar()
-            recorder?.append(TranscriptionEvent(text: text, isFinal: true, locale: event.locale, timestamp: event.timestamp))
+            recorder?.append(TranscriptionEvent(text: text, isFinal: true, locale: event.locale, timestamp: spoken))
             if pipelines[language] != nil { awaitingTranslation.insert(line.id) }
             feed?.yield(.final(line.id, text, language: language))
         } else {

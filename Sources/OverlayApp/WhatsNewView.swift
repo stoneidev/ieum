@@ -21,6 +21,12 @@ enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "export", introduced: "0.5.0", art: .tryIt,
+            title: tr("Subtitle files from your meetings", "회의 기록을 자막 파일로"),
+            body: tr("In Settings > Transcripts, Export turns a saved transcript into subtitles (.srt, .vtt) or Markdown notes. Times now show when each sentence was spoken, not when it was recognized.",
+                     "설정 > 기록에서 '내보내기'를 누르면 저장된 기록이 자막 파일(.srt, .vtt)이나 Markdown 노트가 됩니다. 시각은 이제 인식된 때가 아니라 문장을 말한 때입니다.")
+        ),
+        WhatsNewPage(
             id: "languages", introduced: "0.4.0", art: .languages,
             title: tr("Japanese and Chinese, too", "일본어와 중국어도 됩니다"),
             body: tr("Choose the language you hear and the language you read, any two of Korean, English, Japanese and Chinese. One switch for both sides speaking, one for captions only. The first time you use Japanese or Chinese, macOS downloads its speech model once.",
