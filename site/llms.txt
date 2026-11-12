@@ -23,5 +23,6 @@ Choose the language you hear and the language you read (any two of English, Kore
 ## Facts
 - Languages: English, Korean, Japanese, Chinese (Simplified). Any two together.
 - Privacy: audio is processed in memory and never stored; the only network request is an optional once-a-day check for a newer version.
+- Transcripts: stamped with the time each sentence was spoken, can be named, and exported as SRT or VTT subtitles or Markdown notes.
 - License: Apache-2.0. Price: free.
 - Platform: macOS only, Apple silicon.
