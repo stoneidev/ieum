@@ -34,6 +34,17 @@ struct ScriptLanguageTagTests {
         #expect(script.entries[0].translation == "다음 주부터 시작합니다")
     }
 
+    @Test func twoSpeakersInTheSameSecondKeepTheirOwnTranslations() {
+        let script = ScriptParser.parse("""
+        # Transcript (call) started 2026-11-12 10:00:00
+        [10:00:05] [THEM] 来週から始めます
+        [10:00:05] [ME] 네, 알겠습니다
+        [10:00:05] [ME] → はい、わかりました
+        [10:00:05] [THEM] → 다음 주부터 시작합니다
+        """, timeZone: TimeZone(identifier: "UTC")!)
+        #expect(script.entries.map(\.translation) == ["다음 주부터 시작합니다", "はい、わかりました"])
+    }
+
     @Test func plainScriptsStayUntagged() throws {
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("tags-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: dir) }

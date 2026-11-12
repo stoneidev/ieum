@@ -70,9 +70,13 @@ public final class CallEngine: TranscriberEngine, @unchecked Sendable {
         guard let them = started[.them], let me = started[.me] else { throw EngineError.engineUnavailable("The call could not be started.") }
         lock.withLock { engines = [them.engine, me.engine] }
 
-        let merger = Merger(myLocale: myLocale)
+        let merger = Merger()
         return AsyncThrowingStream { continuation in
-            let driver = Task { await merger.run(them: them.events, me: me.events, into: continuation) }
+            let driver = Task { [weak self] in
+                await merger.run(them: them.events, me: me.events, into: continuation)
+                // However it ended, both sides stop together: a call with one dead side would look healthy.
+                await self?.stop()
+            }
             continuation.onTermination = { _ in driver.cancel() }
         }
     }
@@ -92,9 +96,6 @@ public final class CallEngine: TranscriberEngine, @unchecked Sendable {
 
     private actor Merger {
         private var guardrail = EchoGuard()
-        private let myLocale: String
-
-        init(myLocale: String) { self.myLocale = myLocale }
 
         func run(
             them: AsyncThrowingStream<TranscriptionEvent, Error>,
@@ -105,11 +106,12 @@ public final class CallEngine: TranscriberEngine, @unchecked Sendable {
                 group.addTask { await self.pump(them, as: .them, into: continuation) }
                 group.addTask { await self.pump(me, as: .me, into: continuation) }
                 var firstError: Error?
+                // The first side to end (cleanly or not) ends the call. When the system audio dies (display asleep,
+                // output changed) the microphone alone must not carry on as if all were well.
                 for await error in group {
-                    if let error, firstError == nil {
-                        firstError = error
-                        group.cancelAll()
-                    }
+                    // Cancelling the other side ends its stream too; that is not a failure.
+                    if let error, firstError == nil, !(error is CancellationError) { firstError = error }
+                    group.cancelAll()
                 }
                 if let firstError { continuation.finish(throwing: firstError) } else { continuation.finish() }
             }
@@ -138,7 +140,14 @@ public final class CallEngine: TranscriberEngine, @unchecked Sendable {
                 guardrail.noteTheirs(text, at: event.timestamp)
                 return tagged
             case .me:
-                return guardrail.isEcho(text, locale: myLocale, at: event.timestamp) ? nil : tagged
+                guard guardrail.isEcho(text, at: event.timestamp) else { return tagged }
+                // A dropped sentence still ends the line being shown, so no half-heard "Me" line is left behind.
+                if event.isFinal {
+                    let empty = TranscriptionEvent(text: "", isFinal: true, locale: event.locale, timestamp: event.timestamp,
+                                                   audioStart: event.audioStart, audioEnd: event.audioEnd, speaker: .me)
+                    return empty
+                }
+                return nil
             }
         }
     }

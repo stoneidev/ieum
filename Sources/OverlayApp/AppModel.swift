@@ -266,8 +266,11 @@ final class AppModel: ObservableObject {
 
     private func apply(_ new: MeetingSetup) {
         guard new != setup else { return }
-        let carriesOn = new.runsLike(setup)
+        let before = activeSetup
         setup = new
+        // In a call each side is tied to a language (the other side to the one you hear, the microphone to the one you
+        // read), so swapping them must restart even though the set of languages is the same.
+        let carriesOn = activeSetup.runsLike(before) && !(source == .call && (activeSetup.heard != before.heard || activeSetup.shown != before.shown))
         Preferences.meetingSetup = new
         updateSecondaryRow()
         if !carriesOn { restartIfRunning() }
@@ -704,9 +707,13 @@ final class AppModel: ObservableObject {
         let text = corrector.correct(RepetitionGuard.collapse(TranscriptCleaner.clean(event.text)))
         let language = String(event.locale.prefix(2))
         if event.isFinal {
-            let provisional = translatedPartial.isEmpty ? nil : translatedPartial
-            partial = ""
-            translatedPartial = ""
+            // In a call the other side may still be mid-sentence: a sentence that ended on one side keeps that line on screen.
+            let otherIsSpeaking = event.speaker != nil && !partial.isEmpty && partialSpeaker != event.speaker
+            let provisional = !otherIsSpeaking && !translatedPartial.isEmpty ? translatedPartial : nil
+            if !otherIsSpeaking {
+                partial = ""
+                translatedPartial = ""
+            }
             guard !text.isEmpty else { return }
             let spoken = spokenTime(event)
             var line = TranscriptLine(time: spoken, text: text)

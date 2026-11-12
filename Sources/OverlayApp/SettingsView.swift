@@ -69,7 +69,7 @@ private struct GeneralTab: View {
                     }
                 }
                 Toggle(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), isOn: Binding(get: { model.setup.bothWays }, set: model.setBothWays))
-                    .disabled(!model.setup.translates || !MeetingSetup.bothWaysIsAvailableOnThisMac)
+                    .disabled(!model.setup.translates || !MeetingSetup.bothWaysIsAvailableOnThisMac || model.source == .call)
                 Text(MeetingSetup.bothWaysIsAvailableOnThisMac || !model.setup.translates
                      ? model.setup.explanation
                      : model.setup.explanation + " " + tr("Detecting the language needs macOS 26 or later.", "언어 자동 인식은 macOS 26 이상이 필요합니다."))

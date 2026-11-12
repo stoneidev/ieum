@@ -29,6 +29,7 @@ public enum ScriptParser {
         var startSeconds: Double?
         var entries: [ScriptEntry] = []
         var times: [String] = []   // the time string of each entry, to match a translation to its sentence
+        let speakerTags: Set<String> = ["me", "them"]
         let line = try! NSRegularExpression(pattern: #"^\[(\d{2}):(\d{2}):(\d{2})\] (?:\[([A-Za-z]{2,4})\] )?(→ )?(.*)$"#)
 
         for raw in text.split(whereSeparator: \.isNewline) {
@@ -57,10 +58,13 @@ public enum ScriptParser {
             guard !content.isEmpty else { continue }
 
             if group(5) != nil {
-                // A translation belongs to the latest sentence written at the same time that has none yet.
-                if let index = times.lastIndex(of: stamp), entries[index].translation == nil {
+                // A translation belongs to the latest sentence written at the same time that has none yet. In a call
+                // both sides can speak in the same second, so the speaker tag has to match too.
+                let tag = group(4)?.lowercased()
+                let speaker = tag.flatMap { speakerTags.contains($0) ? $0 : nil }
+                if let index = entries.indices.last(where: { times[$0] == stamp && entries[$0].translation == nil && (speaker == nil || entries[$0].language == speaker) }) {
                     entries[index].translation = content
-                } else if !entries.isEmpty, entries[entries.count - 1].translation == nil {
+                } else if !entries.isEmpty, entries[entries.count - 1].translation == nil, speaker == nil {
                     entries[entries.count - 1].translation = content
                 }
                 continue

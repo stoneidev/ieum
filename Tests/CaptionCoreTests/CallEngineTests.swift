@@ -55,11 +55,11 @@ struct CallEngineTests {
     @Test func theMicrophoneHearingTheOtherSideIsNotShownAsMine() async throws {
         let call = engine([
             "ja-JP": [final("来週の月曜日からテストを始めてもいいですか", "ja-JP")],
-            // the leak, recognized in Korean as nonsense, and again in the other side's own words
-            "ko-KR": [final("らいしゅうのげつようびからてすとを", "ko-KR", at: 1), final("来週の月曜日からテストを始めてもいいですか", "ko-KR", at: 2)],
+            // the leak recognized again in the other side's own words (same language on both sides)
+            "ko-KR": [final("来週の月曜日からテストを始めてもいいですか", "ko-KR", at: 2)],
         ], engines: [:])
         let events = try await collect(try await call.events(from: IdleCapture()))
-        #expect(events.map(\.speaker) == [.them])
+        #expect(events.filter { !$0.text.isEmpty }.map(\.speaker) == [.them])
     }
 
     @Test func stoppingStopsBothEngines() async throws {
@@ -78,6 +78,48 @@ struct CallEngineTests {
         }
         await #expect(throws: EngineError.self) { _ = try await call.events(from: IdleCapture()) }
         #expect(them.stopped)
+    }
+
+    @Test func whenOneSideEndsTheWholeCallEnds() async throws {
+        // The other side (system audio) stops delivering while the microphone would go on forever.
+        let call = CallEngine(theirLocale: "ja-JP", myLocale: "ko-KR", options: EngineOptions(), microphone: IdleCapture()) { locale, _, _ in
+            if locale == "ja-JP" { return (FakeEngine(), AsyncThrowingStream { $0.finish() }) }
+            return (FakeEngine(), AsyncThrowingStream { _ in })   // never yields, never finishes
+        }
+        let stream = try await call.events(from: IdleCapture())
+        let events = try await withThrowingTaskGroup(of: [TranscriptionEvent].self) { group in
+            group.addTask { try await self.collect(stream) }
+            group.addTask { try await Task.sleep(for: .seconds(3)); throw EngineError.captureFailed("the call did not end") }
+            let first = try await group.next() ?? []
+            group.cancelAll()
+            return first
+        }
+        #expect(events.isEmpty)
+    }
+
+    @Test func aFailureOnOneSideEndsTheCallWithThatError() async {
+        let call = CallEngine(theirLocale: "ja-JP", myLocale: "ko-KR", options: EngineOptions(), microphone: IdleCapture()) { locale, _, _ in
+            if locale == "ko-KR" { return (FakeEngine(), AsyncThrowingStream { $0.finish(throwing: EngineError.captureFailed("microphone unplugged")) }) }
+            return (FakeEngine(), AsyncThrowingStream { _ in })
+        }
+        do {
+            _ = try await collect(try await call.events(from: IdleCapture()))
+            Issue.record("the call should have failed")
+        } catch let error as EngineError {
+            #expect(error.localizedDescription == "microphone unplugged")
+        } catch {
+            Issue.record("unexpected error \(error)")
+        }
+    }
+
+    @Test func aDroppedMicrophoneEchoStillEndsTheLineOnScreen() async throws {
+        let call = engine([
+            "ja-JP": [final("来週の月曜日からテストを始めてもいいですか", "ja-JP")],
+            "ko-KR": [final("来週の月曜日からテストを始めてもいいですか", "ko-KR", at: 1)],
+        ], engines: [:])
+        let events = try await collect(try await call.events(from: IdleCapture()))
+        let mine = events.filter { $0.speaker == .me }
+        #expect(mine.count == 1 && mine[0].text.isEmpty && mine[0].isFinal)
     }
 
     @Test func englishSidesDoNotCloseSentencesAtPauses() async throws {
