@@ -19,12 +19,14 @@ struct WhatsNewPage: Identifiable {
 @MainActor
 enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
-    static func pages() -> [WhatsNewPage] { [
+    static func pages() -> [WhatsNewPage] { all().filter { $0.id != "minutes" || MinutesGenerator.isOffered } }
+
+    private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
             id: "minutes", introduced: "0.7.0", art: .tryIt,
             title: tr("A minutes draft, with sources", "근거가 붙은 회의록 초안"),
-            body: tr("In Settings > Transcripts, Export > Meeting minutes draft has the language model on your Mac (Apple Intelligence) write a summary, decisions and action items. Every point cites the transcript lines it came from. It is a draft: check those lines before you rely on it.",
-                     "설정 > 기록에서 '내보내기 > 회의록 초안'을 누르면 Mac 안의 언어 모델(Apple Intelligence)이 요약, 결정 사항, 할 일을 씁니다. 항목마다 근거가 된 기록 줄이 붙습니다. 초안이니 믿기 전에 그 줄을 확인하세요.")
+            body: tr("Only on Macs with Apple Intelligence: in Settings > Transcripts, Export > Meeting minutes draft has the language model on your Mac write a summary, decisions and action items. Every point cites the transcript lines it came from. It is a draft: check those lines before you rely on it.",
+                     "Apple Intelligence가 있는 Mac에서만 쓸 수 있습니다. 설정 > 기록에서 '내보내기 > 회의록 초안'을 누르면 Mac 안의 언어 모델이 요약, 결정 사항, 할 일을 씁니다. 항목마다 근거가 된 기록 줄이 붙습니다. 초안이니 믿기 전에 그 줄을 확인하세요.")
         ),
         WhatsNewPage(
             id: "call", introduced: "0.6.0", art: .menu,

@@ -413,10 +413,18 @@ private struct TranscriptsTab: View {
                                 Button(tr("Subtitles (.srt), translation only", "자막 파일 (.srt), 번역만")) { export(file, .srt, .translation) }
                                 Button(tr("Web subtitles (.vtt)", "웹 자막 (.vtt)")) { export(file, .vtt, .both) }
                                 Button(tr("Notes (.md)", "노트 (.md)")) { export(file, .markdown, .both) }
-                                Divider()
-                                Button(tr("Meeting minutes draft (.md)", "회의록 초안 (.md)")) { writeMinutes(file) }
-                                    .disabled(minutesJob != nil || minutesUnavailable != nil)
-                                if let reason = minutesUnavailable { Text(reason) }
+                                switch minutesStatus {
+                                case .notOffered:
+                                    EmptyView()
+                                case .ready:
+                                    Divider()
+                                    Button(tr("Meeting minutes draft (.md)", "회의록 초안 (.md)")) { writeMinutes(file) }
+                                        .disabled(minutesJob != nil)
+                                case .unavailable(let reason):
+                                    Divider()
+                                    Button(tr("Meeting minutes draft (.md)", "회의록 초안 (.md)")) {}.disabled(true)
+                                    Text(reason)
+                                }
                             }
                             .menuStyle(.borderlessButton)
                             .fixedSize()
@@ -499,7 +507,7 @@ private struct TranscriptsTab: View {
     /// The language the minutes are written in: the one the person reads, else the one that was heard.
     private var minutesLanguage: SpokenLanguage { model.setup.shown ?? model.setup.heard }
 
-    private var minutesUnavailable: String? { MinutesGenerator.unavailableReason(for: minutesLanguage) }
+    private var minutesStatus: MinutesGenerator.Status { MinutesGenerator.status(for: minutesLanguage) }
 
     /// Writes `<name>-minutes.md` next to the transcript with the on-device language model, and shows it in Finder.
     private func writeMinutes(_ file: TranscriptFile) {
