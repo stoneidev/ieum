@@ -19,7 +19,7 @@
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.4.1-orange)
+![Version](https://img.shields.io/badge/version-0.5.0-orange)
 
 [기능](#기능) · [설치](#설치) · [사용법](#사용법) · [문서](#문서) · [구조](#구조) · [빌드](#소스에서-빌드) · [성능](#성능) · [문제 해결](#문제-해결)
 
@@ -232,7 +232,7 @@ Ieum이 하는 유일한 네트워크 요청은 선택 기능인 업데이트 �
 
 ## 상태
 
-버전 0.4.1. 아직 확인하지 못한 것: 여러 사람이 말하는 실제 회의실에서의 사용, macOS 26 이전에서의 동작, Ieum 이름으로 공증된 빌드.
+버전 0.5.0. 아직 확인하지 못한 것: 여러 사람이 말하는 실제 회의실에서의 사용, macOS 26 이전에서의 동작, Ieum 이름으로 공증된 빌드.
 
 ## 라이선스
 
