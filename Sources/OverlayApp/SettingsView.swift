@@ -87,9 +87,9 @@ private struct GeneralTab: View {
                     }
                 }
                 Picker(tr("Audio source", "소리 입력"), selection: Binding(get: { model.source }, set: model.setSource)) {
-                    ForEach(Source.allCases, id: \.self) { Text($0.title).tag($0) }
+                    ForEach(Source.allCases.filter(\.isAvailableOnThisMac), id: \.self) { Text($0.title).tag($0) }
                 }
-                if model.source == .microphone {
+                if model.source == .microphone || model.source == .call {
                     Picker(tr("Microphone", "마이크"), selection: Binding(get: { model.inputDeviceUID }, set: model.setInputDevice)) {
                         Text(tr("System default", "시스템 기본값")).tag(String?.none)
                         ForEach(inputDevices) { Text($0.name).tag(String?.some($0.uid)) }
@@ -98,6 +98,13 @@ private struct GeneralTab: View {
                             Text(tr("Not connected (using the default)", "연결 안 됨 (기본값 사용)")).tag(String?.some(saved))
                         }
                     }
+                }
+                if model.source == .call {
+                    let theirs = model.setup.heard.name, mine = (model.setup.shown ?? model.setup.heard).name
+                    Text(tr("For video calls: the other side (system audio) is read as \(theirs), you (microphone) as \(mine). Each line says who spoke, and both directions are translated. Headphones work best; with speakers Ieum filters out the echo. Needs the Screen & System Audio Recording permission.",
+                            "화상 통화용: 상대(시스템 소리)는 \(theirs), 나(마이크)는 \(mine)로 인식합니다. 줄마다 누가 말했는지 표시되고 두 방향을 모두 번역합니다. 헤드폰이 가장 좋고, 스피커를 쓰면 에코를 걸러 냅니다. 화면 및 시스템 오디오 녹음 권한이 필요합니다."))
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
                 }
                 if model.source == .system {
                     Text(tr("Captions what plays on this Mac (calls, videos). Needs the Screen & System Audio Recording permission.",

@@ -9,17 +9,21 @@ public final class ScriptRecorder: @unchecked Sendable {
     private let header: String
     private let timeZone: TimeZone
     private let tagLanguages: Bool
+    private let tagSpeakers: Bool
     private var closed = false
     private var reportedFailure = false
     private var failureHandler: (@Sendable (String) -> Void)?
 
     /// Chooses a new file name in `directory` (an existing file is never reused or overwritten). The file itself is
     /// created when the first sentence is written, so a session that hears nothing leaves no empty file behind.
-    /// - Parameter tagLanguages: write `[EN]` / `[KO]` after the time, for conversations that switch language.
-    public init(directory: URL, locale: String, startedAt: Date = Date(), timeZone: TimeZone = .current, tagLanguages: Bool = false) throws {
+    /// - Parameters:
+    ///   - tagLanguages: write `[EN]` / `[KO]` after the time, for conversations that switch language.
+    ///   - tagSpeakers: write `[ME]` / `[THEM]` instead, for calls where the microphone and the other side are recognized apart.
+    public init(directory: URL, locale: String, startedAt: Date = Date(), timeZone: TimeZone = .current, tagLanguages: Bool = false, tagSpeakers: Bool = false) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         self.timeZone = timeZone
         self.tagLanguages = tagLanguages
+        self.tagSpeakers = tagSpeakers
 
         let stamp = Self.format(startedAt, "yyyy-MM-dd_HHmmss", timeZone)
         let base = "transcript-\(stamp)-\(locale)"
@@ -69,7 +73,7 @@ public final class ScriptRecorder: @unchecked Sendable {
         guard event.isFinal else { return }
         let text = RepetitionGuard.collapse(event.text.trimmingCharacters(in: .whitespacesAndNewlines))
         guard !text.isEmpty else { return }
-        let line = "[\(Self.format(event.timestamp, "HH:mm:ss", timeZone))] \(languageTag(event.locale))\(text)\n"
+        let line = "[\(Self.format(event.timestamp, "HH:mm:ss", timeZone))] \(tag(locale: event.locale, speaker: event.speaker))\(text)\n"
         lock.withLock {
             guard !closed else { return }
             write(line)
@@ -78,10 +82,10 @@ public final class ScriptRecorder: @unchecked Sendable {
 
     /// Adds the translation of an earlier sentence as `[HH:mm:ss] → translation`, using the sentence's own timestamp
     /// so the pair can be matched even when another sentence was written in between.
-    public func appendTranslation(_ translation: String, forSentenceAt time: Date, targetLanguage: String? = nil) {
+    public func appendTranslation(_ translation: String, forSentenceAt time: Date, targetLanguage: String? = nil, speaker: Speaker? = nil) {
         let text = translation.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        let line = "[\(Self.format(time, "HH:mm:ss", timeZone))] \(languageTag(targetLanguage))→ \(text)\n"
+        let line = "[\(Self.format(time, "HH:mm:ss", timeZone))] \(tag(locale: targetLanguage, speaker: speaker))→ \(text)\n"
         lock.withLock {
             guard !closed else { return }
             write(line)
@@ -97,6 +101,11 @@ public final class ScriptRecorder: @unchecked Sendable {
     }
 
     deinit { close() }
+
+    private func tag(locale: String?, speaker: Speaker?) -> String {
+        if tagSpeakers { return speaker.map { "[\($0.rawValue.uppercased())] " } ?? "" }
+        return languageTag(locale)
+    }
 
     private func languageTag(_ locale: String?) -> String {
         guard tagLanguages, let locale, locale.count >= 2 else { return "" }

@@ -44,7 +44,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         switch status {
         case .idle: tr("Captions off", "자막 꺼짐")
         case .starting: tr("Starting…", "시작하는 중…")
-        case .listening: model.transcriptWarning.map { "⚠︎ " + $0 } ?? tr("Listening · \(model.setup.title)", "듣는 중 · \(model.setup.title)")
+        case .listening: model.transcriptWarning.map { "⚠︎ " + $0 } ?? tr("Listening · \(model.activeSetup.title)", "듣는 중 · \(model.activeSetup.title)")
         case .error(let message): message
         }
     }

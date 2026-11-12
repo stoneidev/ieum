@@ -14,6 +14,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var partial = ""
     /// Language ("en" / "ko") of the sentence being spoken.
     @Published private(set) var partialLanguage = ""
+    @Published private(set) var partialSpeaker: Speaker?
     /// Finalized text that is still recent enough to belong on the subtitle bar.
     @Published private(set) var barFinalText = ""
     @Published private(set) var scriptFile: URL?
@@ -109,6 +110,10 @@ final class AppModel: ObservableObject {
     func start() {
         guard !isRunning else { return }
         // A saved mode that needs a newer macOS than this one cannot run; fall back before anything starts.
+        if !source.isAvailableOnThisMac {
+            source = .microphone
+            Preferences.source = .microphone
+        }
         if setup.bothWays, !MeetingSetup.bothWaysIsAvailableOnThisMac {
             setup = setup.speakingBothWays(false)
             Preferences.meetingSetup = setup
@@ -125,7 +130,7 @@ final class AppModel: ObservableObject {
         status = .starting
         startingNote = nil
         transcriptWarning = nil
-        let setup = self.setup
+        let setup = activeSetup
         let locales = setup.recognitionLocales(englishLocale: englishVariant.rawValue)
         let source = self.source
         let vocabulary = self.vocabulary
@@ -286,7 +291,7 @@ final class AppModel: ObservableObject {
         guard uid != inputDeviceUID else { return }
         inputDeviceUID = uid
         Preferences.inputDeviceUID = uid
-        if source == .microphone { restartIfRunning() }
+        if source != .system { restartIfRunning() }
     }
 
     /// One term per element. Applies to the very next sentence: the correction runs on the text, so no restart.
@@ -392,7 +397,7 @@ final class AppModel: ObservableObject {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss"
         return finalizedLines.map { line in
-            let tag = setup.isConversation && !line.language.isEmpty ? "[\(line.language.uppercased())] " : ""
+            let tag = line.speaker.map { "[\($0.rawValue.uppercased())] " } ?? (activeSetup.isConversation && !line.language.isEmpty ? "[\(line.language.uppercased())] " : "")
             var text = "[\(formatter.string(from: line.time))] \(tag)\(line.text)"
             if let translation = line.translation { text += "\n[\(formatter.string(from: line.time))] → \(translation)" }
             return text
@@ -402,7 +407,7 @@ final class AppModel: ObservableObject {
     // MARK: Translation
 
     private func updateSecondaryRow() {
-        let wanted = setup.translates && (translationLayout == .both || translationNotice != nil)
+        let wanted = activeSetup.translates && (translationLayout == .both || translationNotice != nil)
         if wanted != showsSecondaryRow { showsSecondaryRow = wanted }
     }
 
@@ -415,13 +420,13 @@ final class AppModel: ObservableObject {
         showsFailureNotice = false
         for pipeline in old { await pipeline.close() }
         guard generation == translationGeneration else { return }
-        guard isRunning, !stopRequested, setup.translates else {
+        guard isRunning, !stopRequested, activeSetup.translates else {
             updateSecondaryRow()
             return
         }
         var ready: [String: (final: any TextTranslator, interim: any TextTranslator)] = [:]
         var failures: [String] = []
-        for pair in setup.translationPairs {
+        for pair in activeSetup.translationPairs {
             // Sentences that just ended get a translator of their own, so they never wait behind the interim one.
             let finals = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target)
             let interims = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target)
@@ -504,7 +509,7 @@ final class AppModel: ObservableObject {
             finalizedLines[index].provisional = nil
             clearFailureNotice()
             let line = finalizedLines[index]
-            recorder?.appendTranslation(translation, forSentenceAt: line.time, targetLanguage: setup.translationTarget(forSpeechIn: line.language))
+            recorder?.appendTranslation(translation, forSentenceAt: line.time, targetLanguage: activeSetup.translationTarget(forSpeechIn: line.language), speaker: line.speaker)
             refreshBar()
         case .failed(let id, let message):
             // A slow interim translation is just skipped: the next one replaces it. Only a sentence that never got
@@ -530,6 +535,7 @@ final class AppModel: ObservableObject {
 
     private func runSession(setup: MeetingSetup, locales: [String], source: Source, deviceUID: String?, vocabulary: [String]) async {
         let capture: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
+        let isCall = source == .call
         var failure: String?
         var recoverable = false
         let missing = await ModernSpeechSupport.uninstalledLocales(locales)
@@ -542,7 +548,8 @@ final class AppModel: ObservableObject {
             do {
                 // The first-run test leaves no transcript behind.
                 recorder = selfTestActive ? nil : try ScriptRecorder(
-                    directory: directory, locale: setup.isConversation ? "conversation" : locales[0], tagLanguages: setup.isConversation
+                    directory: directory, locale: isCall ? "call" : (setup.isConversation ? "conversation" : locales[0]),
+                    tagLanguages: setup.isConversation && !isCall, tagSpeakers: isCall
                 )
             } catch {
                 throw EngineError.captureFailed(
@@ -566,9 +573,20 @@ final class AppModel: ObservableObject {
             // sentences about 0.9 s after the speaker stops. Korean needs the pause (its sentences stay open for about
             // 2.6 s), and so does conversation mode, whose language decision waits for finished sentences.
             if !setup.isConversation, locales[0].hasPrefix("en") { options.pauseFinalization = nil }
-            let started = setup.isConversation
-                ? try await EngineFactory.startConversation(locales: locales, options: options, capture: capture)
-                : try await EngineFactory.start(choice: .auto, localeID: locales[0], options: options, capture: capture)
+            let started: (engine: any TranscriberEngine, events: AsyncThrowingStream<TranscriptionEvent, Error>)
+            if isCall {
+                // Echo cancellation keeps the other side's voice, played through the speakers, out of the microphone. It only
+                // works on the default input, so a microphone chosen in Settings is used as it is and EchoGuard filters the leak.
+                let call = CallEngine(
+                    theirLocale: locale(for: setup.heard), myLocale: locale(for: setup.shown ?? setup.heard),
+                    options: options, microphone: MicrophoneCapture(voiceProcessing: deviceUID == nil, deviceUID: deviceUID)
+                )
+                started = (call, try await call.events(from: capture))
+            } else if setup.isConversation {
+                started = try await EngineFactory.startConversation(locales: locales, options: options, capture: capture)
+            } else {
+                started = try await EngineFactory.start(choice: .auto, localeID: locales[0], options: options, capture: capture)
+            }
             engine = started.engine
             if stopRequested {
                 await started.engine.stop()
@@ -664,6 +682,13 @@ final class AppModel: ObservableObject {
     /// Whether there is a finished transcript from this run of the app that can be named.
     var canNameLastTranscript: Bool { !isRunning && scriptFile.map { FileManager.default.fileExists(atPath: $0.path) } == true }
 
+    /// The setup the engines run. In a call both sides are recognized, each in its own language, so both directions are translated.
+    var activeSetup: MeetingSetup { source == .call && setup.translates ? setup.speakingBothWays(true) : setup }
+
+    private func locale(for language: SpokenLanguage) -> String {
+        language == .english ? englishVariant.rawValue : language.defaultLocale
+    }
+
     /// When the first audio of this listening run was heard; the clock for `spokenTime`.
     private var listeningSince: Date?
 
@@ -686,17 +711,19 @@ final class AppModel: ObservableObject {
             let spoken = spokenTime(event)
             var line = TranscriptLine(time: spoken, text: text)
             line.language = language
+            line.speaker = event.speaker
             line.session = sessionIndex
             line.provisional = translationActive ? provisional : nil
             finalizedLines.append(line)
             if finalizedLines.count > Self.maxLines { finalizedLines.removeFirst(finalizedLines.count - Self.maxLines) }
             barEntries.append(BarEntry(id: line.id, time: event.timestamp, text: text))
             refreshBar()
-            recorder?.append(TranscriptionEvent(text: text, isFinal: true, locale: event.locale, timestamp: spoken))
+            recorder?.append(TranscriptionEvent(text: text, isFinal: true, locale: event.locale, timestamp: spoken, speaker: event.speaker))
             if pipelines[language] != nil { awaitingTranslation.insert(line.id) }
             feed?.yield(.final(line.id, text, language: language))
         } else {
             if partialLanguage != language { partialLanguage = language; translatedPartial = "" }
+            partialSpeaker = event.speaker
             partial = text
             feed?.yield(.interim(text, language: language))
         }

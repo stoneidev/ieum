@@ -1,6 +1,11 @@
 import AVFoundation
 import Foundation
 
+/// Who is speaking in a call: the person at this Mac (microphone) or the other side (system audio).
+public enum Speaker: String, Sendable, Equatable, CaseIterable {
+    case me, them
+}
+
 /// One transcription update, either a volatile partial or a finalized segment.
 public struct TranscriptionEvent: Sendable, Equatable {
     public let text: String
@@ -12,6 +17,8 @@ public struct TranscriptionEvent: Sendable, Equatable {
     public let audioEnd: Double?
     /// How sure the recognizer is, 0...1, when the engine reports it.
     public let confidence: Double?
+    /// Who said it, in a call (microphone and system audio recognized separately); nil otherwise.
+    public var speaker: Speaker?
 
     public init(
         text: String,
@@ -20,7 +27,8 @@ public struct TranscriptionEvent: Sendable, Equatable {
         timestamp: Date = Date(),
         audioStart: Double? = nil,
         audioEnd: Double? = nil,
-        confidence: Double? = nil
+        confidence: Double? = nil,
+        speaker: Speaker? = nil
     ) {
         self.text = text
         self.isFinal = isFinal
@@ -29,6 +37,7 @@ public struct TranscriptionEvent: Sendable, Equatable {
         self.audioStart = audioStart
         self.audioEnd = audioEnd
         self.confidence = confidence
+        self.speaker = speaker
     }
 }
 

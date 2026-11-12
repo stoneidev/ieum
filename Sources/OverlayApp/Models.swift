@@ -18,10 +18,19 @@ enum Language: String, CaseIterable {
 enum Source: String, CaseIterable {
     case microphone
     case system
+    /// A call: the microphone is the person at this Mac and the system audio is the other side, each recognized in its own language.
+    case call
 
     @MainActor var title: String {
-        self == .microphone ? tr("Microphone", "마이크") : tr("System audio", "시스템 소리")
+        switch self {
+        case .microphone: tr("Microphone", "마이크")
+        case .system: tr("System audio", "시스템 소리")
+        case .call: tr("Call (microphone + system audio)", "통화 (마이크 + 시스템 소리)")
+        }
     }
+
+    /// Recognizing two sides at once uses two recognizers of the newer kind.
+    var isAvailableOnThisMac: Bool { self != .call || MeetingSetup.bothWaysIsAvailableOnThisMac }
 }
 
 enum DisplayMode: String, CaseIterable {
@@ -166,6 +175,8 @@ struct TranscriptLine: Identifiable, Equatable {
     let text: String
     /// "en" or "ko": the language this sentence was spoken in.
     var language = ""
+    /// In a call, who said it.
+    var speaker: Speaker?
     /// Final translation of `text`, once the translator has delivered it.
     var translation: String?
     /// The last interim translation, shown (muted) until the final one arrives so the line never goes blank.

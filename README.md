@@ -48,6 +48,7 @@ The other side talks and you read your language. You answer in yours and they re
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. |
 | **Saved scripts** | One file per meeting: `[HH:mm:ss] text` with `→ translation` lines, and `[EN]`/`[KO]` tags when both sides speak. The time on each line is when the sentence was **spoken**. Listed in Settings → Transcripts. |
 | **Name and export** | **Rename…** gives a meeting a name (“Budget meeting”) instead of a timestamp, and the exported files beside it follow. **Export** turns a script into subtitles (`.srt` with the original and the translation, translation only, or `.vtt`) or Markdown notes (`.md`). |
+| **Calls: who said what** | Choose *Call (microphone + system audio)* and Ieum reads the other side (system audio) in their language and you (microphone) in yours, labels every line *Me* or *Them*, and translates both ways. Needs macOS 26. Headphones work best; with speakers an echo filter keeps the other side from showing up as you. |
 | **Audio sources** | Microphone (the system default or a specific one, such as a USB microphone or a speakerphone), or system audio (video calls, recordings) through ScreenCaptureKit. |
 | **Menu bar app** | Lives in the menu bar, with global shortcuts and open-at-login. |
 | **Korean and English interface** | Including a first-run permission check. |

@@ -21,6 +21,12 @@ enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "call", introduced: "0.6.0", art: .menu,
+            title: tr("Calls: who said what", "통화: 누가 말했는지"),
+            body: tr("Pick Call (microphone + system audio) as the audio source. Your microphone is read in your language and the other side in theirs, every line says Me or Them, and both directions are translated. Headphones work best.",
+                     "소리 입력에서 '통화 (마이크 + 시스템 소리)'를 고르세요. 마이크는 내 언어로, 상대는 상대의 언어로 인식하고, 줄마다 '나'와 '상대'가 표시되며 두 방향을 모두 번역합니다. 헤드폰이 가장 좋습니다.")
+        ),
+        WhatsNewPage(
             id: "export", introduced: "0.5.0", art: .tryIt,
             title: tr("Subtitle files from your meetings", "회의 기록을 자막 파일로"),
             body: tr("In Settings > Transcripts, Export turns a saved transcript into subtitles (.srt, .vtt) or Markdown notes. Times now show when each sentence was spoken, not when it was recognized. You can also give a transcript a name, like \"Budget meeting\", with Rename.",

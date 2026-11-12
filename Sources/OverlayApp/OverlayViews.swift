@@ -153,6 +153,25 @@ struct StatusDot: View {
     }
 }
 
+/// A small "Me" / "Them" tag for calls, where the microphone and the other side are recognized apart.
+struct SpeakerChip: View {
+    let speaker: Speaker
+    let palette: Theme.Palette
+    let size: CGFloat
+
+    private var label: String { speaker == .me ? tr("Me", "나") : tr("Them", "상대") }
+
+    var body: some View {
+        Text(label)
+            .font(.system(size: size, weight: .semibold, design: .rounded))
+            .foregroundStyle(palette.ink.opacity(0.8))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 1)
+            .background(Capsule().fill(palette.interim.opacity(speaker == .me ? 0.34 : 0.18)))
+            .accessibilityLabel(speaker == .me ? tr("You", "나") : tr("The other side", "상대"))
+    }
+}
+
 /// A small "EN" / "KO" tag that says which language a sentence was spoken in (used in conversation mode).
 struct LanguageChip: View {
     let language: String
@@ -476,7 +495,9 @@ struct SubtitleBarView: View {
         let shown = model.translationNotice == nil && !showsOriginalAsMain ? originalLine : ""
         let small = BarMetrics.secondarySize(size) * ScriptScale.factor(for: shown, hangulScale: 0.92)
         return HStack(spacing: 8) {
-            if model.translationNotice == nil, model.setup.isConversation, !originalLanguage.isEmpty {
+            if model.translationNotice == nil, let speaker = originalSpeaker {
+                SpeakerChip(speaker: speaker, palette: palette, size: max(10, small - 4))
+            } else if model.translationNotice == nil, model.setup.isConversation, !originalLanguage.isEmpty {
                 LanguageChip(language: originalLanguage, palette: palette, size: max(10, small - 4))
             }
             Group {
@@ -500,6 +521,10 @@ struct SubtitleBarView: View {
         model.status == .listening && model.translationActive && model.translationNotice == nil
             && model.barTranslation.confirmed.isEmpty && model.barTranslation.tentative.isEmpty
             && !originalLine.isEmpty
+    }
+
+    private var originalSpeaker: Speaker? {
+        model.partial.isEmpty ? model.finalizedLines.last?.speaker : model.partialSpeaker
     }
 
     private var originalLanguage: String {
@@ -570,18 +595,18 @@ struct TranscriptPanelView: View {
                                     text: translation,
                                     color: line.translation == nil ? palette.interim : palette.ink,
                                     original: model.translationLayout == .both ? line.text : nil,
-                                    language: line.language
+                                    language: line.language, speaker: line.speaker
                                 )
                             } else {
-                                row(time: Self.timeFormatter.string(from: line.time), text: line.text, color: palette.ink, original: nil, language: line.language)
+                                row(time: Self.timeFormatter.string(from: line.time), text: line.text, color: palette.ink, original: nil, language: line.language, speaker: line.speaker)
                             }
                         }
                         if !model.partial.isEmpty {
                             if model.translationActive, !model.translatedPartial.isEmpty {
                                 row(time: "·  ·  ·", text: model.translatedPartial, color: palette.interim,
-                                    original: model.translationLayout == .both ? model.partial : nil, language: model.partialLanguage)
+                                    original: model.translationLayout == .both ? model.partial : nil, language: model.partialLanguage, speaker: model.partialSpeaker)
                             } else {
-                                row(time: "·  ·  ·", text: model.partial, color: palette.interim, original: nil, language: model.partialLanguage)
+                                row(time: "·  ·  ·", text: model.partial, color: palette.interim, original: nil, language: model.partialLanguage, speaker: model.partialSpeaker)
                             }
                         }
                         Color.clear.frame(height: 1).id("end")
@@ -600,13 +625,13 @@ struct TranscriptPanelView: View {
         HStack(spacing: 10) {
             StatusDot(status: model.status, idleColor: palette.interim)
             // The controls on the right keep their size; the names give way (and are cut with an ellipsis) in a narrow panel.
-            Text(model.setup.title)
+            Text(model.activeSetup.title)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(palette.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .layoutPriority(-1)
-                .help(model.setup.explanation)
+                .help(model.activeSetup.explanation)
             Image(systemName: model.source == .microphone ? "mic.fill" : "speaker.wave.2.fill")
                 .font(.system(size: 12))
                 .foregroundStyle(palette.interim)
@@ -650,13 +675,15 @@ struct TranscriptPanelView: View {
         .padding(.vertical, 12)
     }
 
-    private func row(time: String, text: String, color: Color, original: String?, language: String) -> some View {
+    private func row(time: String, text: String, color: Color, original: String?, language: String, speaker: Speaker?) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(time)
                     .font(.system(size: max(11, (bodySize * 0.72).rounded()), weight: .regular).monospacedDigit())
                     .foregroundStyle(palette.interim)
-                if model.setup.isConversation, !language.isEmpty {
+                if let speaker {
+                    SpeakerChip(speaker: speaker, palette: palette, size: 10)
+                } else if model.setup.isConversation, !language.isEmpty {
                     LanguageChip(language: language, palette: palette, size: 10)
                 }
             }

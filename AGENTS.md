@@ -61,7 +61,7 @@ Release (signed + notarized, needs the owner's Developer ID and a `notarytool` k
 Build must stay warning-free; `make build` and `make app` print none today.
 
 Launch arguments override saved settings for one run: `-heardLanguage en|ko|ja|zh`, `-shownLanguage en|ko|ja|zh` (leave it out for captions only), `-bothWays YES|NO`,
-`-source microphone|system`, `-displayMode bar|panel`.
+`-source microphone|system|call`, `-displayMode bar|panel`.
 
 ## Verifying the app
 

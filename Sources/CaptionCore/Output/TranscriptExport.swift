@@ -1,7 +1,7 @@
 import Foundation
 
-/// One sentence of a saved transcript: when it was spoken (seconds after the session started), its language tag in
-/// conversation transcripts, the sentence and its translation.
+/// One sentence of a saved transcript: when it was spoken (seconds after the session started), its tag in
+/// conversation transcripts (a language such as `en`, or `me` / `them` in a call), the sentence and its translation.
 public struct ScriptEntry: Equatable, Sendable {
     public var offset: TimeInterval
     public var language: String?
@@ -29,7 +29,7 @@ public enum ScriptParser {
         var startSeconds: Double?
         var entries: [ScriptEntry] = []
         var times: [String] = []   // the time string of each entry, to match a translation to its sentence
-        let line = try! NSRegularExpression(pattern: #"^\[(\d{2}):(\d{2}):(\d{2})\] (?:\[([A-Za-z]{2})\] )?(→ )?(.*)$"#)
+        let line = try! NSRegularExpression(pattern: #"^\[(\d{2}):(\d{2}):(\d{2})\] (?:\[([A-Za-z]{2,4})\] )?(→ )?(.*)$"#)
 
         for raw in text.split(whereSeparator: \.isNewline) {
             let row = String(raw)
