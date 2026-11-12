@@ -6,7 +6,7 @@ import SwiftUI
 
 /// One highlight of the "What's new" tour.
 struct WhatsNewPage: Identifiable {
-    enum Art { case wordsLive, modes, tryIt, menu, onTop, updates }
+    enum Art { case wordsLive, modes, languages, tryIt, menu, onTop, updates }
 
     let id: String
     /// The first version that has it; a person who last saw an older version is shown this page.
@@ -21,7 +21,7 @@ enum WhatsNewCatalog {
     /// Newest first: the page most worth seeing comes first.
     static func pages() -> [WhatsNewPage] { [
         WhatsNewPage(
-            id: "languages", introduced: "0.4.0", art: .modes,
+            id: "languages", introduced: "0.4.0", art: .languages,
             title: tr("Japanese and Chinese, too", "일본어와 중국어도 됩니다"),
             body: tr("Choose the language you hear and the language you read, any two of Korean, English, Japanese and Chinese. One switch for both sides speaking, one for captions only. The first time you use Japanese or Chinese, macOS downloads its speech model once.",
                      "듣는 언어와 보는 언어를 고르세요. 한국어, 영어, 일본어, 중국어 중 어떤 두 언어든 됩니다. 서로 번갈아 말하는 회의는 스위치 하나, 자막만 볼 때는 보는 언어를 '번역 없음'으로 두면 됩니다. 일본어나 중국어는 처음 한 번 macOS가 음성 모델을 내려받습니다.")
@@ -203,7 +203,7 @@ struct WhatsNewView: View {
                 Text(tr("What's new in Ieum", "Ieum의 새로운 기능"))
                     .font(Typeface.font(17, .bold))
                     .foregroundStyle(Style.ink)
-                Text(tr("\(pages.count) things worth knowing", "알아두면 좋은 \(pages.count)가지"))
+                Text(pages.count == 1 ? tr("1 thing worth knowing", "알아두면 좋은 1가지") : tr("\(pages.count) things worth knowing", "알아두면 좋은 \(pages.count)가지"))
                     .font(Typeface.font(12))
                     .foregroundStyle(Style.muted)
             }
@@ -334,6 +334,7 @@ private struct WhatsNewArt: View {
             switch kind {
             case .wordsLive: WordsScene(t: t)
             case .modes: ModesScene(t: t)
+            case .languages: LanguagesScene(t: t)
             case .tryIt: TryItScene(t: t)
             case .menu: MenuScene(t: t)
             case .onTop: OnTopScene(t: t)
@@ -347,6 +348,7 @@ private struct WhatsNewArt: View {
         switch kind {
         case .wordsLive: 5
         case .modes: 0
+        case .languages: 0
         case .tryIt: 5.2
         case .menu: 3
         case .onTop: 1
@@ -471,6 +473,52 @@ private struct ModesScene: View {
             .overlay(Capsule().strokeBorder(on ? Style.amber : Color.white.opacity(0.14), lineWidth: 1))
             .scaleEffect(on ? 1.06 : 1)
             .shadow(color: on ? Style.amber.opacity(0.4) : .clear, radius: 12)
+            .animation(.spring(response: 0.35, dampingFraction: 0.7), value: on)
+    }
+}
+
+/// The four languages side by side; each pair lights up in turn to show that any two work together.
+private struct LanguagesScene: View {
+    let t: Double
+
+    private let languages: [SpokenLanguage] = [.korean, .english, .japanese, .chinese]
+    /// (language you hear, language you read), as indexes into `languages`.
+    private let pairs: [(hear: Int, read: Int)] = [(2, 0), (0, 3), (1, 2), (3, 1), (0, 1), (2, 3)]
+
+    var body: some View {
+        let pair = pairs[Int(t / 1.5) % pairs.count]
+        VStack(spacing: 18) {
+            HStack(spacing: 12) {
+                ForEach(languages.indices, id: \.self) { index in
+                    chip(languages[index], role: index == pair.hear ? .hear : (index == pair.read ? .read : nil))
+                }
+            }
+            HStack(spacing: 10) {
+                Text(languages[pair.hear].nativeName)
+                Image(systemName: "arrow.right")
+                Text(languages[pair.read].nativeName)
+            }
+            .font(Typeface.font(15, .semibold))
+            .foregroundStyle(Style.amber)
+            .id(pair.hear * 10 + pair.read)
+            .transition(.opacity)
+        }
+        .animation(.easeInOut(duration: 0.3), value: pair.hear * 10 + pair.read)
+    }
+
+    private enum Role { case hear, read }
+
+    private func chip(_ language: SpokenLanguage, role: Role?) -> some View {
+        let on = role != nil
+        return Text(language.nativeName)
+            .font(Typeface.font(16, .semibold))
+            .foregroundStyle(on ? Color.black.opacity(0.88) : Style.muted)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 11)
+            .background(Capsule().fill(role == .hear ? Style.amber : (role == .read ? Style.amber.opacity(0.62) : Color.white.opacity(0.06))))
+            .overlay(Capsule().strokeBorder(on ? Style.amber : Color.white.opacity(0.14), lineWidth: 1))
+            .scaleEffect(on ? 1.06 : 1)
+            .shadow(color: role == .hear ? Style.amber.opacity(0.4) : .clear, radius: 12)
             .animation(.spring(response: 0.35, dampingFraction: 0.7), value: on)
     }
 }
