@@ -19,6 +19,8 @@ final class PermissionCenter: ObservableObject {
     @Published private(set) var speech: State = .notAsked
     /// Nil when every needed translation language is installed; otherwise what to do about it.
     @Published private(set) var translationProblem: String?
+    /// The first translation language pair that is supported but not downloaded yet, which the setup window can download.
+    @Published private(set) var missingTranslation: (source: String, target: String)?
 
     /// The compatibility engine (macOS before 26) is the only one that needs the speech-recognition permission.
     var needsSpeechPermission: Bool {
@@ -60,14 +62,17 @@ final class PermissionCenter: ObservableObject {
         refresh()
     }
 
-    private func refreshTranslation() async {
+    func refreshTranslation() async {
         var problems: [String] = []
+        var missing: (source: String, target: String)?
         for pair in Preferences.meetingSetup.translationPairs {
             if case .failure(let reason) = await SystemTranslation.makeTranslator(from: pair.source, to: pair.target) {
                 problems.append(reason.localizedMessage)
+                if missing == nil, case .notDownloaded(let source, let target) = reason.kind { missing = (source, target) }
             }
         }
         translationProblem = problems.first
+        missingTranslation = missing
     }
 
     // MARK: System Settings

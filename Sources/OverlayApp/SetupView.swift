@@ -7,6 +7,9 @@ struct SetupView: View {
     let onDone: () -> Void
     /// The restart hint only matters once the person has gone to System Settings.
     @State private var screenAudioRequested = false
+    @State private var downloadRequest: LanguageDownloadRequest?
+    /// Downloading a translation language from inside the app needs the Translation framework's session API (macOS 15).
+    private var isMacOS15: Bool { if #available(macOS 15.0, *) { true } else { false } }
 
     var body: some View {
         // Reading `uiLanguage` makes the whole screen follow the language setting.
@@ -71,8 +74,16 @@ struct SetupView: View {
                         ?? tr("Offline translation is ready.", "오프라인 번역을 쓸 수 있습니다."),
                     state: permissions.translationProblem == nil ? .granted : .denied,
                     allow: {},
-                    open: { PermissionCenter.openSystemSettingsApp() },
-                    openLabel: tr("Open System Settings", "시스템 설정 열기")
+                    open: {
+                        if let missing = permissions.missingTranslation, #available(macOS 15.0, *) {
+                            downloadRequest = LanguageDownloadRequest(source: missing.source, target: missing.target)
+                        } else {
+                            PermissionCenter.openSystemSettingsApp()
+                        }
+                    },
+                    openLabel: permissions.missingTranslation != nil && isMacOS15 ? tr("Download language", "언어 내려받기") : tr("Open System Settings", "시스템 설정 열기"),
+                    note: permissions.missingTranslation != nil && isMacOS15 ? tr("Or add it yourself in System Settings > General > Language & Region > Translation Languages.", "또는 시스템 설정 > 일반 > 언어 및 지역 > 번역 언어에서 직접 추가할 수 있습니다.") : nil,
+                    noteAction: permissions.missingTranslation != nil && isMacOS15 ? (tr("Open System Settings", "시스템 설정 열기"), { PermissionCenter.openSystemSettingsApp() }) : nil
                 )
             }
             .background(RoundedRectangle(cornerRadius: 10).fill(Color(nsColor: .controlBackgroundColor)))
@@ -91,6 +102,7 @@ struct SetupView: View {
         }
         .padding(24)
         .frame(width: 560)
+        .languageDownload($downloadRequest) { Task { await permissions.refreshTranslation() } }
         .onAppear { permissions.refresh() }
         .task {
             // The user flips switches in System Settings; keep the status current while this window is open.

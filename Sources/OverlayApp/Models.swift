@@ -111,8 +111,8 @@ extension TranslationUnavailable {
         func name(_ code: String) -> String { SpokenLanguage(code: code)?.name ?? code }
         switch kind {
         case .notDownloaded(let source, let target):
-            return tr("Translation from \(name(source)) to \(name(target)) is not downloaded yet. Add it in System Settings > General > Language & Region > Translation Languages.",
-                      "\(name(source)) → \(name(target)) 번역 언어를 아직 내려받지 않았습니다. 시스템 설정 > 일반 > 언어 및 지역 > 번역 언어에서 추가하세요.")
+            return tr("Translation from \(name(source)) to \(name(target)) is not downloaded yet. Open the ⋯ menu > Permissions and setup… and press Download language.",
+                      "\(name(source)) → \(name(target)) 번역 언어를 아직 내려받지 않았습니다. ⋯ 메뉴 > 권한 및 설정 점검…에서 '언어 내려받기'를 누르세요.")
         case .unsupported(let source, let target):
             return tr("Translating \(name(source)) to \(name(target)) is not supported on this Mac.", "이 Mac에서는 \(name(source)) → \(name(target)) 번역을 지원하지 않습니다.")
         case .needsNewerMacOS:
