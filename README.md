@@ -220,7 +220,7 @@ These numbers come from clean synthesized speech, not a real room. Distant speak
 |---|---|
 | The app asks for a permission again | Turn it on in System Settings, then quit Ieum completely and reopen it. After re-signing the app, remove it from the permission list and add it again. |
 | No system audio | Allow *Screen & System Audio Recording*, then reopen the app. A sleeping display also stops capture. |
-| Translation does not appear | Needs macOS 26.4 or later. The first use of a language pair downloads its model, which needs a network once. |
+| Translation does not appear | Needs macOS 26.4 or later. A translation language that is not on the Mac yet can be downloaded once from the ⋯ menu > *Permissions and setup…* > *Download language* (needs a network), or in System Settings > General > Language & Region > Translation Languages. |
 | Captions are slow or missing | Check the status chip: it shows *listening*, *idle* or an error with the next step. |
 | A name keeps being misheard | Add it under Settings → Vocabulary. |
 
