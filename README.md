@@ -46,7 +46,8 @@ The other side talks and you read your language. You answer in yours and they re
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can stay above every window or behave like an ordinary one, and it can be click-through. |
 | **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. |
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. |
-| **Saved scripts** | One file per meeting: `[HH:mm:ss] text` (the time the sentence was spoken) with `→ translation` lines, and `[EN]`/`[KO]` tags when both sides speak. Listed in Settings, where **Rename** gives a meeting a name ("Budget meeting") and **Export** turns a script into subtitles (`.srt`, `.vtt`) or Markdown notes. |
+| **Saved scripts** | One file per meeting: `[HH:mm:ss] text` with `→ translation` lines, and `[EN]`/`[KO]` tags when both sides speak. The time on each line is when the sentence was **spoken**. Listed in Settings → Transcripts. |
+| **Name and export** | **Rename…** gives a meeting a name (“Budget meeting”) instead of a timestamp, and the exported files beside it follow. **Export** turns a script into subtitles (`.srt` with the original and the translation, translation only, or `.vtt`) or Markdown notes (`.md`). |
 | **Audio sources** | Microphone (the system default or a specific one, such as a USB microphone or a speakerphone), or system audio (video calls, recordings) through ScreenCaptureKit. |
 | **Menu bar app** | Lives in the menu bar, with global shortcuts and open-at-login. |
 | **Korean and English interface** | Including a first-run permission check. |
@@ -87,6 +88,7 @@ After turning a permission on in System Settings, quit Ieum completely and open 
 2. Press **⌃⌥S** (or *Start* in the menu). The subtitle bar appears at the bottom of the screen.
 3. Press **⌃⌥D** to switch between the subtitle bar and the transcript panel.
 4. Press **⌃⌥S** again to stop. The script is saved to `~/Documents/Ieum Transcripts`.
+5. Afterwards, open **Settings → Transcripts**: **Rename…** gives it a name (right after stopping, **Name this meeting…** in the menu does the same), and **Export** makes subtitles (`.srt`, `.vtt`) or Markdown notes next to it. Subtitle time 0 is the moment captions were started, so starting Ieum together with a recording lines them up.
 
 ### Shortcuts
 
