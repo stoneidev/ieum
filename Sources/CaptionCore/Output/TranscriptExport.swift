@@ -133,7 +133,7 @@ public enum TranscriptExport {
         return end
     }
 
-    static func timecode(_ seconds: TimeInterval, comma: Bool) -> String {
+    public static func timecode(_ seconds: TimeInterval, comma: Bool) -> String {
         let total = Int((max(0, seconds) * 1000).rounded())
         let ms = total % 1000, s = (total / 1000) % 60, m = (total / 60_000) % 60, h = total / 3_600_000
         return String(format: "%02d:%02d:%02d%@%03d", h, m, s, comma ? "," : ".", ms)

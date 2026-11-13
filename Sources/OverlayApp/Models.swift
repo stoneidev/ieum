@@ -186,3 +186,16 @@ struct TranscriptLine: Identifiable, Equatable {
 
     var displayTranslation: String? { translation ?? provisional }
 }
+
+/// The two views of the transcript panel.
+enum PanelTab: Equatable {
+    case conversation, minutes
+}
+
+/// Where the minutes draft of the last meeting stands.
+enum MinutesState: Equatable {
+    case idle
+    case working(done: Int, total: Int)
+    case ready
+    case failed(String)
+}

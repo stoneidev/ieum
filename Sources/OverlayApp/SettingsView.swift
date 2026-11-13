@@ -399,7 +399,7 @@ private struct TranscriptsTab: View {
                             renaming = file
                         }
                         .controlSize(.small)
-                        .disabled((model.isRunning && file.url == model.scriptFile) || minutesJob?.file == file.url)
+                        .disabled((model.isRunning && file.url == model.scriptFile) || minutesJob?.file == file.url || (model.isWritingMinutes && file.url == model.scriptFile))
                         .help(model.isRunning && file.url == model.scriptFile ? tr("Stop captions first.", "먼저 자막을 중지하세요.") : "")
                         Button(tr("Show in Finder", "Finder에서 보기")) { NSWorkspace.shared.activateFileViewerSelecting([file.url]) }.controlSize(.small)
                         if let job = minutesJob, job.file == file.url {
@@ -524,15 +524,7 @@ private struct TranscriptsTab: View {
                     await MainActor.run { minutesJob?.done = done; minutesJob?.total = total }
                 }
                 try Task.checkCancellation()
-                let base = url.deletingPathExtension()
-                var destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix).appendingPathExtension("md")
-                var number = 2
-                while FileManager.default.fileExists(atPath: destination.path) {
-                    destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix + "-\(number)").appendingPathExtension("md")
-                    number += 1
-                }
-                try MinutesMarkdown.render(minutes, entries: script.entries, title: base.lastPathComponent, language: language)
-                    .write(to: destination, atomically: true, encoding: .utf8)
+                let destination = try TranscriptFiles.writeMinutes(minutes, entries: script.entries, transcript: url, language: language)
                 NSWorkspace.shared.activateFileViewerSelecting([destination])
             } catch is CancellationError {
                 return

@@ -13,11 +13,11 @@ Read what the other side says in your language, while they read what you say in 
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-lightgrey?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
 ![Build](https://img.shields.io/badge/build-Swift%20Package%20Manager-blue)
-![Tests](https://img.shields.io/badge/tests-215%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-217%20passing-brightgreen)
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.7.1-orange)
+![Version](https://img.shields.io/badge/version-0.8.0-orange)
 
 [Features](#features) · [Install](#install) · [Usage](#usage) · [Documentation](#documentation) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
 
@@ -44,11 +44,11 @@ The other side talks and you read your language. You answer in yours and they re
 | **Languages** | English, Korean, Japanese and Chinese (Simplified). Pick the language you hear and the language you read, any two of them (or none, for captions only). Turn on *Both sides speak* and Ieum detects the language of each sentence and translates it into the other. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. |
 | **Words as they are spoken** | (English and Korean) The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can stay above every window or behave like an ordinary one, and it can be click-through. |
-| **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. |
+| **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. The spoken sentence and its translation each carry a language label (EN, KO), and two tabs separate the **Conversation** from the **Minutes**. |
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. |
 | **Saved scripts** | One file per meeting: `[HH:mm:ss] text` with `→ translation` lines, and `[EN]`/`[KO]` tags when both sides speak. The time on each line is when the sentence was **spoken**. Listed in Settings → Transcripts. |
 | **Name and export** | **Rename…** gives a meeting a name (“Budget meeting”) instead of a timestamp, and the exported files beside it follow. **Export** turns a script into subtitles (`.srt` with the original and the translation, translation only, or `.vtt`) or Markdown notes (`.md`). |
-| **Meeting minutes draft** | **Only on Macs with Apple Intelligence (macOS 26).** On other Macs the item is not shown. **Export → Meeting minutes draft** has the on-device language model (Apple Intelligence, macOS 26) write a summary, decisions and action items into `<name>-minutes.md`, in the language you read. Every point cites the transcript lines it came from, and a point without a source is marked. It is a draft to check, not a record: the small on-device model sometimes lists a question as a decision or drops who and when. Nothing leaves the Mac; the item is greyed out with the reason when Apple Intelligence is not available. |
+| **Meeting minutes draft** | **Only on Macs with Apple Intelligence (macOS 26).** On other Macs the item is not shown. The panel's **Minutes** tab (and a prompt when you stop the captions; also **Export → Meeting minutes draft**) has the on-device language model (Apple Intelligence, macOS 26) write a summary, decisions and action items into `<name>-minutes.md`, in the language you read. Every point cites the transcript lines it came from, and a point without a source is marked. It is a draft to check, not a record: the small on-device model sometimes lists a question as a decision or drops who and when. Nothing leaves the Mac; the item is greyed out with the reason when Apple Intelligence is not available. |
 | **Calls: who said what** | Choose *Call (microphone + system audio)* and Ieum reads the other side (system audio) in their language and you (microphone) in yours, labels every line *Me* or *Them*, and translates both ways. Needs macOS 26. Headphones work best; with speakers an echo filter keeps the other side from showing up as you. |
 | **Audio sources** | Microphone (the system default or a specific one, such as a USB microphone or a speakerphone), or system audio (video calls, recordings) through ScreenCaptureKit. |
 | **Menu bar app** | Lives in the menu bar, with global shortcuts and open-at-login. |
@@ -235,7 +235,7 @@ The only network request Ieum makes is the optional update check: once a day it 
 
 ## Status
 
-Version 0.7.1. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
+Version 0.8.0. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
 
 ## License
 

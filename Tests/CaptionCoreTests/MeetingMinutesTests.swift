@@ -71,6 +71,16 @@ struct MeetingMinutesTests {
         #expect(minutes.decisions == [.init(text: "Ship Monday", lines: [3])])
     }
 
+    @Test func theSameSentenceInBothListsStaysAsATask() {
+        let minutes = MeetingMinutes(
+            parts: [],
+            decisions: [.init(text: "Update the notes", lines: [1]), .init(text: "Ship Monday", lines: [2])],
+            actions: [.init(text: "Update the notes", lines: [1])]
+        ).validated(entryCount: 3)
+        #expect(minutes.decisions == [.init(text: "Ship Monday", lines: [2])])
+        #expect(minutes.actions == [.init(text: "Update the notes", lines: [1])])
+    }
+
     @Test func markdownCitesLinesAndMarksPointsWithoutASource() {
         let all = entries(["a", "b", "c"])
         let minutes = MeetingMinutes(

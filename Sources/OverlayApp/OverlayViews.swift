@@ -322,6 +322,9 @@ struct OverlayMenuButton: NSViewRepresentable {
             }
             menu.addItem(.separator())
             menu.addItem(ActionItem(tr("Name this meeting…", "이 회의에 이름 붙이기…"), enabled: model.canNameLastTranscript) { model.renameLastTranscript() })
+            if model.offersMinutes {
+                menu.addItem(ActionItem(tr("Meeting minutes draft…", "회의록 초안…"), enabled: model.canMakeMinutes) { model.showMinutes(start: true) })
+            }
             menu.addItem(ActionItem(tr("Settings…", "설정…")) { model.openSettings() })
             menu.addItem(ActionItem(tr("Check for updates…", "업데이트 확인…")) { model.checkForUpdates() })
             menu.addItem(ActionItem(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() })
@@ -578,7 +581,21 @@ struct TranscriptPanelView: View {
         VStack(spacing: 0) {
             header
             Divider().overlay(palette.ink.opacity(0.10))
-            ScrollViewReader { proxy in
+            if model.offersMinutes {
+                tabs
+                Divider().overlay(palette.ink.opacity(0.10))
+            }
+            if model.panelTab == .minutes, model.offersMinutes {
+                MinutesPanelView(model: model, palette: palette, bodySize: bodySize)
+            } else {
+                conversation
+                wrapUp
+            }
+        }
+    }
+
+    private var conversation: some View {
+        ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
                         if model.finalizedLines.isEmpty && model.partial.isEmpty {
@@ -595,7 +612,7 @@ struct TranscriptPanelView: View {
                                     text: translation,
                                     color: line.translation == nil ? palette.interim : palette.ink,
                                     original: model.translationLayout == .both ? line.text : nil,
-                                    language: line.language, speaker: line.speaker
+                                    language: line.language, speaker: line.speaker, translated: true
                                 )
                             } else {
                                 row(time: Self.timeFormatter.string(from: line.time), text: line.text, color: palette.ink, original: nil, language: line.language, speaker: line.speaker)
@@ -604,7 +621,7 @@ struct TranscriptPanelView: View {
                         if !model.partial.isEmpty {
                             if model.translationActive, !model.translatedPartial.isEmpty {
                                 row(time: "·  ·  ·", text: model.translatedPartial, color: palette.interim,
-                                    original: model.translationLayout == .both ? model.partial : nil, language: model.partialLanguage, speaker: model.partialSpeaker)
+                                    original: model.translationLayout == .both ? model.partial : nil, language: model.partialLanguage, speaker: model.partialSpeaker, translated: true)
                             } else {
                                 row(time: "·  ·  ·", text: model.partial, color: palette.interim, original: nil, language: model.partialLanguage, speaker: model.partialSpeaker)
                             }
@@ -618,6 +635,54 @@ struct TranscriptPanelView: View {
                 .onChange(of: model.finalizedLines.count) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
                 .onChange(of: model.partial) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
             }
+    }
+
+    /// Two views of the same meeting: what is being said, and the minutes written from it.
+    private var tabs: some View {
+        HStack(spacing: 6) {
+            tab(tr("Conversation", "대화"), .conversation)
+            tab(tr("Minutes", "회의록"), .minutes)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+    }
+
+    private func tab(_ title: String, _ value: PanelTab) -> some View {
+        let selected = model.panelTab == value
+        return Button(action: { model.panelTab = value }) {
+            Text(title)
+                .font(.system(size: 13, weight: selected ? .semibold : .regular))
+                .foregroundStyle(selected ? palette.ink : palette.interim)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(palette.interim.opacity(selected ? 0.22 : 0)))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    /// After the meeting: where the minutes are and how to get them.
+    @ViewBuilder
+    private var wrapUp: some View {
+        if model.offersMinutes, model.canMakeMinutes {
+            Divider().overlay(palette.ink.opacity(0.10))
+            Button(action: { model.showMinutes(start: false) }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.text")
+                    Text(model.minutesState == .ready
+                         ? tr("The minutes draft is ready", "회의록 초안이 준비되었습니다")
+                         : tr("The meeting ended. Write the minutes", "회의가 끝났습니다. 회의록 초안 만들기"))
+                    Spacer(minLength: 4)
+                    Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold))
+                }
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(palette.ink)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 11)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -675,34 +740,53 @@ struct TranscriptPanelView: View {
         .padding(.vertical, 12)
     }
 
-    private func row(time: String, text: String, color: Color, original: String?, language: String, speaker: Speaker?) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 14) {
+    /// One sentence. The language that was spoken is labeled and comes first (small, muted); its translation is labeled
+    /// too and is the main text, so the two never read as one mixed block.
+    private func row(time: String, text: String, color: Color, original: String?, language: String, speaker: Speaker?, translated: Bool = false) -> some View {
+        let spoken = language.isEmpty ? model.activeSetup.heard.code : language
+        let target = model.translationLanguage(forSpoken: spoken)
+        return HStack(alignment: .firstTextBaseline, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(time)
                     .font(.system(size: max(11, (bodySize * 0.72).rounded()), weight: .regular).monospacedDigit())
                     .foregroundStyle(palette.interim)
                 if let speaker {
                     SpeakerChip(speaker: speaker, palette: palette, size: 10)
-                } else if model.setup.isConversation, !language.isEmpty {
-                    LanguageChip(language: language, palette: palette, size: 10)
                 }
             }
             .frame(width: 58, alignment: .leading)
             VStack(alignment: .leading, spacing: 3) {
-                // The language that was spoken comes first, its translation underneath.
                 if let original {
-                    Text(original)
-                        .font(.system(size: max(12, bodySize - 4), weight: .regular))
-                        .foregroundStyle(palette.interim)
+                    labeled(spoken, show: true) {
+                        Text(original)
+                            .font(.system(size: max(12, bodySize - 4), weight: .regular))
+                            .foregroundStyle(palette.interim)
+                            .textSelection(.enabled)
+                    }
+                }
+                labeled(translated ? target : spoken, show: translated || model.activeSetup.isConversation) {
+                    Text(text)
+                        .font(.system(size: bodySize * ScriptScale.factor(for: text, hangulScale: ScriptScale.hangulPanel), weight: .regular))
+                        .lineSpacing(3)
+                        .foregroundStyle(color)
                         .textSelection(.enabled)
                 }
-                Text(text)
-                    .font(.system(size: bodySize * ScriptScale.factor(for: text, hangulScale: ScriptScale.hangulPanel), weight: .regular))
-                    .lineSpacing(3)
-                    .foregroundStyle(color)
-                    .textSelection(.enabled)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    /// A line of text with its language tag in front, so the spoken sentence and its translation are told apart.
+    @ViewBuilder
+    private func labeled<Content: View>(_ language: String?, show: Bool, @ViewBuilder content: () -> Content) -> some View {
+        if show, let language, !language.isEmpty {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                LanguageChip(language: language, palette: palette, size: 9)
+                    .frame(width: 30, alignment: .leading)
+                content()
+            }
+        } else {
+            content()
         }
     }
 

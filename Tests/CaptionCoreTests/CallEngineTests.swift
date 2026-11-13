@@ -24,13 +24,18 @@ struct CallEngineTests {
     }
 
     /// Engines that replay fixed events per locale.
-    private func engine(_ script: [String: [TranscriptionEvent]], engines: [String: FakeEngine]) -> CallEngine {
+    /// `delays` holds back a side's events, as in a real call where the echo of the other side arrives after the other side.
+    private func engine(_ script: [String: [TranscriptionEvent]], engines: [String: FakeEngine], delays: [String: Duration] = [:]) -> CallEngine {
         CallEngine(theirLocale: "ja-JP", myLocale: "ko-KR", options: EngineOptions(), microphone: IdleCapture()) { locale, _, _ in
             let fake = engines[locale] ?? FakeEngine()
             let events = script[locale] ?? []
+            let delay = delays[locale]
             return (fake, AsyncThrowingStream { continuation in
-                for event in events { continuation.yield(event) }
-                continuation.finish()
+                Task {
+                    if let delay { try? await Task.sleep(for: delay) }
+                    for event in events { continuation.yield(event) }
+                    continuation.finish()
+                }
             })
         }
     }
@@ -57,7 +62,7 @@ struct CallEngineTests {
             "ja-JP": [final("来週の月曜日からテストを始めてもいいですか", "ja-JP")],
             // the leak recognized again in the other side's own words (same language on both sides)
             "ko-KR": [final("来週の月曜日からテストを始めてもいいですか", "ko-KR", at: 2)],
-        ], engines: [:])
+        ], engines: [:], delays: ["ko-KR": .milliseconds(150)])
         let events = try await collect(try await call.events(from: IdleCapture()))
         #expect(events.filter { !$0.text.isEmpty }.map(\.speaker) == [.them])
     }

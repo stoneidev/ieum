@@ -52,10 +52,13 @@ public struct MeetingMinutes: Equatable, Sendable {
                 return Point(text: text, lines: lines)
             }
         }
+        // The same sentence in both lists is a task, not a decision.
+        let actions = clean(actions)
+        let tasks = Set(actions.map(\.text))
         return MeetingMinutes(
             parts: parts.filter { !$0.summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty },
-            decisions: clean(decisions),
-            actions: clean(actions)
+            decisions: clean(decisions).filter { !tasks.contains($0.text) },
+            actions: actions
         )
     }
 

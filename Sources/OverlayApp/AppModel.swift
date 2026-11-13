@@ -21,6 +21,19 @@ final class AppModel: ObservableObject {
     /// Set when the transcript file can no longer be written; the captions keep working.
     @Published private(set) var transcriptWarning: String?
 
+    // MARK: Minutes
+    /// Which view the transcript panel shows: the live conversation or the minutes draft of the meeting.
+    @Published var panelTab: PanelTab = .conversation
+    @Published var minutesState: MinutesState = .idle
+    @Published var minutes: MeetingMinutes?
+    var minutesEntries: [ScriptEntry] = []
+    @Published var minutesFile: URL?
+    var minutesTask: Task<Void, Never>?
+    /// Which minutes run owns the state: a task that was cancelled or replaced must not write its late results.
+    var minutesRun = 0
+    /// The language the minutes on screen were written in.
+    var minutesWrittenIn: SpokenLanguage?
+
     // MARK: Meeting
     @Published private(set) var setup = Preferences.meetingSetup
     @Published private(set) var englishVariant = Preferences.englishVariant
@@ -95,7 +108,7 @@ final class AppModel: ObservableObject {
     /// Bumped whenever translation is reconfigured or torn down, so a configure that was suspended while the
     /// translators were prepared can tell it is out of date and must not start anything.
     private var translationGeneration = 0
-    private var sessionIndex = 0
+    var sessionIndex = 0
     private var showsFailureNotice = false
     /// Finalized sentences handed to the translators whose translation has not come back yet.
     private var awaitingTranslation = Set<UUID>()
@@ -567,6 +580,7 @@ final class AppModel: ObservableObject {
                 }
             }
             scriptFile = recorder?.fileURL
+            resetMinutes()
 
             var options = EngineOptions(vocabulary: vocabulary)
             options.correctsTranscript = false
@@ -671,7 +685,7 @@ final class AppModel: ObservableObject {
         NSApp.activate(ignoringOtherApps: true)
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         do {
-            if let renamed = try TranscriptFiles.rename(url, to: field.stringValue) { scriptFile = renamed }
+            if let renamed = try TranscriptFiles.rename(url, to: field.stringValue) { transcriptMoved(to: renamed) }
         } catch {
             let failure = NSAlert()
             failure.messageText = tr("Could not rename the transcript", "기록의 이름을 바꾸지 못했습니다")
@@ -680,10 +694,19 @@ final class AppModel: ObservableObject {
         }
     }
 
-    func transcriptMoved(to url: URL) { scriptFile = url }
+    func transcriptMoved(to url: URL) {
+        let old = scriptFile
+        scriptFile = url
+        // The minutes file beside the transcript moved with it.
+        if let old, let minutesFile {
+            let oldBase = old.deletingPathExtension().lastPathComponent
+            let tail = minutesFile.deletingPathExtension().lastPathComponent.dropFirst(oldBase.count)
+            self.minutesFile = url.deletingLastPathComponent().appendingPathComponent(url.deletingPathExtension().lastPathComponent + tail).appendingPathExtension("md")
+        }
+    }
 
     /// Whether there is a finished transcript from this run of the app that can be named.
-    var canNameLastTranscript: Bool { !isRunning && scriptFile.map { FileManager.default.fileExists(atPath: $0.path) } == true }
+    var canNameLastTranscript: Bool { !isRunning && !isWritingMinutes && scriptFile.map { FileManager.default.fileExists(atPath: $0.path) } == true }
 
     /// The setup the engines run. In a call both sides are recognized, each in its own language, so both directions are translated.
     var activeSetup: MeetingSetup { source == .call && setup.translates ? setup.speakingBothWays(true) : setup }

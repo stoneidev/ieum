@@ -23,4 +23,18 @@ enum TranscriptFiles {
         }
         return directory.appendingPathComponent("\(plan.newBase).txt")
     }
+
+    /// Writes the minutes next to the transcript as `<name>-minutes.md` (`-minutes-2.md` … when that exists) and returns the file.
+    static func writeMinutes(_ minutes: MeetingMinutes, entries: [ScriptEntry], transcript url: URL, language: SpokenLanguage) throws -> URL {
+        let base = url.deletingPathExtension()
+        var destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix).appendingPathExtension("md")
+        var number = 2
+        while FileManager.default.fileExists(atPath: destination.path) {
+            destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix + "-\(number)").appendingPathExtension("md")
+            number += 1
+        }
+        try MinutesMarkdown.render(minutes, entries: entries, title: base.lastPathComponent, language: language)
+            .write(to: destination, atomically: true, encoding: .utf8)
+        return destination
+    }
 }
