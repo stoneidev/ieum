@@ -25,7 +25,7 @@ enum TranscriptFiles {
     }
 
     /// Writes the minutes next to the transcript as `<name>-minutes.md` (`-minutes-2.md` … when that exists) and returns the file.
-    static func writeMinutes(_ minutes: MeetingMinutes, entries: [ScriptEntry], transcript url: URL, language: SpokenLanguage) throws -> URL {
+    static func writeMinutes(_ minutes: MeetingMinutes, entries: [ScriptEntry], transcript url: URL, language: SpokenLanguage, template: MinutesTemplate) throws -> URL {
         let base = url.deletingPathExtension()
         var destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix).appendingPathExtension("md")
         var number = 2
@@ -33,7 +33,7 @@ enum TranscriptFiles {
             destination = URL(fileURLWithPath: base.path + TranscriptNaming.minutesSuffix + "-\(number)").appendingPathExtension("md")
             number += 1
         }
-        try MinutesMarkdown.render(minutes, entries: entries, title: base.lastPathComponent, language: language)
+        try MinutesMarkdown.render(minutes, entries: entries, title: base.lastPathComponent, language: language, template: template)
             .write(to: destination, atomically: true, encoding: .utf8)
         return destination
     }

@@ -199,3 +199,81 @@ enum MinutesState: Equatable {
     case ready
     case failed(String)
 }
+
+extension Scenario {
+    @MainActor var title: String {
+        switch self {
+        case .conversation: tr("Conversation", "대화")
+        case .meeting: tr("Meeting", "회의")
+        case .seminar: tr("Seminar or talk", "세미나·강연")
+        }
+    }
+
+    @MainActor var explanation: String {
+        switch self {
+        case .conversation: tr("Two people talking in the same room. Both speak, so each sentence is translated into the other language.",
+                               "같은 공간에서 두 사람이 이야기합니다. 서로 번갈아 말하므로 문장마다 상대 언어로 번역합니다.")
+        case .meeting: tr("Several people, often on a video call. Reads the other side from this Mac's sound, or the room from the microphone. Notes list decisions and tasks.",
+                          "여러 사람이 참여하고 주로 화상회의입니다. 이 Mac의 소리나 마이크로 듣습니다. 정리에는 결정 사항과 할 일이 들어갑니다.")
+        case .seminar: tr("A talk or lecture you only listen to, in one language. No both-sides mode. Notes list the key points and the questions raised.",
+                          "한 언어로 진행되는 강연을 듣기만 합니다. 서로 번갈아 말하는 모드는 없습니다. 정리에는 핵심 내용과 나온 질문이 들어갑니다.")
+        }
+    }
+
+    /// The name of the notes tab and of the notes themselves.
+    @MainActor var notesTitle: String {
+        switch self {
+        case .conversation: tr("Summary", "대화 요약")
+        case .meeting: tr("Minutes", "회의록")
+        case .seminar: tr("Lecture notes", "강의 노트")
+        }
+    }
+
+    @MainActor var endedPrompt: String {
+        switch self {
+        case .conversation: tr("The conversation ended. Write the summary", "대화가 끝났습니다. 요약 만들기")
+        case .meeting: tr("The meeting ended. Write the minutes", "회의가 끝났습니다. 회의록 초안 만들기")
+        case .seminar: tr("The talk ended. Write the lecture notes", "강연이 끝났습니다. 강의 노트 만들기")
+        }
+    }
+
+    var allowedSources: [Source] {
+        Source.allCases.filter { source in
+            switch source {
+            case .microphone: true
+            case .system: allowsSystemAudio
+            case .call: allowsCall
+            }
+        }
+    }
+
+    var defaultSource: Source { prefersSystemAudio ? .system : .microphone }
+}
+
+extension Scenario {
+    /// What the person calls the event ("the meeting is still going").
+    @MainActor var stillGoing: String {
+        switch self {
+        case .conversation: tr("The conversation is still going", "대화 중입니다")
+        case .meeting: tr("The meeting is still going", "회의 중입니다")
+        case .seminar: tr("The talk is still going", "강연 중입니다")
+        }
+    }
+
+    @MainActor var nothingYet: String {
+        switch self {
+        case .conversation: tr("No conversation to summarize yet", "아직 정리할 대화가 없습니다")
+        case .meeting: tr("No meeting to summarize yet", "아직 정리할 회의가 없습니다")
+        case .seminar: tr("No talk to summarize yet", "아직 정리할 강연이 없습니다")
+        }
+    }
+
+    /// What the notes contain, in a sentence.
+    @MainActor var contents: String {
+        switch self {
+        case .conversation: tr("a summary, the points worth remembering and what to follow up", "요약, 기억할 내용, 챙겨야 할 일")
+        case .meeting: tr("a summary, the decisions, the action items and what was left open", "요약, 결정 사항, 할 일, 남은 질문")
+        case .seminar: tr("a summary, the key points and the questions raised", "요약, 핵심 내용, 나온 질문")
+        }
+    }
+}

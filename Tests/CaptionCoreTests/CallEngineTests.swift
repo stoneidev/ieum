@@ -25,7 +25,7 @@ struct CallEngineTests {
 
     /// Engines that replay fixed events per locale.
     /// `delays` holds back a side's events, as in a real call where the echo of the other side arrives after the other side.
-    private func engine(_ script: [String: [TranscriptionEvent]], engines: [String: FakeEngine], delays: [String: Duration] = [:]) -> CallEngine {
+    private func engine(_ script: [String: [TranscriptionEvent]], engines: [String: FakeEngine], delays: [String: Duration] = [:], holdOpen: Duration = .zero) -> CallEngine {
         CallEngine(theirLocale: "ja-JP", myLocale: "ko-KR", options: EngineOptions(), microphone: IdleCapture()) { locale, _, _ in
             let fake = engines[locale] ?? FakeEngine()
             let events = script[locale] ?? []
@@ -34,6 +34,8 @@ struct CallEngineTests {
                 Task {
                     if let delay { try? await Task.sleep(for: delay) }
                     for event in events { continuation.yield(event) }
+                    // the first side to end ends the call, so a side with a late event keeps the others open
+                    if holdOpen > .zero { try? await Task.sleep(for: holdOpen) }
                     continuation.finish()
                 }
             })
@@ -62,9 +64,11 @@ struct CallEngineTests {
             "ja-JP": [final("来週の月曜日からテストを始めてもいいですか", "ja-JP")],
             // the leak recognized again in the other side's own words (same language on both sides)
             "ko-KR": [final("来週の月曜日からテストを始めてもいいですか", "ko-KR", at: 2)],
-        ], engines: [:], delays: ["ko-KR": .milliseconds(150)])
+        ], engines: [:], delays: ["ko-KR": .milliseconds(150)], holdOpen: .milliseconds(500))
         let events = try await collect(try await call.events(from: IdleCapture()))
         #expect(events.filter { !$0.text.isEmpty }.map(\.speaker) == [.them])
+        // the late microphone sentence did arrive, and was recognized as the echo
+        #expect(events.contains { $0.speaker == .me && $0.text.isEmpty })
     }
 
     @Test func stoppingStopsBothEngines() async throws {
@@ -121,7 +125,7 @@ struct CallEngineTests {
         let call = engine([
             "ja-JP": [final("来週の月曜日からテストを始めてもいいですか", "ja-JP")],
             "ko-KR": [final("来週の月曜日からテストを始めてもいいですか", "ko-KR", at: 1)],
-        ], engines: [:])
+        ], engines: [:], delays: ["ko-KR": .milliseconds(150)], holdOpen: .milliseconds(500))
         let events = try await collect(try await call.events(from: IdleCapture()))
         let mine = events.filter { $0.speaker == .me }
         #expect(mine.count == 1 && mine[0].text.isEmpty && mine[0].isFinal)

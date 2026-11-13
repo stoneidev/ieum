@@ -53,7 +53,18 @@ private struct GeneralTab: View {
 
     var body: some View {
         Form {
-            Section(tr("Meeting", "회의")) {
+            Section(tr("Situation", "상황")) {
+                Picker(tr("What are you doing?", "무엇을 하시나요?"), selection: Binding(get: { model.scenario }, set: model.setScenario)) {
+                    ForEach(Scenario.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                Text(model.scenario.explanation)
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Section(tr("Languages and sound", "언어와 소리")) {
                 HStack(spacing: 10) {
                     Picker(tr("Language you hear", "듣는 언어"), selection: Binding(get: { model.setup.heard }, set: model.setHeard)) {
                         ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag($0) }
@@ -68,8 +79,10 @@ private struct GeneralTab: View {
                         Text(tr("No translation (captions only)", "번역 없음 (자막만)")).tag(SpokenLanguage?.none)
                     }
                 }
-                Toggle(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), isOn: Binding(get: { model.setup.bothWays }, set: model.setBothWays))
-                    .disabled(!model.setup.translates || !MeetingSetup.bothWaysIsAvailableOnThisMac || model.source == .call)
+                if model.scenario.allowsBothWays {
+                    Toggle(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), isOn: Binding(get: { model.setup.bothWays }, set: model.setBothWays))
+                        .disabled(!model.setup.translates || !MeetingSetup.bothWaysIsAvailableOnThisMac || model.source == .call)
+                }
                 Text(MeetingSetup.bothWaysIsAvailableOnThisMac || !model.setup.translates
                      ? model.setup.explanation
                      : model.setup.explanation + " " + tr("Detecting the language needs macOS 26 or later.", "언어 자동 인식은 macOS 26 이상이 필요합니다."))
@@ -87,7 +100,8 @@ private struct GeneralTab: View {
                     }
                 }
                 Picker(tr("Audio source", "소리 입력"), selection: Binding(get: { model.source }, set: model.setSource)) {
-                    ForEach(Source.allCases.filter(\.isAvailableOnThisMac), id: \.self) { Text($0.title).tag($0) }
+                    // A source the situation does not offer stays listed only while it is the current one (for example set at launch).
+                    ForEach(Source.allCases.filter { $0.isAvailableOnThisMac && (model.scenario.allowedSources.contains($0) || $0 == model.source) }, id: \.self) { Text($0.title).tag($0) }
                 }
                 if model.source == .microphone || model.source == .call {
                     Picker(tr("Microphone", "마이크"), selection: Binding(get: { model.inputDeviceUID }, set: model.setInputDevice)) {
@@ -418,11 +432,11 @@ private struct TranscriptsTab: View {
                                     EmptyView()
                                 case .ready:
                                     Divider()
-                                    Button(tr("Meeting minutes draft (.md)", "회의록 초안 (.md)")) { writeMinutes(file) }
+                                    Button(model.scenario.notesTitle + tr(" draft (.md)", " 초안 (.md)")) { writeMinutes(file) }
                                         .disabled(minutesJob != nil)
                                 case .unavailable(let reason):
                                     Divider()
-                                    Button(tr("Meeting minutes draft (.md)", "회의록 초안 (.md)")) {}.disabled(true)
+                                    Button(model.scenario.notesTitle + tr(" draft (.md)", " 초안 (.md)")) {}.disabled(true)
                                     Text(reason)
                                 }
                             }
@@ -513,6 +527,7 @@ private struct TranscriptsTab: View {
     private func writeMinutes(_ file: TranscriptFile) {
         guard #available(macOS 26.0, *), minutesJob == nil else { return }
         let language = minutesLanguage
+        let scenario = model.scenario
         let url = file.url
         var job = MinutesJob(file: url)
         job.task = Task {
@@ -520,11 +535,11 @@ private struct TranscriptsTab: View {
             do {
                 let script = ScriptParser.parse(try String(contentsOf: url, encoding: .utf8))
                 guard !script.entries.isEmpty else { throw MinutesError(errorDescription: tr("This transcript has no sentences.", "이 기록에는 문장이 없습니다.")) }
-                let minutes = try await MinutesGenerator.generate(entries: script.entries, language: language) { done, total in
+                let minutes = try await MinutesGenerator.generate(entries: script.entries, language: language, scenario: scenario) { done, total in
                     await MainActor.run { minutesJob?.done = done; minutesJob?.total = total }
                 }
                 try Task.checkCancellation()
-                let destination = try TranscriptFiles.writeMinutes(minutes, entries: script.entries, transcript: url, language: language)
+                let destination = try TranscriptFiles.writeMinutes(minutes, entries: script.entries, transcript: url, language: language, template: scenario.minutes)
                 NSWorkspace.shared.activateFileViewerSelecting([destination])
             } catch is CancellationError {
                 return

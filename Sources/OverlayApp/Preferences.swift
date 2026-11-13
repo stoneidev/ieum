@@ -41,6 +41,21 @@ enum Preferences {
         }
         set { defaults.set(newValue.rawValue, forKey: "englishVariant") }
     }
+    /// What the person is doing: a conversation, a meeting or a seminar. Settings saved before it existed get the closest one.
+    static var scenario: Scenario {
+        get {
+            if let stored = defaults.string(forKey: "scenario").flatMap(Scenario.init(rawValue:)) { return stored }
+            return Scenario.migrated(setup: meetingSetup, usesCall: source == .call, usesSystemAudio: source == .system)
+        }
+        set { defaults.set(newValue.rawValue, forKey: "scenario") }
+    }
+    /// The situation, written down the first time it is derived from older settings so that it does not change by itself
+    /// when the person later changes the languages or the source.
+    static func scenarioFixingMigration() -> Scenario {
+        let value = scenario
+        if defaults.string(forKey: "scenario") == nil { scenario = value }
+        return value
+    }
     static var source: Source {
         get { value("source", default: .microphone) }
         set { defaults.set(newValue.rawValue, forKey: "source") }

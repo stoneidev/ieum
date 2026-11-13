@@ -7,10 +7,23 @@ public struct MeetingMinutes: Equatable, Sendable {
         public var text: String
         /// 1-based numbers of the transcript lines (`ScriptEntry` positions) the point is based on.
         public var lines: [Int]
+        /// For a task: who does it and by when, as said in the meeting. Nil when the meeting did not say.
+        public var owner: String?
+        public var due: String?
 
-        public init(text: String, lines: [Int]) {
+        public init(text: String, lines: [Int], owner: String? = nil, due: String? = nil) {
             self.text = text
             self.lines = lines
+            self.owner = owner
+            self.due = due
+        }
+
+        /// `Maria — update the release notes (Wednesday)`: the one way a task is written.
+        public var displayText: String {
+            var out = text
+            if let owner { out = "\(owner) — \(out)" }
+            if let due { out += " (\(due))" }
+            return out
         }
     }
 
@@ -28,41 +41,71 @@ public struct MeetingMinutes: Equatable, Sendable {
     public var parts: [Part]
     public var decisions: [Point]
     public var actions: [Point]
+    /// What was said that is worth keeping (a conversation, a talk) and what was left open.
+    public var keyPoints: [Point]
+    public var questions: [Point]
 
-    public init(parts: [Part], decisions: [Point], actions: [Point]) {
+    public init(parts: [Part], decisions: [Point], actions: [Point], keyPoints: [Point] = [], questions: [Point] = []) {
         self.parts = parts
         self.decisions = decisions
         self.actions = actions
+        self.keyPoints = keyPoints
+        self.questions = questions
     }
 
     /// A decision or a task rests on a few sentences. A point that cites more is a summary of a stretch of the meeting.
     public static let maxCitedLines = 8
+    public static let maxCitedQuestionLines = 3
 
-    /// Keeps only line numbers that exist, once each and in order. Drops points that say nothing, repeat another one,
-    /// repeat a summary (a small model fills an empty list that way), or cite too many lines to be one decision or task.
-    public func validated(entryCount: Int) -> MeetingMinutes {
-        let summaries = Set(parts.map { $0.summary.trimmingCharacters(in: .whitespacesAndNewlines) })
-        func clean(_ points: [Point]) -> [Point] {
-            var seen = Set<String>()
-            return points.compactMap { point in
-                let text = point.text.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !text.isEmpty, !summaries.contains(text), seen.insert(text).inserted else { return nil }
+    /// Normalizes what the model wrote, so the notes read the same whatever the model's habits:
+    /// - text is trimmed, bullets, numbering and closing full stops removed, and empty answers ("None", "없음") dropped;
+    /// - line numbers that do not exist are dropped, once each and in order;
+    /// - a point that repeats another one (ignoring case and punctuation), repeats a summary, or cites too many lines to be one
+    ///   point is dropped; the same sentence as a decision and as a task stays a task;
+    /// - points follow the order of the meeting.
+    public func validated(entryCount: Int, template: MinutesTemplate = .meeting) -> MeetingMinutes {
+        let summaries = Set(parts.map { MinutesText.key($0.summary) })
+        func clean(_ points: [Point], excluding other: Set<String> = [], limit: Int, maxLines: Int = Self.maxCitedLines) -> [Point] {
+            var seen = other
+            let kept: [Point] = points.compactMap { point -> Point? in
+                guard let text = MinutesText.tidy(point.text) else { return nil }
+                let key = MinutesText.key(text)
+                guard !summaries.contains(key), seen.insert(key).inserted else { return nil }
                 let lines = Array(Set(point.lines.filter { $0 >= 1 && $0 <= entryCount })).sorted()
-                guard lines.count <= Self.maxCitedLines else { return nil }
-                return Point(text: text, lines: lines)
+                guard lines.count <= maxLines else { return nil }
+                return Point(text: text, lines: lines, owner: point.owner.flatMap { MinutesText.person($0) }, due: point.due.flatMap { MinutesText.tidy($0) })
             }
+            // Points follow the meeting; one without a source goes last.
+            let ordered = kept.enumerated().sorted { a, b in
+                let x = a.element.lines.first ?? Int.max, y = b.element.lines.first ?? Int.max
+                return x == y ? a.offset < b.offset : x < y
+            }.map(\.element)
+            return Array(ordered.prefix(limit))
         }
-        // The same sentence in both lists is a task, not a decision.
-        let actions = clean(actions)
-        let tasks = Set(actions.map(\.text))
+        // Who and when belong to tasks only; in the other lists a name would just repeat the speaker.
+        func withoutWho(_ points: [Point]) -> [Point] { points.map { Point(text: $0.text, lines: $0.lines) } }
+        func keys(_ points: [Point]) -> Set<String> { Set(points.map { MinutesText.key($0.text) }) }
+        // The limits are per part of the transcript; a long meeting read in several parts keeps that many from each.
+        let scale = max(1, parts.count)
+        func cap(_ section: MinutesTemplate.Section) -> Int { template.limit(section) * scale }
+        // A sentence that fits several lists belongs to the first of: task, decision, key point, open question.
+        // A list the situation does not show must not take part in the comparison: it would remove visible points.
+        func shown(_ section: MinutesTemplate.Section, _ points: [Point]) -> [Point] { template.sections.contains(section) ? points : [] }
+        let actions = clean(shown(.actions, self.actions), limit: cap(.actions))
+        let decisions = withoutWho(clean(shown(.decisions, self.decisions), excluding: keys(actions), limit: cap(.decisions)))
+        let keyPoints = withoutWho(clean(shown(.keyPoints, self.keyPoints), excluding: keys(actions).union(keys(decisions)), limit: cap(.keyPoints)))
+        // A question rests on a line or two; one that cites more is a summary of a stretch.
+        let questions = withoutWho(clean(shown(.questions, self.questions), excluding: keys(actions).union(keys(decisions)).union(keys(keyPoints)),
+                                         limit: cap(.questions), maxLines: Self.maxCitedQuestionLines))
         return MeetingMinutes(
-            parts: parts.filter { !$0.summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty },
-            decisions: clean(decisions).filter { !tasks.contains($0.text) },
-            actions: actions
+            parts: parts.compactMap { part in
+                MinutesText.tidy(part.summary, keepsStop: true).map { Part(lines: part.lines, summary: $0) }
+            },
+            decisions: decisions, actions: actions, keyPoints: keyPoints, questions: questions
         )
     }
 
-    public var isEmpty: Bool { parts.isEmpty && decisions.isEmpty && actions.isEmpty }
+    public var isEmpty: Bool { parts.isEmpty && decisions.isEmpty && actions.isEmpty && keyPoints.isEmpty && questions.isEmpty }
 }
 
 /// Cuts a transcript into parts small enough for the on-device model and writes them with line numbers it can cite.
@@ -118,54 +161,83 @@ public enum MinutesSource {
 /// Writes the minutes as a Markdown file with the headings in the reader's language.
 public enum MinutesMarkdown {
     struct Words {
-        let draft, summary, decisions, actions, none, noSource, lines: String
+        let draft, summary, keyPoints, decisions, actions, questions, none, noSource, lines: String
     }
 
     static func words(for language: SpokenLanguage) -> Words {
         switch language {
         case .english:
             Words(draft: "Draft made on this Mac by an on-device language model. Check every point against the lines it cites before relying on it.",
-                  summary: "Summary", decisions: "Decisions", actions: "Action items", none: "None found.",
-                  noSource: "no source line", lines: "lines")
+                  summary: "Summary", keyPoints: "Key points", decisions: "Decisions", actions: "Action items", questions: "Open questions",
+                  none: "None found.", noSource: "no source line", lines: "lines")
         case .korean:
             Words(draft: "이 Mac 안의 언어 모델이 만든 초안입니다. 믿고 쓰기 전에 각 항목이 가리키는 줄과 맞는지 확인하세요.",
-                  summary: "요약", decisions: "결정 사항", actions: "할 일", none: "찾지 못했습니다.",
-                  noSource: "근거 줄 없음", lines: "줄")
+                  summary: "요약", keyPoints: "핵심 내용", decisions: "결정 사항", actions: "할 일", questions: "남은 질문",
+                  none: "찾지 못했습니다.", noSource: "근거 줄 없음", lines: "줄")
         case .japanese:
             Words(draft: "このMacの中の言語モデルが作った下書きです。使う前に、各項目が示す行と合っているか確認してください。",
-                  summary: "要約", decisions: "決定事項", actions: "やること", none: "見つかりませんでした。",
-                  noSource: "根拠の行なし", lines: "行")
+                  summary: "要約", keyPoints: "要点", decisions: "決定事項", actions: "やること", questions: "未解決の質問",
+                  none: "見つかりませんでした。", noSource: "根拠の行なし", lines: "行")
         case .chinese:
             Words(draft: "这是由本机上的语言模型生成的草稿。使用前请对照每一项所引用的行进行核实。",
-                  summary: "摘要", decisions: "决定事项", actions: "待办事项", none: "未找到。",
-                  noSource: "没有依据行", lines: "行")
+                  summary: "摘要", keyPoints: "要点", decisions: "决定事项", actions: "待办事项", questions: "遗留问题",
+                  none: "未找到。", noSource: "没有依据行", lines: "行")
         }
     }
 
-    public static func render(_ minutes: MeetingMinutes, entries: [ScriptEntry], title: String, language: SpokenLanguage) -> String {
+    /// The heading of a section of the notes.
+    public static func heading(_ section: MinutesTemplate.Section, language: SpokenLanguage) -> String {
+        let w = words(for: language)
+        switch section {
+        case .summary: return w.summary
+        case .keyPoints: return w.keyPoints
+        case .decisions: return w.decisions
+        case .actions: return w.actions
+        case .questions: return w.questions
+        }
+    }
+
+    /// The points of a section of `minutes`.
+    public static func points(_ section: MinutesTemplate.Section, in minutes: MeetingMinutes) -> [MeetingMinutes.Point] {
+        switch section {
+        case .summary: []
+        case .keyPoints: minutes.keyPoints
+        case .decisions: minutes.decisions
+        case .actions: minutes.actions
+        case .questions: minutes.questions
+        }
+    }
+
+    public static func render(_ minutes: MeetingMinutes, entries: [ScriptEntry], title: String, language: SpokenLanguage, template: MinutesTemplate = .meeting) -> String {
         let w = words(for: language)
         func reference(_ lines: [Int]) -> String {
             guard !lines.isEmpty else { return " ⚠︎ \(w.noSource)" }
-            let shown = lines.map { number -> String in
+            let shown = lines.prefix(4).map { number -> String in
                 let clock = TranscriptExport.timecode(entries[number - 1].offset, comma: false).prefix(8)
                 return "[\(number)] \(clock)"
             }
-            return " (\(w.lines) " + shown.joined(separator: ", ") + ")"
+            return " (\(w.lines) " + shown.joined(separator: ", ") + (lines.count > 4 ? " …" : "") + ")"
         }
         func list(_ points: [MeetingMinutes.Point]) -> String {
-            points.isEmpty ? "\(w.none)\n" : points.map { "- \($0.text)\(reference($0.lines))\n" }.joined()
+            points.isEmpty ? "\(w.none)\n" : points.map { "- \($0.displayText)\(reference($0.lines))\n" }.joined()
         }
-        var out = "# \(title)\n\n> \(w.draft)\n\n## \(w.summary)\n\n"
-        if minutes.parts.isEmpty {
-            out += "\(w.none)\n"
-        } else if minutes.parts.count == 1 {
-            out += "\(minutes.parts[0].summary)\n"
-        } else {
-            for part in minutes.parts {
-                out += "- \(part.summary) (\(w.lines) \(part.lines.lowerBound)–\(part.lines.upperBound))\n"
+        var out = "# \(title)\n\n> \(w.draft)\n"
+        for section in template.sections {
+            out += "\n## \(heading(section, language: language))\n\n"
+            if section == .summary {
+                if minutes.parts.isEmpty {
+                    out += "\(w.none)\n"
+                } else if minutes.parts.count == 1 {
+                    out += "\(minutes.parts[0].summary)\n"
+                } else {
+                    for part in minutes.parts {
+                        out += "- \(part.summary) (\(w.lines) \(part.lines.lowerBound)–\(part.lines.upperBound))\n"
+                    }
+                }
+            } else {
+                out += list(points(section, in: minutes))
             }
         }
-        out += "\n## \(w.decisions)\n\n\(list(minutes.decisions))\n## \(w.actions)\n\n\(list(minutes.actions))"
         return out
     }
 }

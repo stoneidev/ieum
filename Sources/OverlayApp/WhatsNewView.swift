@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "situations", introduced: "0.9.0", art: .languages,
+            title: tr("Tell Ieum what you are doing", "무엇을 하는지 알려 주세요"),
+            body: tr("Pick Conversation, Meeting or Seminar in Settings or the ⋯ menu. A seminar is only listened to, so there is no both-sides mode; a conversation starts with both sides speaking; a meeting offers every sound source. The notes follow too: decisions and tasks for a meeting, key points and questions for a talk.",
+                     "설정이나 ⋯ 메뉴에서 대화, 회의, 세미나·강연을 고르세요. 세미나는 듣기만 하므로 '서로 번갈아 말함'이 없고, 대화는 서로 번갈아 말하는 상태로 시작하며, 회의는 모든 소리 입력을 쓸 수 있습니다. 정리도 달라집니다. 회의는 결정 사항과 할 일, 강연은 핵심 내용과 질문입니다.")
+        ),
+        WhatsNewPage(
             id: "meeting-view", introduced: "0.8.0", art: .menu,
             title: tr("A clearer meeting view", "회의 화면이 더 분명해졌습니다"),
             body: tr("Every line now says which language it is: the spoken sentence (EN) and its translation (KO) are labeled apart. In the transcript panel, the Conversation tab shows what is being said and the Minutes tab shows the summary of the meeting."

@@ -66,6 +66,18 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         toggle.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(toggle)
 
+        let situations = NSMenu()
+        situations.autoenablesItems = false
+        for scenario in Scenario.allCases {
+            let entry = action(scenario.title, #selector(chooseScenario(_:)))
+            entry.representedObject = scenario.rawValue
+            entry.state = scenario == model.scenario ? .on : .off
+            situations.addItem(entry)
+        }
+        let situationItem = NSMenuItem(title: tr("Situation: ", "상황: ") + model.scenario.title, action: nil, keyEquivalent: "")
+        situationItem.submenu = situations
+        menu.addItem(situationItem)
+
         let heard = NSMenu()
         heard.autoenablesItems = false
         for language in SpokenLanguage.allCases {
@@ -98,7 +110,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         both.state = model.setup.bothWays ? .on : .off
         both.isEnabled = model.setup.translates && MeetingSetup.bothWaysIsAvailableOnThisMac
         both.toolTip = MeetingSetup.bothWaysIsAvailableOnThisMac ? model.setup.explanation : tr("Needs macOS 26 or later.", "macOS 26 이상이 필요합니다.")
-        menu.addItem(both)
+        if model.scenario.allowsBothWays { menu.addItem(both) }
         let swap = action(tr("Swap languages", "언어 바꾸기"), #selector(swapDirection), key: "l")
         swap.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(swap)
@@ -123,7 +135,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         nameMeeting.isEnabled = model.canNameLastTranscript
         menu.addItem(nameMeeting)
         if model.offersMinutes {
-            let minutes = action(tr("Meeting minutes draft…", "회의록 초안…"), #selector(showMinutes))
+            let minutes = action(model.scenario.notesTitle + tr(" draft…", " 초안…"), #selector(showMinutes))
             minutes.isEnabled = model.canMakeMinutes
             menu.addItem(minutes)
         }
@@ -163,6 +175,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     /// The "captions only" entry carries no language, which stands for no translation.
     @objc private func chooseShown(_ sender: NSMenuItem) {
         model.setShown((sender.representedObject as? String).flatMap(SpokenLanguage.init(rawValue:)))
+    }
+
+    @objc private func chooseScenario(_ sender: NSMenuItem) {
+        if let raw = sender.representedObject as? String, let scenario = Scenario(rawValue: raw) { model.setScenario(scenario) }
     }
 
     @objc private func toggleBothWays() { model.setBothWays(!model.setup.bothWays) }

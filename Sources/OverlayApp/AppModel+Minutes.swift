@@ -16,6 +16,9 @@ extension AppModel {
         !isRunning && canNameLastTranscript && finalizedLines.filter { $0.session == sessionIndex }.count >= 2
     }
 
+    /// The sections of the notes on screen, in order.
+    var minutesTemplateSections: [MinutesTemplate.Section] { (minutesScenario ?? scenario).minutes.sections }
+
     var isWritingMinutes: Bool {
         if case .working = minutesState { true } else { false }
     }
@@ -34,6 +37,7 @@ extension AppModel {
         minutesRun += 1
         minutes = nil
         minutesWrittenIn = nil
+        minutesScenario = nil
         minutesFile = nil
         minutesEntries = []
         minutesState = .idle
@@ -56,6 +60,7 @@ extension AppModel {
         guard #available(macOS 26.0, *), canMakeMinutes, let url = scriptFile, case .ready = minutesStatus else { return }
         if isWritingMinutes { return }
         let language = minutesLanguage
+        let scenario = self.scenario
         minutesRun += 1
         let run = minutesRun
         minutesState = .working(done: 0, total: 1)
@@ -64,16 +69,17 @@ extension AppModel {
             do {
                 let script = ScriptParser.parse(try String(contentsOf: url, encoding: .utf8))
                 guard !script.entries.isEmpty else { throw MinutesFailure(message: tr("This transcript has no sentences.", "이 기록에는 문장이 없습니다.")) }
-                let result = try await MinutesGenerator.generate(entries: script.entries, language: language) { done, total in
+                let result = try await MinutesGenerator.generate(entries: script.entries, language: language, scenario: scenario) { done, total in
                     await MainActor.run { if self?.minutesRun == run, !Task.isCancelled { self?.minutesState = .working(done: done, total: total) } }
                 }
                 try Task.checkCancellation()
                 guard self?.minutesRun == run, !Task.isCancelled else { return }
-                let file = try TranscriptFiles.writeMinutes(result, entries: script.entries, transcript: url, language: language)
+                let file = try TranscriptFiles.writeMinutes(result, entries: script.entries, transcript: url, language: language, template: scenario.minutes)
                 self?.minutes = result
                 self?.minutesEntries = script.entries
                 self?.minutesFile = file
                 self?.minutesWrittenIn = language
+                self?.minutesScenario = scenario
                 self?.minutesState = .ready
             } catch is CancellationError {
                 return
@@ -93,7 +99,7 @@ extension AppModel {
     /// The minutes as Markdown, for the clipboard.
     var minutesMarkdown: String? {
         guard let minutes, let file = scriptFile else { return nil }
-        return MinutesMarkdown.render(minutes, entries: minutesEntries, title: file.deletingPathExtension().lastPathComponent, language: minutesWrittenIn ?? minutesLanguage)
+        return MinutesMarkdown.render(minutes, entries: minutesEntries, title: file.deletingPathExtension().lastPathComponent, language: minutesWrittenIn ?? minutesLanguage, template: (minutesScenario ?? scenario).minutes)
     }
 }
 

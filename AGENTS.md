@@ -31,7 +31,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
 | `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
 | `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
-| `Tests/CaptionCoreTests` | Swift Testing suites for the library (217 tests) |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (242 tests) |
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
@@ -41,7 +41,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `.claude/skills` | Runbooks: `ieum-release`, `ieum-verify-app`, `ieum-benchmark` (plain Markdown, usable by any agent). Other skills the owner installed locally (for example `ui-ux-pro-max`, used for the UI/site design work) are not committed |
 | `.omc` | Planning artifacts from earlier sessions (`prd.json`, interview spec). History only; `docs/PRD.md` is the current statement |
 
-Key types: `MeetingSetup` (the language the other side speaks, the language you read or none, and whether both sides speak; any two of `SpokenLanguage` en/ko/ja/zh work together; it replaced the five `MeetingMode`s and the language pairs), `InputDevices` (microphone list and the fallback when a saved device is unplugged), `BarControls` (text size, bar/panel, ⋯ menu on the subtitle bar), `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingSetup` (language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` (SpeechAnalyzer), `OnDeviceSpeechEngine` (SFSpeechRecognizer),
+Key types: `Scenario` (conversation / meeting / seminar: which sources and the both-sides mode are offered, defaults when chosen, and the notes `MinutesTemplate`; `AppModel.setScenario` applies them), `MeetingSetup` (the language the other side speaks, the language you read or none, and whether both sides speak; any two of `SpokenLanguage` en/ko/ja/zh work together; it replaced the five `MeetingMode`s and the language pairs), `InputDevices` (microphone list and the fallback when a saved device is unplugged), `BarControls` (text size, bar/panel, ⋯ menu on the subtitle bar), `AppModel` (the @MainActor state machine: start/stop, session task, translation wiring, bar/panel state), `MeetingSetup` (language rules), `EngineFactory` (picks the engine), `ModernSpeechEngine` (SpeechAnalyzer), `OnDeviceSpeechEngine` (SFSpeechRecognizer),
 `PreviewingEngine` (both together: early words), `ConversationEngine` + `LanguageArbiter` (auto-detect mode), `TranslationPipeline`
 (single-flight, ordered finals, latest-wins interims), `VocabularyCorrector`, `TranscriptCleaner`, `ScriptRecorder`, `MeetingMinutes` + `MinutesSource` + `MinutesMarkdown` (pure minutes logic: parts, validated line citations, Markdown) with `MinutesGenerator` in OverlayApp (Foundation Models, macOS 26); `AppModel+Minutes` owns the panel's minutes state (a `minutesRun` counter makes late results of a cancelled run harmless).
 
@@ -50,7 +50,7 @@ Key types: `MeetingSetup` (the language the other side speaks, the language you 
 ```sh
 make build                    # caption-cli (release, ad-hoc signed)
 make app                      # .build/app/Ieum.app (ad-hoc signed; runs on this Mac)
-make test                     # or: swift test   (217 tests; must stay green)
+make test                     # or: swift test   (242 tests; must stay green)
 Scripts/dev-run.sh [launch args]   # build, re-sign with $SIGN_IDENTITY, relaunch the app
 make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
 Scripts/deploy-site.sh        # site -> Cloudflare Pages
@@ -61,7 +61,7 @@ Release (signed + notarized, needs the owner's Developer ID and a `notarytool` k
 Build must stay warning-free; `make build` and `make app` print none today.
 
 Launch arguments override saved settings for one run: `-heardLanguage en|ko|ja|zh`, `-shownLanguage en|ko|ja|zh` (leave it out for captions only), `-bothWays YES|NO`,
-`-source microphone|system|call`, `-displayMode bar|panel`.
+`-source microphone|system|call`, `-displayMode bar|panel`, `-scenario conversation|meeting|seminar`.
 
 ## Verifying the app
 
@@ -129,8 +129,8 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 
 ## State at hand-off
 
-- Latest published release is **v0.8.0** (build 20), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.8.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models) → v0.7.1 the minutes item is shown only on Macs with Apple Intelligence → v0.8.0 meeting view: language labels on spoken/translated lines, Conversation | Minutes tabs in the panel, wrap-up prompt, minutes in the ⋯ and menu-bar menus.
-- Tests: 217 (`swift test`). Build is warning-free.
+- Latest published release is **v0.9.0** (build 21), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.9.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models) → v0.7.1 the minutes item is shown only on Macs with Apple Intelligence → v0.8.0 meeting view: language labels on spoken/translated lines, Conversation | Minutes tabs in the panel, wrap-up prompt, minutes in the ⋯ and menu-bar menus → v0.9.0 situations (conversation / meeting / seminar) and normalized notes.
+- Tests: 242 (`swift test`). Build is warning-free.
 - Site download counter is the sum of GitHub `download_count` over all releases, shown from 25 up. It includes the maintainer's own verification downloads and auto-updates, so it is not a user count.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: other language pairs (biggest reach), early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test (including an external microphone: only the device switch was verified, not recognition from it), an English user guide.

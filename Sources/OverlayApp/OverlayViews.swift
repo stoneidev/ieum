@@ -282,6 +282,15 @@ struct OverlayMenuButton: NSViewRepresentable {
             menu.autoenablesItems = false
             menu.addItem(ActionItem(model.isRunning ? tr("Stop captions", "자막 중지") : tr("Start captions", "자막 시작")) { model.toggleRunning() })
 
+            let situations = NSMenu()
+            situations.autoenablesItems = false
+            for scenario in Scenario.allCases {
+                situations.addItem(ActionItem(scenario.title, checked: scenario == model.scenario) { model.setScenario(scenario) })
+            }
+            let situationItem = NSMenuItem(title: tr("Situation: ", "상황: ") + model.scenario.title, action: nil, keyEquivalent: "")
+            situationItem.submenu = situations
+            menu.addItem(situationItem)
+
             let heard = NSMenu()
             heard.autoenablesItems = false
             for language in SpokenLanguage.allCases {
@@ -302,8 +311,10 @@ struct OverlayMenuButton: NSViewRepresentable {
             shownItem.submenu = shown
             menu.addItem(shownItem)
 
-            menu.addItem(ActionItem(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), checked: model.setup.bothWays,
-                                    enabled: model.setup.translates && MeetingSetup.bothWaysIsAvailableOnThisMac) { model.setBothWays(!model.setup.bothWays) })
+            if model.scenario.allowsBothWays {
+                menu.addItem(ActionItem(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), checked: model.setup.bothWays,
+                                        enabled: model.setup.translates && MeetingSetup.bothWaysIsAvailableOnThisMac) { model.setBothWays(!model.setup.bothWays) })
+            }
             menu.addItem(ActionItem(tr("Swap languages", "언어 바꾸기")) { model.swapDirection() })
 
             let sizes = NSMenu()
@@ -323,7 +334,7 @@ struct OverlayMenuButton: NSViewRepresentable {
             menu.addItem(.separator())
             menu.addItem(ActionItem(tr("Name this meeting…", "이 회의에 이름 붙이기…"), enabled: model.canNameLastTranscript) { model.renameLastTranscript() })
             if model.offersMinutes {
-                menu.addItem(ActionItem(tr("Meeting minutes draft…", "회의록 초안…"), enabled: model.canMakeMinutes) { model.showMinutes(start: true) })
+                menu.addItem(ActionItem(model.scenario.notesTitle + tr(" draft…", " 초안…"), enabled: model.canMakeMinutes) { model.showMinutes(start: true) })
             }
             menu.addItem(ActionItem(tr("Settings…", "설정…")) { model.openSettings() })
             menu.addItem(ActionItem(tr("Check for updates…", "업데이트 확인…")) { model.checkForUpdates() })
@@ -641,7 +652,7 @@ struct TranscriptPanelView: View {
     private var tabs: some View {
         HStack(spacing: 6) {
             tab(tr("Conversation", "대화"), .conversation)
-            tab(tr("Minutes", "회의록"), .minutes)
+            tab(model.scenario.notesTitle, .minutes)
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 14)
@@ -671,8 +682,8 @@ struct TranscriptPanelView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "doc.text")
                     Text(model.minutesState == .ready
-                         ? tr("The minutes draft is ready", "회의록 초안이 준비되었습니다")
-                         : tr("The meeting ended. Write the minutes", "회의가 끝났습니다. 회의록 초안 만들기"))
+                         ? model.scenario.notesTitle + tr(" is ready", " 초안이 준비되었습니다")
+                         : model.scenario.endedPrompt)
                     Spacer(minLength: 4)
                     Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold))
                 }
@@ -690,7 +701,7 @@ struct TranscriptPanelView: View {
         HStack(spacing: 10) {
             StatusDot(status: model.status, idleColor: palette.interim)
             // The controls on the right keep their size; the names give way (and are cut with an ellipsis) in a narrow panel.
-            Text(model.activeSetup.title)
+            Text(model.scenario.title + " · " + model.activeSetup.title)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(palette.ink)
                 .lineLimit(1)

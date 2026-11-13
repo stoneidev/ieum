@@ -33,8 +33,11 @@ final class AppModel: ObservableObject {
     var minutesRun = 0
     /// The language the minutes on screen were written in.
     var minutesWrittenIn: SpokenLanguage?
+    /// The situation the minutes on screen were written for (it decides their sections).
+    var minutesScenario: Scenario?
 
     // MARK: Meeting
+    @Published private(set) var scenario = Preferences.scenarioFixingMigration()
     @Published private(set) var setup = Preferences.meetingSetup
     @Published private(set) var englishVariant = Preferences.englishVariant
     @Published private(set) var source = Preferences.source
@@ -294,6 +297,24 @@ final class AppModel: ObservableObject {
         englishVariant = language
         Preferences.englishVariant = language
         if setup.recognizesEnglish { restartIfRunning() }
+    }
+
+    /// Chooses what is being done. The situation fixes which choices exist (a seminar has no both-sides mode), starts from
+    /// its own defaults, and decides the shape of the notes.
+    func setScenario(_ new: Scenario) {
+        guard new != scenario else { return }
+        let sourceBefore = source, setupBefore = activeSetup
+        scenario = new
+        Preferences.scenario = new
+        if !new.allowedSources.contains(source) {
+            source = new.defaultSource
+            Preferences.source = source
+        }
+        setup = new.defaultSetup(from: setup, bothWaysAvailable: MeetingSetup.bothWaysIsAvailableOnThisMac)
+        Preferences.meetingSetup = setup
+        updateSecondaryRow()
+        // Only a change the recognizers feel (another source, another set of languages) restarts the captions.
+        if source != sourceBefore || !activeSetup.runsLike(setupBefore) { restartIfRunning() }
     }
 
     func setSource(_ new: Source) {
