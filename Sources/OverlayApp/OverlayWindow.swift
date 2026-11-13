@@ -173,7 +173,7 @@ final class OverlayWindowController {
             let width = min(area.width * 0.62, 1100)
             return NSRect(x: area.midX - width / 2, y: area.minY + 56, width: width, height: BarMetrics.height(lines: model.barLines, size: model.textSize.points, secondaryRow: model.showsSecondaryRow))
         case .panel:
-            let size = NSSize(width: 440, height: min(600, area.height * 0.7))
+            let size = NSSize(width: 480, height: min(600, area.height * 0.7))
             return NSRect(x: area.maxX - size.width - 24, y: area.midY - size.height / 2, width: size.width, height: size.height)
         }
     }

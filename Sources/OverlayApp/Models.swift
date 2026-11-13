@@ -277,3 +277,33 @@ extension Scenario {
         }
     }
 }
+
+extension Scenario {
+    /// One short line for a menu or a choice tile.
+    @MainActor var hint: String {
+        switch self {
+        case .conversation: tr("Two people in the same room", "같은 공간의 두 사람")
+        case .meeting: tr("Several people, often on a video call", "여러 사람, 주로 화상회의")
+        case .seminar: tr("A talk you only listen to", "듣기만 하는 강연")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .conversation: "bubble.left.and.bubble.right"
+        case .meeting: "person.3"
+        case .seminar: "graduationcap"
+        }
+    }
+}
+
+extension Scenario {
+    /// The name on the small pill: shorter than the full title so the languages next to it keep their room.
+    @MainActor var chipTitle: String {
+        switch self {
+        case .conversation: tr("Conversation", "대화")
+        case .meeting: tr("Meeting", "회의")
+        case .seminar: tr("Seminar", "세미나")
+        }
+    }
+}

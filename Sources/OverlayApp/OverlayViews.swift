@@ -447,9 +447,11 @@ struct SubtitleBarView: View {
         let size = model.textSize.points
         let fontSize = max(15, (size * 0.6).rounded())
         // When the coffee ask is up and the bar is narrow, it shrinks to the ☕ button so the controls on the right stay reachable.
+        // The situation chip and the words give way, in this order, as the bar gets narrower; the controls on the right never do.
         return ViewThatFits(in: .horizontal) {
-            idleRow(fontSize: fontSize, ask: .full)
-            idleRow(fontSize: fontSize, ask: .compact)
+            idleRow(fontSize: fontSize, ask: .full, chip: true)
+            idleRow(fontSize: fontSize, ask: .compact, chip: true)
+            idleRow(fontSize: fontSize, ask: .compact, chip: false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .padding(.horizontal, BarMetrics.horizontalPadding)
@@ -458,9 +460,10 @@ struct SubtitleBarView: View {
 
     private enum AskLayout { case full, compact }
 
-    private func idleRow(fontSize: CGFloat, ask: AskLayout) -> some View {
+    private func idleRow(fontSize: CGFloat, ask: AskLayout, chip: Bool) -> some View {
         HStack(spacing: 14) {
             StatusDot(status: .idle, idleColor: palette.interim)
+            if chip { SituationChip(model: model, palette: palette, fontSize: max(12, fontSize - 4)) }
             if model.coffeeThanks {
                 Text("☕ " + tr("Thank you!", "고마워요!"))
                     .font(.system(size: fontSize, weight: .medium))
@@ -484,10 +487,12 @@ struct SubtitleBarView: View {
                 .buttonStyle(.plain)
                 .help(tr("Not now", "나중에"))
                 .accessibilityLabel(tr("Not now", "나중에"))
-            } else {
+            } else if ask == .full {
                 Text(tr("Captions are off", "자막이 꺼져 있습니다"))
                     .font(.system(size: fontSize, weight: .medium))
                     .foregroundStyle(palette.interim)
+                    .lineLimit(1)
+                    .fixedSize()
             }
             Spacer(minLength: 12)
             StartCaptionsButton(model: model, fontSize: fontSize)
@@ -647,10 +652,18 @@ struct TranscriptPanelView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
                         if model.finalizedLines.isEmpty && model.partial.isEmpty {
-                            Text(emptyMessage)
-                                .font(.system(size: bodySize - 2))
-                                .foregroundStyle(palette.interim)
-                                .padding(.top, 6)
+                            if model.isRunning {
+                                Text(emptyMessage)
+                                    .font(.system(size: bodySize - 2))
+                                    .foregroundStyle(palette.interim)
+                                    .padding(.top, 6)
+                            } else {
+                                SituationPicker(model: model, palette: palette)
+                                    .padding(.top, 4)
+                                Text(emptyMessage)
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(palette.interim)
+                            }
                         }
                         ForEach(model.finalizedLines) { line in
                             // A line keeps its translation after captions stop; only lines that never got one show the original.
@@ -689,7 +702,7 @@ struct TranscriptPanelView: View {
     private var tabs: some View {
         HStack(spacing: 6) {
             tab(tr("Conversation", "대화"), .conversation)
-            tab(model.scenario.notesTitle, .minutes)
+            tab((model.minutesScenario ?? model.scenario).notesTitle, .minutes)
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 14)
@@ -719,7 +732,7 @@ struct TranscriptPanelView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "doc.text")
                     Text(model.minutesState == .ready
-                         ? model.scenario.notesTitle + tr(" is ready", " 초안이 준비되었습니다")
+                         ? (model.minutesScenario ?? model.scenario).notesTitle + tr(" is ready", " 초안이 준비되었습니다")
                          : model.scenario.endedPrompt)
                     Spacer(minLength: 4)
                     Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold))
@@ -734,22 +747,27 @@ struct TranscriptPanelView: View {
         }
     }
 
+    /// The controls on the right keep their size; in a narrow panel the languages give way first, then the situation pill.
     private var header: some View {
-        HStack(spacing: 10) {
+        ViewThatFits(in: .horizontal) {
+            headerRow(chip: true, languages: true)
+            headerRow(chip: true, languages: false)
+            headerRow(chip: false, languages: false)
+        }
+    }
+
+    private func headerRow(chip: Bool, languages: Bool) -> some View {
+        HStack(spacing: 8) {
             StatusDot(status: model.status, idleColor: palette.interim)
-            // The controls on the right keep their size; the names give way (and are cut with an ellipsis) in a narrow panel.
-            Text(model.scenario.title + " · " + model.activeSetup.title)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(palette.ink)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .layoutPriority(-1)
-                .help(model.activeSetup.explanation)
-            Image(systemName: model.source == .microphone ? "mic.fill" : "speaker.wave.2.fill")
-                .font(.system(size: 12))
-                .foregroundStyle(palette.interim)
-                .help(model.source.title)
-                .accessibilityLabel(model.source.title)
+            if chip { SituationChip(model: model, palette: palette) }
+            if languages {
+                Text(model.activeSetup.title)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(palette.ink)
+                    .lineLimit(1)
+                    .fixedSize()
+                    .help(model.activeSetup.explanation + "\n" + model.source.title)
+            }
             Spacer(minLength: 8)
             if model.status == .idle {
                 StartCaptionsButton(model: model, fontSize: 13)
