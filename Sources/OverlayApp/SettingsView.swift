@@ -249,7 +249,24 @@ private struct DisplayTab: View {
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
+            Section(tr("Screen sharing", "화면 공유")) {
+                Toggle(tr("Hide the captions from screen sharing and recording", "화면 공유와 녹화에서 자막 숨기기"),
+                       isOn: Binding(get: { model.hidesFromSharing }, set: model.setHidesFromSharing))
+                Text(model.hidesFromSharing
+                     ? tr("When you share your whole screen in Zoom, Meet or Teams, the people on the other side do not see the captions or Ieum's own windows (they do not appear in your screenshots and recordings either). Checked with ScreenCaptureKit on macOS 26 only; sharing a single window and system dialogs are not covered, so try a test call first.",
+                          "Zoom, Meet, Teams에서 화면 전체를 공유해도 상대방에게는 자막과 이음의 다른 창이 보이지 않습니다(내 스크린샷과 녹화에도 찍히지 않습니다). macOS 26의 ScreenCaptureKit으로만 확인했고, 창 하나만 공유하거나 시스템 대화상자는 해당 없으니 먼저 테스트 통화로 확인하세요.")
+                     : tr("The captions can show up in what you share and record.", "공유하거나 녹화하는 화면에 자막이 찍힐 수 있습니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(model.hidesFromSharing ? Color.secondary : Color.orange)
+            }
             Section(tr("Stay out of the way", "회의를 가리지 않게")) {
+                Picker(tr("When the pointer comes near the subtitle bar", "포인터가 자막 바에 다가오면"), selection: Binding(get: { model.pointerAvoidance }, set: model.setPointerAvoidance)) {
+                    ForEach(PointerAvoidance.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                Text(tr("Applies to the subtitle bar while captions run. Over the buttons at its right end the bar stays solid.",
+                        "자막이 나오는 동안 자막 바에 적용됩니다. 오른쪽 끝 버튼 위에서는 바가 그대로 있습니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
                 Toggle(tr("Keep captions on top of other windows", "자막을 다른 창 위에 항상 표시"), isOn: Binding(get: { model.keepsOnTop }, set: model.setKeepsOnTop))
                 if !model.keepsOnTop {
                     Text(tr("Other windows can cover the captions, like any window. Press ⌃⌥H to bring them back to the front.",

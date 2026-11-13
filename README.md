@@ -8,16 +8,18 @@
 
 Read what the other side says in your language, while they read what you say in theirs.
 
+> 🫥 **Invisible when you share your screen.** The captions are hidden from screen sharing and recording by default, so the people on the other side of a Zoom, Meet or Teams call do not see your translation bar, nor Ieum's settings and other windows. Checked with ScreenCaptureKit on macOS 26 only (not on macOS 14 or 15, and not inside every app; a single shared window and system dialogs are not covered, so try a test call first; you can turn it off in Settings). And when your pointer comes near the bar, it turns see-through and lets your clicks pass to the window behind, or steps to the other edge of the screen.
+
 ![Ieum demo: Japanese speech becomes Korean subtitles on the Mac, offline](docs/images/demo.gif)
 
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-lightgrey?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
 ![Build](https://img.shields.io/badge/build-Swift%20Package%20Manager-blue)
-![Tests](https://img.shields.io/badge/tests-251%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-259%20passing-brightgreen)
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.11.0-orange)
+![Version](https://img.shields.io/badge/version-0.12.0-orange)
 
 [Features](#features) · [Install](#install) · [Usage](#usage) · [Documentation](#documentation) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
 
@@ -44,6 +46,8 @@ The other side talks and you read your language. You answer in yours and they re
 | **Languages** | English, Korean, Japanese and Chinese (Simplified). Pick the language you hear and the language you read, any two of them (or none, for captions only). Turn on *Both sides speak* and Ieum detects the language of each sentence and translates it into the other. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. |
 | **Words as they are spoken** | (English and Korean) The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can stay above every window or behave like an ordinary one, and it can be click-through. |
+| **Screen-share safe** | Hidden from screen sharing and recording by default (`sharingType = .none`), checked with ScreenCaptureKit on macOS 26: `Scripts/check-share-safe.swift` repeats the check on your Mac. Sharing a single window is not affected. Settings → Display → Screen sharing turns it off. |
+| **Steps aside** | When the pointer comes near the bar while captions run, it turns see-through and lets clicks pass to the window behind (default), or moves to the opposite edge of the screen. The buttons at its right end stay solid. Settings → Display. |
 | **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. The spoken sentence and its translation each carry a language label (EN, KO), and two tabs separate the **Conversation** from the **Minutes**. |
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. |
 | **Saved scripts** | One file per meeting: `[HH:mm:ss] text` with `→ translation` lines, and `[EN]`/`[KO]` tags when both sides speak. The time on each line is when the sentence was **spoken**. Listed in Settings → Transcripts. |
@@ -236,7 +240,7 @@ The only network request Ieum makes is the optional update check: once a day it 
 
 ## Status
 
-Version 0.11.0. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
+Version 0.12.0. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
 
 ## License
 

@@ -1,4 +1,5 @@
 import AppKit
+import CaptionCore
 import Combine
 import SwiftUI
 
@@ -17,6 +18,22 @@ final class OverlayWindowController {
     private var cancellables: Set<AnyCancellable> = []
     private var observers: [NSObjectProtocol] = []
     private var applyingFrame = false
+
+    // Pointer avoidance (see `PointerAvoidance`): the bar steps aside when the pointer comes near.
+    private var proximityTimer: Timer?
+    private let zone = PointerZone()
+    private var pointerNear = false
+    /// See-through and letting clicks pass, because the pointer is over the words.
+    private var faded = false
+    private var lastNear = Date.distantPast
+    /// Moved to the opposite edge; `homeFrame` is where it goes back to.
+    private var dodged = false
+    private var homeFrame: NSRect?
+    private var lastDodge = Date.distantPast
+    private var dodging = false
+    /// A frame the app itself set (not the person dragging), so the move notification for it is not mistaken for a drag.
+    private var programmaticFrame: NSRect?
+    private static let fadedAlpha: CGFloat = 0.18
 
     init(model: AppModel) {
         self.model = model
@@ -71,6 +88,21 @@ final class OverlayWindowController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.applyPresence() }
             .store(in: &cancellables)
+        // Hidden from screen sharing and recording unless the person turns that off.
+        model.$hidesFromSharing
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.applySharing() }
+            .store(in: &cancellables)
+        applySharing()
+        proximityTimer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.watchPointer() }
+        }
+        RunLoop.main.add(proximityTimer!, forMode: .common)
+        model.$pointerAvoidance
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.releaseAvoidance() }
+            .store(in: &cancellables)
         model.$overlayVisible
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.applyPresence() }
@@ -93,7 +125,7 @@ final class OverlayWindowController {
     /// Visible or hidden; and whether clicks pass through to the window underneath.
     private func applyPresence() {
         // The Start button on the idle bar must stay clickable, even with click-through on.
-        panel.ignoresMouseEvents = model.clickThrough && model.status != .idle
+        panel.ignoresMouseEvents = (model.clickThrough && model.status != .idle) || faded
         guard model.overlayVisible else {
             panel.orderOut(nil)
             return
@@ -102,7 +134,12 @@ final class OverlayWindowController {
         // On top, the captions are always raised. As an ordinary window they are only raised when they were not showing,
         // so a status change never pulls them over what the person is working in.
         if model.keepsOnTop || !panel.isVisible { panel.orderFrontRegardless() }
-        panel.alphaValue = 1
+        panel.alphaValue = faded ? Self.fadedAlpha : 1
+    }
+
+    /// `.none` keeps the window out of what ScreenCaptureKit (Zoom, Meet, Teams, QuickTime) captures. Checked on macOS 26.
+    private func applySharing() {
+        panel.sharingType = model.hidesFromSharing ? .none : .readOnly
     }
 
     func bringToFront() { panel.orderFrontRegardless() }
@@ -129,9 +166,103 @@ final class OverlayWindowController {
         return false
     }
 
+    // MARK: Pointer avoidance
+
+    private var avoidanceApplies: Bool {
+        model.overlayVisible && model.displayMode == .bar && model.isRunning && !model.clickThrough && model.pointerAvoidance != .off
+    }
+
+    private func watchPointer() {
+        guard avoidanceApplies else {
+            if faded || dodged { releaseAvoidance() }
+            pointerNear = false
+            return
+        }
+        // While a menu is open or a mouse button is down (the person is dragging the bar, or using it), leave everything as it is.
+        if RunLoop.main.currentMode == .eventTracking { return }
+        if !faded, NSEvent.pressedMouseButtons != 0 { return }
+        let near = zone.isNear(pointer: NSEvent.mouseLocation, bar: panel.frame, wasNear: pointerNear)
+        if near { lastNear = Date() }
+        pointerNear = near
+        switch model.pointerAvoidance {
+        case .fade:
+            if near, !faded {
+                faded = true
+                panel.ignoresMouseEvents = true
+                animateAlpha(Self.fadedAlpha)
+            } else if !near, faded, Date().timeIntervalSince(lastNear) > 0.35 {
+                unfade()
+            }
+        case .dodge:
+            if near, Date().timeIntervalSince(lastDodge) > 0.8 { dodge() }
+        case .off:
+            break
+        }
+    }
+
+    private func animateAlpha(_ value: CGFloat) {
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.12
+            panel.animator().alphaValue = value
+        }
+    }
+
+    private func unfade() {
+        faded = false
+        panel.ignoresMouseEvents = model.clickThrough && model.status != .idle
+        animateAlpha(1)
+    }
+
+    /// To the opposite edge of the screen, or back where it came from.
+    private func dodge() {
+        lastDodge = Date()
+        let target: NSRect
+        if dodged, homeFrame != nil {
+            releaseAvoidance()
+            return
+        } else {
+            guard let visible = (panel.screen ?? NSScreen.main)?.visibleFrame else { return }
+            homeFrame = panel.frame
+            target = PointerZone.opposite(of: panel.frame, in: visible)
+            dodged = true
+        }
+        move(to: target)
+    }
+
+    private func move(to frame: NSRect) {
+        dodging = true
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.22
+            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            panel.animator().setFrame(frame, display: true)
+        }, completionHandler: { [weak self] in
+            MainActor.assumeIsolated { self?.dodging = false }
+        })
+    }
+
+    /// Captions stopped, the bar became a panel, or the setting was turned off: everything goes back to normal.
+    private func releaseAvoidance() {
+        if faded { unfade() }
+        if dodged, let home = homeFrame {
+            dodged = false
+            homeFrame = nil
+            // Not a bar any more (it became the panel): nothing to go back to, and the panel places itself.
+            guard model.displayMode == .bar else { return }
+            // The screen it came from may be gone: then it goes where a new bar would.
+            let onAScreen = NSScreen.screens.contains { !$0.visibleFrame.intersection(home).isNull && $0.visibleFrame.intersection(home).width >= 80 }
+            move(to: onAScreen ? home : defaultFrame(for: .bar))
+        }
+    }
+
     // MARK: Placement
 
     private func applyMode(_ mode: DisplayMode) {
+        // The bar's sidestep belongs to the bar: leaving it forgets it, and the window is solid again.
+        faded = false
+        dodged = false
+        homeFrame = nil
+        panel.alphaValue = 1
+        panel.ignoresMouseEvents = model.clickThrough && model.status != .idle
         applyingFrame = true
         defer { applyingFrame = false }
         panel.allowsKey = mode == .panel
@@ -162,7 +293,12 @@ final class OverlayWindowController {
         panel.minSize = NSSize(width: 420, height: height)
         panel.maxSize = NSSize(width: 4000, height: height)
         var frame = panel.frame
+        let oldHeight = frame.height
         frame.size.height = height
+        // A bar dodged to the top edge grows downward, so it stays on the screen.
+        if dodged, let visible = (panel.screen ?? NSScreen.main)?.visibleFrame, frame.midY > visible.midY { frame.origin.y -= height - oldHeight }
+        homeFrame?.size.height = height
+        if dodged { programmaticFrame = frame }
         panel.setFrame(frame, display: true, animate: false)
     }
 
@@ -181,7 +317,12 @@ final class OverlayWindowController {
     private func key(for mode: DisplayMode) -> String { "overlayFrame.\(mode.rawValue)" }
 
     private func saveFrame() {
-        guard !applyingFrame else { return }
+        guard !applyingFrame, !dodging else { return }
+        if let expected = programmaticFrame, abs(expected.minX - panel.frame.minX) < 1, abs(expected.minY - panel.frame.minY) < 1,
+           abs(expected.width - panel.frame.width) < 1, abs(expected.height - panel.frame.height) < 1 { return }
+        programmaticFrame = nil
+        // The person dragged the bar: where it is now is home.
+        if dodged { dodged = false; homeFrame = nil }
         UserDefaults.standard.set(NSStringFromRect(panel.frame), forKey: key(for: model.displayMode))
     }
 

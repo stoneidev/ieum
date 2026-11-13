@@ -20,6 +20,7 @@ final class AuxiliaryWindow {
             window.contentView = makeContent()
             window.styleMask = [.titled, .closable, .miniaturizable]
             window.isReleasedWhenClosed = false
+            ScreenShare.protect(window)
             window.center()
             self.window = window
         }

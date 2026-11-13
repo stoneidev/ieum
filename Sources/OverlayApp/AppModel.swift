@@ -74,6 +74,8 @@ final class AppModel: ObservableObject {
     var overlayIsCovered: () -> Bool = { false }
     var openSetup: () -> Void = {}
     @Published private(set) var clickThrough = Preferences.clickThrough
+    @Published private(set) var hidesFromSharing = Preferences.hidesFromSharing
+    @Published private(set) var pointerAvoidance = Preferences.pointerAvoidance
     @Published private(set) var keepsOnTop = Preferences.keepsOnTop
     @Published private(set) var globalShortcuts = Preferences.globalShortcuts
     @Published private(set) var uiLanguage = Preferences.uiLanguage
@@ -419,6 +421,17 @@ final class AppModel: ObservableObject {
     func setShowsWordsSooner(_ on: Bool) {
         showsWordsSooner = on
         Preferences.showsWordsSooner = on
+    }
+
+    func setHidesFromSharing(_ on: Bool) {
+        hidesFromSharing = on
+        Preferences.hidesFromSharing = on
+        ScreenShare.refreshAll()
+    }
+
+    func setPointerAvoidance(_ new: PointerAvoidance) {
+        pointerAvoidance = new
+        Preferences.pointerAvoidance = new
     }
 
     func setClickThrough(_ on: Bool) {

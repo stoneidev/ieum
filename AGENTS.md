@@ -31,7 +31,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
 | `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
 | `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
-| `Tests/CaptionCoreTests` | Swift Testing suites for the library (251 tests) |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (259 tests) |
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
@@ -50,7 +50,7 @@ Key types: `SupportState` + `AppModel+Support` (the one friendly coffee ask: cou
 ```sh
 make build                    # caption-cli (release, ad-hoc signed)
 make app                      # .build/app/Ieum.app (ad-hoc signed; runs on this Mac)
-make test                     # or: swift test   (251 tests; must stay green)
+make test                     # or: swift test   (259 tests; must stay green)
 Scripts/dev-run.sh [launch args]   # build, re-sign with $SIGN_IDENTITY, relaunch the app
 make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
 Scripts/deploy-site.sh        # site -> Cloudflare Pages
@@ -61,9 +61,11 @@ Release (signed + notarized, needs the owner's Developer ID and a `notarytool` k
 Build must stay warning-free; `make build` and `make app` print none today.
 
 Launch arguments override saved settings for one run: `-heardLanguage en|ko|ja|zh`, `-shownLanguage en|ko|ja|zh` (leave it out for captions only), `-bothWays YES|NO`,
-`-source microphone|system|call`, `-displayMode bar|panel`, `-scenario conversation|meeting|seminar`.
+`-source microphone|system|call`, `-displayMode bar|panel`, `-scenario conversation|meeting|seminar`, `-hidesFromSharing YES|NO`, `-pointerAvoidance fade|dodge|off`.
 
 ## Verifying the app
+
+**The overlay is hidden from screen capture by default** (`sharingType = .none`), so `screencapture -l <id>` fails with "could not create image from window". Launch the app for verification with `-hidesFromSharing NO`. The check that it really is hidden from ScreenCaptureKit is `Scripts/check-share-safe.swift`. Pointer avoidance (fade/dodge) is easiest to verify by moving the cursor with `CGWarpMouseCursorPosition` and reading `kCGWindowAlpha` / the window bounds from `CGWindowListCopyWindowInfo`, since a window capture does not show the window's alpha.
 
 Read `.claude/skills/ieum-verify-app/SKILL.md`. In short: re-sign the build with Developer ID so the microphone/speech grants survive,
 find the window id with `Scripts/window-info.swift`, capture **only that window** (`screencapture -x -o -l <id>`), drive buttons with
@@ -72,6 +74,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 
 ## Rules that came from mistakes
 
+- **Screen-share safe is a promise with a verified scope.** `sharingType = .none` was checked with ScreenCaptureKit on macOS 26.6 only (display capture, one pixel read). Do not word it as absolute ("never"), keep the scope in the README, site and settings text, and re-run `Scripts/check-share-safe.swift` when macOS changes. Sharing a single window is not covered.
 - **Pause finalization.** Asking the recognizer to finalize at a pause (`pauseFinalization`) damages the first words of the next English sentence
   (word error rate 7 % → 15–20 %), so English single-language modes switch it off. Korean and the auto-detect mode need it. Evidence in `docs/BENCHMARKS.md`.
   Do not re-enable it for English without re-running the gap benchmark.
@@ -129,8 +132,8 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 
 ## State at hand-off
 
-- Latest published release is **v0.11.0** (build 23), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.11.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models) → v0.7.1 the minutes item is shown only on Macs with Apple Intelligence → v0.8.0 meeting view: language labels on spoken/translated lines, Conversation | Minutes tabs in the panel, wrap-up prompt, minutes in the ⋯ and menu-bar menus → v0.9.0 situations (conversation / meeting / seminar) and normalized notes → v0.10.0 the coffee ask → v0.11.0 the situation is chosen on the panel and the idle bar (`SituationChip`, `SituationPicker`), not only in Settings.
-- Tests: 251 (`swift test`). Build is warning-free.
+- Latest published release is **v0.12.0** (build 24), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.12.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models) → v0.7.1 the minutes item is shown only on Macs with Apple Intelligence → v0.8.0 meeting view: language labels on spoken/translated lines, Conversation | Minutes tabs in the panel, wrap-up prompt, minutes in the ⋯ and menu-bar menus → v0.9.0 situations (conversation / meeting / seminar) and normalized notes → v0.10.0 the coffee ask → v0.11.0 the situation is chosen on the panel and the idle bar (`SituationChip`, `SituationPicker`), not only in Settings.
+- Tests: 259 (`swift test`). Build is warning-free.
 - Site download counter is the sum of GitHub `download_count` over all releases, shown from 25 up. It includes the maintainer's own verification downloads and auto-updates, so it is not a user count.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: other language pairs (biggest reach), early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test (including an external microphone: only the device switch was verified, not recognition from it), an English user guide.

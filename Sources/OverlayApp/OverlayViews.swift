@@ -328,6 +328,7 @@ struct OverlayMenuButton: NSViewRepresentable {
 
             menu.addItem(ActionItem(model.displayMode == .bar ? tr("Show transcript panel", "기록 패널로 전환") : tr("Show subtitle bar", "자막 바로 전환")) { model.cycleDisplayMode() })
             menu.addItem(ActionItem(tr("Keep on top of other windows", "다른 창 위에 항상 표시"), checked: model.keepsOnTop) { model.setKeepsOnTop(!model.keepsOnTop) })
+            menu.addItem(ActionItem(tr("Hide from screen sharing", "화면 공유에서 숨기기"), checked: model.hidesFromSharing) { model.setHidesFromSharing(!model.hidesFromSharing) })
             if !model.keepsOnTop {
                 menu.addItem(ActionItem(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() })
             }

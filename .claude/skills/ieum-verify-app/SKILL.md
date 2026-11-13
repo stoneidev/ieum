@@ -11,8 +11,9 @@ Why not just run tests: layout, permissions, audio timing and the two recognizer
 
 ```sh
 export SIGN_IDENTITY="Developer ID Application: <name> (<team id>)"
-Scripts/dev-run.sh -heardLanguage en -shownLanguage ko -source microphone -displayMode panel
+Scripts/dev-run.sh -heardLanguage en -shownLanguage ko -source microphone -displayMode panel -hidesFromSharing NO
 ```
+Add `-hidesFromSharing NO`: the overlay is hidden from screen capture by default (that is the screen-share safety), so `screencapture -l` cannot take its picture otherwise.
 `dev-run.sh` runs `make app`, re-signs with the Developer ID identity (so the microphone, speech and screen grants stay valid; an ad-hoc build asks again and
 `Starting…` hangs behind a permission dialog) and opens a fresh instance with launch arguments that override saved settings for this run.
 Keep the display awake: `caffeinate -u -t 900 &`.

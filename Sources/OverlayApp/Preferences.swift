@@ -154,6 +154,15 @@ enum Preferences {
         set { defaults.set(newValue, forKey: "keepsOnTop") }
     }
 
+    /// Keeps the captions out of what screen sharing and screen recording send to other people.
+    static var hidesFromSharing: Bool {
+        get { flag("hidesFromSharing", default: true) }
+        set { defaults.set(newValue, forKey: "hidesFromSharing") }
+    }
+    static var pointerAvoidance: PointerAvoidance {
+        get { value("pointerAvoidance", default: PointerAvoidance.fade) }
+        set { defaults.set(newValue.rawValue, forKey: "pointerAvoidance") }
+    }
     static var clickThrough: Bool {
         get { flag("clickThrough", default: false) }
         set { defaults.set(newValue, forKey: "clickThrough") }

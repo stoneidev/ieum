@@ -19,6 +19,7 @@ final class UpdateWindow {
                 defer: false
             )
             window.title = tr("Ieum update", "Ieum 업데이트")
+            ScreenShare.protect(window)
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
             window.isMovableByWindowBackground = true

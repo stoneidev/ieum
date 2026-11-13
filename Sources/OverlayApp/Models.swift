@@ -307,3 +307,13 @@ extension Scenario {
         }
     }
 }
+
+extension PointerAvoidance {
+    @MainActor var title: String {
+        switch self {
+        case .fade: tr("Turn see-through and let clicks pass", "반투명해지고 클릭을 통과시킴")
+        case .dodge: tr("Move to the opposite edge of the screen", "화면 반대편 가장자리로 비켜남")
+        case .off: tr("Do nothing", "아무것도 하지 않음")
+        }
+    }
+}

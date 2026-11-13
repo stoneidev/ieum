@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "share-safe", introduced: "0.12.0", art: .onTop,
+            title: tr("Invisible when you share your screen", "화면 공유 중에도 상대방에게 보이지 않습니다"),
+            body: tr("The captions are now hidden from screen sharing and recording by default, so people on a Zoom, Meet or Teams call do not see them when you share your whole screen. And when your pointer comes near the bar, it turns see-through and lets clicks pass, or steps to the other edge of the screen. Both are in Settings > Display.",
+                     "이제 자막은 기본적으로 화면 공유와 녹화에서 숨겨집니다. Zoom, Meet, Teams에서 화면 전체를 공유해도 상대방에게는 자막이 보이지 않습니다. 또 포인터가 자막 바에 다가가면 바가 반투명해지며 클릭을 통과시키거나 화면 반대편으로 비켜납니다. 둘 다 설정 > 화면에 있습니다.")
+        ),
+        WhatsNewPage(
             id: "situations", introduced: "0.9.0", art: .languages,
             title: tr("Tell Ieum what you are doing", "무엇을 하는지 알려 주세요"),
             body: tr("Pick Conversation, Meeting or Seminar right on the transcript panel or the subtitle bar before you start. A seminar is only listened to, so there is no both-sides mode; a conversation starts with both sides speaking; a meeting offers every sound source. The notes follow too: decisions and tasks for a meeting, key points and questions for a talk.",
@@ -141,6 +147,7 @@ final class WhatsNewWindow {
             defer: false
         )
         window.title = tr("What's new", "새로운 기능")
+        ScreenShare.protect(window)
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true
