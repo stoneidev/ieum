@@ -19,7 +19,7 @@
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.9.0-orange)
+![Version](https://img.shields.io/badge/version-0.10.0-orange)
 
 [기능](#기능) · [설치](#설치) · [사용법](#사용법) · [문서](#문서) · [구조](#구조) · [빌드](#소스에서-빌드) · [성능](#성능) · [문제 해결](#문제-해결)
 
@@ -233,11 +233,11 @@ make dmg         SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" NO
 ## 개인정보
 
 음성은 Mac의 메모리에서 처리되며 디스크에 저장되지 않습니다. 글자만 회의 기록으로, 설정에 표시된 폴더에 저장됩니다.
-Ieum이 하는 유일한 네트워크 요청은 선택 기능인 업데이트 확인입니다. 하루 한 번 `https://ieum.calmwork.today/latest.json`(수백 바이트)을 읽습니다. 그 밖에는 아무것도 보내지 않으며, 업데이트는 동의한 뒤에만 내려받아 설치합니다. 설정 → 일반에서 확인을 끄면 앱은 어떤 요청도 하지 않습니다. 어떤 언어를 처음 쓸 때 macOS가 언어 모델을 내려받을 수 있습니다.
+Ieum이 하는 유일한 네트워크 요청은 선택 기능인 업데이트 확인입니다. 하루 한 번 `https://ieum.calmwork.today/latest.json`(수백 바이트)을 읽습니다. 그 밖에는 아무것도 보내지 않으며, 업데이트는 동의한 뒤에만 내려받아 설치합니다. 설정 → 일반에서 확인을 끄면 앱은 어떤 요청도 하지 않습니다. 어떤 언어를 처음 쓸 때 macOS가 언어 모델을 내려받을 수 있습니다. 몇 번 쓰신 뒤 회의가 끝나면 이음이 한 번, 커피 한 잔 값을 했는지 [묻습니다](https://buymeacoffee.com/stoni). 횟수는 Mac 안에만 저장되고 아무것도 전송하지 않으며, 페이지는 직접 누를 때만 열리고, 설정에서 끌 수 있습니다.
 
 ## 상태
 
-버전 0.9.0. 아직 확인하지 못한 것: 여러 사람이 말하는 실제 회의실에서의 사용, macOS 26 이전에서의 동작, Ieum 이름으로 공증된 빌드.
+버전 0.10.0. 아직 확인하지 못한 것: 여러 사람이 말하는 실제 회의실에서의 사용, macOS 26 이전에서의 동작, Ieum 이름으로 공증된 빌드.
 
 ## 라이선스
 

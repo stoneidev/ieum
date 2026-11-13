@@ -153,6 +153,14 @@ private struct GeneralTab: View {
                         }
                     }
                 }
+                Toggle(tr("Remind me about the coffee", "커피 후원 안내 보이기"), isOn: Binding(get: { model.coffeeReminders }, set: model.setCoffeeReminders))
+                    .disabled(model.support.status == .supporter)
+                Text(model.support.status == .supporter
+                     ? tr("Thank you for the coffee ☕", "커피 감사합니다 ☕")
+                     : tr("After a meeting you have used a few times, Ieum asks once, politely, whether it earned a coffee. The count stays on this Mac. Nothing is sent.",
+                          "몇 번 쓰신 뒤 회의가 끝나면, 이음이 커피 한 잔 값을 했는지 한 번 정중히 묻습니다. 횟수는 이 Mac에만 저장되고 아무것도 전송하지 않습니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
                 Toggle(tr("Check for updates automatically", "업데이트를 자동으로 확인"), isOn: Binding(get: { autoCheck }, set: { value in
                     autoCheck = value
                     Preferences.autoCheckUpdates = value
@@ -597,8 +605,8 @@ private struct AboutTab: View {
                 .resizable()
                 .frame(width: 96, height: 96)
             Text("Ieum").font(.system(size: 22, weight: .semibold))
-            Text(tr("Ieum (이음) means \"to connect\": English and Korean, in the same meeting.",
-                    "이음: 영어와 한국어를 한 회의 안에서 이어 줍니다."))
+            Text(tr("Ieum (이음) means \"to connect\": English, Korean, Japanese and Chinese, in the same meeting.",
+                    "이음: 영어, 한국어, 일본어, 중국어를 한 회의 안에서 이어 줍니다."))
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
             Text(tr("Version \(version)", "버전 \(version)")).foregroundStyle(.secondary)
@@ -612,6 +620,11 @@ private struct AboutTab: View {
                 Button(tr("What's new…", "새로운 기능…"), action: openWhatsNew)
                 Button(tr("Permissions and setup…", "권한 및 설정 점검…"), action: openSetup)
             }
+            Button("☕ " + tr("Buy me a coffee", "커피 한 잔 사주기")) { NSWorkspace.shared.open(Support.coffeeURL) }
+            Text(tr("Ieum is free and open source. If it saves your meetings, a coffee helps it keep going.",
+                    "이음은 무료 오픈소스입니다. 회의에 도움이 되었다면 커피 한 잔이 큰 힘이 됩니다."))
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
             Spacer()
         }
         .padding(28)

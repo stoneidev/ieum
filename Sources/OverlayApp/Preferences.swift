@@ -56,6 +56,11 @@ enum Preferences {
         if defaults.string(forKey: "scenario") == nil { scenario = value }
         return value
     }
+    /// How much Ieum has been used, counted on this Mac only, for the one friendly coffee ask.
+    static var support: SupportState {
+        get { defaults.data(forKey: "support").flatMap { try? JSONDecoder().decode(SupportState.self, from: $0) } ?? SupportState() }
+        set { defaults.set(try? JSONEncoder().encode(newValue), forKey: "support") }
+    }
     static var source: Source {
         get { value("source", default: .microphone) }
         set { defaults.set(newValue.rawValue, forKey: "source") }

@@ -337,6 +337,7 @@ struct OverlayMenuButton: NSViewRepresentable {
                 menu.addItem(ActionItem(model.scenario.notesTitle + tr(" draft…", " 초안…"), enabled: model.canMakeMinutes) { model.showMinutes(start: true) })
             }
             menu.addItem(ActionItem(tr("Settings…", "설정…")) { model.openSettings() })
+            menu.addItem(ActionItem("☕ " + tr("Buy me a coffee…", "커피 한 잔 사주기…")) { model.openCoffeePageFromMenu() })
             menu.addItem(ActionItem(tr("Check for updates…", "업데이트 확인…")) { model.checkForUpdates() })
             menu.addItem(ActionItem(tr("Permissions and setup…", "권한 및 설정 점검…")) { model.openSetup() })
             menu.addItem(.separator())
@@ -445,18 +446,53 @@ struct SubtitleBarView: View {
     private var idleBar: some View {
         let size = model.textSize.points
         let fontSize = max(15, (size * 0.6).rounded())
-        return HStack(spacing: 14) {
-            StatusDot(status: .idle, idleColor: palette.interim)
-            Text(tr("Captions are off", "자막이 꺼져 있습니다"))
-                .font(.system(size: fontSize, weight: .medium))
-                .foregroundStyle(palette.interim)
-            Spacer(minLength: 12)
-            StartCaptionsButton(model: model, fontSize: fontSize)
-            BarControls(model: model, palette: palette, subdued: false)
+        // When the coffee ask is up and the bar is narrow, it shrinks to the ☕ button so the controls on the right stay reachable.
+        return ViewThatFits(in: .horizontal) {
+            idleRow(fontSize: fontSize, ask: .full)
+            idleRow(fontSize: fontSize, ask: .compact)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .padding(.horizontal, BarMetrics.horizontalPadding)
         .padding(.vertical, BarMetrics.verticalPadding)
+    }
+
+    private enum AskLayout { case full, compact }
+
+    private func idleRow(fontSize: CGFloat, ask: AskLayout) -> some View {
+        HStack(spacing: 14) {
+            StatusDot(status: .idle, idleColor: palette.interim)
+            if model.coffeeThanks {
+                Text("☕ " + tr("Thank you!", "고마워요!"))
+                    .font(.system(size: fontSize, weight: .medium))
+                    .foregroundStyle(palette.ink)
+                    .lineLimit(1)
+                    .fixedSize()
+            } else if model.coffeeStage != nil {
+                if ask == .full {
+                    Text(model.coffeeTitle)
+                        .font(.system(size: fontSize, weight: .medium))
+                        .foregroundStyle(palette.ink)
+                        .lineLimit(1)
+                        .fixedSize()
+                }
+                CoffeeButton(title: ask == .full ? "☕ " + tr("Buy a coffee", "커피 사주기") : "☕", prominent: true, palette: palette) { model.openCoffeePage() }
+                    .help(tr("Buy me a coffee", "커피 한 잔 사주기"))
+                Button(action: { model.postponeCoffee() }) {
+                    Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)).foregroundStyle(palette.interim)
+                        .frame(width: 22, height: 22).contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(tr("Not now", "나중에"))
+                .accessibilityLabel(tr("Not now", "나중에"))
+            } else {
+                Text(tr("Captions are off", "자막이 꺼져 있습니다"))
+                    .font(.system(size: fontSize, weight: .medium))
+                    .foregroundStyle(palette.interim)
+            }
+            Spacer(minLength: 12)
+            StartCaptionsButton(model: model, fontSize: fontSize)
+            BarControls(model: model, palette: palette, subdued: false)
+        }
     }
 
     @ViewBuilder
@@ -602,6 +638,7 @@ struct TranscriptPanelView: View {
                 conversation
                 wrapUp
             }
+            CoffeeCard(model: model, palette: palette)
         }
     }
 

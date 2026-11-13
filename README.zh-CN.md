@@ -19,7 +19,7 @@
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.9.0-orange)
+![Version](https://img.shields.io/badge/version-0.10.0-orange)
 
 [功能](#功能) · [安装](#安装) · [使用](#使用) · [文档](#文档) · [架构](#架构) · [构建](#从源码构建) · [性能](#性能) · [故障排除](#故障排除)
 
@@ -235,11 +235,11 @@ Bundle ID 为 `today.calmwork.ieum`（`ieum.calmwork.today` 的反写），在 `
 ## 隐私
 
 音频在 Mac 的内存中处理，绝不会写入磁盘。只有文本会作为会议文字稿保存，位置为设置中显示的文件夹。
-Ieum 唯一的网络请求是可选的更新检查：每天读取一次 `https://ieum.calmwork.today/latest.json`（几百字节）。除此之外不发送任何内容，只有在你同意后才会下载并安装更新。在设置 → `General`（通用）中关闭检查后，应用不会发出任何请求。首次使用某种语言时，macOS 可能会下载语言模型。
+Ieum 唯一的网络请求是可选的更新检查：每天读取一次 `https://ieum.calmwork.today/latest.json`（几百字节）。除此之外不发送任何内容，只有在你同意后才会下载并安装更新。在设置 → `General`（通用）中关闭检查后，应用不会发出任何请求。首次使用某种语言时，macOS 可能会下载语言模型。用过几次之后，会议结束时 Ieum 会询问一次是否值一杯[咖啡](https://buymeacoffee.com/stoni)。次数只保存在 Mac 上，不发送任何数据，只有你点击时才会打开页面，也可以在设置中关闭。
 
 ## 状态
 
-版本 0.9.0。尚未验证：在有多位说话人的真实会议室中使用、在 macOS 26 之前版本上的表现，以及以 Ieum 名义公证的构建。
+版本 0.10.0。尚未验证：在有多位说话人的真实会议室中使用、在 macOS 26 之前版本上的表现，以及以 Ieum 名义公证的构建。
 
 ## 许可证
 

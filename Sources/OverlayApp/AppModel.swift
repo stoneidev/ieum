@@ -36,6 +36,12 @@ final class AppModel: ObservableObject {
     /// The situation the minutes on screen were written for (it decides their sections).
     var minutesScenario: Scenario?
 
+    // MARK: Support
+    @Published var support = Preferences.support
+    /// The ask being shown after a meeting (0, 1 or 2), until the person answers or starts the next meeting.
+    @Published var coffeeStage: Int?
+    @Published var coffeeThanks = false
+
     // MARK: Meeting
     @Published private(set) var scenario = Preferences.scenarioFixingMigration()
     @Published private(set) var setup = Preferences.meetingSetup
@@ -112,6 +118,8 @@ final class AppModel: ObservableObject {
     /// translators were prepared can tell it is out of date and must not start anything.
     private var translationGeneration = 0
     var sessionIndex = 0
+    /// True while a setting change stops the captions only to start them again.
+    private var isRestarting = false
     private var showsFailureNotice = false
     /// Finalized sentences handed to the translators whose translation has not come back yet.
     private var awaitingTranslation = Set<UUID>()
@@ -144,6 +152,8 @@ final class AppModel: ObservableObject {
         translatedPartial = ""
         partial = ""
         status = .starting
+        coffeeStage = nil
+        coffeeThanks = false
         startingNote = nil
         transcriptWarning = nil
         let setup = activeSetup
@@ -169,7 +179,10 @@ final class AppModel: ObservableObject {
     }
 
     func restart() async {
+        // Changing a setting mid-meeting stops and starts again; that is one meeting, not two.
+        isRestarting = true
         await stop()
+        isRestarting = false
         start()
     }
 
@@ -662,6 +675,7 @@ final class AppModel: ObservableObject {
         pruneTask = nil
         // A recognizer error while winding down is not worth showing; the user already asked to stop.
         status = failure != nil && !stopRequested ? .error(failure ?? "") : .idle
+        if stopRequested, !selfTestActive, !isRestarting { noteMeetingFinished() }
         if status == .idle { partial = "" }
         if recoverable, !stopRequested, allowAutoRestart() {
             status = .idle

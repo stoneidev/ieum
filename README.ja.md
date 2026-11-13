@@ -19,7 +19,7 @@
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.9.0-orange)
+![Version](https://img.shields.io/badge/version-0.10.0-orange)
 
 [機能](#機能) · [インストール](#インストール) · [使い方](#使い方) · [ドキュメント](#ドキュメント) · [アーキテクチャ](#アーキテクチャ) · [ビルド](#ソースからビルド) · [パフォーマンス](#パフォーマンス) · [トラブルシューティング](#トラブルシューティング)
 
@@ -235,11 +235,11 @@ make dmg         SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" NO
 ## プライバシー
 
 音声は Mac のメモリ上で処理され、ディスクには一切書き込まれません。保存されるのはテキストだけで、会議のスクリプトとして設定に表示されるフォルダに保存されます。
-Ieum が行う唯一のネットワーク通信は、任意のアップデート確認です。1 日 1 回 `https://ieum.calmwork.today/latest.json`（数百バイト）を読み込みます。それ以外には何も送信せず、アップデートはあなたが同意したあとにのみダウンロード・インストールされます。設定 → `General`（一般）で確認をオフにすると、アプリは一切の通信を行いません。macOS は、ある言語を初めて使うときに言語モデルをダウンロードすることがあります。
+Ieum が行う唯一のネットワーク通信は、任意のアップデート確認です。1 日 1 回 `https://ieum.calmwork.today/latest.json`（数百バイト）を読み込みます。それ以外には何も送信せず、アップデートはあなたが同意したあとにのみダウンロード・インストールされます。設定 → `General`（一般）で確認をオフにすると、アプリは一切の通信を行いません。macOS は、ある言語を初めて使うときに言語モデルをダウンロードすることがあります。何度か使ったあと、会議が終わると Ieum がコーヒー1杯分の価値があったかを一度だけ[尋ねます](https://buymeacoffee.com/stoni)。回数は Mac の中にだけ保存され、何も送信されず、ページはクリックしたときだけ開き、設定でオフにできます。
 
 ## ステータス
 
-バージョン 0.9.0。まだ検証していないこと：複数の話者がいる実際の会議室での使用、macOS 26 より前での動作、Ieum の名前で公証されたビルド。
+バージョン 0.10.0。まだ検証していないこと：複数の話者がいる実際の会議室での使用、macOS 26 より前での動作、Ieum の名前で公証されたビルド。
 
 ## ライセンス
 

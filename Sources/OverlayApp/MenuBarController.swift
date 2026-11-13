@@ -142,6 +142,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(action(tr("Open transcript folder", "기록 폴더 열기"), #selector(openFolder)))
         menu.addItem(.separator())
 
+        menu.addItem(action("☕ " + tr("Buy me a coffee…", "커피 한 잔 사주기…"), #selector(buyCoffee)))
         menu.addItem(action(tr("Check for updates…", "업데이트 확인…"), #selector(updateCheck)))
         menu.addItem(action(tr("Permissions and setup…", "권한 및 설정 점검…"), #selector(showSetup)))
         menu.addItem(action(tr("Settings…", "설정…"), #selector(showSettings), key: ","))
@@ -184,6 +185,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func toggleBothWays() { model.setBothWays(!model.setup.bothWays) }
 
     @objc private func nameMeeting() { model.renameLastTranscript() }
+
+    @objc private func buyCoffee() { model.openCoffeePageFromMenu() }
 
     @objc private func showMinutes() { model.showMinutes(start: true) }
 
