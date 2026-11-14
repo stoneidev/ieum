@@ -182,6 +182,73 @@ struct LanguageRouteChip: View {
     }
 }
 
+/// Where the sound comes from: the choices the situation offers, then the microphone when one is used. One place for the pill,
+/// the ⋯ menu and the menu bar.
+@MainActor
+enum SourceMenu {
+    /// The sources worth showing: what the situation offers on this Mac, and the current one even if it is not offered.
+    static func choices(for model: AppModel) -> [Source] {
+        Source.allCases.filter { $0.isAvailableOnThisMac && (model.scenario.allowedSources.contains($0) || $0 == model.source) }
+    }
+
+    /// The name of the microphone in use, for the pill.
+    static func microphoneName(for model: AppModel, devices: [InputDevice] = InputDevices.available()) -> String {
+        guard let uid = model.inputDeviceUID else { return tr("System default", "시스템 기본값") }
+        return devices.first { $0.uid == uid }?.name ?? tr("Not connected (using the default)", "연결 안 됨 (기본값 사용)")
+    }
+
+    static func items(for model: AppModel) -> [NSMenuItem] {
+        var items: [NSMenuItem] = [heading(tr("Where does the sound come from?", "소리는 어디서 나나요?"))]
+        for source in choices(for: model) {
+            items.append(PillMenuItem(source.title, checked: source == model.source, symbol: source.symbol) { model.setSource(source) })
+        }
+        if model.source != .system {
+            let devices = InputDevices.available()
+            items.append(.separator())
+            items.append(heading(tr("Microphone", "마이크")))
+            items.append(PillMenuItem(tr("System default", "시스템 기본값"), checked: model.inputDeviceUID == nil) { model.setInputDevice(nil) })
+            for device in devices {
+                items.append(PillMenuItem(device.name, checked: model.inputDeviceUID == device.uid) { model.setInputDevice(device.uid) })
+            }
+            // A saved microphone that is not plugged in stays visible so the choice is not lost silently.
+            if let saved = model.inputDeviceUID, !devices.contains(where: { $0.uid == saved }) {
+                items.append(PillMenuItem(tr("Not connected (using the default)", "연결 안 됨 (기본값 사용)"), checked: true) { model.setInputDevice(saved) })
+            }
+        }
+        return items
+    }
+
+    static func menu(for model: AppModel) -> NSMenu {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        items(for: model).forEach(menu.addItem)
+        return menu
+    }
+
+    /// For the ⋯ menu and the menu bar: the same choices one level down.
+    static func submenuItem(for model: AppModel) -> NSMenuItem {
+        let item = NSMenuItem(title: tr("Audio source: ", "소리 입력: ") + model.source.shortTitle, action: nil, keyEquivalent: "")
+        item.submenu = menu(for: model)
+        return item
+    }
+}
+
+/// The sound source in one pill, with the microphone beside it when one is used.
+struct SourceChip: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+    var fontSize: CGFloat = 13
+
+    var body: some View {
+        PillMenuButton(
+            title: model.source.shortTitle, palette: palette, fontSize: fontSize,
+            tip: model.source.hint,
+            accessibility: tr("Audio source: ", "소리 입력: ") + model.source.title,
+            makeMenu: { [model] in SourceMenu.menu(for: model) }
+        )
+    }
+}
+
 /// Before the captions start, the three situations as tiles in the empty panel: the choice that shapes everything else.
 struct SituationPicker: View {
     @ObservedObject var model: AppModel
@@ -200,6 +267,7 @@ struct SituationPicker: View {
                 .foregroundStyle(palette.interim)
                 .fixedSize(horizontal: false, vertical: true)
             languages
+            sounds
             VocabularyTip(model: model, palette: palette)
                 .padding(.top, 6)
         }
@@ -221,6 +289,38 @@ struct SituationPicker: View {
                     .font(.system(size: 12))
                     .foregroundStyle(palette.interim)
                 LanguageRouteChip(model: model, palette: palette)
+            }
+        }
+    }
+
+    /// Where the sound comes from: the choices of this situation as buttons, one line of what the chosen one does, and the microphone.
+    private var sounds: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(tr("Where does the sound come from?", "소리는 어디서 나나요?"))
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(palette.ink)
+                .padding(.top, 6)
+            HStack(spacing: 8) {
+                ForEach(SourceMenu.choices(for: model), id: \.self) { source in
+                    choice(source.shortTitle, symbol: source.symbol, selected: source == model.source) { model.setSource(source) }
+                }
+            }
+            Text(model.source.hint)
+                .font(.system(size: 12))
+                .foregroundStyle(palette.interim)
+                .fixedSize(horizontal: false, vertical: true)
+            if model.source != .system {
+                HStack(spacing: 8) {
+                    Text(tr("Microphone", "마이크"))
+                        .font(.system(size: 12))
+                        .foregroundStyle(palette.interim)
+                    PillMenuButton(
+                        title: String(SourceMenu.microphoneName(for: model).prefix(28)), palette: palette,
+                        tip: tr("Which microphone to listen with", "어느 마이크로 들을지"),
+                        accessibility: tr("Microphone", "마이크"),
+                        makeMenu: { [model] in SourceMenu.menu(for: model) }
+                    )
+                }
             }
         }
     }

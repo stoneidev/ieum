@@ -114,6 +114,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let swap = action(tr("Swap languages", "언어 바꾸기"), #selector(swapDirection), key: "l")
         swap.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(swap)
+        menu.addItem(SourceMenu.submenuItem(for: model))
         menu.addItem(.separator())
 
         let visibility = action(model.overlayVisible ? tr("Hide overlay", "오버레이 숨기기") : tr("Show overlay", "오버레이 보이기"), #selector(toggleOverlay), key: "h")

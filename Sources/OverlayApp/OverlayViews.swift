@@ -316,6 +316,7 @@ struct OverlayMenuButton: NSViewRepresentable {
                                         enabled: model.setup.translates && MeetingSetup.bothWaysIsAvailableOnThisMac) { model.setBothWays(!model.setup.bothWays) })
             }
             menu.addItem(ActionItem(tr("Swap languages", "언어 바꾸기")) { model.swapDirection() })
+            menu.addItem(SourceMenu.submenuItem(for: model))
 
             let sizes = NSMenu()
             sizes.autoenablesItems = false
@@ -475,10 +476,11 @@ struct SubtitleBarView: View {
         // When the coffee ask is up and the bar is narrow, it shrinks to the ☕ button so the controls on the right stay reachable.
         // The situation chip and the words give way, in this order, as the bar gets narrower; the controls on the right never do.
         return ViewThatFits(in: .horizontal) {
-            idleRow(fontSize: fontSize, ask: .full, chip: true, languages: true)
-            idleRow(fontSize: fontSize, ask: .compact, chip: true, languages: true)
-            idleRow(fontSize: fontSize, ask: .compact, chip: true, languages: false)
-            idleRow(fontSize: fontSize, ask: .compact, chip: false, languages: false)
+            idleRow(fontSize: fontSize, ask: .full, chip: true, languages: true, sound: true)
+            idleRow(fontSize: fontSize, ask: .full, chip: true, languages: true, sound: false)
+            idleRow(fontSize: fontSize, ask: .compact, chip: true, languages: true, sound: false)
+            idleRow(fontSize: fontSize, ask: .compact, chip: true, languages: false, sound: false)
+            idleRow(fontSize: fontSize, ask: .compact, chip: false, languages: false, sound: false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .padding(.horizontal, BarMetrics.horizontalPadding)
@@ -487,11 +489,12 @@ struct SubtitleBarView: View {
 
     private enum AskLayout { case full, compact }
 
-    private func idleRow(fontSize: CGFloat, ask: AskLayout, chip: Bool, languages: Bool) -> some View {
+    private func idleRow(fontSize: CGFloat, ask: AskLayout, chip: Bool, languages: Bool, sound: Bool) -> some View {
         HStack(spacing: 14) {
             StatusDot(status: .idle, idleColor: palette.interim)
             if chip { SituationChip(model: model, palette: palette, fontSize: max(12, fontSize - 4)) }
             if languages { LanguageRouteChip(model: model, palette: palette, fontSize: max(12, fontSize - 4)) }
+            if sound { SourceChip(model: model, palette: palette, fontSize: max(12, fontSize - 4)) }
             if model.coffeeThanks {
                 Text("☕ " + tr("Thank you!", "고마워요!"))
                     .font(.system(size: fontSize, weight: .medium))

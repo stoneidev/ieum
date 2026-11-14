@@ -19,7 +19,7 @@ Read what the other side says in your language, while they read what you say in 
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.14.2-orange)
+![Version](https://img.shields.io/badge/version-0.14.3-orange)
 
 [Features](#features) · [Install](#install) · [Usage](#usage) · [Documentation](#documentation) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
 
@@ -56,7 +56,7 @@ The other side talks and you read your language. You answer in yours and they re
 | **Situations** | Choose **Conversation**, **Meeting** or **Seminar** (the pill at the top of the transcript panel and on the idle subtitle bar, or in the ⋯ menu, the menu bar and Settings). The choice decides what is offered: a seminar is only listened to, so there is no both-sides mode and no call source; a conversation is in the room and starts with both sides speaking; a meeting offers every sound source. It also decides the shape of the notes. |
 | **Meeting minutes draft** | **Only on Macs with Apple Intelligence (macOS 26).** On other Macs the item is not shown. The panel's **Minutes** tab (and a prompt when you stop the captions; also **Export → Meeting minutes draft**) has the on-device language model (Apple Intelligence, macOS 26) write a summary, decisions and action items into `<name>-minutes.md`, in the language you read. Every point cites the transcript lines it came from, and a point without a source is marked. It is a draft to check, not a record: the small on-device model sometimes lists a question as a decision or drops who and when. Nothing leaves the Mac; the item is greyed out with the reason when Apple Intelligence is not available. |
 | **Calls: who said what** | Choose *Call (microphone + system audio)* and Ieum reads the other side (system audio) in their language and you (microphone) in yours, labels every line *Me* or *Them*, and translates both ways. Needs macOS 26. Headphones work best; with speakers an echo filter keeps the other side from showing up as you. |
-| **Audio sources** | Microphone (the system default or a specific one, such as a USB microphone or a speakerphone), or system audio (video calls, recordings) through ScreenCaptureKit. |
+| **Audio sources** | Microphone (the system default or a specific one, such as a USB microphone or a speakerphone), or system audio (video calls, recordings) through ScreenCaptureKit. Chosen before you start, beside the language choice (the buttons *Microphone / System audio / Call* show what the situation offers, with the microphone pill under them), and in the ⋯ and menu-bar menus. |
 | **Menu bar app** | Lives in the menu bar, with global shortcuts and open-at-login. |
 | **Korean and English interface** | Including a first-run permission check. |
 | **Command-line tool** | `caption-cli` runs the same recognizer in a terminal (text or JSON Lines). |
@@ -241,7 +241,7 @@ The only network request Ieum makes is the optional update check: once a day it 
 
 ## Status
 
-Version 0.14.2. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
+Version 0.14.3. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
 
 ## License
 

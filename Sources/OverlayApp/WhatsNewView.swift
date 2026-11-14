@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "sound-source", introduced: "0.14.3", art: .menu,
+            title: tr("Choose where the sound comes from", "소리가 어디서 나는지 바로 고르세요"),
+            body: tr("Before you start, right under the languages, pick Microphone, System audio or Call, and the microphone to use. The same choice is in the ⋯ menu and the menu bar. The buttons show only what your situation offers.",
+                     "시작하기 전에 언어 바로 아래에서 마이크, 시스템 소리, 통화와 쓸 마이크를 고르세요. ⋯ 메뉴와 메뉴바에도 같은 선택이 있습니다. 버튼에는 지금 상황에서 쓸 수 있는 것만 보입니다.")
+        ),
+        WhatsNewPage(
             id: "vocabulary-nudge", introduced: "0.14.1", art: .menu,
             title: tr("Teach Ieum your names", "이름을 이음에게 알려 주세요"),
             body: tr("After a meeting, Ieum shows the names and product words that came up and are not in your vocabulary yet. Tap a word to add it, and it is spelled right in the captions and the translation from then on. Settings > Vocabulary keeps them too.",

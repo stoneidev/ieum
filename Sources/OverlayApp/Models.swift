@@ -33,6 +33,36 @@ enum Source: String, CaseIterable {
     var isAvailableOnThisMac: Bool { self != .call || MeetingSetup.bothWaysIsAvailableOnThisMac }
 }
 
+extension Source {
+    /// The name on a choice or a pill: short, because the situation and the languages sit beside it.
+    @MainActor var shortTitle: String {
+        switch self {
+        case .microphone: tr("Microphone", "마이크")
+        case .system: tr("System audio", "시스템 소리")
+        case .call: tr("Call", "통화")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .microphone: "mic"
+        case .system: "speaker.wave.2"
+        case .call: "phone"
+        }
+    }
+
+    /// Where the sound comes from, in plain words.
+    @MainActor var hint: String {
+        switch self {
+        case .microphone: tr("Captions what the microphone hears: the room, a talk, you.", "마이크로 들리는 소리: 같은 공간의 대화, 강연, 내 목소리")
+        case .system: tr("Captions what plays on this Mac: a video call, a recording. Needs the Screen & System Audio Recording permission.",
+                         "이 Mac에서 재생되는 소리: 화상회의, 영상. 화면 및 시스템 오디오 녹음 권한이 필요합니다.")
+        case .call: tr("Both sides of a video call: the other side from the system audio, you from the microphone, each line labelled Me or Them.",
+                       "화상 통화의 양쪽: 상대는 시스템 소리, 나는 마이크로 받고 줄마다 나/상대를 표시합니다.")
+        }
+    }
+}
+
 enum DisplayMode: String, CaseIterable {
     case bar
     case panel
