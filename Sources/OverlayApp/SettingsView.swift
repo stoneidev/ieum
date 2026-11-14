@@ -308,6 +308,8 @@ private struct VocabularyTab: View {
     @ObservedObject var model: AppModel
     @State private var text = ""
     @State private var pendingApply: Task<Void, Never>?
+    /// The text was changed by typing and not applied yet; until then the model must not overwrite it.
+    @State private var typing = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -318,6 +320,7 @@ private struct VocabularyTab: View {
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            encouragement
             TextEditor(text: $text)
                 .font(.system(size: 14))
                 .padding(6)
@@ -347,7 +350,13 @@ private struct VocabularyTab: View {
         .padding(20)
         .onAppear { text = model.vocabulary.joined(separator: "\n") }
         // A half-typed word must not go live in the middle of a meeting: apply after typing pauses, and on leaving.
-        .onChange(of: text) { _, _ in
+        // Terms added elsewhere (the card after a meeting) show up here, unless the person is in the middle of typing.
+        .onChange(of: model.vocabulary) { _, new in
+            if !typing { text = new.joined(separator: "\n") }
+        }
+        .onChange(of: text) { _, new in
+            guard new != model.vocabulary.joined(separator: "\n") else { return }
+            typing = true
             pendingApply?.cancel()
             pendingApply = Task {
                 try? await Task.sleep(for: .seconds(1))
@@ -362,7 +371,48 @@ private struct VocabularyTab: View {
 }
 
 extension VocabularyTab {
+    /// What to say depends on how far the person got: why, then the words from the last meeting, then thanks.
+    @ViewBuilder
+    fileprivate var encouragement: some View {
+        let count = model.vocabulary.count
+        if count == 0 {
+            Text(tr("Why bother: without it, a name like Kubernetes can come out as \"R. Q. Bernates\" in the captions and in the translation. Start with three: yourself, a teammate, and a product.",
+                    "왜 필요한가요: 용어집이 없으면 Kubernetes 같은 이름이 자막과 번역에서 \"R. Q. Bernates\"처럼 나올 수 있어요. 나, 팀원 한 명, 제품 하나, 세 개만 먼저 적어 보세요."))
+                .font(.system(size: 12))
+                .foregroundStyle(.orange)
+                .fixedSize(horizontal: false, vertical: true)
+        } else if count < 3 {
+            Text(tr("Good start. Two or three more and most meetings will be covered.", "좋은 시작이에요. 두세 개만 더 넣으면 대부분의 회의가 해결돼요."))
+                .font(.system(size: 12))
+                .foregroundStyle(.green)
+        } else {
+            Text(tr("These are spelled right from the next sentence on. Add more whenever a name gets misheard.", "다음 문장부터 이 철자로 정확히 받아 적어요. 잘못 들린 이름이 있으면 그때그때 더 넣으세요."))
+                .font(.system(size: 12))
+                .foregroundStyle(.green)
+        }
+        if !model.vocabularySuggestions.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(tr("Heard in your last meeting. Tap to add:", "지난 회의에서 들린 말이에요. 눌러서 추가하세요:"))
+                    .font(.system(size: 12, weight: .medium))
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 8, alignment: .leading)], alignment: .leading, spacing: 6) {
+                    ForEach(model.vocabularySuggestions, id: \.self) { term in
+                        Button("+ " + term) {
+                            // What was typed a moment ago goes in first, so the tap cannot wipe it.
+                            apply()
+                            model.addSuggestedTerm(term)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                }
+            }
+        }
+    }
+
     fileprivate func apply() {
+        // Leaving the tab with nothing typed must not write a stale copy over what was added meanwhile.
+        guard typing else { return }
+        typing = false
         model.setVocabulary(text.split(whereSeparator: \.isNewline).map(String.init))
     }
 }

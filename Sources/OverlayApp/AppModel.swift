@@ -44,6 +44,15 @@ final class AppModel: ObservableObject {
     @Published var coffeeStage: Int?
     @Published var coffeeThanks = false
 
+    // MARK: Vocabulary encouragement
+    /// Names and jargon heard in the last meeting that are not in the vocabulary yet.
+    @Published var vocabularySuggestions: [String] = []
+    /// The card offering them is up, until the person answers or starts the next meeting.
+    @Published var vocabularyCardOpen = false
+    /// How many terms the person added from the card, for the thank-you.
+    @Published var vocabularyAdded = 0
+    @Published var vocabularyTipDismissed = Preferences.vocabularyTipDismissed
+
     // MARK: Meeting
     @Published private(set) var scenario = Preferences.scenarioFixingMigration()
     @Published private(set) var setup = Preferences.meetingSetup
@@ -162,6 +171,8 @@ final class AppModel: ObservableObject {
         status = .starting
         coffeeStage = nil
         coffeeThanks = false
+        vocabularyCardOpen = false
+        vocabularyAdded = 0
         startingNote = nil
         transcriptWarning = nil
         let setup = activeSetup
@@ -366,9 +377,12 @@ final class AppModel: ObservableObject {
 
     /// One term per element. Applies to the very next sentence: the correction runs on the text, so no restart.
     func setVocabulary(_ terms: [String]) {
-        let cleaned = terms.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        var seen = Set<String>()
+        let cleaned = terms.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty && seen.insert($0.lowercased()).inserted }
         guard cleaned != vocabulary else { return }
         vocabulary = cleaned
+        // A word typed in Settings is no longer worth offering.
+        vocabularySuggestions.removeAll { suggestion in seen.contains(suggestion.lowercased()) }
         Preferences.vocabulary = cleaned
         corrector = VocabularyCorrector(terms: cleaned)
     }

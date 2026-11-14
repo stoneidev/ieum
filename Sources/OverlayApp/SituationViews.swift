@@ -200,6 +200,8 @@ struct SituationPicker: View {
                 .foregroundStyle(palette.interim)
                 .fixedSize(horizontal: false, vertical: true)
             languages
+            VocabularyTip(model: model, palette: palette)
+                .padding(.top, 6)
         }
     }
 

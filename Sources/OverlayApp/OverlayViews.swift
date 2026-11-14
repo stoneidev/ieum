@@ -671,7 +671,9 @@ struct TranscriptPanelView: View {
                 conversation
                 wrapUp
             }
-            CoffeeCard(model: model, palette: palette)
+            VocabularyCard(model: model, palette: palette)
+            // One ask at a time: the coffee waits until the words are answered.
+            if !model.vocabularyCardOpen { CoffeeCard(model: model, palette: palette) }
         }
     }
 

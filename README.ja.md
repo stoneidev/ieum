@@ -21,7 +21,7 @@
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.14.0-orange)
+![Version](https://img.shields.io/badge/version-0.14.1-orange)
 
 [機能](#機能) · [インストール](#インストール) · [使い方](#使い方) · [ドキュメント](#ドキュメント) · [アーキテクチャ](#アーキテクチャ) · [ビルド](#ソースからビルド) · [パフォーマンス](#パフォーマンス) · [トラブルシューティング](#トラブルシューティング)
 
@@ -244,7 +244,7 @@ Ieum が行う唯一のネットワーク通信は、任意のアップデート
 
 ## ステータス
 
-バージョン 0.14.0。まだ検証していないこと：複数の話者がいる実際の会議室での使用、macOS 26 より前での動作、Ieum の名前で公証されたビルド。
+バージョン 0.14.1。まだ検証していないこと：複数の話者がいる実際の会議室での使用、macOS 26 より前での動作、Ieum の名前で公証されたビルド。
 
 ## ライセンス
 

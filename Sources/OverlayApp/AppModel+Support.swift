@@ -15,6 +15,7 @@ extension AppModel {
         let stage = state.finishedMeeting(sentences: sentences)
         save(state)
         if let stage { coffeeStage = stage }
+        suggestVocabulary()
     }
 
     private func save(_ state: SupportState) {

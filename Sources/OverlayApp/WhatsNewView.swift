@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "vocabulary-nudge", introduced: "0.14.1", art: .menu,
+            title: tr("Teach Ieum your names", "이름을 이음에게 알려 주세요"),
+            body: tr("After a meeting, Ieum shows the names and product words that came up and are not in your vocabulary yet. Tap a word to add it, and it is spelled right in the captions and the translation from then on. Settings > Vocabulary keeps them too.",
+                     "회의가 끝나면 그 회의에서 나온 이름과 제품명 중 용어집에 없는 것을 보여 줍니다. 단어를 누르면 추가되고, 그다음부터 자막과 번역에서 정확한 철자로 나옵니다. 설정 > 용어집에도 남아 있습니다.")
+        ),
+        WhatsNewPage(
             id: "translate-or-captions", introduced: "0.14.0", art: .languages,
             title: tr("Translate, or captions only: one choice", "번역할지 자막만 볼지, 한 번에 고르세요"),
             body: tr("Before you start, the transcript panel and the subtitle bar ask whether you want a translation or just captions in one language. The languages are one pill, such as English → 한국어, with the usual routes one click away. The same choice leads Settings > General.",

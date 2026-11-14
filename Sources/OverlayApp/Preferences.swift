@@ -61,6 +61,16 @@ enum Preferences {
         get { defaults.data(forKey: "support").flatMap { try? JSONDecoder().decode(SupportState.self, from: $0) } ?? SupportState() }
         set { defaults.set(try? JSONEncoder().encode(newValue), forKey: "support") }
     }
+    /// The reminder to fill in the vocabulary, switched off for good by the person.
+    static var vocabularyTipDismissed: Bool {
+        get { defaults.bool(forKey: "vocabularyTipDismissed") }
+        set { defaults.set(newValue, forKey: "vocabularyTipDismissed") }
+    }
+    /// The settings tab that opens next (the same key the settings window keeps its selection in); 2 is the vocabulary.
+    static var settingsTab: Int {
+        get { defaults.integer(forKey: "settingsTab") }
+        set { defaults.set(newValue, forKey: "settingsTab") }
+    }
     /// The language read last, so switching translation back on returns to it instead of asking again.
     static var lastShownLanguage: SpokenLanguage? {
         get { defaults.string(forKey: "lastShownLanguage").flatMap(SpokenLanguage.init(rawValue:)) }
