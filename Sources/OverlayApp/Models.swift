@@ -217,8 +217,8 @@ struct TranscriptLine: Identifiable, Equatable {
     var displayTranslation: String? { translation ?? provisional }
 }
 
-/// The two views of the transcript panel.
-enum PanelTab: Equatable {
+/// The two pages of the transcript panel: the conversation, and the minutes opened from the end of a meeting.
+enum PanelPage: Equatable {
     case conversation, minutes
 }
 
@@ -250,7 +250,7 @@ extension Scenario {
         }
     }
 
-    /// The name of the notes tab and of the notes themselves.
+    /// The name of the minutes page and of the notes themselves.
     @MainActor var notesTitle: String {
         switch self {
         case .conversation: tr("Summary", "대화 요약")

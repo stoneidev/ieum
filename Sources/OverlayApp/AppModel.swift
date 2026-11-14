@@ -23,7 +23,7 @@ final class AppModel: ObservableObject {
 
     // MARK: Minutes
     /// Which view the transcript panel shows: the live conversation or the minutes draft of the meeting.
-    @Published var panelTab: PanelTab = .conversation
+    @Published var panelPage: PanelPage = .conversation
     @Published var minutesState: MinutesState = .idle
     @Published var minutes: MeetingMinutes?
     var minutesEntries: [ScriptEntry] = []

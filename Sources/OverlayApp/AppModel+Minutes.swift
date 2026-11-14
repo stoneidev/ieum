@@ -41,13 +41,13 @@ extension AppModel {
         minutesFile = nil
         minutesEntries = []
         minutesState = .idle
-        panelTab = .conversation
+        panelPage = .conversation
     }
 
     /// Opens the panel on the minutes view, and starts writing them unless they exist or are being written.
     func showMinutes(start: Bool) {
         setDisplayMode(.panel)
-        panelTab = .minutes
+        panelPage = .minutes
         bringOverlayToFront()
         if start, minutesState == .idle || isFailed { makeMinutes() }
     }

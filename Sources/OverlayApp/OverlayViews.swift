@@ -664,11 +664,7 @@ struct TranscriptPanelView: View {
         VStack(spacing: 0) {
             header
             Divider().overlay(palette.ink.opacity(0.10))
-            if model.offersMinutes {
-                tabs
-                Divider().overlay(palette.ink.opacity(0.10))
-            }
-            if model.panelTab == .minutes, model.offersMinutes {
+            if model.panelPage == .minutes, model.offersMinutes {
                 MinutesPanelView(model: model, palette: palette, bodySize: bodySize)
             } else {
                 conversation
@@ -729,31 +725,6 @@ struct TranscriptPanelView: View {
                 .onChange(of: model.finalizedLines.count) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
                 .onChange(of: model.partial) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
             }
-    }
-
-    /// Two views of the same meeting: what is being said, and the minutes written from it.
-    private var tabs: some View {
-        HStack(spacing: 6) {
-            tab(tr("Conversation", "대화"), .conversation)
-            tab((model.minutesScenario ?? model.scenario).notesTitle, .minutes)
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-    }
-
-    private func tab(_ title: String, _ value: PanelTab) -> some View {
-        let selected = model.panelTab == value
-        return Button(action: { model.panelTab = value }) {
-            Text(title)
-                .font(.system(size: 13, weight: selected ? .semibold : .regular))
-                .foregroundStyle(selected ? palette.ink : palette.interim)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-                .background(Capsule().fill(palette.interim.opacity(selected ? 0.22 : 0)))
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     /// After the meeting: where the minutes are and how to get them.

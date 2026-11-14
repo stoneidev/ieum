@@ -10,14 +10,34 @@ struct MinutesPanelView: View {
     let bodySize: CGFloat
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                content
+        VStack(spacing: 0) {
+            back
+            Divider().overlay(palette.ink.opacity(0.10))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    content
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 16)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 16)
         }
+    }
+
+    /// The minutes are a place you go to from the end of a meeting, not a tab that is always there: this is the way back.
+    private var back: some View {
+        Button(action: { model.panelPage = .conversation }) {
+            HStack(spacing: 6) {
+                Image(systemName: "chevron.left").font(.system(size: 11, weight: .semibold))
+                Text(tr("Back to the conversation", "대화로 돌아가기")).font(.system(size: 13, weight: .medium))
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(palette.ink)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -41,9 +61,9 @@ struct MinutesPanelView: View {
     private var idle: some View {
         if model.isRunning {
             note(title: model.scenario.stillGoing,
-                 text: tr("Stop the captions when it is over, and the \(model.scenario.notesTitle.lowercased()) can be written from it here. Until then, the Conversation tab shows what is being said.",
-                          "끝나서 자막을 멈추면 여기서 \(model.scenario.notesTitle) 초안을 만들 수 있습니다. 그때까지는 '대화' 탭에서 지금 오가는 말을 보세요."))
-            button(tr("Show the conversation", "대화 보기"), prominent: false) { model.panelTab = .conversation }
+                 text: tr("Stop the captions when it is over, and the \(model.scenario.notesTitle.lowercased()) can be written from it here. Until then, the conversation shows what is being said.",
+                          "끝나서 자막을 멈추면 여기서 \(model.scenario.notesTitle) 초안을 만들 수 있습니다. 그때까지는 대화 화면에서 지금 오가는 말을 보세요."))
+            button(tr("Show the conversation", "대화 보기"), prominent: false) { model.panelPage = .conversation }
         } else if !model.canMakeMinutes {
             note(title: model.scenario.nothingYet,
                  text: tr("Start the captions. When it is over, the \(model.scenario.notesTitle.lowercased()) draft is made here from what was said.",

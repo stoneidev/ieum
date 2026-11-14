@@ -61,9 +61,9 @@ enum WhatsNewCatalog {
         WhatsNewPage(
             id: "meeting-view", introduced: "0.8.0", art: .menu,
             title: tr("A clearer meeting view", "회의 화면이 더 분명해졌습니다"),
-            body: tr("Every line now says which language it is: the spoken sentence (EN) and its translation (KO) are labeled apart. In the transcript panel, the Conversation tab shows what is being said and the Minutes tab shows the summary of the meeting."
+            body: tr("Every line now says which language it is: the spoken sentence (EN) and its translation (KO) are labeled apart. In the transcript panel, the conversation shows what is being said, and the minutes have their own view."
                      + (MinutesGenerator.isOffered ? " When the meeting ends, a prompt at the bottom takes you straight there. Minutes need Apple Intelligence." : ""),
-                     "줄마다 어느 언어인지 표시합니다. 들린 말(EN)과 번역(KO)이 이름표로 구분됩니다. 기록 패널의 '대화' 탭은 지금 오가는 말, '회의록' 탭은 회의 요약입니다."
+                     "줄마다 어느 언어인지 표시합니다. 들린 말(EN)과 번역(KO)이 이름표로 구분됩니다. 기록 패널은 지금 오가는 말을 보여 주고, 회의록은 따로 열어 봅니다."
                      + (MinutesGenerator.isOffered ? " 회의가 끝나면 아래의 안내가 바로 회의록으로 데려갑니다. 회의록은 Apple Intelligence가 필요합니다." : ""))
         ),
         WhatsNewPage(
