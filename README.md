@@ -43,10 +43,10 @@ The other side talks and you read your language. You answer in yours and they re
 | **What's new tour** | After an update, a short animated tour shows what changed since the version you last used. Settings → About reopens it. |
 | **Updates** | Once a day Ieum checks for a newer version and asks before installing. It downloads the update, verifies the SHA-256, the developer signature and Apple's notarization, then replaces itself and reopens. |
 | **Try it** | A built-in test plays a sentence through the speakers and shows it come back as captions and a translation, so you know it works before the meeting. Nothing is saved. |
-| **Languages** | English, Korean, Japanese and Chinese (Simplified). Pick the language you hear and the language you read, any two of them (or none, for captions only). Turn on *Both sides speak* and Ieum detects the language of each sentence and translates it into the other. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. |
+| **Languages** | English, Korean, Japanese and Chinese (Simplified). Pick the language you hear and the language you read, any two of them (or none, for captions only). Turn on *Both sides speak* and Ieum detects the language of each sentence and translates it into the other. Japanese and Chinese recognition models are downloaded by macOS the first time you use them. Before you start, one choice decides whether you want a **translation** or only **captions** in one language, and the languages are one pill such as *English → 한국어* with the usual routes one click away. |
 | **Words as they are spoken** | (English and Korean) The first words appear about half a second after you start speaking, then word by word. A second recognizer shows them early; the more accurate one confirms each sentence. |
 | **Subtitle bar** | Large text for reading at a glance. Lines, text size, background style and opacity are adjustable. It can stay above every window or behave like an ordinary one, and it can be click-through. |
-| **Reply helper** | Stuck for a word while you must answer? Press **⌃⌥R** (or the speech-bubble button on the bar), write what you mean in the language you read, and get a sentence to read out in the other side's language, right beside the bar. It is the on-device translation run the other way, so nothing leaves the Mac. With Apple Intelligence the sentence is then smoothed to sound natural (a smoothed sentence is only used when it keeps the questions, numbers and names; the literal translation stays visible). One click copies it, for the Zoom or Teams chat. The mic button lets you say it quietly instead. Hidden from screen sharing like the bar. |
+| **Reply helper** | Stuck for a word while you must answer? Press **⌃⌥R** (or the reply-arrow button on the bar), write what you mean in the language you read, and get a sentence to read out in the other side's language, right beside the bar. It is the on-device translation run the other way, so nothing leaves the Mac. With Apple Intelligence the sentence is then smoothed to sound natural (a smoothed sentence is only used when it keeps the questions, numbers and names; the literal translation stays visible). One click copies it, for the Zoom or Teams chat. The mic button lets you say it quietly instead. Hidden from screen sharing like the bar. |
 | **Screen-share safe** | Hidden from screen sharing and recording by default (`sharingType = .none`), checked with ScreenCaptureKit on macOS 26: `Scripts/check-share-safe.swift` repeats the check on your Mac. Sharing a single window is not affected. Settings → Display → Screen sharing turns it off. |
 | **Steps aside** | When the pointer comes near the bar while captions run, it turns see-through and lets clicks pass to the window behind (default), or moves to the opposite edge of the screen. The buttons at its right end stay solid. Settings → Display. |
 | **Transcript panel** | Timestamped scrollback with selectable text and auto-scroll. The spoken sentence and its translation each carry a language label (EN, KO). The minutes open as a view of their own, with a way back. |
@@ -93,7 +93,7 @@ After turning a permission on in System Settings, quit Ieum completely and open 
 
 ## Usage
 
-1. Click the Ieum icon in the menu bar, pick the situation, and choose **Translate** (one pill: *English → 한국어*) or **Captions only** in one language.
+1. Click the Ieum icon in the menu bar (or open the panel) and, before you start, choose the situation, **Translate** (one pill: *English → 한국어*) or **Captions only** in one language, and where the sound comes from (microphone, system audio or call).
 2. Press **⌃⌥S** (or *Start* in the menu). The subtitle bar appears at the bottom of the screen.
 3. Press **⌃⌥D** to switch between the subtitle bar and the transcript panel.
 4. Press **⌃⌥S** again to stop. The script is saved to `~/Documents/Ieum Transcripts`.
@@ -187,7 +187,7 @@ Requires Xcode 26 (Swift 6) on Apple silicon.
 ```sh
 make build        # caption-cli, ad-hoc signed
 make app          # .build/app/Ieum.app, ad-hoc signed, runs on this Mac only
-make test         # 130 tests
+make test         # 322 tests
 make clean
 ```
 
