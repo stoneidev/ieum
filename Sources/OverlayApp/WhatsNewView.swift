@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "sound-check", introduced: "0.15.0", art: .tryIt,
+            title: tr("Ieum tells you when it cannot hear", "소리가 안 들리면 이음이 알려 줍니다"),
+            body: tr("While captions run, a small level meter shows that sound arrives. If nothing comes in, the speech is too quiet or the sound distorts, Ieum says what is wrong and what to try: unmute, pick another microphone, move closer, turn the volume down. It only looks at how loud the sound is, on your Mac.",
+                     "자막이 도는 동안 작은 막대가 소리가 들어오는 것을 보여 줍니다. 아무 소리도 안 들어오거나, 말소리가 너무 작거나, 소리가 깨지면 무엇이 문제이고 어떻게 해 볼지 알려 줍니다. 음소거 해제, 다른 마이크 선택, 가까이 두기, 볼륨 낮추기 같은 것입니다. 소리의 크기만 보며, 모두 이 Mac 안에서 처리됩니다.")
+        ),
+        WhatsNewPage(
             id: "sound-source", introduced: "0.14.3", art: .menu,
             title: tr("Choose where the sound comes from", "소리가 어디서 나는지 바로 고르세요"),
             body: tr("Before you start, right under the languages, pick Microphone, System audio or Call, and the microphone to use. The same choice is in the ⋯ menu and the menu bar. The buttons show only what your situation offers.",

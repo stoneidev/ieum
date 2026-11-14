@@ -33,6 +33,31 @@ enum Source: String, CaseIterable {
     var isAvailableOnThisMac: Bool { self != .call || MeetingSetup.bothWaysIsAvailableOnThisMac }
 }
 
+extension InputAdvice {
+    /// What is wrong and what to try, for the source in use.
+    @MainActor func message(for source: Source) -> String? {
+        switch (self, source) {
+        case (.good, _):
+            return nil
+        case (.silent, .system):
+            return tr("No sound is playing on this Mac. Start the video or the call, or check that its sound is not muted.",
+                      "이 Mac에서 재생되는 소리가 없어요. 영상이나 회의를 재생하고 소리가 꺼져 있지 않은지 확인하세요.")
+        case (.silent, _):
+            return tr("The microphone hears nothing. Check that it is not muted and that the right one is chosen.",
+                      "마이크에 아무 소리도 들어오지 않아요. 음소거가 아닌지, 올바른 마이크가 선택됐는지 확인하세요.")
+        case (.tooQuiet, .system):
+            return tr("The sound is very quiet. Turn up the volume of what is playing.", "소리가 매우 작아요. 재생 중인 소리의 볼륨을 높여 보세요.")
+        case (.tooQuiet, _):
+            return tr("Speech is too quiet to read well. Move the microphone closer to the speaker.", "말소리가 너무 작아요. 마이크를 말하는 사람 가까이 두세요.")
+        case (.tooLoud, _):
+            return tr("The sound is so loud it distorts. Lower the volume or move the microphone away.", "소리가 너무 커서 깨져요. 볼륨을 낮추거나 마이크를 멀리 두세요.")
+        }
+    }
+
+    /// Whether choosing another microphone could fix it.
+    var suggestsAnotherMicrophone: Bool { self == .silent || self == .tooQuiet }
+}
+
 extension Source {
     /// The name on a choice or a pill: short, because the situation and the languages sit beside it.
     @MainActor var shortTitle: String {

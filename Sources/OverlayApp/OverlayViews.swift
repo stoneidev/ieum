@@ -635,11 +635,13 @@ struct SubtitleBarView: View {
             if t.confirmed.isEmpty && t.tentative.isEmpty {
                 // Nothing translated yet: show what was heard, muted, until its translation arrives.
                 if showsOriginalAsMain { return Caption(tentative: originalLine) }
-                return Caption(tentative: tr("Listening…", "듣는 중…"))
+                return Caption(tentative: model.inputAdvice.message(for: model.source) ?? tr("Listening…", "듣는 중…"))
             }
             return Caption(confirmed: t.confirmed, tentative: t.tentative)
         case .listening:
-            if model.barFinalText.isEmpty && model.partial.isEmpty { return Caption(tentative: tr("Listening…", "듣는 중…")) }
+            if model.barFinalText.isEmpty && model.partial.isEmpty {
+                return Caption(tentative: model.inputAdvice.message(for: model.source) ?? tr("Listening…", "듣는 중…"))
+            }
             return Caption(confirmed: model.barFinalText, tentative: TextScript.joiner(between: model.barFinalText, and: model.partial) + model.partial)
         }
     }
@@ -664,6 +666,7 @@ struct TranscriptPanelView: View {
         VStack(spacing: 0) {
             header
             Divider().overlay(palette.ink.opacity(0.10))
+            SoundCheckBanner(model: model, palette: palette)
             if model.panelPage == .minutes, model.offersMinutes {
                 MinutesPanelView(model: model, palette: palette, bodySize: bodySize)
             } else {
@@ -766,6 +769,7 @@ struct TranscriptPanelView: View {
     private func headerRow(chip: Bool, languages: HeaderLanguages) -> some View {
         HStack(spacing: 8) {
             StatusDot(status: model.status, idleColor: palette.interim)
+            if model.status == .listening { LevelMeter(level: model.inputLevel, palette: palette) }
             if chip { SituationChip(model: model, palette: palette) }
             if languages != .none {
                 LanguageRouteChip(model: model, palette: palette, compact: languages == .compact)

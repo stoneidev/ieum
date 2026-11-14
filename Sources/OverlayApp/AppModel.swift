@@ -44,6 +44,12 @@ final class AppModel: ObservableObject {
     @Published var coffeeStage: Int?
     @Published var coffeeThanks = false
 
+    // MARK: Sound check
+    /// What the incoming sound says about the setup (muted, too far, too loud), while captions run.
+    @Published private(set) var inputAdvice: InputAdvice = .good
+    /// 0...1, for the small level meter.
+    @Published private(set) var inputLevel: Float = 0
+
     // MARK: Vocabulary encouragement
     /// Names and jargon heard in the last meeting that are not in the vocabulary yet.
     @Published var vocabularySuggestions: [String] = []
@@ -175,6 +181,8 @@ final class AppModel: ObservableObject {
         vocabularyAdded = 0
         startingNote = nil
         transcriptWarning = nil
+        inputAdvice = .good
+        inputLevel = 0
         let setup = activeSetup
         let locales = setup.recognitionLocales(englishLocale: englishVariant.rawValue)
         let source = self.source
@@ -631,11 +639,22 @@ final class AppModel: ObservableObject {
         updateSecondaryRow()
     }
 
+    private func showInput(advice: InputAdvice, level: Float) {
+        // A late update from a session that has ended must not leave a warning on an idle bar.
+        guard isRunning else { return }
+        if advice != inputAdvice { inputAdvice = advice }
+        inputLevel = level
+    }
+
     // MARK: Session body
 
     private func runSession(setup: MeetingSetup, locales: [String], source: Source, deviceUID: String?, vocabulary: [String]) async {
-        let capture: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
+        let raw: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
         let isCall = source == .call
+        // A call reads two inputs inside its own engine; the sound check watches the single input of the other sources.
+        let capture: any AudioCapture = isCall ? raw : MeteredCapture(raw, monitor: InputLevelMonitor { [weak self] advice, level in
+            Task { @MainActor in self?.showInput(advice: advice, level: level) }
+        })
         var failure: String?
         var recoverable = false
         let missing = await ModernSpeechSupport.uninstalledLocales(locales)
