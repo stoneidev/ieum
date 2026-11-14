@@ -111,17 +111,22 @@ struct UpdateView: View {
                 }
             }
             if !notes.isEmpty {
-                VStack(alignment: .leading, spacing: 11) {
-                    ForEach(Array(notes.prefix(5).enumerated()), id: \.offset) { _, note in
-                        HStack(alignment: .firstTextBaseline, spacing: 10) {
-                            Circle().fill(Style.amber).frame(width: 5, height: 5).offset(y: -2)
-                            Text(note).font(Typeface.font(15)).foregroundStyle(Style.body).fixedSize(horizontal: false, vertical: true)
+                // The window has a fixed height: long notes scroll inside their own area, the title and the buttons stay in view.
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 11) {
+                        ForEach(Array(notes.prefix(8).enumerated()), id: \.offset) { _, note in
+                            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                                Circle().fill(Style.amber).frame(width: 5, height: 5).offset(y: -2)
+                                Text(note).font(Typeface.font(15)).foregroundStyle(Style.body).fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.top, 24)
+                .frame(maxHeight: 118)
+                .padding(.top, 20)
             }
-            Spacer(minLength: 14)
+            Spacer(minLength: 10)
             Text(tr("Installing replaces this app and reopens it. Your settings and transcripts are kept.",
                     "설치하면 이 앱이 새 버전으로 바뀌고 다시 열립니다. 설정과 기록은 그대로 남습니다."))
                 .font(Typeface.font(12))

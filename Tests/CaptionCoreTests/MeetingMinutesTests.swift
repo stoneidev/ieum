@@ -55,7 +55,8 @@ struct MeetingMinutesTests {
         ).validated(entryCount: 3)
         #expect(minutes.parts.count == 1)
         #expect(minutes.decisions == [.init(text: "Start Monday", lines: [2])])
-        #expect(minutes.actions == [.init(text: "Update notes", lines: [])])
+        // no line left to cite: dropped
+        #expect(minutes.actions.isEmpty)
     }
 
     @Test func aSummaryPastedIntoAListIsDropped() {

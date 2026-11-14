@@ -61,6 +61,11 @@ enum Preferences {
         get { defaults.data(forKey: "support").flatMap { try? JSONDecoder().decode(SupportState.self, from: $0) } ?? SupportState() }
         set { defaults.set(try? JSONEncoder().encode(newValue), forKey: "support") }
     }
+    /// The language read last, so switching translation back on returns to it instead of asking again.
+    static var lastShownLanguage: SpokenLanguage? {
+        get { defaults.string(forKey: "lastShownLanguage").flatMap(SpokenLanguage.init(rawValue:)) }
+        set { defaults.set(newValue?.rawValue, forKey: "lastShownLanguage") }
+    }
     static var source: Source {
         get { value("source", default: .microphone) }
         set { defaults.set(newValue.rawValue, forKey: "source") }

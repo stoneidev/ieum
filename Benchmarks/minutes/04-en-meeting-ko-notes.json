@@ -1,0 +1,109 @@
+{
+ "name": "en meeting, Korean notes",
+ "scenario": "meeting",
+ "language": "ko",
+ "transcript": [
+  "Thanks everyone for joining. Let's start with the security review.",
+  "The audit found two medium issues, both in the upload service.",
+  "We agreed last week to fix them before the release. Priya, you own the upload service, right?",
+  "Yes. I'll patch both issues and share the pull request by Tuesday.",
+  "Great. Next, the pricing page. Marketing wants to launch the new plans on the first of December.",
+  "That works for us, so let's go with December first.",
+  "Legal still needs to approve the new terms, and we don't have an answer yet.",
+  "Carlos, can you follow up with legal and tell us by Monday?",
+  "I will email them today and report back on Monday.",
+  "One more thing: should we support Japanese at launch? Nobody has decided that."
+ ],
+ "decisions": [
+  {
+   "any": [
+    "12월",
+    "December",
+    "출시"
+   ],
+   "lines": [
+    5,
+    6
+   ]
+  }
+ ],
+ "tasks": [
+  {
+   "any": [
+    "업로드",
+    "upload",
+    "패치",
+    "patch",
+    "풀 리퀘스트",
+    "pull request"
+   ],
+   "owner": [
+    "Priya",
+    "프리야"
+   ],
+   "due": [
+    "화요일",
+    "Tuesday"
+   ],
+   "lines": [
+    3,
+    4
+   ]
+  },
+  {
+   "any": [
+    "법무",
+    "legal"
+   ],
+   "owner": [
+    "Carlos",
+    "카를로스"
+   ],
+   "due": [
+    "월요일",
+    "Monday"
+   ],
+   "lines": [
+    8,
+    9
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "any": [
+    "일본어",
+    "Japanese"
+   ],
+   "lines": [
+    10
+   ]
+  },
+  {
+   "any": [
+    "약관",
+    "법무",
+    "legal",
+    "terms",
+    "승인"
+   ],
+   "lines": [
+    7
+   ]
+  }
+ ],
+ "forbiddenDecisions": [
+  [
+   "일본어"
+  ],
+  [
+   "Japanese"
+  ],
+  [
+   "약관"
+  ],
+  [
+   "terms"
+  ]
+ ]
+}

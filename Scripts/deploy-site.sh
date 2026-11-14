@@ -36,6 +36,16 @@ bullets = lambda text: [line[2:].strip() for line in text.splitlines() if line.s
 notes = {"en": bullets(english)}
 if bullets(korean):
     notes["ko"] = bullets(korean)
+# The update window of every app already installed (0.13.0 and earlier) has a fixed height of 372 points and room for about four lines
+# of notes: more pushes its title and its buttons out of the window (it happened with 0.13.0). Installed apps cannot be fixed
+# afterwards, so refuse here. A line holds about 52 English or 26 Korean characters.
+import math
+for language, items in notes.items():
+    per_line = 52 if language == "en" else 26
+    lines = sum(math.ceil(len(item) / per_line) for item in items)
+    if len(items) > 4 or lines > 4:
+        sys.exit(f"release notes ({language}) take {lines} lines in the update window, at most 4 fit: use up to 3 short bullets "
+                 f"(about {per_line} characters each); shorten them with gh release edit")
 feed = {
     "version": version,
     "url": f"https://github.com/stoneidev/ieum/releases/download/{tag}/Ieum.dmg",

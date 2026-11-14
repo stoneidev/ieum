@@ -1,0 +1,86 @@
+{
+ "name": "en seminar: ML in production",
+ "scenario": "seminar",
+ "language": "en",
+ "transcript": [
+  "Today I want to talk about why machine learning projects fail after the prototype.",
+  "The first reason is data drift. The data you trained on stops looking like the data you see in production.",
+  "The second reason is that nobody owns the model once it ships. There is no on-call rotation for it.",
+  "Third, evaluation. Teams measure accuracy on a test set, but never measure business impact.",
+  "A good practice is to monitor the input distribution and set alerts when it shifts.",
+  "Another practice is to keep a small human-reviewed sample every week.",
+  "Let me give an example. A retailer's demand model lost thirty percent accuracy in two months after a holiday season.",
+  "To summarise: watch for drift, assign an owner, and measure impact, not just accuracy.",
+  "Questions? Yes, how often should you retrain?",
+  "It depends on how fast your data changes. I don't have a universal number, and I'd be suspicious of anyone who does."
+ ],
+ "keyPoints": [
+  {
+   "any": [
+    "drift"
+   ],
+   "lines": [
+    2
+   ]
+  },
+  {
+   "any": [
+    "owner",
+    "own"
+   ],
+   "lines": [
+    3
+   ]
+  },
+  {
+   "any": [
+    "evaluation",
+    "business impact",
+    "impact"
+   ],
+   "lines": [
+    4
+   ]
+  },
+  {
+   "any": [
+    "monitor",
+    "alert"
+   ],
+   "lines": [
+    5
+   ]
+  },
+  {
+   "any": [
+    "human",
+    "review",
+    "sample"
+   ],
+   "lines": [
+    6
+   ]
+  },
+  {
+   "any": [
+    "retailer",
+    "thirty percent",
+    "30"
+   ],
+   "lines": [
+    7
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "any": [
+    "retrain"
+   ],
+   "lines": [
+    9,
+    10
+   ]
+  }
+ ]
+}

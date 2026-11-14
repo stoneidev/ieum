@@ -66,18 +66,27 @@ private struct GeneralTab: View {
             }
 
             Section(tr("Languages and sound", "언어와 소리")) {
-                HStack(spacing: 10) {
-                    Picker(tr("Language you hear", "듣는 언어"), selection: Binding(get: { model.setup.heard }, set: model.setHeard)) {
-                        ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag($0) }
+                Picker(tr("Mode", "방식"), selection: Binding(get: { model.setup.translates }, set: model.setTranslates)) {
+                    Text(tr("Translate", "번역하기")).tag(true)
+                    Text(tr("Captions only", "자막만")).tag(false)
+                }
+                .pickerStyle(.segmented)
+                if model.setup.translates {
+                    HStack(spacing: 10) {
+                        Picker(tr("Language you hear", "듣는 언어"), selection: Binding(get: { model.setup.heard }, set: model.setHeard)) {
+                            ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag($0) }
+                        }
+                        Button(action: model.swapDirection) { Image(systemName: "arrow.left.arrow.right") }
+                            .buttonStyle(.borderless)
+                            .help(tr("Swap languages", "언어 바꾸기") + (model.globalShortcuts ? "  ⌃⌥L" : ""))
+                            .accessibilityLabel(tr("Swap languages", "언어 바꾸기"))
+                        Picker(tr("Language you read", "보는 언어"), selection: Binding(get: { model.setup.shown }, set: model.setShown)) {
+                            ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag(SpokenLanguage?.some($0)) }
+                        }
                     }
-                    Button(action: model.swapDirection) { Image(systemName: "arrow.left.arrow.right") }
-                        .buttonStyle(.borderless)
-                        .help(tr("Swap languages", "언어 바꾸기") + (model.globalShortcuts ? "  ⌃⌥L" : ""))
-                        .accessibilityLabel(tr("Swap languages", "언어 바꾸기"))
-                    Picker(tr("Language you read", "보는 언어"), selection: Binding(get: { model.setup.shown }, set: model.setShown)) {
-                        ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag(SpokenLanguage?.some($0)) }
-                        Divider()
-                        Text(tr("No translation (captions only)", "번역 없음 (자막만)")).tag(SpokenLanguage?.none)
+                } else {
+                    Picker(tr("Spoken language", "말하는 언어"), selection: Binding(get: { model.setup.heard }, set: model.setHeard)) {
+                        ForEach(SpokenLanguage.allCases, id: \.self) { Text($0.nativeName).tag($0) }
                     }
                 }
                 if model.scenario.allowsBothWays {
@@ -566,7 +575,7 @@ private struct TranscriptsTab: View {
             do {
                 let script = ScriptParser.parse(try String(contentsOf: url, encoding: .utf8))
                 guard !script.entries.isEmpty else { throw MinutesError(errorDescription: tr("This transcript has no sentences.", "이 기록에는 문장이 없습니다.")) }
-                let minutes = try await MinutesGenerator.generate(entries: script.entries, language: language, scenario: scenario) { done, total in
+                let minutes = try await MinutesWriter.generate(entries: script.entries, language: language, scenario: scenario) { done, total in
                     await MainActor.run { minutesJob?.done = done; minutesJob?.total = total }
                 }
                 try Task.checkCancellation()

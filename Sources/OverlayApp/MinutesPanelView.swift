@@ -95,6 +95,11 @@ struct MinutesPanelView: View {
             }
         }
 
+        if !minutes.unread.isEmpty {
+            let list = minutes.unread.map { "[\($0)]" }.joined(separator: " ")
+            Text("⚠︎ " + tr("The model did not read these lines, so the notes may be missing something from them: \(list)", "모델이 읽지 않은 줄이 있어 그 내용이 빠졌을 수 있습니다: \(list)"))
+                .font(.system(size: 12)).foregroundStyle(Theme.alert).fixedSize(horizontal: false, vertical: true)
+        }
         HStack(spacing: 8) {
             button(tr("Copy", "복사"), prominent: false) {
                 if let text = model.minutesMarkdown {

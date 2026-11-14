@@ -126,3 +126,40 @@ struct SpokenLanguageTests {
         #expect(TextScript.cjkRatio("The budget is final") == 0)
     }
 }
+
+@Suite("Translation on or off")
+struct TranslationChoiceTests {
+    @Test func turningTranslationOffKeepsTheSpokenLanguage() {
+        let setup = MeetingSetup(heard: .japanese, shown: .korean).translating(false)
+        #expect(setup.heard == .japanese && setup.shown == nil && !setup.translates)
+    }
+
+    @Test func turningItOnPicksTheRememberedLanguage() {
+        let on = MeetingSetup(heard: .english, shown: nil).translating(true, preferred: .japanese)
+        #expect(on.shown == .japanese)
+    }
+
+    @Test func withoutAMemoryTheUsualPartnerIsUsed() {
+        #expect(MeetingSetup(heard: .english, shown: nil).translating(true).shown == .korean)
+        #expect(MeetingSetup(heard: .korean, shown: nil).translating(true).shown == .english)
+        #expect(MeetingSetup(heard: .japanese, shown: nil).translating(true).shown == .korean)
+    }
+
+    @Test func aRememberedLanguageEqualToTheSpokenOneIsNotUsed() {
+        // the spoken language was changed to the one remembered for reading
+        let on = MeetingSetup(heard: .korean, shown: nil).translating(true, preferred: .korean)
+        #expect(on.shown == .english)
+    }
+
+    @Test func choosingWhatIsAlreadyChosenChangesNothing() {
+        let setup = MeetingSetup(heard: .english, shown: .korean, bothWays: true)
+        #expect(setup.translating(true) == setup)
+        let off = MeetingSetup(heard: .english, shown: nil)
+        #expect(off.translating(false) == off)
+    }
+
+    @Test func switchingTranslationOffEndsBothSidesSpeaking() {
+        let setup = MeetingSetup(heard: .english, shown: .korean, bothWays: true).translating(false)
+        #expect(!setup.bothWays)
+    }
+}

@@ -78,3 +78,44 @@ It stays on where it is needed: Korean (final delay 0.84 s with it, 2.59 s witho
 language chosen correctly 100 % against 50 %; final delay 0.85 s against 2.61 s). In those modes English sentences after a pause can still lose their first
 words; a way to keep the speed without the damage is not found yet.
 Bench flags for this: `--pause <seconds>`, `--no-pause-finalization`, `--no-fast`, `--no-vad`.
+
+## Meeting-notes prompt (`minutes-eval`)
+
+The minutes, lecture notes and conversation summaries are written by the on-device model (Foundation Models) from `MinutesPrompt` (the instructions,
+in the language of the notes) plus the `Draft` schema in `MinutesWriter`, and then cleaned the same way every time (`MeetingMinutes.validated`, `grounded`).
+Changing any of that is measured with `swift build -c release --product minutes-eval && .build/release/minutes-eval Benchmarks/minutes --runs 2`
+(about 6 minutes; needs Apple Intelligence). It writes the notes for 8 transcripts with an answer key (`Benchmarks/minutes/*.json`: Korean and English
+meetings with proposals, pending matters and negations, a Korean notes version of an English meeting, two talks, a conversation) and scores: recall of the
+expected facts, whether a found fact cites a line where it is said (`cited`), the right person and day on tasks (`owner`, `due`), pending matters or proposals
+written as decisions (`forbidden`, lower is better) and items that are in no answer key (`unlisted`, mostly invented).
+
+Baseline, the first version of the instructions (a short list of rules, with an example whose names and day were copied into other meetings), same Mac, 2 runs:
+
+| | recall | cited | owner | due | forbidden | unlisted |
+|---|---|---|---|---|---|
+| first instructions (6 of 8 fixtures; **both talks failed outright**) | 74 % | 100 % | 100 % | 88 % | 2 | 20 |
+| rewritten instructions + clean-up (9 fixtures, after review fixes) | 78 % | 95 % | 89 % | 91 % | 2 | 36 |
+
+Read with care: the answer keys of three fixtures were corrected after the baseline run, the baseline did not complete the two talks, a ninth fixture (two
+meetings in one long record, read in several parts) was added and is the weakest (recall 60 %), and `unlisted` grew because the two talks (about 10 key points
+each) now count. Before the ninth fixture, the same eight scored recall 83 %, cited 94 %, owner 86 %, due 89 %. What the runs showed, and what was done about it:
+
+- **Both talks failed** ("May contain unsafe content" for a Korean talk about privacy, "sensitive content" for an English one about failed projects): the default
+  guardrails refuse ordinary text. Now the session uses `.permissiveContentTransformations`, and a part the model still declines is read as two halves; one line it
+  declines is left out instead of failing the whole notes.
+- **The example leaked.** A task had the owner "민수" and the day "수요일" in a conversation where nobody said either, a question was "릴리스 노트 업데이트…": all from
+  the example. The new example is about something unrelated (an offsite, bees), says so, and `grounded` drops an owner or a day that does not occur in the transcript.
+- **A negative rule was copied** ("do not write 'someone said'" produced the owner "누군가 말했다"). The rules are now positive ("write it as a secretary would").
+- **Invented items had no source line.** Of the questions the model made up for an English talk, 5 of 7 cited no line (nobody asked them). Points that cite no
+  existing line are dropped now (`unlisted` 66 → 34 and `forbidden` 6 → 2 with this and the next two changes).
+- **Assigned tasks also appeared as decisions** ("금요일까지 테스트 환경 준비"): same-meaning points are removed across lists (task, then decision, key point, question),
+  and a "decision" that says the matter is open ("아직 결정되지 않음", "cannot decide") is moved to the open questions.
+- A task text repeated its owner ("Priya — Priya will fix…"): the owner is stripped from the front of the text, only when the name stands alone (an independent
+  review found it turned "Annual review" into "ual review" and "민수 이사에게" into "사에게"; fixed and tested).
+- Review fixes found by reading, not by the eval: two tasks with the same words for two people were merged into one, a point with no source shadowed a later good
+  one, "on hold"/"보류" in a real decision sent it to the questions, two different dates were merged as duplicates, a line the model refuses is no longer dropped
+  silently (the notes say which lines were not read), and a single over-long line is cut and read instead of failing the notes.
+
+Tried and not kept: telling the model that the owner is "the person called by name" (e.g. "Lena, please send it": Lena). Recall 83 % → 78 %, cited 94 % → 88 %, unlisted 34 → 42.
+Still weak, because the model is small: assigned tasks without a name in the sentence ("누가 보내죠? 지수 씨가…" across two lines), a task nobody names, "X 하기로 결정됨"
+wording on tasks, and a summary that sometimes calls a talk a meeting. Every item carries its source lines for exactly this reason.

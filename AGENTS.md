@@ -31,7 +31,7 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 | `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
 | `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
 | `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
-| `Tests/CaptionCoreTests` | Swift Testing suites for the library (271 tests) |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (298 tests) |
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
@@ -50,7 +50,7 @@ Key types: `ReplyHelper` + `ReplyModel` + `ReplyPanelController` (the reply help
 ```sh
 make build                    # caption-cli (release, ad-hoc signed)
 make app                      # .build/app/Ieum.app (ad-hoc signed; runs on this Mac)
-make test                     # or: swift test   (271 tests; must stay green)
+make test                     # or: swift test   (298 tests; must stay green)
 Scripts/dev-run.sh [launch args]   # build, re-sign with $SIGN_IDENTITY, relaunch the app
 make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
 Scripts/deploy-site.sh        # site -> Cloudflare Pages
@@ -74,6 +74,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 
 ## Rules that came from mistakes
 
+- **Changing the notes prompt (`MinutesPrompt`, `MinutesWriter`, `MeetingMinutes.validated/grounded`) means running `minutes-eval`** (docs/BENCHMARKS.md, "Meeting-notes prompt") before and after and recording the numbers. Lessons from it: an example in the instructions is copied into other meetings (keep it unrelated and say so); a phrase named in a "do not" rule is copied too; the model invents list items that cite no line; the default guardrails refuse ordinary talks, so the session uses `.permissiveContentTransformations`.
 - **The reply helper must never present a rewrite that changes the meaning.** The smoothing step is accepted only through `ReplyHelper.acceptsPolished` (question stays a question, numbers and capitalised names kept, not much shorter). It was written after a real run turned a question into a statement and dropped a clause; keep the literal translation visible and add a test when a new failure shows up. Dictation (mic button) is unverified on the dev Mac (lid closed).
 - **Screen-share safe is a promise with a verified scope.** `sharingType = .none` was checked with ScreenCaptureKit on macOS 26.6 only (display capture, one pixel read). Do not word it as absolute ("never"), keep the scope in the README, site and settings text, and re-run `Scripts/check-share-safe.swift` when macOS changes. Sharing a single window is not covered.
 - **Pause finalization.** Asking the recognizer to finalize at a pause (`pauseFinalization`) damages the first words of the next English sentence
@@ -99,7 +100,7 @@ AppleScript accessibility (`click button 1 of group 1 of window "Captions"`), pl
 SHA-256, size, notes), asks, downloads, verifies (SHA-256, same Team ID, `codesign`, `spctl`, bundle version) and swaps the app with a small shell script after quit.
 Pure decisions (`UpdateCheck`, `UpdateFeed`) live in CaptionCore and are tested. Rules:
 - **Ship order matters**: create the GitHub release first, then run `Scripts/deploy-site.sh`; publishing the feed is what offers the release to installed apps.
-- Release notes: English bullets, a line `---`, then Korean bullets (both become the update window's notes).
+- Release notes: English bullets, a line `---`, then Korean bullets (both become the update window's notes). **Keep them to 3 one-line bullets** (about 52 English / 26 Korean characters each): the update window of every app up to 0.13.0 has a fixed height, and 0.13.0's long notes pushed its title and its "Update now" button out of the window. Installed apps cannot be fixed afterwards, so `Scripts/deploy-site.sh` refuses notes that take more than 4 lines. From the version after 0.13.0 the notes scroll inside the window, but old clients keep the old layout for as long as they exist. If a release's notes were too long, `gh release edit vX.Y.Z --notes …` and run `Scripts/deploy-site.sh` again: the feed is rebuilt from the release.
 - The privacy statement is "the only request is the optional update check". Do not add other requests, and keep the toggle. The coffee ask is local counting plus a page that opens only on the user's click; keep it that way (never ping a server to count supporters).
 - Test without publishing anything: serve a folder with `python3 -m http.server 8765` containing `latest.json` (+ a DMG whose app version equals the feed version) and run
   a **copy** of the app: `open -n /tmp/X/Ieum.app --args -updateFeedURL http://localhost:8765/latest.json -updateCurrentVersion 0.0.1`. Reset `defaults delete today.calmwork.ieum lastUpdateCheck`
@@ -133,8 +134,8 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 
 ## State at hand-off
 
-- Latest published release is **v0.13.0** (build 25), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.13.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models) → v0.7.1 the minutes item is shown only on Macs with Apple Intelligence → v0.8.0 meeting view: language labels on spoken/translated lines, Conversation | Minutes tabs in the panel, wrap-up prompt, minutes in the ⋯ and menu-bar menus → v0.9.0 situations (conversation / meeting / seminar) and normalized notes → v0.10.0 the coffee ask → v0.11.0 the situation is chosen on the panel and the idle bar (`SituationChip`, `SituationPicker`), not only in Settings → v0.12.0 screen-share safe + pointer avoidance → v0.13.0 the reply helper (⌃⌥R).
-- Tests: 271 (`swift test`). Build is warning-free.
+- Latest published release is **v0.14.0** (build 26), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.14.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models) → v0.7.1 the minutes item is shown only on Macs with Apple Intelligence → v0.8.0 meeting view: language labels on spoken/translated lines, Conversation | Minutes tabs in the panel, wrap-up prompt, minutes in the ⋯ and menu-bar menus → v0.9.0 situations (conversation / meeting / seminar) and normalized notes → v0.10.0 the coffee ask → v0.11.0 the situation is chosen on the panel and the idle bar (`SituationChip`, `SituationPicker`), not only in Settings → v0.12.0 screen-share safe + pointer avoidance → v0.13.0 the reply helper (⌃⌥R) → v0.14.0 translate-or-captions-only is one choice next to the situation (`LanguageRouteChip`, `MeetingSetup.translating`).
+- Tests: 298 (`swift test`). Build is warning-free.
 - Site download counter is the sum of GitHub `download_count` over all releases, shown from 25 up. It includes the maintainer's own verification downloads and auto-updates, so it is not a user count.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: other language pairs (biggest reach), early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test (including an external microphone: only the device switch was verified, not recognition from it), an English user guide.

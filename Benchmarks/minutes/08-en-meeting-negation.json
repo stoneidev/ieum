@@ -1,0 +1,82 @@
+{
+ "name": "en meeting: negations and holds",
+ "scenario": "meeting",
+ "language": "en",
+ "transcript": [
+  "Let's decide on the database. Are we moving to Postgres?",
+  "No, we are not moving to Postgres this year. The migration cost is too high.",
+  "Okay, so we stay on MySQL and revisit in January.",
+  "Yes, revisit in January. That's the decision.",
+  "On the outage report, Ana, please write the postmortem. It's due next Monday.",
+  "Understood, I'll write the postmortem and send it Monday.",
+  "Should we hire a second SRE? I think so, but the budget isn't approved.",
+  "Right, so we can't decide that until finance responds.",
+  "Finance said they'd answer by the end of the month, but it's not confirmed.",
+  "Last point: nobody is going to the conference in March, we cut the travel budget."
+ ],
+ "decisions": [
+  {
+   "any": [
+    "MySQL",
+    "stay",
+    "Postgres",
+    "revisit",
+    "January"
+   ],
+   "lines": [
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "any": [
+    "conference",
+    "travel"
+   ],
+   "lines": [
+    10
+   ]
+  }
+ ],
+ "tasks": [
+  {
+   "any": [
+    "postmortem"
+   ],
+   "owner": [
+    "Ana"
+   ],
+   "due": [
+    "Monday"
+   ],
+   "lines": [
+    5,
+    6
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "any": [
+    "SRE",
+    "hire",
+    "budget",
+    "finance"
+   ],
+   "lines": [
+    7,
+    8,
+    9
+   ]
+  }
+ ],
+ "forbiddenDecisions": [
+  [
+   "hire"
+  ],
+  [
+   "SRE"
+  ]
+ ]
+}

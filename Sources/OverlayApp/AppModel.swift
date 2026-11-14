@@ -292,6 +292,17 @@ final class AppModel: ObservableObject {
     /// The language to read; nil shows captions only. Choosing the language that is heard swaps the two.
     func setShown(_ language: SpokenLanguage?) { apply(setup.showing(language)) }
 
+    /// Hearing one language and reading another (or none), in one step.
+    func setRoute(heard: SpokenLanguage, shown: SpokenLanguage?) {
+        apply(MeetingSetup(heard: heard, shown: shown, bothWays: setup.bothWays && shown != nil))
+    }
+
+    /// The language the person reads by default: their interface language.
+    var myLanguage: SpokenLanguage { L10n.isKorean ? .korean : .english }
+
+    /// Translate, or show captions only: one choice instead of picking a language to read and then picking "none".
+    func setTranslates(_ on: Bool) { apply(setup.translating(on, preferred: Preferences.lastShownLanguage)) }
+
     /// Both sides speak: each sentence is recognized in whichever language it was said in and translated into the other.
     func setBothWays(_ on: Bool) {
         guard !on || MeetingSetup.bothWaysIsAvailableOnThisMac else { return }
@@ -309,6 +320,7 @@ final class AppModel: ObservableObject {
         // read), so swapping them must restart even though the set of languages is the same.
         let carriesOn = activeSetup.runsLike(before) && !(source == .call && (activeSetup.heard != before.heard || activeSetup.shown != before.shown))
         Preferences.meetingSetup = new
+        if let shown = new.shown { Preferences.lastShownLanguage = shown }
         updateSecondaryRow()
         if !carriesOn { restartIfRunning() }
     }

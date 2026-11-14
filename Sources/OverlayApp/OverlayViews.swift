@@ -475,9 +475,10 @@ struct SubtitleBarView: View {
         // When the coffee ask is up and the bar is narrow, it shrinks to the ☕ button so the controls on the right stay reachable.
         // The situation chip and the words give way, in this order, as the bar gets narrower; the controls on the right never do.
         return ViewThatFits(in: .horizontal) {
-            idleRow(fontSize: fontSize, ask: .full, chip: true)
-            idleRow(fontSize: fontSize, ask: .compact, chip: true)
-            idleRow(fontSize: fontSize, ask: .compact, chip: false)
+            idleRow(fontSize: fontSize, ask: .full, chip: true, languages: true)
+            idleRow(fontSize: fontSize, ask: .compact, chip: true, languages: true)
+            idleRow(fontSize: fontSize, ask: .compact, chip: true, languages: false)
+            idleRow(fontSize: fontSize, ask: .compact, chip: false, languages: false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .padding(.horizontal, BarMetrics.horizontalPadding)
@@ -486,10 +487,11 @@ struct SubtitleBarView: View {
 
     private enum AskLayout { case full, compact }
 
-    private func idleRow(fontSize: CGFloat, ask: AskLayout, chip: Bool) -> some View {
+    private func idleRow(fontSize: CGFloat, ask: AskLayout, chip: Bool, languages: Bool) -> some View {
         HStack(spacing: 14) {
             StatusDot(status: .idle, idleColor: palette.interim)
             if chip { SituationChip(model: model, palette: palette, fontSize: max(12, fontSize - 4)) }
+            if languages { LanguageRouteChip(model: model, palette: palette, fontSize: max(12, fontSize - 4)) }
             if model.coffeeThanks {
                 Text("☕ " + tr("Thank you!", "고마워요!"))
                     .font(.system(size: fontSize, weight: .medium))
@@ -776,22 +778,21 @@ struct TranscriptPanelView: View {
     /// The controls on the right keep their size; in a narrow panel the languages give way first, then the situation pill.
     private var header: some View {
         ViewThatFits(in: .horizontal) {
-            headerRow(chip: true, languages: true)
-            headerRow(chip: true, languages: false)
-            headerRow(chip: false, languages: false)
+            headerRow(chip: true, languages: .full)
+            headerRow(chip: true, languages: .compact)
+            headerRow(chip: false, languages: .compact)
+            headerRow(chip: false, languages: .none)
         }
     }
 
-    private func headerRow(chip: Bool, languages: Bool) -> some View {
+    private enum HeaderLanguages { case full, compact, none }
+
+    private func headerRow(chip: Bool, languages: HeaderLanguages) -> some View {
         HStack(spacing: 8) {
             StatusDot(status: model.status, idleColor: palette.interim)
             if chip { SituationChip(model: model, palette: palette) }
-            if languages {
-                Text(model.activeSetup.title)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(palette.ink)
-                    .lineLimit(1)
-                    .fixedSize()
+            if languages != .none {
+                LanguageRouteChip(model: model, palette: palette, compact: languages == .compact)
                     .help(model.activeSetup.explanation + "\n" + model.source.title)
             }
             Spacer(minLength: 8)

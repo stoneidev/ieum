@@ -1,0 +1,100 @@
+{
+ "name": "en meeting: sprint planning",
+ "scenario": "meeting",
+ "language": "en",
+ "transcript": [
+  "Okay, let's go through what we need to settle for the sprint.",
+  "First, the login bug. Dana, can you take that one and have a fix by Wednesday?",
+  "Sure, I'll have a fix up for review by Wednesday.",
+  "Second, we talked about moving to the new design system. I think we should wait until next quarter.",
+  "Agreed. We will not migrate this sprint. That's decided.",
+  "Third, the demo for the client is on Friday at 2 p.m. Tom, you'll prepare the slides?",
+  "Yes, I'll send the slides to everyone by Thursday evening.",
+  "What about the performance issue on the dashboard? Does anyone know the cause yet?",
+  "Not yet. We're still looking into it. Let's see what the profiler shows.",
+  "Also, someone should update the onboarding doc, but I don't think anyone has the time right now.",
+  "I can look at it next week if nothing else comes up, but don't count on it."
+ ],
+ "decisions": [
+  {
+   "any": [
+    "migrate",
+    "migration",
+    "design system"
+   ],
+   "alsoAny": [
+    "not",
+    "won't",
+    "wait",
+    "next quarter",
+    "no "
+   ],
+   "lines": [
+    5
+   ]
+  }
+ ],
+ "tasks": [
+  {
+   "any": [
+    "login",
+    "fix"
+   ],
+   "owner": [
+    "Dana"
+   ],
+   "due": [
+    "Wednesday"
+   ],
+   "lines": [
+    2,
+    3
+   ]
+  },
+  {
+   "any": [
+    "slides"
+   ],
+   "owner": [
+    "Tom"
+   ],
+   "due": [
+    "Thursday"
+   ],
+   "lines": [
+    6,
+    7
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "any": [
+    "performance",
+    "dashboard",
+    "cause",
+    "profiler"
+   ],
+   "lines": [
+    8,
+    9
+   ]
+  }
+ ],
+ "forbiddenDecisions": [
+  [
+   "onboarding"
+  ],
+  [
+   "performance"
+  ],
+  [
+   "move to the new"
+  ]
+ ],
+ "forbiddenTasks": [
+  [
+   "onboarding"
+  ]
+ ]
+}

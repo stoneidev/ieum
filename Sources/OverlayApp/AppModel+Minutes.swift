@@ -69,7 +69,7 @@ extension AppModel {
             do {
                 let script = ScriptParser.parse(try String(contentsOf: url, encoding: .utf8))
                 guard !script.entries.isEmpty else { throw MinutesFailure(message: tr("This transcript has no sentences.", "이 기록에는 문장이 없습니다.")) }
-                let result = try await MinutesGenerator.generate(entries: script.entries, language: language, scenario: scenario) { done, total in
+                let result = try await MinutesWriter.generate(entries: script.entries, language: language, scenario: scenario) { done, total in
                     await MainActor.run { if self?.minutesRun == run, !Task.isCancelled { self?.minutesState = .working(done: done, total: total) } }
                 }
                 try Task.checkCancellation()

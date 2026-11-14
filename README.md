@@ -15,11 +15,11 @@ Read what the other side says in your language, while they read what you say in 
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-lightgrey?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
 ![Build](https://img.shields.io/badge/build-Swift%20Package%20Manager-blue)
-![Tests](https://img.shields.io/badge/tests-271%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.13.0-orange)
+![Version](https://img.shields.io/badge/version-0.14.0-orange)
 
 [Features](#features) · [Install](#install) · [Usage](#usage) · [Documentation](#documentation) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
 
@@ -92,7 +92,7 @@ After turning a permission on in System Settings, quit Ieum completely and open 
 
 ## Usage
 
-1. Click the Ieum icon in the menu bar and choose the **language you hear** and the **language you read**.
+1. Click the Ieum icon in the menu bar, pick the situation, and choose **Translate** (one pill: *English → 한국어*) or **Captions only** in one language.
 2. Press **⌃⌥S** (or *Start* in the menu). The subtitle bar appears at the bottom of the screen.
 3. Press **⌃⌥D** to switch between the subtitle bar and the transcript panel.
 4. Press **⌃⌥S** again to stop. The script is saved to `~/Documents/Ieum Transcripts`.
@@ -241,7 +241,7 @@ The only network request Ieum makes is the optional update check: once a day it 
 
 ## Status
 
-Version 0.13.0. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
+Version 0.14.0. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
 
 ## License
 

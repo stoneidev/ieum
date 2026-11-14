@@ -26,7 +26,7 @@ export NOTARY_PROFILE=stt-notary
    kill `notarytool submit` and rerun `make dmg` only.
 6. **Commit and tag.** `git add -A; git commit` (message "Release x.y.z" + one-paragraph summary + trailer), `git tag -a vx.y.z -m "Ieum x.y.z"`,
    `git push origin main --tags`. Never move an existing tag.
-7. **GitHub Release.** `gh release create vx.y.z .build/app/Ieum.dmg --title "Ieum x.y.z" --notes "<English bullets>\n---\n<Korean bullets>"` (English bullets first, then a `---` line, then the same in Korean: the in-app update window shows them). If `gh` answers 504 the release may exist
+7. **GitHub Release.** Notes: 3 one-line bullets per language (about 52 English / 26 Korean characters each), details belong in the README and on the site; older apps show them in a fixed-height window and `Scripts/deploy-site.sh` refuses longer ones. `gh release create vx.y.z .build/app/Ieum.dmg --title "Ieum x.y.z" --notes "<English bullets>\n---\n<Korean bullets>"` (English bullets first, then a `---` line, then the same in Korean: the in-app update window shows them). If `gh` answers 504 the release may exist
    as a draft with no asset: `gh release upload vx.y.z .build/app/Ieum.dmg --clobber` then `gh release edit vx.y.z --draft=false`.
 8. **Verify the public download** (no login):
    ```sh

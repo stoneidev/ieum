@@ -8,6 +8,7 @@ let package = Package(
         .executable(name: "caption-cli", targets: ["CaptionCLI"]),
         .executable(name: "Ieum", targets: ["OverlayApp"]),
         .executable(name: "caption-bench", targets: ["CaptionBench"]),
+        .executable(name: "minutes-eval", targets: ["MinutesEval"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
@@ -49,6 +50,12 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             path: "Sources/CaptionBench"
+        ),
+        // Developer tool: scores the meeting-notes prompt against transcripts with known answers (`Scripts/eval-minutes.sh`).
+        .executableTarget(
+            name: "MinutesEval",
+            dependencies: ["CaptionCore"],
+            path: "Sources/MinutesEval"
         ),
         .testTarget(
             name: "CaptionCoreTests",

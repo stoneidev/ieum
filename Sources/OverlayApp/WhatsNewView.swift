@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "translate-or-captions", introduced: "0.14.0", art: .languages,
+            title: tr("Translate, or captions only: one choice", "번역할지 자막만 볼지, 한 번에 고르세요"),
+            body: tr("Before you start, the transcript panel and the subtitle bar ask whether you want a translation or just captions in one language. The languages are one pill, such as English → 한국어, with the usual routes one click away. The same choice leads Settings > General.",
+                     "시작하기 전에 기록 패널과 자막 바가 번역이 필요한지, 한 언어 자막만 필요한지 먼저 묻습니다. 언어는 English → 한국어 같은 알약 하나로 고르고, 자주 쓰는 조합은 한 번 누르면 됩니다. 설정 > 일반도 같은 순서입니다.")
+        ),
+        WhatsNewPage(
             id: "reply", introduced: "0.13.0", art: .tryIt,
             title: tr("Stuck for a word? Ask the reply helper", "말이 막히면 답장 도우미"),
             body: tr("Press ⌃⌥R (or the speech-bubble button on the bar), write what you want to say in the language you read, and get a sentence to read out in theirs. One click copies it for the chat. It runs on this Mac, and with Apple Intelligence it is smoothed to sound natural.",

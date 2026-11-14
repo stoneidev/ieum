@@ -9,6 +9,9 @@ public enum SpokenLanguage: String, CaseIterable, Sendable {
 
     public var code: String { rawValue }
 
+    /// The language most people who speak this one want to read it in: Korean for everyone else, English for Korean.
+    public var defaultCounterpart: SpokenLanguage { self == .korean ? .english : .korean }
+
     /// The locale recognized for this language. English is the exception: the user picks the accent.
     public var defaultLocale: String {
         switch self {
@@ -62,6 +65,15 @@ public struct MeetingSetup: Equatable, Sendable {
         language == heard
             ? MeetingSetup(heard: shown ?? heard, shown: heard, bothWays: bothWays)
             : MeetingSetup(heard: heard, shown: language, bothWays: bothWays)
+    }
+
+    /// Switches translation on or off with one choice. Turning it on picks the language to read: the one used last if there is
+    /// one, else the usual partner of the spoken language. Turning it off keeps the spoken language and shows captions only.
+    public func translating(_ on: Bool, preferred: SpokenLanguage? = nil) -> MeetingSetup {
+        guard on != translates else { return self }
+        guard on else { return MeetingSetup(heard: heard, shown: nil) }
+        let target = [preferred, heard.defaultCounterpart].compactMap { $0 }.first { $0 != heard } ?? heard.defaultCounterpart
+        return MeetingSetup(heard: heard, shown: target, bothWays: bothWays)
     }
 
     public func speakingBothWays(_ on: Bool) -> MeetingSetup { MeetingSetup(heard: heard, shown: shown, bothWays: on) }

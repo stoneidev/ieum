@@ -2,14 +2,17 @@ import AppKit
 import CaptionCore
 import SwiftUI
 
-/// The situation (conversation, meeting, seminar) where it is used: a small pill on the bar and the panel that opens the
-/// choice, so it is set right before the captions start instead of deep in the settings.
-struct SituationChip: NSViewRepresentable {
-    @ObservedObject var model: AppModel
+/// A small pill that opens a menu: how the situation and the languages are chosen where they are used (on the bar and the
+/// panel), not deep in the settings.
+struct PillMenuButton: NSViewRepresentable {
+    let title: String
     let palette: Theme.Palette
     var fontSize: CGFloat = 13
+    let tip: String
+    let accessibility: String
+    let makeMenu: @MainActor () -> NSMenu
 
-    func makeCoordinator() -> Coordinator { Coordinator(model: model) }
+    func makeCoordinator() -> Coordinator { Coordinator(makeMenu: makeMenu) }
 
     func makeNSView(context: Context) -> NSButton {
         let button = ChipButton()
@@ -24,16 +27,16 @@ struct SituationChip: NSViewRepresentable {
 
     func updateNSView(_ button: NSButton, context: Context) {
         let ink = NSColor(palette.ink)
-        let title = NSMutableAttributedString(string: model.scenario.chipTitle + " ", attributes: [
+        let text = NSMutableAttributedString(string: title + " ", attributes: [
             .font: NSFont.systemFont(ofSize: fontSize, weight: .semibold), .foregroundColor: ink,
         ])
-        title.append(NSAttributedString(string: "▾", attributes: [.font: NSFont.systemFont(ofSize: fontSize - 2), .foregroundColor: ink.withAlphaComponent(0.7)]))
-        button.attributedTitle = title
+        text.append(NSAttributedString(string: "▾", attributes: [.font: NSFont.systemFont(ofSize: fontSize - 2), .foregroundColor: ink.withAlphaComponent(0.7)]))
+        button.attributedTitle = text
         button.layer?.cornerRadius = (fontSize + 10) / 2
         button.layer?.backgroundColor = NSColor(palette.interim).withAlphaComponent(0.20).cgColor
-        button.toolTip = tr("What are you doing? ", "지금 무엇을 하시나요? ") + model.scenario.hint
-        button.setAccessibilityLabel(tr("Situation: ", "상황: ") + model.scenario.title)
-        context.coordinator.model = model
+        button.toolTip = tip
+        button.setAccessibilityLabel(accessibility)
+        context.coordinator.makeMenu = makeMenu
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSButton, context: Context) -> CGSize? {
@@ -48,40 +51,134 @@ struct SituationChip: NSViewRepresentable {
 
     @MainActor
     final class Coordinator: NSObject {
-        var model: AppModel
-        init(model: AppModel) { self.model = model }
+        var makeMenu: @MainActor () -> NSMenu
+        init(makeMenu: @escaping @MainActor () -> NSMenu) { self.makeMenu = makeMenu }
 
         @objc func show(_ sender: NSButton) {
-            let menu = NSMenu()
-            menu.autoenablesItems = false
-            let header = NSMenuItem(title: tr("What are you doing?", "지금 무엇을 하시나요?"), action: nil, keyEquivalent: "")
-            header.isEnabled = false
-            menu.addItem(header)
-            for scenario in Scenario.allCases {
-                let item = ScenarioItem(scenario: scenario, model: model)
-                item.state = scenario == model.scenario ? .on : .off
-                menu.addItem(item)
-            }
-            menu.popUp(positioning: nil, at: NSPoint(x: 0, y: sender.isFlipped ? sender.bounds.maxY + 2 : -2), in: sender)
+            makeMenu().popUp(positioning: nil, at: NSPoint(x: 0, y: sender.isFlipped ? sender.bounds.maxY + 2 : -2), in: sender)
         }
     }
+}
 
-    private final class ScenarioItem: NSMenuItem {
-        private let scenario: Scenario
-        private let model: AppModel
+/// A menu item that runs a closure.
+final class PillMenuItem: NSMenuItem {
+    private let handler: () -> Void
 
-        @MainActor
-        init(scenario: Scenario, model: AppModel) {
-            self.scenario = scenario
-            self.model = model
-            super.init(title: scenario.title + "  ·  " + scenario.hint, action: #selector(choose), keyEquivalent: "")
-            target = self
-            image = NSImage(systemSymbolName: scenario.symbol, accessibilityDescription: nil)
+    init(_ title: String, checked: Bool = false, enabled: Bool = true, symbol: String? = nil, handler: @escaping () -> Void) {
+        self.handler = handler
+        super.init(title: title, action: #selector(fire), keyEquivalent: "")
+        target = self
+        state = checked ? .on : .off
+        isEnabled = enabled
+        if let symbol { image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil) }
+    }
+
+    required init(coder: NSCoder) { fatalError("not used") }
+
+    @objc private func fire() { handler() }
+}
+
+private func heading(_ title: String) -> NSMenuItem {
+    let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+    item.isEnabled = false
+    return item
+}
+
+/// The situation (conversation, meeting, seminar).
+struct SituationChip: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+    var fontSize: CGFloat = 13
+
+    var body: some View {
+        PillMenuButton(
+            title: model.scenario.chipTitle, palette: palette, fontSize: fontSize,
+            tip: tr("What are you doing? ", "지금 무엇을 하시나요? ") + model.scenario.hint,
+            accessibility: tr("Situation: ", "상황: ") + model.scenario.title,
+            makeMenu: { [model] in
+                let menu = NSMenu()
+                menu.autoenablesItems = false
+                menu.addItem(heading(tr("What are you doing?", "지금 무엇을 하시나요?")))
+                for scenario in Scenario.allCases {
+                    menu.addItem(PillMenuItem(scenario.title + "  ·  " + scenario.hint, checked: scenario == model.scenario, symbol: scenario.symbol) { model.setScenario(scenario) })
+                }
+                return menu
+            }
+        )
+    }
+}
+
+/// The languages in one pill: "English → 한국어" (translated) or "English · captions only". The menu is the whole choice:
+/// the usual routes in one click, captions in one language, and the two-step choice for anything else.
+struct LanguageRouteChip: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+    var fontSize: CGFloat = 13
+    /// Language codes instead of names, for a header with little room.
+    var compact = false
+
+    static func title(of setup: MeetingSetup, compact: Bool = false) -> String {
+        func name(_ language: SpokenLanguage) -> String { compact ? language.code.uppercased() : language.nativeName }
+        guard let shown = setup.shown else { return name(setup.heard) + " · " + tr("captions only", "자막만") }
+        return "\(name(setup.heard)) \(setup.bothWays ? "↔" : "→") \(name(shown))"
+    }
+
+    var body: some View {
+        PillMenuButton(
+            title: Self.title(of: model.activeSetup, compact: compact), palette: palette, fontSize: fontSize,
+            tip: model.activeSetup.explanation,
+            accessibility: tr("Languages: ", "언어: ") + Self.title(of: model.activeSetup),
+            makeMenu: { [model] in Self.menu(for: model) }
+        )
+    }
+
+    @MainActor
+    static func menu(for model: AppModel) -> NSMenu {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        let setup = model.setup
+        let mine = model.myLanguage
+        menu.addItem(heading(tr("Translate what you hear", "들리는 말을 번역")))
+        // the routes most people want, one click each: hear another language and read mine, or the other way round
+        for other in SpokenLanguage.allCases where other != mine {
+            menu.addItem(PillMenuItem("\(other.nativeName) → \(mine.nativeName)", checked: setup.translates && setup.heard == other && setup.shown == mine) {
+                model.setRoute(heard: other, shown: mine)
+            })
         }
-
-        required init(coder: NSCoder) { fatalError("not used") }
-
-        @MainActor @objc private func choose() { model.setScenario(scenario) }
+        for other in SpokenLanguage.allCases where other != mine {
+            menu.addItem(PillMenuItem("\(mine.nativeName) → \(other.nativeName)", checked: setup.translates && setup.heard == mine && setup.shown == other) {
+                model.setRoute(heard: mine, shown: other)
+            })
+        }
+        menu.addItem(.separator())
+        menu.addItem(heading(tr("Captions only, no translation", "자막만 (번역 없음)")))
+        for language in SpokenLanguage.allCases {
+            menu.addItem(PillMenuItem(language.nativeName, checked: !setup.translates && setup.heard == language) { model.setRoute(heard: language, shown: nil) })
+        }
+        menu.addItem(.separator())
+        // any other pair: the two-step choice
+        let other = NSMenuItem(title: tr("Another pair of languages", "다른 언어 조합"), action: nil, keyEquivalent: "")
+        let sub = NSMenu()
+        sub.autoenablesItems = false
+        sub.addItem(heading(tr("Language you hear", "듣는 언어")))
+        for language in SpokenLanguage.allCases {
+            sub.addItem(PillMenuItem(language.nativeName, checked: setup.heard == language) { model.setHeard(language) })
+        }
+        sub.addItem(.separator())
+        sub.addItem(heading(tr("Language you read", "보는 언어")))
+        for language in SpokenLanguage.allCases {
+            sub.addItem(PillMenuItem(language.nativeName, checked: setup.shown == language) { model.setShown(language) })
+        }
+        other.submenu = sub
+        menu.addItem(other)
+        if setup.translates {
+            menu.addItem(PillMenuItem(tr("Swap languages", "언어 바꾸기")) { model.swapDirection() })
+            if model.scenario.allowsBothWays {
+                menu.addItem(PillMenuItem(tr("Both sides speak (detect the language)", "서로 번갈아 말함 (언어 자동 인식)"), checked: setup.bothWays,
+                                          enabled: MeetingSetup.bothWaysIsAvailableOnThisMac) { model.setBothWays(!setup.bothWays) })
+            }
+        }
+        return menu
     }
 }
 
@@ -102,7 +199,48 @@ struct SituationPicker: View {
                 .font(.system(size: 12))
                 .foregroundStyle(palette.interim)
                 .fixedSize(horizontal: false, vertical: true)
+            languages
         }
+    }
+
+    /// Translate, or only show captions in one language: the second thing to decide before starting, with the languages beside it.
+    private var languages: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(tr("Translate it?", "번역이 필요한가요?"))
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(palette.ink)
+                .padding(.top, 6)
+            HStack(spacing: 8) {
+                choice(tr("Translate", "번역하기"), symbol: "character.bubble", selected: model.setup.translates) { model.setTranslates(true) }
+                choice(tr("Captions only", "자막만"), symbol: "captions.bubble", selected: !model.setup.translates) { model.setTranslates(false) }
+            }
+            HStack(spacing: 8) {
+                Text(model.setup.translates ? tr("Hear → read", "듣는 언어 → 보는 언어") : tr("Spoken language", "말하는 언어"))
+                    .font(.system(size: 12))
+                    .foregroundStyle(palette.interim)
+                LanguageRouteChip(model: model, palette: palette)
+            }
+        }
+    }
+
+    private func choice(_ title: String, symbol: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: symbol).font(.system(size: 14))
+                Text(title).font(.system(size: 13, weight: .semibold))
+                Spacer(minLength: 0)
+                if selected { Image(systemName: "checkmark").font(.system(size: 11, weight: .semibold)) }
+            }
+            .foregroundStyle(palette.ink)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(palette.interim.opacity(selected ? 0.24 : 0.10)))
+            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(palette.ink.opacity(selected ? 0.45 : 0.12), lineWidth: 1))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func tile(_ scenario: Scenario) -> some View {
