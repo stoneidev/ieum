@@ -400,7 +400,7 @@ struct DisplayToggleButton: View {
         let toPanel = model.displayMode == .bar
         let label = toPanel ? tr("Show the transcript panel", "기록 패널로 전환") : tr("Show the subtitle bar", "자막 바로 전환")
         Button(action: { model.cycleDisplayMode() }) {
-            Image(systemName: toPanel ? "list.bullet.rectangle" : "captions.bubble")
+            Image(systemName: toPanel ? "list.bullet.rectangle" : "rectangle.bottomthird.inset.filled")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(palette.interim)
                 .frame(width: 28, height: 28)
@@ -423,7 +423,7 @@ struct ReplyButton: View {
     var body: some View {
         let label = tr("Reply helper: write it in your language, read it out in theirs", "답장 도우미: 내 언어로 쓰면 상대 언어 문장을 알려 줍니다")
         Button(action: { model.openReply() }) {
-            Image(systemName: "text.bubble")
+            Image(systemName: "arrowshape.turn.up.left")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(palette.interim)
                 .frame(width: 28, height: 28)

@@ -21,7 +21,7 @@
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.14.1-orange)
+![Version](https://img.shields.io/badge/version-0.14.2-orange)
 
 [功能](#功能) · [安装](#安装) · [使用](#使用) · [文档](#文档) · [架构](#架构) · [构建](#从源码构建) · [性能](#性能) · [故障排除](#故障排除)
 
@@ -244,7 +244,7 @@ Ieum 唯一的网络请求是可选的更新检查：每天读取一次 `https:/
 
 ## 状态
 
-版本 0.14.1。尚未验证：在有多位说话人的真实会议室中使用、在 macOS 26 之前版本上的表现，以及以 Ieum 名义公证的构建。
+版本 0.14.2。尚未验证：在有多位说话人的真实会议室中使用、在 macOS 26 之前版本上的表现，以及以 Ieum 名义公证的构建。
 
 ## 许可证
 
