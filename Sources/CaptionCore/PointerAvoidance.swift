@@ -17,7 +17,7 @@ public struct PointerZone: Equatable, Sendable {
     public var arriveMargin: CGFloat = 6
     public var leaveMargin: CGFloat = 28
     /// The right end of the bar holds its controls (text size, panel, menu). The pointer there is meant for the bar.
-    public var controlsWidth: CGFloat = 170
+    public var controlsWidth: CGFloat = 210
 
     public init() {}
 

@@ -130,6 +130,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(display)
         menu.addItem(.separator())
 
+        let replyItem = action(tr("Reply helper…", "답장 도우미…"), #selector(showReply), key: "r")
+        replyItem.keyEquivalentModifierMask = [.control, .option]
+        menu.addItem(replyItem)
         menu.addItem(action(tr("Copy transcript", "기록 복사"), #selector(copyTranscript)))
         let nameMeeting = action(tr("Name this meeting…", "이 회의에 이름 붙이기…"), #selector(nameMeeting))
         nameMeeting.isEnabled = model.canNameLastTranscript
@@ -185,6 +188,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func toggleBothWays() { model.setBothWays(!model.setup.bothWays) }
 
     @objc private func nameMeeting() { model.renameLastTranscript() }
+
+    @objc private func showReply() { model.openReply() }
 
     @objc private func buyCoffee() { model.openCoffeePageFromMenu() }
 

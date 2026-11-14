@@ -49,6 +49,7 @@ private struct GeneralTab: View {
         ("H", tr("Show / hide", "보이기/숨기기")),
         ("D", tr("Bar / panel", "바/패널")),
         ("L", tr("Swap language direction", "언어 방향 바꾸기")),
+        ("R", tr("Reply helper", "답장 도우미")),
     ] }
 
     var body: some View {
@@ -153,6 +154,11 @@ private struct GeneralTab: View {
                         }
                     }
                 }
+                Toggle(tr("Smooth the reply helper's sentences with Apple Intelligence", "답장 도우미 문장을 Apple Intelligence로 다듬기"), isOn: Binding(get: { model.smoothsReplies }, set: model.setSmoothsReplies))
+                Text(tr("The reply helper (⌃⌥R) always shows the plain translation first. With Apple Intelligence it then rewrites it to sound natural, and keeps the rewrite only if questions, numbers and names are unchanged. Turn this off to always get the plain translation.",
+                        "답장 도우미(⌃⌥R)는 항상 번역을 먼저 보여 줍니다. Apple Intelligence가 있으면 이어서 자연스럽게 고쳐 쓰고, 질문, 숫자, 이름이 그대로일 때만 그 문장을 씁니다. 끄면 항상 번역 그대로 나옵니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
                 Toggle(tr("Remind me about the coffee", "커피 후원 안내 보이기"), isOn: Binding(get: { model.coffeeReminders }, set: model.setCoffeeReminders))
                     .disabled(model.support.status == .supporter)
                 Text(model.support.status == .supporter

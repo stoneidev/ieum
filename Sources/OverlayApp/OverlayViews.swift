@@ -337,6 +337,7 @@ struct OverlayMenuButton: NSViewRepresentable {
             if model.offersMinutes {
                 menu.addItem(ActionItem(model.scenario.notesTitle + tr(" draft…", " 초안…"), enabled: model.canMakeMinutes) { model.showMinutes(start: true) })
             }
+            menu.addItem(ActionItem(tr("Reply helper…", "답장 도우미…") + (model.globalShortcuts ? "   ⌃⌥R" : "")) { model.openReply() })
             menu.addItem(ActionItem(tr("Settings…", "설정…")) { model.openSettings() })
             menu.addItem(ActionItem("☕ " + tr("Buy me a coffee…", "커피 한 잔 사주기…")) { model.openCoffeePageFromMenu() })
             menu.addItem(ActionItem(tr("Check for updates…", "업데이트 확인…")) { model.checkForUpdates() })
@@ -360,6 +361,7 @@ struct BarControls: View {
         HStack(spacing: 6) {
             sizeButton(delta: -1, label: "A", pointSize: 12, help: tr("Smaller text", "글자 작게"))
             sizeButton(delta: 1, label: "A", pointSize: 17, help: tr("Larger text", "글자 크게"))
+            ReplyButton(model: model, palette: palette)
             DisplayToggleButton(model: model, palette: palette)
             OverlayMenuButton(model: model, palette: palette)
         }
@@ -409,6 +411,29 @@ struct DisplayToggleButton: View {
         .onHover { hovering = $0 }
         .help(label + (model.globalShortcuts ? "  ⌃⌥D" : ""))
         .accessibilityLabel(label)
+    }
+}
+
+/// Opens the reply helper: say what you mean in your language, get a sentence to read out in theirs.
+struct ReplyButton: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+    @State private var hovering = false
+
+    var body: some View {
+        let label = tr("Reply helper: write it in your language, read it out in theirs", "답장 도우미: 내 언어로 쓰면 상대 언어 문장을 알려 줍니다")
+        Button(action: { model.openReply() }) {
+            Image(systemName: "text.bubble")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(palette.interim)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(palette.ink.opacity(hovering ? 0.16 : 0.08)))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .help(label + (model.globalShortcuts ? "  ⌃⌥R" : ""))
+        .accessibilityLabel(tr("Reply helper", "답장 도우미"))
     }
 }
 
@@ -800,6 +825,7 @@ struct TranscriptPanelView: View {
                     .foregroundStyle(Theme.alert)
                     .lineLimit(2)
             }
+            ReplyButton(model: model, palette: palette)
             DisplayToggleButton(model: model, palette: palette)
             OverlayMenuButton(model: model, palette: palette)
         }

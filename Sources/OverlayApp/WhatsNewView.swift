@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "reply", introduced: "0.13.0", art: .tryIt,
+            title: tr("Stuck for a word? Ask the reply helper", "말이 막히면 답장 도우미"),
+            body: tr("Press ⌃⌥R (or the speech-bubble button on the bar), write what you want to say in the language you read, and get a sentence to read out in theirs. One click copies it for the chat. It runs on this Mac, and with Apple Intelligence it is smoothed to sound natural.",
+                     "⌃⌥R(또는 바의 말풍선 버튼)을 누르고 내 언어로 하고 싶은 말을 쓰면, 상대 언어로 그대로 읽을 수 있는 문장이 나옵니다. 한 번 눌러 채팅에 붙여 넣으려고 복사할 수 있습니다. 모두 이 Mac 안에서 처리되고, Apple Intelligence가 있으면 자연스럽게 다듬어 줍니다.")
+        ),
+        WhatsNewPage(
             id: "share-safe", introduced: "0.12.0", art: .onTop,
             title: tr("Invisible when you share your screen", "화면 공유 중에도 상대방에게 보이지 않습니다"),
             body: tr("The captions are now hidden from screen sharing and recording by default, so people on a Zoom, Meet or Teams call do not see them when you share your whole screen. And when your pointer comes near the bar, it turns see-through and lets clicks pass, or steps to the other edge of the screen. Both are in Settings > Display.",

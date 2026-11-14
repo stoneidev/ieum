@@ -120,6 +120,8 @@ final class OverlayWindowController {
         }
     }
 
+    var frame: NSRect { panel.frame }
+
     func show() { applyPresence() }
 
     /// Visible or hidden; and whether clicks pass through to the window underneath.

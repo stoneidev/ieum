@@ -29,6 +29,8 @@ final class AppModel: ObservableObject {
     var minutesEntries: [ScriptEntry] = []
     @Published var minutesFile: URL?
     var minutesTask: Task<Void, Never>?
+    /// The reply helper is listening to the microphone: the captions skip what it hears, so a quiet reply is not shown or saved.
+    var dictationActive = false
     /// Which minutes run owns the state: a task that was cancelled or replaced must not write its late results.
     var minutesRun = 0
     /// The language the minutes on screen were written in.
@@ -69,12 +71,16 @@ final class AppModel: ObservableObject {
     private var testVoice: Process?
     /// Set by the app delegate: the overlay's menu opens the windows it owns.
     var openSettings: () -> Void = {}
+    /// Set by the app delegate: the reply helper opens beside the overlay and needs to know where it is.
+    var openReply: () -> Void = {}
+    var overlayFrame: () -> NSRect? = { nil }
     var bringOverlayToFront: () -> Void = {}
     var checkForUpdates: () -> Void = {}
     var overlayIsCovered: () -> Bool = { false }
     var openSetup: () -> Void = {}
     @Published private(set) var clickThrough = Preferences.clickThrough
     @Published private(set) var hidesFromSharing = Preferences.hidesFromSharing
+    @Published private(set) var smoothsReplies = Preferences.smoothsReplies
     @Published private(set) var pointerAvoidance = Preferences.pointerAvoidance
     @Published private(set) var keepsOnTop = Preferences.keepsOnTop
     @Published private(set) var globalShortcuts = Preferences.globalShortcuts
@@ -423,6 +429,11 @@ final class AppModel: ObservableObject {
         Preferences.showsWordsSooner = on
     }
 
+    func setSmoothsReplies(_ on: Bool) {
+        smoothsReplies = on
+        Preferences.smoothsReplies = on
+    }
+
     func setHidesFromSharing(_ on: Bool) {
         hidesFromSharing = on
         Preferences.hidesFromSharing = on
@@ -763,6 +774,9 @@ final class AppModel: ObservableObject {
         language == .english ? englishVariant.rawValue : language.defaultLocale
     }
 
+    /// The recognizer locale for a language, with the chosen English accent.
+    func recognitionLocale(for language: SpokenLanguage) -> String { locale(for: language) }
+
     /// When the first audio of this listening run was heard; the clock for `spokenTime`.
     private var listeningSince: Date?
 
@@ -775,6 +789,8 @@ final class AppModel: ObservableObject {
     }
 
     private func apply(_ event: TranscriptionEvent) {
+        // The person is quietly dictating a reply on the same microphone: that is not part of the meeting.
+        if dictationActive, source != .system { return }
         let text = corrector.correct(RepetitionGuard.collapse(TranscriptCleaner.clean(event.text)))
         let language = String(event.locale.prefix(2))
         if event.isFinal {

@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var overlay: OverlayWindowController?
     private var menu: MenuBarController?
     private var hotKeys: HotKeyCenter?
+    private var reply: ReplyPanelController?
     private var settingsWindow: AuxiliaryWindow?
     private var setupWindow: AuxiliaryWindow?
     private let whatsNewWindow = WhatsNewWindow()
@@ -18,6 +19,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         L10n.choice = Preferences.uiLanguage
+        installEditMenu()
 
         setupWindow = AuxiliaryWindow(title: { tr("Permissions and setup", "권한 점검") }) { [weak self, model, permissions] in
             NSHostingView(rootView: SetupView(model: model, permissions: permissions) {
@@ -36,6 +38,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openSettings = { [weak self] in self?.settingsWindow?.show() }
         model.openSetup = { [weak self] in self?.setupWindow?.show() }
         overlay = OverlayWindowController(model: model)
+        reply = ReplyPanelController(app: model)
+        model.overlayFrame = { [weak self] in self?.overlay?.frame }
+        model.openReply = { [weak self] in self?.reply?.toggle(near: self?.overlay?.frame) }
         model.bringOverlayToFront = { [weak self] in self?.overlay?.bringToFront() }
         model.overlayIsCovered = { [weak self] in self?.overlay?.isCoveredByAnotherWindow() ?? false }
         menu = MenuBarController(
@@ -52,6 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .init(keyCode: 4) { [model] in model.toggleOverlayVisible() },   // H
             .init(keyCode: 2) { [model] in model.cycleDisplayMode() },       // D
             .init(keyCode: 37) { [model] in model.swapDirection() },         // L
+            .init(keyCode: 15) { [model] in model.openReply() },             // R
         ])
         hotKeys?.setEnabled(model.globalShortcuts)
         observers.append(model.$globalShortcuts.receive(on: DispatchQueue.main).sink { [weak self] enabled in
@@ -61,6 +67,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !Preferences.didShowSetup { setupWindow?.show() }
         showWhatsNewIfUpdated(firstInstall: !Preferences.didShowSetup)
         if Preferences.autoStart { model.start() }
+    }
+
+    /// An app without a Dock icon has no menu bar of its own, and AppKit routes ⌘C, ⌘V, ⌘A and ⌘Z through the main menu: without
+    /// this, a text field in the reply helper could not paste. The menu is not shown; its shortcuts are what matter.
+    private func installEditMenu() {
+        let main = NSMenu()
+        let appItem = NSMenuItem()
+        main.addItem(appItem)
+        appItem.submenu = NSMenu()
+        let editItem = NSMenuItem()
+        main.addItem(editItem)
+        let edit = NSMenu(title: tr("Edit", "편집"))
+        edit.addItem(withTitle: tr("Undo", "실행 취소"), action: Selector(("undo:")), keyEquivalent: "z")
+        let redo = edit.addItem(withTitle: tr("Redo", "다시 실행"), action: Selector(("redo:")), keyEquivalent: "z")
+        redo.keyEquivalentModifierMask = [.command, .shift]
+        edit.addItem(.separator())
+        edit.addItem(withTitle: tr("Cut", "잘라내기"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: tr("Copy", "복사"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: tr("Paste", "붙여넣기"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: tr("Select All", "모두 선택"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editItem.submenu = edit
+        NSApp.mainMenu = main
     }
 
     /// After an update, a short tour of what changed. A first install gets the setup window instead.

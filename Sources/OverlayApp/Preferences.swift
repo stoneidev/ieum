@@ -163,6 +163,11 @@ enum Preferences {
         get { value("pointerAvoidance", default: PointerAvoidance.fade) }
         set { defaults.set(newValue.rawValue, forKey: "pointerAvoidance") }
     }
+    /// Let Apple Intelligence smooth the reply helper's translation into something a person would say.
+    static var smoothsReplies: Bool {
+        get { flag("smoothsReplies", default: true) }
+        set { defaults.set(newValue, forKey: "smoothsReplies") }
+    }
     static var clickThrough: Bool {
         get { flag("clickThrough", default: false) }
         set { defaults.set(newValue, forKey: "clickThrough") }

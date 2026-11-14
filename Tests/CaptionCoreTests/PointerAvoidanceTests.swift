@@ -19,10 +19,10 @@ struct PointerAvoidanceTests {
     }
 
     @Test func overTheControlsTheBarStaysSolid() {
-        // the right 170 points hold the text size, panel and menu buttons
+        // the right 210 points hold the text size, panel and menu buttons
         #expect(!zone.isNear(pointer: CGPoint(x: 1100, y: 100), bar: bar, wasNear: false))
         #expect(!zone.isNear(pointer: CGPoint(x: 1100, y: 100), bar: bar, wasNear: true))
-        #expect(zone.isNear(pointer: CGPoint(x: 1000, y: 100), bar: bar, wasNear: false))
+        #expect(zone.isNear(pointer: CGPoint(x: 950, y: 100), bar: bar, wasNear: false))
     }
 
     @Test func leavingNeedsMoreDistanceThanArriving() {
