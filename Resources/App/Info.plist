@@ -15,9 +15,9 @@
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleVersion</key>
-    <string>31</string>
+    <string>32</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.15.0</string>
+    <string>0.15.1</string>
     <key>ATSApplicationFontsPath</key>
     <string>Fonts</string>
     <key>LSApplicationCategoryType</key>

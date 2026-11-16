@@ -365,6 +365,7 @@ struct BarControls: View {
             ReplyButton(model: model, palette: palette)
             DisplayToggleButton(model: model, palette: palette)
             OverlayMenuButton(model: model, palette: palette)
+            QuitButton(model: model, palette: palette)
         }
         .opacity(subdued && !hovering ? 0.5 : 1)
         .onHover { hovering = $0 }
@@ -411,6 +412,29 @@ struct DisplayToggleButton: View {
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
         .help(label + (model.globalShortcuts ? "  ⌃⌥D" : ""))
+        .accessibilityLabel(label)
+    }
+}
+
+/// Closes the whole program from the overlay, next to the menu: the menu-bar icon can be hidden when the menu bar is full.
+struct QuitButton: View {
+    let model: AppModel
+    let palette: Theme.Palette
+    @State private var hovering = false
+
+    var body: some View {
+        let label = tr("Quit Ieum", "Ieum 종료")
+        Button(action: { model.requestQuit() }) {
+            Image(systemName: "power")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(hovering ? Theme.alert : palette.interim)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(palette.ink.opacity(hovering ? 0.16 : 0.08)))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .help(label)
         .accessibilityLabel(label)
     }
 }
@@ -809,6 +833,7 @@ struct TranscriptPanelView: View {
             ReplyButton(model: model, palette: palette)
             DisplayToggleButton(model: model, palette: palette)
             OverlayMenuButton(model: model, palette: palette)
+            QuitButton(model: model, palette: palette)
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)

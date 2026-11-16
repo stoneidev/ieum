@@ -450,6 +450,18 @@ final class AppModel: ObservableObject {
         overlayVisible.toggle()
     }
 
+    /// The quit button on the overlay. Captions that are running are ended by the quit, so that one asks first.
+    func requestQuit() {
+        guard isRunning else { NSApp.terminate(nil); return }
+        let alert = NSAlert()
+        alert.messageText = tr("Quit Ieum?", "Ieum을 종료할까요?")
+        alert.informativeText = tr("Captions are running. Quitting stops them and saves the transcript so far.", "자막이 켜져 있습니다. 종료하면 자막이 멈추고 지금까지의 기록이 저장됩니다.")
+        alert.addButton(withTitle: tr("Quit", "종료"))
+        alert.addButton(withTitle: tr("Cancel", "취소"))
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn { NSApp.terminate(nil) }
+    }
+
     func setKeepsOnTop(_ on: Bool) {
         keepsOnTop = on
         Preferences.keepsOnTop = on
