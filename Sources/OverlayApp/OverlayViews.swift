@@ -334,6 +334,7 @@ struct OverlayMenuButton: NSViewRepresentable {
                 menu.addItem(ActionItem(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() })
             }
             menu.addItem(.separator())
+            menu.addItem(ActionItem(tr("New conversation", "새 대화"), enabled: model.canStartNewConversation) { model.startNewConversation() })
             menu.addItem(ActionItem(tr("Name this meeting…", "이 회의에 이름 붙이기…"), enabled: model.canNameLastTranscript) { model.renameLastTranscript() })
             if model.offersMinutes {
                 menu.addItem(ActionItem(model.scenario.notesTitle + tr(" draft…", " 초안…"), enabled: model.canMakeMinutes) { model.showMinutes(start: true) })
@@ -704,7 +705,41 @@ struct TranscriptPanelView: View {
         }
     }
 
+    /// Starts a new conversation: what was said is already saved in its file.
+    private var newConversationButton: some View {
+        Button(action: { model.startNewConversation() }) {
+            HStack(spacing: 5) {
+                Image(systemName: "square.and.pencil").font(.system(size: 11, weight: .semibold))
+                Text(tr("New conversation", "새 대화")).font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(palette.ink)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(Capsule().fill(palette.interim.opacity(0.22)))
+            .overlay(Capsule().strokeBorder(palette.ink.opacity(0.2), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .help(tr("Save this conversation and start a new one. Nothing is deleted: it stays in Settings > Transcripts.",
+                 "이 대화를 저장해 두고 새로 시작합니다. 아무것도 지워지지 않고 설정 > 기록에 남습니다."))
+        .padding(.vertical, 6)
+        .padding(.horizontal, 10)
+    }
+
     private var conversation: some View {
+        VStack(spacing: 0) {
+            if !(model.finalizedLines.isEmpty && model.partial.isEmpty) {
+                HStack {
+                    Spacer(minLength: 0)
+                    newConversationButton
+                }
+                .padding(.horizontal, 8)
+                Divider().overlay(palette.ink.opacity(0.08))
+            }
+            conversationList
+        }
+    }
+
+    private var conversationList: some View {
         ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {

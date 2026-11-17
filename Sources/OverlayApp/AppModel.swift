@@ -143,6 +143,7 @@ final class AppModel: ObservableObject {
     var sessionIndex = 0
     /// True while a setting change stops the captions only to start them again.
     private var isRestarting = false
+    private var isStartingNewConversation = false
     private var showsFailureNotice = false
     /// Finalized sentences handed to the translators whose translation has not come back yet.
     private var awaitingTranslation = Set<UUID>()
@@ -211,6 +212,42 @@ final class AppModel: ObservableObject {
         await stop()
         isRestarting = false
         start()
+    }
+
+    /// There is something on the screen to start over from, or captions are running.
+    var canStartNewConversation: Bool { isRunning || !finalizedLines.isEmpty || !partial.isEmpty }
+
+    /// Ends the conversation here and starts a fresh one. What was said stays in its transcript file (closed, with its
+    /// translations); the screen is cleared and, when captions were running, they start again into a new file. It is a stop
+    /// and a start, so a short gap in listening is the price of a clean file.
+    func startNewConversation() {
+        Task { @MainActor in
+            guard !isStartingNewConversation else { return }
+            isStartingNewConversation = true
+            defer { isStartingNewConversation = false }
+            let wasRunning = isRunning
+            if wasRunning {
+                // One conversation ends and the next begins: not a finished meeting (no ask, no wrap-up).
+                isRestarting = true
+                await stop()
+                isRestarting = false
+            }
+            clearConversation()
+            if wasRunning { start() }
+        }
+    }
+
+    private func clearConversation() {
+        finalizedLines.removeAll()
+        awaitingTranslation.removeAll()
+        partial = ""
+        translatedPartial = ""
+        barEntries.removeAll()
+        barFinalText = ""
+        barTranslation = ("", "")
+        vocabularyCardOpen = false
+        vocabularySuggestions = []
+        resetMinutes()
     }
 
     func toggleRunning() {

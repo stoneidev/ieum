@@ -135,6 +135,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         replyItem.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(replyItem)
         menu.addItem(action(tr("Copy transcript", "기록 복사"), #selector(copyTranscript)))
+        let newConversation = action(tr("New conversation", "새 대화"), #selector(startNewConversation))
+        newConversation.isEnabled = model.canStartNewConversation
+        menu.addItem(newConversation)
         let nameMeeting = action(tr("Name this meeting…", "이 회의에 이름 붙이기…"), #selector(nameMeeting))
         nameMeeting.isEnabled = model.canNameLastTranscript
         menu.addItem(nameMeeting)
@@ -171,6 +174,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func showSettings() { openSettings() }
     @objc private func updateCheck() { checkForUpdates() }
     @objc private func showSetup() { openSetup() }
+    @objc private func startNewConversation() { model.startNewConversation() }
     @objc private func quit() { NSApp.terminate(nil) }
 
     @objc private func chooseHeard(_ sender: NSMenuItem) {

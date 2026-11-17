@@ -1,23 +1,19 @@
 import CaptionCore
 import SwiftUI
 
-/// Four small bars that move with the sound: the quickest way to see that the microphone hears something.
+/// A volume icon whose waves light up with the sound: it reads as "how loud is it", not as a radio signal.
 struct LevelMeter: View {
     let level: Float
     let palette: Theme.Palette
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 2) {
-            ForEach(0..<4, id: \.self) { index in
-                let lit = level > Float(index) / 4 + 0.05
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(lit ? Theme.live : palette.interim.opacity(0.35))
-                    .frame(width: 3, height: CGFloat(5 + index * 3))
-            }
-        }
-        .frame(height: 14, alignment: .bottom)
-        .animation(.easeOut(duration: 0.12), value: level)
-        .accessibilityHidden(true)
+        Image(systemName: "speaker.wave.3", variableValue: Double(level))
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(level > 0.05 ? Theme.live : palette.interim.opacity(0.6))
+            .frame(width: 20, height: 16)
+            .animation(.easeOut(duration: 0.12), value: level)
+            .help(tr("How loud the sound is that reaches Ieum", "이음에 들어오는 소리의 크기"))
+            .accessibilityLabel(tr("Sound level", "소리 크기"))
     }
 }
 

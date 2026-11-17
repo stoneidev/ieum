@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "new-conversation", introduced: "0.16.0", art: .menu,
+            title: tr("Start a new conversation", "새 대화를 시작하세요"),
+            body: tr("The New conversation button above the transcript (and in the ⋯ and menu-bar menus) saves what was said in its own file, clears the screen and starts a new file. Nothing is deleted: the earlier conversation stays in Settings > Transcripts, ready to be named, exported or turned into minutes.",
+                     "기록 위의 '새 대화' 버튼(⋯ 메뉴와 메뉴바에도 있음)을 누르면 지금까지의 대화가 자기 파일에 저장되고, 화면이 비워지며 새 파일이 시작됩니다. 아무것도 지워지지 않고, 이전 대화는 설정 > 기록에 남아 이름 붙이기, 내보내기, 회의록 만들기를 할 수 있습니다.")
+        ),
+        WhatsNewPage(
             id: "sound-check", introduced: "0.15.0", art: .tryIt,
             title: tr("Ieum tells you when it cannot hear", "소리가 안 들리면 이음이 알려 줍니다"),
             body: tr("While captions run, a small level meter shows that sound arrives. If nothing comes in, the speech is too quiet or the sound distorts, Ieum says what is wrong and what to try: unmute, pick another microphone, move closer, turn the volume down. It only looks at how loud the sound is, on your Mac.",
