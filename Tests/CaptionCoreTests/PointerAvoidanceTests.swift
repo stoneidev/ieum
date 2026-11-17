@@ -54,4 +54,24 @@ struct PointerAvoidanceTests {
     @Test func theSettingHasThreeChoices() {
         #expect(PointerAvoidance.allCases == [.fade, .dodge, .off])
     }
+
+    private let policy = FadePolicy()
+
+    @Test func aPassingPointerDoesNotFadeTheBar() {
+        #expect(policy.action(near: true, nearFor: 0.1, awayFor: 0, faded: false, solidKey: false) == .none)
+    }
+
+    @Test func aPointerThatSettlesFadesIt() {
+        #expect(policy.action(near: true, nearFor: 0.5, awayFor: 0, faded: false, solidKey: false) == .fade)
+    }
+
+    @Test func leavingBringsItBackAfterAShortWhile() {
+        #expect(policy.action(near: false, nearFor: 0, awayFor: 0.1, faded: true, solidKey: false) == .none)
+        #expect(policy.action(near: false, nearFor: 0, awayFor: 0.5, faded: true, solidKey: false) == .unfade)
+    }
+
+    @Test func theSolidKeyKeepsTheBarUsable() {
+        #expect(policy.action(near: true, nearFor: 5, awayFor: 0, faded: false, solidKey: true) == .none)
+        #expect(policy.action(near: true, nearFor: 5, awayFor: 0, faded: true, solidKey: true) == .unfade)
+    }
 }

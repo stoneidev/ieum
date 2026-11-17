@@ -10,6 +10,25 @@ public enum PointerAvoidance: String, CaseIterable, Sendable {
     case off
 }
 
+/// When the bar turns see-through. A pointer that only passes by must not make it flicker, and the person must always have a way
+/// to use the bar itself: holding the solid key (Option) keeps it opaque and clickable.
+public struct FadePolicy: Equatable, Sendable {
+    public enum Action: Equatable, Sendable { case none, fade, unfade }
+
+    /// How long the pointer must stay near before the bar fades (a pass-by or a quick aim at a button does not).
+    public var dwell: TimeInterval = 0.45
+    /// How long the pointer must be gone before the bar is solid again.
+    public var release: TimeInterval = 0.35
+
+    public init() {}
+
+    public func action(near: Bool, nearFor: TimeInterval, awayFor: TimeInterval, faded: Bool, solidKey: Bool) -> Action {
+        if solidKey { return faded ? .unfade : .none }
+        if near { return !faded && nearFor >= dwell ? .fade : .none }
+        return faded && awayFor > release ? .unfade : .none
+    }
+}
+
 /// The geometry of that behaviour, kept apart from the window so it can be tested. Coordinates are AppKit's (origin bottom left).
 public struct PointerZone: Equatable, Sendable {
     /// How far outside the bar the pointer counts as near when it arrives, and how far it must go to count as gone

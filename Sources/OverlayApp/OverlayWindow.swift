@@ -26,6 +26,9 @@ final class OverlayWindowController {
     /// See-through and letting clicks pass, because the pointer is over the words.
     private var faded = false
     private var lastNear = Date.distantPast
+    /// Since when the pointer has been near without a break.
+    private var nearSince: Date?
+    private let fadePolicy = FadePolicy()
     /// Moved to the opposite edge; `homeFrame` is where it goes back to.
     private var dodged = false
     private var homeFrame: NSRect?
@@ -184,19 +187,31 @@ final class OverlayWindowController {
         if RunLoop.main.currentMode == .eventTracking { return }
         if !faded, NSEvent.pressedMouseButtons != 0 { return }
         let near = zone.isNear(pointer: NSEvent.mouseLocation, bar: panel.frame, wasNear: pointerNear)
-        if near { lastNear = Date() }
+        let now = Date()
+        if near {
+            lastNear = now
+            if nearSince == nil { nearSince = now }
+        } else {
+            nearSince = nil
+        }
         pointerNear = near
+        // Holding Option is how the person says "I mean to use the bar": it stays solid and takes the click.
+        let solidKey = NSEvent.modifierFlags.contains(.option)
         switch model.pointerAvoidance {
         case .fade:
-            if near, !faded {
+            switch fadePolicy.action(near: near, nearFor: nearSince.map { now.timeIntervalSince($0) } ?? 0,
+                                     awayFor: now.timeIntervalSince(lastNear), faded: faded, solidKey: solidKey) {
+            case .fade:
                 faded = true
                 panel.ignoresMouseEvents = true
                 animateAlpha(Self.fadedAlpha)
-            } else if !near, faded, Date().timeIntervalSince(lastNear) > 0.35 {
+            case .unfade:
                 unfade()
+            case .none:
+                break
             }
         case .dodge:
-            if near, Date().timeIntervalSince(lastDodge) > 0.8 { dodge() }
+            if near, !solidKey, now.timeIntervalSince(lastDodge) > 0.8 { dodge() }
         case .off:
             break
         }
@@ -211,6 +226,7 @@ final class OverlayWindowController {
 
     private func unfade() {
         faded = false
+        nearSince = nil
         panel.ignoresMouseEvents = model.clickThrough && model.status != .idle
         animateAlpha(1)
     }
