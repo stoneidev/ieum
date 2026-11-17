@@ -278,8 +278,8 @@ private struct DisplayTab: View {
                 Picker(tr("When the pointer comes near the subtitle bar", "포인터가 자막 바에 다가오면"), selection: Binding(get: { model.pointerAvoidance }, set: model.setPointerAvoidance)) {
                     ForEach(PointerAvoidance.allCases, id: \.self) { Text($0.title).tag($0) }
                 }
-                Text(tr("Applies to the subtitle bar while captions run, a moment after the pointer settles on it. Over the buttons at its right end the bar stays solid, and so does it while you hold Option (⌥), when you want to click or select the bar itself.",
-                        "자막이 나오는 동안 자막 바에 적용되며, 포인터가 잠시 머문 뒤에 반응합니다. 오른쪽 끝 버튼 위에서는 바가 그대로 있고, 바 자체를 누르거나 선택하고 싶을 때는 Option(⌥)을 누르고 있으면 바가 그대로 있습니다."))
+                Text(tr("Applies to the subtitle bar while captions run, a moment after the pointer settles on it, and it turns solid again once the pointer has rested there for a few seconds. Over the buttons at its right end and over the dot at its left end (the handle for moving it) the bar stays solid, and so does it while you hold Option (⌥).",
+                        "자막이 나오는 동안 자막 바에 적용되며, 포인터가 잠시 머문 뒤에 반응하고, 포인터가 몇 초 가만히 있으면 다시 선명해집니다. 오른쪽 끝 버튼과 왼쪽 끝의 점(바를 옮기는 손잡이) 위에서는 바가 그대로 있고, Option(⌥)을 누르고 있어도 그대로 있습니다."))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                 Toggle(tr("Keep captions on top of other windows", "자막을 다른 창 위에 항상 표시"), isOn: Binding(get: { model.keepsOnTop }, set: model.setKeepsOnTop))

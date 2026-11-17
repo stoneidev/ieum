@@ -74,4 +74,21 @@ struct PointerAvoidanceTests {
         #expect(policy.action(near: true, nearFor: 5, awayFor: 0, faded: false, solidKey: true) == .none)
         #expect(policy.action(near: true, nearFor: 5, awayFor: 0, faded: true, solidKey: true) == .unfade)
     }
+
+    @Test func theHandleAtTheLeftEndStaysSolidSoTheBarCanBeMoved() {
+        #expect(!zone.isNear(pointer: CGPoint(x: 230, y: 100), bar: bar, wasNear: false))
+        // also on the way in from the left and from above, at the bar's edge margin
+        #expect(!zone.isNear(pointer: CGPoint(x: 197, y: 160), bar: bar, wasNear: false))
+        #expect(zone.isNear(pointer: CGPoint(x: 300, y: 100), bar: bar, wasNear: false))
+    }
+
+    @Test func aPointerThatRestsOnTheFadedBarBringsItBack() {
+        #expect(policy.action(near: true, nearFor: 3, awayFor: 0, faded: true, solidKey: false, stillFor: 1) == .none)
+        #expect(policy.action(near: true, nearFor: 3, awayFor: 0, faded: true, solidKey: false, stillFor: 3) == .unfade)
+    }
+
+    @Test func aRestedBarStaysSolidUntilThePointerHasGone() {
+        #expect(policy.action(near: true, nearFor: 30, awayFor: 0, faded: false, solidKey: false, stillFor: 0, rested: true) == .none)
+        #expect(policy.action(near: true, nearFor: 0.6, awayFor: 0, faded: false, solidKey: false, stillFor: 0, rested: false) == .fade)
+    }
 }

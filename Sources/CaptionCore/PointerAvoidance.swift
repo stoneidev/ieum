@@ -19,12 +19,23 @@ public struct FadePolicy: Equatable, Sendable {
     public var dwell: TimeInterval = 0.45
     /// How long the pointer must be gone before the bar is solid again.
     public var release: TimeInterval = 0.35
+    /// A pointer that stays still on the faded bar is resting, not aiming at what is behind: the person is reading. After this
+    /// long the bar is solid again and stays so until the pointer has left and come back.
+    public var restAfter: TimeInterval = 2.5
 
     public init() {}
 
-    public func action(near: Bool, nearFor: TimeInterval, awayFor: TimeInterval, faded: Bool, solidKey: Bool) -> Action {
+    /// - Parameters:
+    ///   - stillFor: how long the pointer has not moved.
+    ///   - rested: the bar already became solid because the pointer rested on it.
+    public func action(near: Bool, nearFor: TimeInterval, awayFor: TimeInterval, faded: Bool, solidKey: Bool,
+                       stillFor: TimeInterval = 0, rested: Bool = false) -> Action {
         if solidKey { return faded ? .unfade : .none }
-        if near { return !faded && nearFor >= dwell ? .fade : .none }
+        if near {
+            if rested { return .none }
+            if faded { return stillFor >= restAfter ? .unfade : .none }
+            return nearFor >= dwell ? .fade : .none
+        }
         return faded && awayFor > release ? .unfade : .none
     }
 }
@@ -37,6 +48,9 @@ public struct PointerZone: Equatable, Sendable {
     public var leaveMargin: CGFloat = 28
     /// The right end of the bar holds its controls (text size, panel, menu). The pointer there is meant for the bar.
     public var controlsWidth: CGFloat = 210
+    /// The left end of the bar (where the status dot is) is its handle. The pointer there is meant for moving the bar, so it
+    /// stays solid and can be dragged, with the same margin around it as the bar's edge.
+    public var gripWidth: CGFloat = 56
 
     public init() {}
 
@@ -45,6 +59,8 @@ public struct PointerZone: Equatable, Sendable {
         let margin = wasNear ? leaveMargin : arriveMargin
         let area = bar.insetBy(dx: -margin, dy: -margin)
         guard area.contains(pointer) else { return false }
+        let grip = CGRect(x: bar.minX - margin, y: bar.minY - margin, width: gripWidth + margin, height: bar.height + 2 * margin)
+        if grip.contains(pointer) { return false }
         // The controls keep working: over them the bar stays solid.
         let controls = CGRect(x: bar.maxX - controlsWidth, y: bar.minY, width: controlsWidth, height: bar.height)
         return !controls.contains(pointer)

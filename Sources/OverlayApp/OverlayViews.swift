@@ -569,6 +569,7 @@ struct SubtitleBarView: View {
             HStack(alignment: .bottom, spacing: 16) {
                 StatusDot(status: model.status, idleColor: palette.interim)
                     .padding(.bottom, max(0, (BarMetrics.fontLineHeight(fontSize) - 9) / 2))
+                    .help(tr("Drag here to move the bar. It stays solid at this end.", "여기를 끌어 자막 바를 옮기세요. 이 쪽 끝에서는 바가 흐려지지 않습니다."))
                 // The text block is as tall as its content up to the chosen number of lines, anchored at the
                 // bottom and clipped at the top, so older lines scroll out whole and never half-cut.
                 text(caption)

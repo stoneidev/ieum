@@ -29,6 +29,10 @@ final class OverlayWindowController {
     /// Since when the pointer has been near without a break.
     private var nearSince: Date?
     private let fadePolicy = FadePolicy()
+    /// The pointer rests on the bar, so it was made solid; it stays so until the pointer has gone and come back.
+    private var restedSolid = false
+    private var lastPointer = CGPoint.zero
+    private var stillSince = Date()
     /// Moved to the opposite edge; `homeFrame` is where it goes back to.
     private var dodged = false
     private var homeFrame: NSRect?
@@ -36,7 +40,8 @@ final class OverlayWindowController {
     private var dodging = false
     /// A frame the app itself set (not the person dragging), so the move notification for it is not mistaken for a drag.
     private var programmaticFrame: NSRect?
-    private static let fadedAlpha: CGFloat = 0.18
+    /// See-through, but the words stay legible.
+    private static let fadedAlpha: CGFloat = 0.3
 
     init(model: AppModel) {
         self.model = model
@@ -195,17 +200,26 @@ final class OverlayWindowController {
             nearSince = nil
         }
         pointerNear = near
+        let pointer = NSEvent.mouseLocation
+        if hypot(pointer.x - lastPointer.x, pointer.y - lastPointer.y) >= 3 {
+            lastPointer = pointer
+            stillSince = now
+        }
+        if !near { restedSolid = false }
         // Holding Option is how the person says "I mean to use the bar": it stays solid and takes the click.
         let solidKey = NSEvent.modifierFlags.contains(.option)
         switch model.pointerAvoidance {
         case .fade:
             switch fadePolicy.action(near: near, nearFor: nearSince.map { now.timeIntervalSince($0) } ?? 0,
-                                     awayFor: now.timeIntervalSince(lastNear), faded: faded, solidKey: solidKey) {
+                                     awayFor: now.timeIntervalSince(lastNear), faded: faded, solidKey: solidKey,
+                                     stillFor: now.timeIntervalSince(stillSince), rested: restedSolid) {
             case .fade:
                 faded = true
                 panel.ignoresMouseEvents = true
                 animateAlpha(Self.fadedAlpha)
             case .unfade:
+                // Near and still: the person is reading the bar. (Away, or with Option held, it is just solid again.)
+                if near, !solidKey { restedSolid = true }
                 unfade()
             case .none:
                 break
