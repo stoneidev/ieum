@@ -89,6 +89,11 @@ html[lang=zh-Hans]{--font:"Plus Jakarta Sans","PingFang SC","Hiragino Sans GB","
 .hero::after{width:520px;height:520px;left:50%;top:-180px;transform:translateX(10%);background:rgba(253,230,138,.12)}
 .hero .wrap{position:relative;z-index:1}
 .badge{display:inline-flex;align-items:center;gap:10px;padding:7px 16px 7px 8px;border-radius:999px;background:var(--surf);border:1px solid var(--bd);font-size:13.5px;font-weight:600;color:var(--mute)}
+.event{display:flex;width:fit-content;max-width:100%;margin:0 auto 14px;align-items:center;gap:10px;padding:9px 18px;border-radius:999px;background:linear-gradient(110deg,rgba(251,191,36,.20),rgba(251,191,36,.08));border:1px solid rgba(251,191,36,.5);box-shadow:0 0 28px -8px rgba(251,191,36,.45);font-size:14.5px;font-weight:600;color:#f6e7bd;text-decoration:none;transition:border-color .2s,transform .2s}
+.event:hover{border-color:rgba(251,191,36,.85);transform:translateY(-1px)}
+.event b{padding:2px 9px;border-radius:999px;background:var(--coffee);color:#2a1c00;font-size:12px;font-weight:800;margin-right:8px}
+.event .icon{width:18px;height:18px;flex:none;color:var(--coffee)}
+.event .go{width:15px;height:15px}
 .badge b{padding:3px 10px;border-radius:999px;background:var(--grad);color:#05110f;font-weight:700;font-size:12px}
 h1{margin:26px auto 0;max-width:15ch;font:800 clamp(44px,7.6vw,92px)/1.02 var(--font);letter-spacing:-.045em;text-wrap:balance}
 .lead{margin:26px auto 0;max-width:54ch;font-size:clamp(17px,1.6vw,20px);color:var(--mute)}
@@ -455,6 +460,7 @@ a.badge:hover .icon{transform:translateX(3px)}
 <section id="top" class="hero" aria-labelledby="h-top">
   <div class="wrap">
     <!-- revisit at the next release -->
+    <a class="event" href="#coffeecard"><svg class="icon" aria-hidden="true"><use href="#i-coffee"/></svg><span class="en"><b>Event</b> First 5 supporters get a coffee or a lunch · 3 spots left</span><span class="ko"><b>이벤트</b> 선착순 5분께 커피 또는 점심 · 3자리 남음</span><span class="ja"><b>イベント</b> 先着 5 名様にコーヒーかランチ · 残り 3 名</span><span class="zh"><b>活动</b> 前 5 位支持者可获咖啡或午餐 · 还剩 3 个名额</span><svg class="icon go" aria-hidden="true"><use href="#i-arrow"/></svg></a>
     <a class="badge" href="#languages"><b>v{{VERSION}}</b><span class="en">New: Japanese and Chinese</span><span class="ko">새로 지원: 일본어·중국어</span><span class="ja">新機能：日本語と中国語に対応</span><span class="zh">新增：支持日语和中文</span><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
     <h1 id="h-top">
       <span class="en">Follow every word of your <span class="grad">meeting</span>.</span>
