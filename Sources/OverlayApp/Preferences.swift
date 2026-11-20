@@ -196,6 +196,16 @@ enum Preferences {
         set { defaults.set(newValue, forKey: "uiLanguage") }
     }
     static var autoStart: Bool { defaults.bool(forKey: "autoStart") }
+    /// Offer to start the captions when a meeting app comes to the front.
+    static var suggestsStart: Bool {
+        get { flag("suggestsStart", default: true) }
+        set { defaults.set(newValue, forKey: "suggestsStart") }
+    }
+    /// Meeting apps the person said "don't ask" for, by name.
+    static var mutedMeetingApps: Set<String> {
+        get { Set(defaults.stringArray(forKey: "mutedMeetingApps") ?? []) }
+        set { defaults.set(Array(newValue).sorted(), forKey: "mutedMeetingApps") }
+    }
     /// Whether Ieum has a Dock icon and appears in ⌘Tab. Off, it is a menu-bar app only.
     static var showsInDock: Bool {
         get { flag("showsInDock", default: true) }

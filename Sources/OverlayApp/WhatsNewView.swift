@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "start-offer", introduced: "0.17.0", art: .menu,
+            title: tr("Never miss the first minutes", "회의 초반을 놓치지 마세요"),
+            body: tr("When Zoom, Teams, Webex, FaceTime or Skype comes to the front while the captions are off, Ieum asks once whether to start them. Say no for an app and it stops asking, or turn the offer off in Settings > General. It only looks at which app is in front, on this Mac.",
+                     "자막이 꺼져 있을 때 Zoom, Teams, Webex, FaceTime, Skype가 앞으로 오면 자막을 켤지 한 번 물어봅니다. 묻지 않기를 고른 앱은 다시 묻지 않고, 설정 > 일반에서 이 제안을 끌 수도 있습니다. 어느 앱이 앞에 있는지만 이 Mac 안에서 봅니다.")
+        ),
+        WhatsNewPage(
             id: "new-conversation", introduced: "0.16.0", art: .menu,
             title: tr("Start a new conversation", "새 대화를 시작하세요"),
             body: tr("The New conversation button above the transcript (and in the ⋯ and menu-bar menus) saves what was said in its own file, clears the screen and starts a new file. Nothing is deleted: the earlier conversation stays in Settings > Transcripts, ready to be named, exported or turned into minutes.",

@@ -60,6 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .init(keyCode: 15) { [model] in model.openReply() },             // R
         ])
         hotKeys?.setEnabled(model.globalShortcuts)
+        model.startWatchingMeetingApps()
         observers.append(model.$showsInDock.dropFirst().receive(on: DispatchQueue.main).sink { shows in
             NSApp.setActivationPolicy(shows ? .regular : .accessory)
         })

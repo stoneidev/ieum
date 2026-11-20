@@ -146,6 +146,14 @@ private struct GeneralTab: View {
                 if let loginError {
                     Text(loginError).font(.system(size: 12)).foregroundStyle(.orange)
                 }
+                Toggle(tr("Offer to start captions when a meeting app opens", "회의 앱을 열면 자막 시작을 제안"), isOn: Binding(get: { model.suggestsStart }, set: model.setSuggestsStart))
+                Text(tr("When Zoom, Teams, Webex, FaceTime or Skype comes to the front, Ieum asks once whether to start. It only looks at which app is in front, on this Mac.",
+                        "Zoom, Teams, Webex, FaceTime, Skype가 앞으로 오면 자막을 켤지 한 번 물어봅니다. 어느 앱이 앞에 있는지만 이 Mac 안에서 봅니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                if model.hasMutedMeetingApps {
+                    Button(tr("Ask again for apps I said no to", "묻지 않기로 한 앱도 다시 묻기")) { model.resetMutedMeetingApps() }
+                }
                 Toggle(tr("Show in the Dock and ⌘Tab", "Dock과 ⌘Tab에 표시"), isOn: Binding(get: { model.showsInDock }, set: model.setShowsInDock))
                 Text(tr("With it on, ⌘Tab brings Ieum forward and the Dock icon opens the captions. Off, Ieum lives in the menu bar only.",
                         "켜 두면 ⌘Tab으로 이음을 앞으로 가져올 수 있고, Dock 아이콘을 누르면 자막이 열립니다. 끄면 메뉴 막대에만 있습니다."))

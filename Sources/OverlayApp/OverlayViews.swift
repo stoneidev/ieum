@@ -544,11 +544,26 @@ struct SubtitleBarView: View {
                 .help(tr("Not now", "나중에"))
                 .accessibilityLabel(tr("Not now", "나중에"))
             } else if ask == .full {
-                Text(tr("Captions are off", "자막이 꺼져 있습니다"))
-                    .font(.system(size: fontSize, weight: .medium))
-                    .foregroundStyle(palette.interim)
-                    .lineLimit(1)
-                    .fixedSize()
+                if let app = model.startSuggestion {
+                    Text(tr("\(app.name) is open. Start captions?", "\(app.name) 사용 중 · 자막을 켤까요?"))
+                        .font(.system(size: fontSize, weight: .semibold))
+                        .foregroundStyle(palette.ink)
+                        .lineLimit(1)
+                        .fixedSize()
+                    Button(action: { model.dismissStartSuggestion() }) {
+                        Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)).foregroundStyle(palette.interim)
+                            .frame(width: 22, height: 22).contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(tr("Not now", "나중에"))
+                    .accessibilityLabel(tr("Not now", "나중에"))
+                } else {
+                    Text(tr("Captions are off", "자막이 꺼져 있습니다"))
+                        .font(.system(size: fontSize, weight: .medium))
+                        .foregroundStyle(palette.interim)
+                        .lineLimit(1)
+                        .fixedSize()
+                }
             }
             Spacer(minLength: 12)
             StartCaptionsButton(model: model, fontSize: fontSize)
@@ -693,6 +708,7 @@ struct TranscriptPanelView: View {
             header
             Divider().overlay(palette.ink.opacity(0.10))
             SoundCheckBanner(model: model, palette: palette)
+            StartSuggestionBanner(model: model, palette: palette)
             if model.panelPage == .minutes, model.offersMinutes {
                 MinutesPanelView(model: model, palette: palette, bodySize: bodySize)
             } else {

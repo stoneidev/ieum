@@ -17,6 +17,31 @@ struct LevelMeter: View {
     }
 }
 
+/// A meeting app came to the front and the captions are off: one question, three answers.
+struct StartSuggestionBanner: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+
+    var body: some View {
+        if let app = model.startSuggestion, !model.isRunning {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(tr("\(app.name) is open. Start the captions?", "\(app.name)을(를) 쓰고 있네요. 자막을 켤까요?"))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(palette.ink)
+                HStack(spacing: 8) {
+                    CoffeeButton(title: tr("Start captions", "자막 시작"), prominent: true, palette: palette) { model.acceptStartSuggestion() }
+                    CoffeeButton(title: tr("Not now", "나중에"), prominent: false, palette: palette) { model.dismissStartSuggestion() }
+                    CoffeeButton(title: tr("Don't ask for \(app.name)", "\(app.name)은(는) 묻지 않기"), prominent: false, palette: palette) { model.muteStartSuggestion() }
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.live.opacity(0.14))
+        }
+    }
+}
+
 /// When the sound itself is the problem (silence, too far, too loud), say so in the panel and offer the fix.
 struct SoundCheckBanner: View {
     @ObservedObject var model: AppModel

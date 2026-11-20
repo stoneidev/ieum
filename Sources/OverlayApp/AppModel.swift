@@ -44,6 +44,14 @@ final class AppModel: ObservableObject {
     @Published var coffeeStage: Int?
     @Published var coffeeThanks = false
 
+    // MARK: Meeting app suggestion
+    /// A meeting app is in front and the captions are off: the offer on screen, until answered.
+    @Published var startSuggestion: MeetingApp?
+    @Published var suggestsStart = Preferences.suggestsStart
+    var suggestionPolicy = StartSuggestionPolicy(muted: Preferences.mutedMeetingApps)
+    var suggestionExpiry: Task<Void, Never>?
+    var workspaceObserver: NSObjectProtocol?
+
     // MARK: Sound check
     /// What the incoming sound says about the setup (muted, too far, too loud), while captions run.
     @Published private(set) var inputAdvice: InputAdvice = .good
