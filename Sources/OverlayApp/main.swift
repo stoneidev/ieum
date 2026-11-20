@@ -60,6 +60,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .init(keyCode: 15) { [model] in model.openReply() },             // R
         ])
         hotKeys?.setEnabled(model.globalShortcuts)
+        observers.append(model.$showsInDock.dropFirst().receive(on: DispatchQueue.main).sink { shows in
+            NSApp.setActivationPolicy(shows ? .regular : .accessory)
+        })
         observers.append(model.$globalShortcuts.receive(on: DispatchQueue.main).sink { [weak self] enabled in
             self?.hotKeys?.setEnabled(enabled)
         })
@@ -75,7 +78,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let main = NSMenu()
         let appItem = NSMenuItem()
         main.addItem(appItem)
-        appItem.submenu = NSMenu()
+        // What a Mac app has in its own menu, for when it shows in the Dock and ⌘Tab.
+        let appMenu = NSMenu()
+        let settings = appMenu.addItem(withTitle: tr("Settings…", "설정…"), action: #selector(openSettingsFromMenu), keyEquivalent: ",")
+        settings.target = self
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: tr("Quit Ieum", "Ieum 종료"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appItem.submenu = appMenu
         let editItem = NSMenuItem()
         main.addItem(editItem)
         let edit = NSMenu(title: tr("Edit", "편집"))
@@ -131,9 +140,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.reply(toApplicationShouldTerminate: true)
     }
 
-    /// Opening the app again (from Finder or Spotlight) while it runs shows the settings: there is no Dock icon to click.
+    @objc private func openSettingsFromMenu() { settingsWindow?.show() }
+
+    /// Chosen with ⌘Tab or from the Dock: the captions come forward. If nothing of Ieum is on screen at all (the captions were
+    /// hidden), they are shown, so the app never answers with nothing.
+    func applicationDidBecomeActive(_ notification: Notification) {
+        guard overlay != nil else { return }
+        let hasWindow = NSApp.windows.contains { $0.isVisible && $0.styleMask.contains(.titled) }
+        if !model.overlayVisible, !hasWindow, model.showsInDock { model.setOverlayVisible(true) }
+        overlay?.focus()
+    }
+
+    /// Opening the app again: with a Dock icon, the captions come forward; without one (a menu-bar app) the settings open,
+    /// because there is nothing else to click.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        settingsWindow?.show()
+        if model.showsInDock {
+            if !model.overlayVisible { model.setOverlayVisible(true) }
+            overlay?.focus()
+        } else {
+            settingsWindow?.show()
+        }
         return true
     }
 }
@@ -141,5 +167,5 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 let app = NSApplication.shared
 let delegate = AppDelegate()
 app.delegate = delegate
-app.setActivationPolicy(.accessory)
+app.setActivationPolicy(Preferences.showsInDock ? .regular : .accessory)
 app.run()

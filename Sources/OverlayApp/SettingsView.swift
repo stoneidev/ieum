@@ -146,6 +146,11 @@ private struct GeneralTab: View {
                 if let loginError {
                     Text(loginError).font(.system(size: 12)).foregroundStyle(.orange)
                 }
+                Toggle(tr("Show in the Dock and ⌘Tab", "Dock과 ⌘Tab에 표시"), isOn: Binding(get: { model.showsInDock }, set: model.setShowsInDock))
+                Text(tr("With it on, ⌘Tab brings Ieum forward and the Dock icon opens the captions. Off, Ieum lives in the menu bar only.",
+                        "켜 두면 ⌘Tab으로 이음을 앞으로 가져올 수 있고, Dock 아이콘을 누르면 자막이 열립니다. 끄면 메뉴 막대에만 있습니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
                 Toggle(tr("Show words sooner", "단어를 더 빨리 보이기"), isOn: Binding(get: { model.showsWordsSooner }, set: model.setShowsWordsSooner))
                 Text(tr("Runs a second recognizer so the first words appear about half a second earlier and then word by word. Finished sentences are still recognized by the more accurate one. Needs the Speech Recognition permission. Applies the next time captions start, and not when the language is detected automatically.",
                         "두 번째 인식기를 함께 돌려 첫 단어가 약 0.5초 일찍, 이후 단어마다 바로 나옵니다. 끝난 문장은 계속 더 정확한 인식기가 확정합니다. 음성 인식 권한이 필요합니다. 다음에 자막을 시작할 때부터 적용되며 언어 자동 인식 번역 모드에서는 쓰이지 않습니다."))

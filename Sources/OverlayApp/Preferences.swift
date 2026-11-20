@@ -196,6 +196,11 @@ enum Preferences {
         set { defaults.set(newValue, forKey: "uiLanguage") }
     }
     static var autoStart: Bool { defaults.bool(forKey: "autoStart") }
+    /// Whether Ieum has a Dock icon and appears in ⌘Tab. Off, it is a menu-bar app only.
+    static var showsInDock: Bool {
+        get { flag("showsInDock", default: true) }
+        set { defaults.set(newValue, forKey: "showsInDock") }
+    }
     /// Remembers that the screen-recording prompt was shown, to tell "refused" from "never asked".
     static var didRequestScreenAccess: Bool {
         get { defaults.bool(forKey: "didRequestScreenAccess") }

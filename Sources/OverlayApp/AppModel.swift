@@ -98,6 +98,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var smoothsReplies = Preferences.smoothsReplies
     @Published private(set) var pointerAvoidance = Preferences.pointerAvoidance
     @Published private(set) var keepsOnTop = Preferences.keepsOnTop
+    @Published private(set) var showsInDock = Preferences.showsInDock
     @Published private(set) var globalShortcuts = Preferences.globalShortcuts
     @Published private(set) var uiLanguage = Preferences.uiLanguage
 
@@ -497,6 +498,13 @@ final class AppModel: ObservableObject {
         alert.addButton(withTitle: tr("Cancel", "취소"))
         NSApp.activate(ignoringOtherApps: true)
         if alert.runModal() == .alertFirstButtonReturn { NSApp.terminate(nil) }
+    }
+
+    func setOverlayVisible(_ visible: Bool) { overlayVisible = visible }
+
+    func setShowsInDock(_ on: Bool) {
+        showsInDock = on
+        Preferences.showsInDock = on
     }
 
     func setKeepsOnTop(_ on: Bool) {

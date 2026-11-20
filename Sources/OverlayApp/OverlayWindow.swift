@@ -154,6 +154,16 @@ final class OverlayWindowController {
 
     func bringToFront() { panel.orderFrontRegardless() }
 
+    /// The app was chosen (⌘Tab, the Dock): the captions come forward, and in panel mode they take the keyboard.
+    func focus() {
+        guard model.overlayVisible else { return }
+        if model.displayMode == .panel {
+            panel.makeKeyAndOrderFront(nil)
+        } else {
+            panel.orderFrontRegardless()
+        }
+    }
+
     /// Whether another app's window sits above the captions and overlaps them (only meaningful when they are not kept on top).
     func isCoveredByAnotherWindow() -> Bool {
         guard panel.isVisible,
