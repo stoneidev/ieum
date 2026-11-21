@@ -334,6 +334,8 @@ struct OverlayMenuButton: NSViewRepresentable {
                 menu.addItem(ActionItem(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() })
             }
             menu.addItem(.separator())
+            menu.addItem(ActionItem(model.isPaused ? tr("Resume captions", "자막 다시 시작") : tr("Pause captions", "자막 일시정지") + (model.globalShortcuts ? "   ⌃⌥P" : ""),
+                                    enabled: model.canPause || model.isPaused) { model.togglePause() })
             menu.addItem(ActionItem(tr("New conversation", "새 대화"), enabled: model.canStartNewConversation) { model.startNewConversation() })
             menu.addItem(ActionItem(tr("Name this meeting…", "이 회의에 이름 붙이기…"), enabled: model.canNameLastTranscript) { model.renameLastTranscript() })
             if model.offersMinutes {
@@ -664,6 +666,9 @@ struct SubtitleBarView: View {
     }
 
     private var currentCaption: Caption {
+        if model.isPaused, model.status == .listening {
+            return Caption(tentative: tr("Paused. Nothing is being written down.", "일시정지 중입니다. 지금 하는 말은 기록하지 않습니다.") + (model.globalShortcuts ? "  ⌃⌥P" : ""))
+        }
         switch model.status {
         case .error(let message):
             return Caption(confirmed: message)
@@ -709,6 +714,7 @@ struct TranscriptPanelView: View {
             Divider().overlay(palette.ink.opacity(0.10))
             SoundCheckBanner(model: model, palette: palette)
             StartSuggestionBanner(model: model, palette: palette)
+            PausedBanner(model: model, palette: palette)
             if model.panelPage == .minutes, model.offersMinutes {
                 MinutesPanelView(model: model, palette: palette, bodySize: bodySize)
             } else {

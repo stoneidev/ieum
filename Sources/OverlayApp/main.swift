@@ -58,6 +58,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .init(keyCode: 2) { [model] in model.cycleDisplayMode() },       // D
             .init(keyCode: 37) { [model] in model.swapDirection() },         // L
             .init(keyCode: 15) { [model] in model.openReply() },             // R
+            .init(keyCode: 35) { [model] in model.togglePause() },           // P
         ])
         hotKeys?.setEnabled(model.globalShortcuts)
         model.startWatchingMeetingApps()

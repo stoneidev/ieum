@@ -23,6 +23,12 @@ enum WhatsNewCatalog {
 
     private static func all() -> [WhatsNewPage] { [
         WhatsNewPage(
+            id: "pause", introduced: "0.18.0", art: .menu,
+            title: tr("Pause without ending the conversation", "대화를 끝내지 않고 잠깐 멈추기"),
+            body: tr("Press ⌃⌥P (or Pause captions in the ⋯ and menu-bar menus) for a private moment or a side conversation. What is said meanwhile is neither recognized nor written down, and pressing it again carries on in the same transcript.",
+                     "사적인 대화나 옆 사람과의 잡담이 있을 때 ⌃⌥P(또는 ⋯ 메뉴, 메뉴바의 '자막 일시정지')를 누르세요. 그동안 하는 말은 인식하지도 기록하지도 않고, 다시 누르면 같은 기록에 이어집니다.")
+        ),
+        WhatsNewPage(
             id: "start-offer", introduced: "0.17.0", art: .menu,
             title: tr("Never miss the first minutes", "회의 초반을 놓치지 마세요"),
             body: tr("When Zoom, Teams, Webex, FaceTime or Skype comes to the front while the captions are off, Ieum asks once whether to start them. Say no for an app and it stops asking, or turn the offer off in Settings > General. It only looks at which app is in front, on this Mac.",

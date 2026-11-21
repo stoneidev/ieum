@@ -135,6 +135,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         replyItem.keyEquivalentModifierMask = [.control, .option]
         menu.addItem(replyItem)
         menu.addItem(action(tr("Copy transcript", "기록 복사"), #selector(copyTranscript)))
+        let pause = action(model.isPaused ? tr("Resume captions", "자막 다시 시작") : tr("Pause captions", "자막 일시정지"), #selector(togglePause), key: "p")
+        pause.keyEquivalentModifierMask = [.control, .option]
+        pause.isEnabled = model.canPause || model.isPaused
+        menu.addItem(pause)
         let newConversation = action(tr("New conversation", "새 대화"), #selector(startNewConversation))
         newConversation.isEnabled = model.canStartNewConversation
         menu.addItem(newConversation)
@@ -174,6 +178,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func showSettings() { openSettings() }
     @objc private func updateCheck() { checkForUpdates() }
     @objc private func showSetup() { openSetup() }
+    @objc private func togglePause() { model.togglePause() }
     @objc private func startNewConversation() { model.startNewConversation() }
     @objc private func quit() { NSApp.terminate(nil) }
 

@@ -15,11 +15,11 @@ Read what the other side says in your language, while they read what you say in 
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-lightgrey?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)
 ![Build](https://img.shields.io/badge/build-Swift%20Package%20Manager-blue)
-![Tests](https://img.shields.io/badge/tests-334%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-336%20passing-brightgreen)
 ![Privacy](https://img.shields.io/badge/privacy-100%25%20on--device-success)
 ![Languages](https://img.shields.io/badge/languages-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4%20%C2%B7%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%C2%B7%20%E4%B8%AD%E6%96%87-informational)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.17.0-orange)
+![Version](https://img.shields.io/badge/version-0.18.0-orange)
 
 [Features](#features) · [Install](#install) · [Usage](#usage) · [Documentation](#documentation) · [Architecture](#architecture) · [Build](#build-from-source) · [Performance](#performance) · [Troubleshooting](#troubleshooting)
 
@@ -53,6 +53,7 @@ The other side talks and you read your language. You answer in yours and they re
 | **Meeting vocabulary** | Names and jargon you list are corrected in the transcript before it is translated. Ieum nudges you to fill it in: a tip before your first meeting while the list is empty (it can be switched off), and after a meeting a card with the names and product words that came up and are not listed yet, one tap each. The words are found on the Mac from the meeting's own text. |
 | **Saved scripts** | One file per meeting: `[HH:mm:ss] text` with `→ translation` lines, and `[EN]`/`[KO]` tags when both sides speak. The time on each line is when the sentence was **spoken**. Listed in Settings → Transcripts. |
 | **New conversation** | The button above the transcript (and **New conversation** in the ⋯ and menu-bar menus) saves what was said in its own file and starts a clean screen and a new file. If captions were running they start again at once, with a short gap in listening. Nothing is deleted: the earlier conversation stays under Settings → Transcripts, ready to be named, exported or turned into minutes. |
+| **Pause** | **⌃⌥P** (or *Pause captions* in the ⋯ and menu-bar menus) pauses listening without ending the conversation: what is said meanwhile is neither recognized nor written down, and pressing it again carries on in the same transcript. A banner says it is paused and has the *Resume* button. Not available for calls. |
 | **Name and export** | **Rename…** gives a meeting a name (“Budget meeting”) instead of a timestamp, and the exported files beside it follow. **Export** turns a script into subtitles (`.srt` with the original and the translation, translation only, or `.vtt`) or Markdown notes (`.md`). |
 | **Situations** | Choose **Conversation**, **Meeting** or **Seminar** (the pill at the top of the transcript panel and on the idle subtitle bar, or in the ⋯ menu, the menu bar and Settings). The choice decides what is offered: a seminar is only listened to, so there is no both-sides mode and no call source; a conversation is in the room and starts with both sides speaking; a meeting offers every sound source. It also decides the shape of the notes. |
 | **Meeting minutes draft** | **Only on Macs with Apple Intelligence (macOS 26).** On other Macs the item is not shown. The prompt at the bottom of the panel when you stop the captions (also the ⋯ and menu-bar menus, and **Export → Meeting minutes draft**) has the on-device language model (Apple Intelligence, macOS 26) write a summary, decisions and action items into `<name>-minutes.md`, in the language you read. Every point cites the transcript lines it came from, and a point without a source is marked. It is a draft to check, not a record: the small on-device model sometimes lists a question as a decision or drops who and when. Nothing leaves the Mac; the item is greyed out with the reason when Apple Intelligence is not available. |
@@ -109,6 +110,7 @@ After turning a permission on in System Settings, quit Ieum completely and open 
 | ⌃⌥H | Show / hide the overlay |
 | ⌃⌥D | Subtitle bar ↔ transcript panel |
 | ⌃⌥L | Swap the translation direction |
+| ⌃⌥P | Pause / resume listening |
 
 ### Settings
 
@@ -189,7 +191,7 @@ Requires Xcode 26 (Swift 6) on Apple silicon.
 ```sh
 make build        # caption-cli, ad-hoc signed
 make app          # .build/app/Ieum.app, ad-hoc signed, runs on this Mac only
-make test         # 334 tests
+make test         # 336 tests
 make clean
 ```
 
@@ -244,7 +246,7 @@ The only network request Ieum makes is the optional update check: once a day it 
 
 ## Status
 
-Version 0.17.0. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
+Version 0.18.0. Not yet verified: use in a real meeting room with several speakers, behavior on macOS earlier than 26, and notarized builds under the Ieum name.
 
 ## License
 

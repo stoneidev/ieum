@@ -50,6 +50,7 @@ private struct GeneralTab: View {
         ("D", tr("Bar / panel", "바/패널")),
         ("L", tr("Swap language direction", "언어 방향 바꾸기")),
         ("R", tr("Reply helper", "답장 도우미")),
+        ("P", tr("Pause / resume", "일시정지/다시 시작")),
     ] }
 
     var body: some View {

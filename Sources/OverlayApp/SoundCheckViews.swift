@@ -17,6 +17,34 @@ struct LevelMeter: View {
     }
 }
 
+/// Listening is paused: say so plainly, with the way back.
+struct PausedBanner: View {
+    @ObservedObject var model: AppModel
+    let palette: Theme.Palette
+
+    var body: some View {
+        if model.isPaused, model.status == .listening {
+            HStack(spacing: 10) {
+                Image(systemName: "pause.circle.fill").foregroundStyle(Theme.alert)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(tr("Paused", "일시정지 중"))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(palette.ink)
+                    Text(tr("What is said now is not recognized or written down.", "지금 하는 말은 인식하지도 기록하지도 않습니다."))
+                        .font(.system(size: 12))
+                        .foregroundStyle(palette.interim)
+                }
+                Spacer(minLength: 6)
+                CoffeeButton(title: tr("Resume", "다시 시작") + (model.globalShortcuts ? "  ⌃⌥P" : ""), prominent: true, palette: palette) { model.togglePause() }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.alert.opacity(0.14))
+        }
+    }
+}
+
 /// A meeting app came to the front and the captions are off: one question, three answers.
 struct StartSuggestionBanner: View {
     @ObservedObject var model: AppModel

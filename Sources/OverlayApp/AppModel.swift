@@ -44,6 +44,11 @@ final class AppModel: ObservableObject {
     @Published var coffeeStage: Int?
     @Published var coffeeThanks = false
 
+    // MARK: Pause
+    /// The recognizer is handed silence (a private moment, a side conversation); the transcript stays open.
+    @Published private(set) var isPaused = false
+    let pauseGate = PauseGate()
+
     // MARK: Meeting app suggestion
     /// A meeting app is in front and the captions are off: the offer on screen, until answered.
     @Published var startSuggestion: MeetingApp?
@@ -193,6 +198,8 @@ final class AppModel: ObservableObject {
         transcriptWarning = nil
         inputAdvice = .good
         inputLevel = 0
+        pauseGate.resume()
+        isPaused = false
         let setup = activeSetup
         let locales = setup.recognitionLocales(englishLocale: englishVariant.rawValue)
         let source = self.source
@@ -221,6 +228,21 @@ final class AppModel: ObservableObject {
         await stop()
         isRestarting = false
         start()
+    }
+
+    /// Not for a call: it reads two inputs inside its own engine.
+    var canPause: Bool { status == .listening && source != .call }
+
+    /// Pauses or resumes listening without ending the conversation: nothing said while paused is recognized or written.
+    func togglePause() {
+        guard canPause || isPaused else { return }
+        if isPaused {
+            pauseGate.resume()
+            isPaused = false
+        } else {
+            pauseGate.pause()
+            isPaused = true
+        }
     }
 
     /// There is something on the screen to start over from, or captions are running.
@@ -717,9 +739,12 @@ final class AppModel: ObservableObject {
         let raw: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
         let isCall = source == .call
         // A call reads two inputs inside its own engine; the sound check watches the single input of the other sources.
-        let capture: any AudioCapture = isCall ? raw : MeteredCapture(raw, monitor: InputLevelMonitor { [weak self] advice, level in
-            Task { @MainActor in self?.showInput(advice: advice, level: level) }
-        })
+        let capture: any AudioCapture = isCall ? raw : PausableCapture(
+            MeteredCapture(raw, monitor: InputLevelMonitor { [weak self] advice, level in
+                Task { @MainActor in self?.showInput(advice: advice, level: level) }
+            }),
+            gate: pauseGate
+        )
         var failure: String?
         var recoverable = false
         let missing = await ModernSpeechSupport.uninstalledLocales(locales)
