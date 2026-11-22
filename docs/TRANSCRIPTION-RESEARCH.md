@@ -10,8 +10,9 @@ CPU/memory are the bench process only; the speech work runs in a system daemon, 
 Reproduce: `python3 -I Benchmarks/research/make_audio.py` (audio to `Benchmarks/audio/research`, ignored), then
 `Benchmarks/research/run.sh 2 @Benchmarks/research/cases-quality.txt` (also `cases-levers.txt`, `cases-followup.txt`; single cases are
 `name:locale:stem[:flag+flag]`), then `python3 -I Benchmarks/research/analyze.py [case...]`. Raw JSON and `--dump` logs:
-`Benchmarks/results/transcription-research/`. English cases run with `--no-pause-finalization` (as the app's English modes do; the bench
-default is on), Korean/Japanese/Chinese with the pause rule (app default is now 0.4 s; measurements below used 0.7 s unless noted).
+`Benchmarks/results/transcription-research/`. English cases run with `--no-pause-finalization` (as the app's English modes do).
+`cases-quality.txt` pins Korean to `--pause 0.7` so reruns match the numbers below; the app default is now 0.4 s
+(`cases-followup.txt` / `cases-levers.txt` compare 0.4).
 
 Metrics added by `analyze.py`: **sentence latency** (final arrives minus end of its audio range), **timestamp skew** (final arrives minus
 start of its speech: how late the saved transcript's `[HH:mm:ss]` is), **final length** (seconds of speech per final = per transcript line),

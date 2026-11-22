@@ -87,7 +87,14 @@ struct CaptionBench: AsyncParsableCommand {
         options.showsWordsSooner = earlyWords
         options.fast = !noFast
         options.useVAD = !noVad
-        if noPauseFinalization { options.pauseFinalization = nil } else if let pause { options.pauseFinalization = pause }
+        if noPauseFinalization {
+            options.pauseFinalization = nil
+        } else if let pause {
+            options.pauseFinalization = pause
+        } else {
+            // Match the app: English single-locale runs leave finalization to the recognizer.
+            options.disablePauseFinalizationIfEnglish(locale)
+        }
 
         var results: [Run] = []
         var engineName = ""

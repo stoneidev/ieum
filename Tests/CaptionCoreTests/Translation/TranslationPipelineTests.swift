@@ -42,11 +42,12 @@ struct TranslationPipelineTests {
     }
 
     @Test func finalsAreNeverDroppedAndKeepTheirOrder() async throws {
-        let pipeline = TranslationPipeline(translator: FakeTranslator(delay: .milliseconds(60)))
+        let pipeline = TranslationPipeline(translator: FakeTranslator(delay: .milliseconds(40)))
         let results = collect(pipeline)
         let ids = (0..<5).map { _ in UUID() }
         for (index, id) in ids.enumerated() { await pipeline.submitFinal(id: id, text: "s\(index)") }
-        try await Task.sleep(for: .milliseconds(600))
+        // close() drops unfinished finals; under CI load a fixed 600 ms sleep raced the fifth translation.
+        try await Task.sleep(for: .seconds(2))
         await pipeline.close()
         let outputs = await results.value
         #expect(outputs == ids.enumerated().map { .final(id: $0.element, translation: "T(s\($0.offset))") })

@@ -77,6 +77,13 @@ public struct EngineOptions: Sendable, Equatable {
         self.pauseFinalization = pauseFinalization
     }
 
+    /// English single-language recognition must not finalize at pauses: it damages the next sentence's first words
+    /// (WER 7 % → 15–20 % on gap speech). Call this for CLI, bench, reply dictation and the overlay when the
+    /// session is one English locale (not conversation / auto-detect).
+    public mutating func disablePauseFinalizationIfEnglish(_ localeID: String) {
+        if localeID.hasPrefix("en") { pauseFinalization = nil }
+    }
+
     /// One term per line; blank lines and `#` comments are ignored.
     public static func parseVocabulary(_ text: String) -> [String] {
         text.split(whereSeparator: \.isNewline)
