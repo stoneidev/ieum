@@ -26,7 +26,9 @@ Never print or commit the identity string (it holds the legal name and team id).
 ## 1. Pull and look
 
 `git pull --ff-only`, then `git log --oneline <last tag>..HEAD` and `git status`. Read what came in: someone else (another agent, a PR) may
-have pushed. Decide from it whether the release has user-visible changes.
+have pushed. Decide from it whether the release has user-visible changes. Engine, timing or pipeline changes are benchmarked
+before shipping (`ieum-benchmark`, old tag built in a `git worktree` vs HEAD, 2 runs each); a change that does not do what it claims is
+switched off or held, after asking the owner. `say` sometimes hangs forever on long text: kill it and generate only the clips you need.
 
 ## 2. Commit pending work
 
@@ -52,8 +54,11 @@ Build output must be warning-free. If notarization hangs, see ieum-release step 
 
 ## 5. Commit, tag, push
 
-`git commit -am "Release x.y.z"` (+ one-paragraph summary + trailer), `git tag -a vx.y.z -m "Ieum x.y.z"`, `git push origin main --tags`.
+`git commit -am "Release x.y.z"` (+ one-paragraph summary + trailer), `git push origin main` first, then `git tag -a vx.y.z -m "Ieum x.y.z"` and `git push origin vx.y.z` (a rejected `main` push then leaves no tag behind).
 Never move or re-create an existing tag; if one is wrong, ship the next patch.
+Other agents merge PRs into `main` while a release builds. If the push of `main` is rejected, `git fetch` and **merge** `origin/main`
+(do not rebase: the tag must stay on `main`), run `swift test`, push; check `git merge-base --is-ancestor vx.y.z origin/main`.
+The binary is the one built from the tag; what came in ships next time.
 
 ## 6. GitHub Release
 

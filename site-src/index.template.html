@@ -1073,11 +1073,14 @@ document.querySelectorAll("[data-share]").forEach(function(el){
   });
 });
 
-/* real download count from the GitHub releases, shown only once it is meaningful */
-fetch("https://api.github.com/repos/stoneidev/ieum/releases?per_page=30").then(function(r){return r.json()}).then(function(rs){
-  var n=0;rs.forEach(function(r){(r.assets||[]).forEach(function(a){if(/\.dmg$/.test(a.name))n+=a.download_count})});
-  if(n>=25){$("countn").textContent=T.downloads.replace("{n}",n.toLocaleString());$("count").classList.add("on")}
-}).catch(function(){});
+/* real download count from the GitHub releases, shown only once it is meaningful; every release counts, so follow the pages (100 is the API maximum) */
+(function count(page,n){
+  fetch("https://api.github.com/repos/stoneidev/ieum/releases?per_page=100&page="+page).then(function(r){return r.json()}).then(function(rs){
+    rs.forEach(function(r){(r.assets||[]).forEach(function(a){if(/\.dmg$/.test(a.name))n+=a.download_count})});
+    if(rs.length===100)return count(page+1,n);
+    if(n>=25){$("countn").textContent=T.downloads.replace("{n}",n.toLocaleString());$("count").classList.add("on")}
+  }).catch(function(){});
+})(1,0);
 
 /* hero demo: one meeting, four languages; the reader's language (this page) comes first */
 var PL=d.dataset.lang||"en",LG={en:"en",ko:"ko",ja:"ja",zh:"zh-Hans"};
