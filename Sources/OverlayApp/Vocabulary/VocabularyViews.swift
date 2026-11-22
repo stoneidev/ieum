@@ -72,8 +72,8 @@ struct VocabularyTip: View {
                 Text("💡 " + tr("Names get misheard. Teach Ieum yours.", "이름은 잘못 들리기 쉬워요. 이음에게 알려 주세요."))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(palette.ink)
-                Text(tr("Put in the people, products and company words of today's meeting, and \"R. Q. Bernates\" becomes \"Kubernetes\" in the captions and the translation. Two minutes now saves every meeting after.",
-                        "오늘 회의의 사람, 제품, 회사 용어를 넣어 두면 자막과 번역에서 \"R. Q. Bernates\"가 \"Kubernetes\"로 바로잡혀요. 지금 2분이면 앞으로 모든 회의가 편해집니다."))
+                Text(tr("Put in the people, products and company words of today's meeting, and \"R. Q. Bernates\" or \"쿠버네티스\" becomes \"Kubernetes\" in the captions and the translation. Two minutes now saves every meeting after.",
+                        "오늘 회의의 사람, 제품, 회사 용어를 넣어 두면 자막과 번역에서 \"R. Q. Bernates\"나 \"쿠버네티스\"가 \"Kubernetes\"로 바로잡혀요. 지금 2분이면 앞으로 모든 회의가 편해집니다."))
                     .font(.system(size: 12))
                     .foregroundStyle(palette.interim)
                     .fixedSize(horizontal: false, vertical: true)
