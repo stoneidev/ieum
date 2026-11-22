@@ -23,7 +23,7 @@ accuracy. Recognition quality in a real 3 to 6 person room has **not** been meas
 | All cases | CPU / memory | 3% / 26 MB | 3% (4% in conversation) / 26 MB (29 MB with a vocabulary list) |
 
 What changed it:
-- **Pause finalization** (0.7 s of silence after speech ends the sentence immediately) fixed the slow Korean finals and made the two
+- **Pause finalization** (0.4 s of silence after speech ends the sentence immediately; was 0.7 s in early builds) fixed the slow Korean finals and made the two
   recognizers of conversation mode cut sentences at the same places. The request is sent only if the recognizer still has unfinished
   text, and re-checked 150 ms later, because a request for a sentence the recognizer has just finalized itself makes it end the session.
 - A **separate translator for finished sentences** removed the wait behind the interim translation that is always running while someone talks.

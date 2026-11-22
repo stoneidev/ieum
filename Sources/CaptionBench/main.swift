@@ -39,7 +39,7 @@ struct CaptionBench: AsyncParsableCommand {
     var noVad = false
     @Flag(help: "Do not finalize a sentence at a pause; leave that to the recognizer.")
     var noPauseFinalization = false
-    @Option(help: "Seconds of silence after which a sentence is finalized (default 0.7).")
+    @Option(help: "Seconds of silence after which a sentence is finalized (default 0.4).")
     var pause: Double?
     @Flag(help: "Use the legacy SFSpeechRecognizer engine.")
     var legacy = false
@@ -87,7 +87,14 @@ struct CaptionBench: AsyncParsableCommand {
         options.showsWordsSooner = earlyWords
         options.fast = !noFast
         options.useVAD = !noVad
-        if noPauseFinalization { options.pauseFinalization = nil } else if let pause { options.pauseFinalization = pause }
+        if noPauseFinalization {
+            options.pauseFinalization = nil
+        } else if let pause {
+            options.pauseFinalization = pause
+        } else {
+            // Match the app: English single-locale runs leave finalization to the recognizer.
+            options.disablePauseFinalizationIfEnglish(locale)
+        }
 
         var results: [Run] = []
         var engineName = ""

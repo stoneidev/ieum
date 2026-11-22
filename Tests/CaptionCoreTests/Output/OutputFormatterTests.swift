@@ -202,6 +202,16 @@ struct EngineOptionsTests {
     @Test func defaultsFavorSpeed() {
         let options = EngineOptions()
         #expect(options.fast && options.useVAD && options.vocabulary.isEmpty)
+        #expect(options.pauseFinalization == 0.4)
+    }
+
+    @Test func englishLocalesTurnPauseFinalizationOff() {
+        var options = EngineOptions()
+        options.disablePauseFinalizationIfEnglish("en-US")
+        #expect(options.pauseFinalization == nil)
+        options = EngineOptions()
+        options.disablePauseFinalizationIfEnglish("ko-KR")
+        #expect(options.pauseFinalization == 0.4)
     }
 }
 

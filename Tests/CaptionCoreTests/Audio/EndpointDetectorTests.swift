@@ -15,12 +15,21 @@ struct EndpointDetectorTests {
         return nil
     }
 
+    @Test func defaultPauseMatchesEngineOptions() {
+        #expect(EndpointDetector().pause == 0.4)
+        #expect(EngineOptions().pauseFinalization == 0.4)
+    }
+
     @Test func firesAfterSpeechFollowedByAPause() {
         var d = EndpointDetector()
         #expect(feed(&d, level: -90, seconds: 1) == nil)      // quiet start: nothing yet
         #expect(feed(&d, level: -20, seconds: 2) == nil)      // speaking
-        let fired = feed(&d, level: -90, seconds: 2)          // pause
-        #expect(fired != nil && abs(fired! - 0.7) < 0.15)
+        // One chunk just under the threshold, then one that crosses it — avoids summing 0.05 in a loop
+        // (eight binary 0.05s can land under 0.4 and fire only on the ninth step).
+        let under = d.pause - 0.05
+        #expect(d.ingest(levelDB: -90, duration: under) == false)
+        #expect(d.ingest(levelDB: -90, duration: 0.05) == true)
+        #expect(abs(d.lastPause - d.pause) < 1e-9)
     }
 
     @Test func firesOncePerUtteranceNotRepeatedlyDuringTheSilence() {
@@ -40,7 +49,8 @@ struct EndpointDetectorTests {
     @Test func aBriefPauseInsideASentenceIsNotAnEndpoint() {
         var d = EndpointDetector()
         _ = feed(&d, level: -20, seconds: 1)
-        #expect(feed(&d, level: -90, seconds: 0.4) == nil)
+        // Under the 0.4 s rule a short hesitation must not close the sentence.
+        #expect(feed(&d, level: -90, seconds: 0.3) == nil)
         #expect(feed(&d, level: -20, seconds: 1) == nil)
     }
 

@@ -60,7 +60,9 @@ public struct EngineOptions: Sendable, Equatable {
     public var vocabulary: [String] = []
     /// Modern engine: after this many seconds of silence following speech, finalize the sentence at once instead
     /// of waiting for the recognizer to decide. Nil leaves the decision to the recognizer.
-    public var pauseFinalization: TimeInterval? = 0.7
+    /// Default 0.4 s (was 0.7): Korean/Japanese/Chinese split into one final per sentence with no CER cost on
+    /// synthetic speech (`docs/TRANSCRIPTION-RESEARCH.md`). English single-language modes turn this off.
+    public var pauseFinalization: TimeInterval? = 0.4
     /// Whether `EngineFactory` repairs the transcript with `vocabulary`. The app switches this off: it corrects
     /// the text itself, with the list as it is right now, not as it was when the session started.
     public var correctsTranscript = true
@@ -68,11 +70,18 @@ public struct EngineOptions: Sendable, Equatable {
     /// appear sooner. Finished sentences always come from the modern engine.
     public var showsWordsSooner = false
 
-    public init(fast: Bool = true, useVAD: Bool = true, vocabulary: [String] = [], pauseFinalization: TimeInterval? = 0.7) {
+    public init(fast: Bool = true, useVAD: Bool = true, vocabulary: [String] = [], pauseFinalization: TimeInterval? = 0.4) {
         self.fast = fast
         self.useVAD = useVAD
         self.vocabulary = vocabulary
         self.pauseFinalization = pauseFinalization
+    }
+
+    /// English single-language recognition must not finalize at pauses: it damages the next sentence's first words
+    /// (WER 7 % → 15–20 % on gap speech). Call this for CLI, bench, reply dictation and the overlay when the
+    /// session is one English locale (not conversation / auto-detect).
+    public mutating func disablePauseFinalizationIfEnglish(_ localeID: String) {
+        if localeID.hasPrefix("en") { pauseFinalization = nil }
     }
 
     /// One term per line; blank lines and `#` comments are ignored.

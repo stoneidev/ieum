@@ -782,7 +782,7 @@ final class AppModel: ObservableObject {
             // (word error rate 7 % became 15 to 20 % on speech with pauses), and on its own it already closes English
             // sentences about 0.9 s after the speaker stops. Korean needs the pause (its sentences stay open for about
             // 2.6 s), and so does conversation mode, whose language decision waits for finished sentences.
-            if !setup.isConversation, locales[0].hasPrefix("en") { options.pauseFinalization = nil }
+            if !setup.isConversation { options.disablePauseFinalizationIfEnglish(locales[0]) }
             let started: (engine: any TranscriberEngine, events: AsyncThrowingStream<TranscriptionEvent, Error>)
             if isCall {
                 // Echo cancellation keeps the other side's voice, played through the speakers, out of the microphone. It only

@@ -166,6 +166,10 @@ final class ReplyModel: ObservableObject {
                 let capture = MicrophoneCapture(voiceProcessing: false, deviceUID: InputDevices.resolve(preferredUID: device, available: InputDevices.available()))
                 var options = EngineOptions()
                 options.correctsTranscript = false
+                // firstUtterance stops at the first final. English must not pause-finalize (next-word damage);
+                // other languages use a fuller 1 s pause so a mid-thought breath does not submit a fragment.
+                options.disablePauseFinalizationIfEnglish(locale)
+                if options.pauseFinalization != nil { options.pauseFinalization = 1.0 }
                 let started = try await EngineFactory.start(choice: .auto, localeID: locale, options: options, capture: capture)
                 // Closed or swapped while the recognizer was still starting (it may have to download a model first).
                 if Task.isCancelled {

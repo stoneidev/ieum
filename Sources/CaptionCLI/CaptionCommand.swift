@@ -71,7 +71,8 @@ struct CaptionCommand: AsyncParsableCommand {
             }
             vocabulary += EngineOptions.parseVocabulary(text)
         }
-        let options = EngineOptions(fast: fast, useVAD: vad, vocabulary: vocabulary)
+        var options = EngineOptions(fast: fast, useVAD: vad, vocabulary: vocabulary)
+        options.disablePauseFinalizationIfEnglish(locale)
 
         let polisher = polish ? await FinalTextPolisher.onDevice() : nil
         let capture: any AudioCapture = source == .mic ? MicrophoneCapture(voiceProcessing: voiceProcessing) : SystemAudioCapture()

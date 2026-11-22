@@ -139,7 +139,7 @@ struct CallEngineTests {
         }
         _ = try await call.events(from: IdleCapture())
         #expect(seen.value("en-US") == .some(nil))
-        #expect(seen.value("ko-KR") == .some(0.7))
+        #expect(seen.value("ko-KR") == .some(0.4))
     }
 
     private final class Seen: @unchecked Sendable {

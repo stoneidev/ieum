@@ -165,6 +165,10 @@ private struct GeneralTab: View {
                         "두 번째 인식기를 함께 돌려 첫 단어가 약 0.5초 일찍, 이후 단어마다 바로 나옵니다. 끝난 문장은 계속 더 정확한 인식기가 확정합니다. 음성 인식 권한이 필요합니다. 다음에 자막을 시작할 때부터 적용되며 언어 자동 인식 번역 모드에서는 쓰이지 않습니다."))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
+                Text(tr("With the modern recognizer in a single language, Korean, Japanese and Chinese close each sentence after a short pause (about 0.4 s) so translations keep up. English alone waits for the recognizer instead. Auto-detect keeps the pause for every language; on older macOS the legacy recognizer ignores this rule.",
+                        "최신 인식기로 한 언어만 쓸 때, 한국어·일본어·중국어는 짧은 쉼(약 0.4초) 뒤에 문장을 확정해 번역이 따라옵니다. 영어만 쓸 때는 인식기가 정할 때까지 기다립니다. 자동 인식은 모든 언어에 쉼 규칙을 쓰고, 이전 macOS의 구형 인식기는 이 규칙을 쓰지 않습니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
                 Toggle(tr("Global shortcuts", "전역 단축키"), isOn: Binding(get: { model.globalShortcuts }, set: model.setGlobalShortcuts))
                 if model.globalShortcuts {
                     ForEach(shortcuts, id: \.key) { shortcut in
