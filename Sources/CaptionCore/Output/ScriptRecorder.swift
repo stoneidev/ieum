@@ -41,6 +41,22 @@ public final class ScriptRecorder: @unchecked Sendable {
         fileURL = url
     }
 
+    /// Continues an existing transcript after a mid-meeting settings restart (same meeting, new recognizer).
+    /// The file must already exist; the header is left as written by the first segment.
+    public init(continuing fileURL: URL, timeZone: TimeZone = .current, tagLanguages: Bool = false, tagSpeakers: Bool = false) throws {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            throw CocoaError(.fileNoSuchFile, userInfo: [NSFilePathErrorKey: fileURL.path])
+        }
+        self.fileURL = fileURL
+        self.timeZone = timeZone
+        self.tagLanguages = tagLanguages
+        self.tagSpeakers = tagSpeakers
+        self.header = ""
+        let opened = try FileHandle(forWritingTo: fileURL)
+        try opened.seekToEnd()
+        self.handle = opened
+    }
+
     /// Called once, with a readable reason, if the transcript can no longer be written (disk full, folder removed).
     public func onFailure(_ handler: @escaping @Sendable (String) -> Void) {
         lock.withLock { failureHandler = handler }
