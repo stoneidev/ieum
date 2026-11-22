@@ -105,9 +105,11 @@ struct TranslationPipelineTests {
         let pipeline = TranslationPipeline(translator: FakeTranslator(delay: .milliseconds(30)))
         let results = collect(pipeline)
         await pipeline.submitInterim("same text")
-        try await Task.sleep(for: .milliseconds(150))
+        // Same wording again while the first translation is still in flight (and once after).
         await pipeline.submitInterim("same text")
-        try await Task.sleep(for: .milliseconds(150))
+        try await Task.sleep(for: .milliseconds(80))
+        await pipeline.submitInterim("same text")
+        try await Task.sleep(for: .milliseconds(200))
         await pipeline.close()
         let outputs = await results.value
         #expect(outputs == [.interim(source: "same text", translation: "T(same text)")])

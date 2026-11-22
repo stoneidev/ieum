@@ -1,12 +1,19 @@
 // swift-tools-version: 6.0
 import PackageDescription
 
+// GitHub Actions sets this so `swift test` does not compile OverlayApp: Xcode 26.6 on the
+// macos-26 runner fatals in IRGen for SettingsView.swift (SmallVector overflow). Local
+// builds omit the variable and keep the full package.
+let ciCoreOnly = Context.environment["IEUM_CI_CORE_ONLY"] == "1"
+
 let package = Package(
     name: "ieum",
     platforms: [.macOS(.v14)],
     products: [
         .executable(name: "caption-cli", targets: ["CaptionCLI"]),
+    ] + (ciCoreOnly ? [] : [
         .executable(name: "Ieum", targets: ["OverlayApp"]),
+    ]) + [
         .executable(name: "caption-bench", targets: ["CaptionBench"]),
         .executable(name: "minutes-eval", targets: ["MinutesEval"]),
     ],
@@ -36,12 +43,14 @@ let package = Package(
                 ]),
             ]
         ),
+    ] + (ciCoreOnly ? [] : [
         // Menu-bar live-subtitle overlay. Packaged into an .app by `make app`.
         .executableTarget(
             name: "OverlayApp",
             dependencies: ["CaptionCore"],
             path: "Sources/OverlayApp"
         ),
+    ]) + [
         // Developer tool: repeatable latency / accuracy / cost measurements (`make bench`).
         .executableTarget(
             name: "CaptionBench",

@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# CaptionCore needs the macOS 26 SDK (FoundationModels).
+# IEUM_CI_CORE_ONLY omits OverlayApp from Package.swift: Xcode 26.6 on the
+# runner crashes in IRGen for SettingsView.swift. Unit tests cover CaptionCore.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: CaptionCoreTests
+    runs-on: macos-26
+    env:
+      IEUM_CI_CORE_ONLY: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Swift / SDK
+        run: |
+          swift --version
+          xcrun --sdk macosx --show-sdk-version
+
+      - name: Run package tests
+        run: swift test
+
+      - name: Release build CaptionCore
+        run: swift build -c release --arch arm64 --target CaptionCore

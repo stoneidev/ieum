@@ -27,17 +27,17 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 
 | Path | What |
 |---|---|
-| `Sources/CaptionCore` | Library shared by everything: audio capture, speech engines, conversation arbitration, translation pipeline, transcript recorder, text cleaning |
-| `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
+| `Sources/CaptionCore` | Library shared by everything: audio capture, speech engines, conversation arbitration, translation pipeline, transcript recorder, text cleaning. Domain folders under the target (`Audio`, `Engines`, `Meeting`, `Reply`, …); see `docs/STRUCTURE.md` |
+| `Sources/OverlayApp` | The menu-bar app (product `Ieum`): feature folders (`App`, `Overlay`, `Reply`, `Minutes`, `Settings`, …) holding `AppModel`, overlay, settings, menu, hot keys |
 | `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
 | `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
-| `Tests/CaptionCoreTests` | Swift Testing suites for the library (336 tests) |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (338 tests); folders mirror `CaptionCore` domains |
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
 | `site-src` | The website template: every sentence in English, Korean, Japanese and Chinese as adjacent `<span class="en|ko|ja|zh">`. `Scripts/build-site.py` writes one page per language (`/`, `/ko/`, `/ja/`, `/zh/`) with its own head (hreflang, JSON-LD), plus `sitemap.xml` and `llms-full.txt` |
 | `site` | Static site files that are copied as they are (fonts, icons, `og.png`, `robots.txt`, `llms.txt`, `_headers`); deployed with `Scripts/deploy-site.sh` (`--preview` for a preview URL) |
-| `docs` | `PRD.md`, `USER-GUIDE.md`, `BENCHMARKS.md`, `UX-REVIEW.md` |
+| `docs` | `PRD.md`, `USER-GUIDE.md`, `BENCHMARKS.md`, `UX-REVIEW.md`, `STRUCTURE.md` (engineering package layout) |
 | `.claude/skills` | Runbooks: `ieum-release`, `ieum-verify-app`, `ieum-benchmark` (plain Markdown, usable by any agent). Other skills the owner installed locally (for example `ui-ux-pro-max`, used for the UI/site design work) are not committed |
 | `.omc` | Planning artifacts from earlier sessions (`prd.json`, interview spec). History only; `docs/PRD.md` is the current statement |
 
@@ -50,7 +50,7 @@ Key types: `PauseGate` + `PausableCapture` (pause: the recognizer is handed sile
 ```sh
 make build                    # caption-cli (release, ad-hoc signed)
 make app                      # .build/app/Ieum.app (ad-hoc signed; runs on this Mac)
-make test                     # or: swift test   (336 tests; must stay green)
+make test                     # or: swift test   (338 tests; must stay green)
 Scripts/dev-run.sh [launch args]   # build, re-sign with $SIGN_IDENTITY, relaunch the app
 make bench LABEL=x BASELINE=y # benchmark suite -> Benchmarks/results/x.md
 Scripts/deploy-site.sh        # site -> Cloudflare Pages
@@ -108,7 +108,7 @@ Pure decisions (`UpdateCheck`, `UpdateFeed`) live in CaptionCore and are tested.
 
 ## Release highlights ("What's new")
 
-`WhatsNewCatalog.pages()` in `Sources/OverlayApp/WhatsNewView.swift` lists the user-visible highlights, newest first, each with the version that introduced it.
+`WhatsNewCatalog.pages()` in `Sources/OverlayApp/Updates/WhatsNewView.swift` lists the user-visible highlights, newest first, each with the version that introduced it.
 When a release adds something people should notice, add a page (title and body in both languages, and an `Art` scene or reuse one) before building the release.
 The window opens once after an update and shows only pages newer than `Preferences.lastSeenVersion`; selection logic is `WhatsNew.pending` (tested). Try it with
 `open -n .build/app/Ieum.app --args -lastSeenVersion 0.2.3`. Synthetic mouse/Esc input does not reach it from the agent shell (the app is not activated there), so judge the
@@ -135,7 +135,7 @@ down once; `.compositingGroup()` before `.opacity` fixed it.
 ## State at hand-off
 
 - Latest published release is **v0.18.0** (build 38), tagged, on GitHub Releases, in the Homebrew tap and on the site (`latest.json` says 0.18.0). `main` is clean and pushed. History: v0.1.0 CLI baseline → v0.2.0 conversation/vocabulary/benchmarks → rename to Ieum → v0.2.x polish → v0.3.0 in-app updates + bar/panel toggle + Ieum Sans popups → v0.3.1 microphone picker → v0.3.2 bar controls (text size buttons, ⋯ menu also while captions run) → v0.4.0 Japanese and Chinese, with the language choice reduced to "language you hear" / "language you read" and a both-sides switch (`MeetingSetup`) → v0.4.1 downloadable translation languages → v0.5.0 spoken-time stamps, SRT/VTT/Markdown export, naming → v0.6.0 call mode (Me/Them) → v0.7.0 minutes draft with cited lines (Foundation Models) → v0.7.1 the minutes item is shown only on Macs with Apple Intelligence → v0.8.0 meeting view: language labels on spoken/translated lines, Conversation | Minutes tabs in the panel, wrap-up prompt, minutes in the ⋯ and menu-bar menus → v0.9.0 situations (conversation / meeting / seminar) and normalized notes → v0.10.0 the coffee ask → v0.11.0 the situation is chosen on the panel and the idle bar (`SituationChip`, `SituationPicker`), not only in Settings → v0.12.0 screen-share safe + pointer avoidance → v0.13.0 the reply helper (⌃⌥R) → v0.14.0 translate-or-captions-only is one choice next to the situation (`LanguageRouteChip`, `MeetingSetup.translating`) → v0.14.1 nudges to fill the vocabulary → v0.14.2 the reply and bar/panel buttons no longer look alike → v0.14.3 the sound source is chosen before starting, beside the languages (`SourceMenu`, `SourceChip`) → v0.14.4 no Conversation|Minutes tabs: the minutes open as their own page from the end-of-meeting prompt, with a way back (`PanelPage`) → v0.15.0 sound check: level meter and silent / too quiet / too loud advice → v0.15.1 a power (quit) button beside the ⋯ menu on the bar and the panel (`QuitButton`, asks first while captions run) → v0.15.2 the bar fades only after the pointer settles (`FadePolicy`) and Option (⌥) keeps it solid → v0.15.3 left-end handle stays solid, faded bar stays legible (0.3) and turns solid again when the pointer rests (2.5 s) → v0.16.0 "New conversation" (`startNewConversation`: stop, clear, start into a new transcript file) and the level meter is a speaker volume icon → v0.16.1 the app shows in the Dock and ⌘Tab (setting `showsInDock`, default on; `.regular` policy, `focus()` on activation) → v0.17.0 start offer when a meeting app comes to the front (`StartSuggestionPolicy`) → v0.18.0 pause (⌃⌥P): the recognizer is handed silence while paused (`PausableCapture`).
-- Tests: 336 (`swift test`). Build is warning-free.
+- Tests: 338 (`swift test`). Build is warning-free.
 - Site download counter is the sum of GitHub `download_count` over all releases, shown from 25 up. It includes the maintainer's own verification downloads and auto-updates, so it is not a user count.
 - Open items and ideas are in `docs/PRD.md` §10–11. The most useful next steps: other language pairs (biggest reach), early words in auto-detect mode, keeping the pause-finalization speed without the damage,
   testing the low-latency translation model (not installed on the dev Mac), a real meeting-room test (including an external microphone: only the device switch was verified, not recognition from it), an English user guide.
