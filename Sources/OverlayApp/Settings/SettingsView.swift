@@ -161,8 +161,8 @@ private struct GeneralTab: View {
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                 Toggle(tr("Show words sooner", "단어를 더 빨리 보이기"), isOn: Binding(get: { model.showsWordsSooner }, set: model.setShowsWordsSooner))
-                Text(tr("Runs a second recognizer so the first words appear about half a second earlier and then word by word. Finished sentences are still recognized by the more accurate one. Needs the Speech Recognition permission. Applies the next time captions start, and not when the language is detected automatically.",
-                        "두 번째 인식기를 함께 돌려 첫 단어가 약 0.5초 일찍, 이후 단어마다 바로 나옵니다. 끝난 문장은 계속 더 정확한 인식기가 확정합니다. 음성 인식 권한이 필요합니다. 다음에 자막을 시작할 때부터 적용되며 언어 자동 인식 번역 모드에서는 쓰이지 않습니다."))
+                Text(tr("Runs a second recognizer so the first words appear about half a second earlier and then word by word. Finished sentences are still recognized by the more accurate one. Needs the Speech Recognition permission. Applies the next time captions start, including when languages take turns automatically (for each language that has an on-device model).",
+                        "두 번째 인식기를 함께 돌려 첫 단어가 약 0.5초 일찍, 이후 단어마다 바로 나옵니다. 끝난 문장은 계속 더 정확한 인식기가 확정합니다. 음성 인식 권한이 필요합니다. 다음에 자막을 시작할 때부터 적용되며, 언어가 번갈아 바뀌는 자동 인식에서도 기기 안 모델이 있는 언어마다 같이 쓰입니다."))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                 Text(tr("With the modern recognizer in a single language, Korean, Japanese and Chinese close each sentence after a short pause (about 0.4 s) so translations keep up. English alone waits for the recognizer instead. Auto-detect keeps the pause for every language; on older macOS the legacy recognizer ignores this rule. For Korean, when fast results cut off the end of a sentence, a second recognizer finishes the complete sentence.",

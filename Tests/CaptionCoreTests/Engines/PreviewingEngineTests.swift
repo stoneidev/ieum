@@ -3,8 +3,8 @@ import Testing
 
 @testable import CaptionCore
 
-private func event(_ text: String, final: Bool = false) -> TranscriptionEvent {
-    TranscriptionEvent(text: text, isFinal: final, locale: "en-US")
+private func event(_ text: String, final: Bool = false, locale: String = "en-US") -> TranscriptionEvent {
+    TranscriptionEvent(text: text, isFinal: final, locale: locale)
 }
 
 @Suite("Early words")
@@ -79,4 +79,68 @@ struct PreviewingEngineTests {
         let r13 = gate.preview(event("Hello there"))
         #expect(r13 == nil)
     }
+
+    @Test func modernFinalBeforeFirstPreviewWordIsSkippedFromLatePreview() {
+        // Modern finishes "Hello." before legacy has said anything; the delayed cumulative
+        // preview must not re-show that sentence as an interim.
+        var gate = PreviewingEngine.Gate()
+        _ = gate.primary(event("Hello.", final: true))
+        let shown = gate.preview(event("Hello there"))
+        #expect(shown?.text == "there")
+    }
+
+    @Test func wrongLanguageFinalDoesNotStripEarlyWords() {
+        // Conversation mode: Korean modern may finalize Hangul while the English preview is live.
+        var gate = PreviewingEngine.Gate()
+        _ = gate.preview(event("Thanks for joining"))
+        _ = gate.primary(event("생큐포조이닝", final: true, locale: "ko-KR"))
+        let shown = gate.preview(event("Thanks for joining the call"))
+        #expect(shown?.text == "Thanks for joining the call")
+    }
+
+    @Test func wrongLanguagePendingFinalDoesNotStripFirstPreviewWords() {
+        var gate = PreviewingEngine.Gate()
+        _ = gate.primary(event("생큐포조이닝", final: true, locale: "ko-KR"))
+        let shown = gate.preview(event("Thanks for joining"))
+        #expect(shown?.text == "Thanks for joining")
+    }
+
+    @Test func wrapIfNeededIsANoOpWhenEarlyWordsAreOffOrPreviewIsMissing() async {
+        let fake = PassthroughEngine(name: "primary")
+        var options = EngineOptions()
+        options.showsWordsSooner = false
+        let kept = await PreviewingEngine.wrapIfNeeded(
+            primary: fake, localeID: "en-US", options: options
+        ) { _, _ in PassthroughEngine(name: "preview") }
+        #expect((kept as? PassthroughEngine) === fake)
+
+        options.showsWordsSooner = true
+        let withoutPreview = await PreviewingEngine.wrapIfNeeded(
+            primary: fake, localeID: "ja-JP", options: options
+        ) { _, _ in nil }
+        #expect((withoutPreview as? PassthroughEngine) === fake)
+    }
+
+    @Test func wrapIfNeededAddsEarlyWordsWhenEnabledAndPreviewExists() async throws {
+        let fake = PassthroughEngine(name: "primary")
+        let preview = PassthroughEngine(name: "preview")
+        var options = EngineOptions()
+        options.showsWordsSooner = true
+        let wrapped = await PreviewingEngine.wrapIfNeeded(
+            primary: fake, localeID: "en-US", options: options
+        ) { _, _ in preview }
+        let engine = try #require(wrapped as? PreviewingEngine)
+        #expect(engine.name == "primary + early words")
+        #expect(engine.isPreview(preview))
+        #expect(!engine.isPreview(fake))
+    }
+}
+
+private final class PassthroughEngine: TranscriberEngine, @unchecked Sendable {
+    let name: String
+    init(name: String) { self.name = name }
+    func events(from capture: any AudioCapture) async throws -> AsyncThrowingStream<TranscriptionEvent, Error> {
+        AsyncThrowingStream { $0.finish() }
+    }
+    func stop() async {}
 }

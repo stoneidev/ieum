@@ -30,17 +30,16 @@ public enum EngineFactory {
                 if let modern = try await ModernSpeechSupport.makeEngine(localeID: localeID, options: options) {
                     // Korean + fast results: a second analyzer without fast results recovers tails the fast
                     // path drops (docs/TRANSCRIPTION-RESEARCH.md #3).
-                    let primary = try await FastResultsSafetyNet.wrapIfNeeded(
+                    let withSafety = try await FastResultsSafetyNet.wrapIfNeeded(
                         primary: modern, localeID: localeID, options: options
                     ) {
                         var slowOptions = options
                         slowOptions.fast = false
                         return try await ModernSpeechSupport.makeEngine(localeID: localeID, options: slowOptions)
                     }
-                    if options.showsWordsSooner, let early = await PreviewingEngine.makePreviewEngine(localeID: localeID, options: options) {
-                        let both = PreviewingEngine(primary: primary, preview: early)
-                        return (both, try await both.events(from: capture))
-                    }
+                    let primary = await PreviewingEngine.wrapIfNeeded(
+                        primary: withSafety, localeID: localeID, options: options
+                    )
                     return (primary, try await primary.events(from: capture))
                 }
                 if choice == .modern {

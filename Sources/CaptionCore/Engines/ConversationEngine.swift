@@ -2,6 +2,8 @@ import Foundation
 
 /// Two-way conversation: one recognizer per language runs on the same audio and `LanguageArbiter` picks, for every
 /// utterance, the language that was actually spoken. Needs the modern engine (macOS 26) for every language.
+/// When `showsWordsSooner` is on, each locale is wrapped with `PreviewingEngine` (same as single-language mode) so
+/// interim words arrive sooner; finals stay on the modern path (and Korean still through `FastResultsSafetyNet`).
 public final class ConversationEngine: TranscriberEngine, @unchecked Sendable {
     public var name: String { "Conversation (\(locales.joined(separator: " + ")))" }
 
@@ -21,13 +23,18 @@ public final class ConversationEngine: TranscriberEngine, @unchecked Sendable {
             guard let modern = try await ModernSpeechSupport.makeEngine(localeID: locale, options: options) else {
                 throw EngineError.engineUnavailable("Conversation mode needs macOS 26 or later.")
             }
-            let engine = try await FastResultsSafetyNet.wrapIfNeeded(
+            // Same stack as single-language: Korean safety net for fast tails, then early words when enabled.
+            // LanguageArbiter still picks which locale's stream is shown; finished sentences stay modern.
+            let withSafety = try await FastResultsSafetyNet.wrapIfNeeded(
                 primary: modern, localeID: locale, options: options
             ) {
                 var slowOptions = options
                 slowOptions.fast = false
                 return try await ModernSpeechSupport.makeEngine(localeID: locale, options: slowOptions)
             }
+            let engine = await PreviewingEngine.wrapIfNeeded(
+                primary: withSafety, localeID: locale, options: options
+            )
             made.append(engine)
         }
         lock.withLock { engines = made }
