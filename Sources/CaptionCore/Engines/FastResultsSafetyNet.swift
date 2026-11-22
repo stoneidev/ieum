@@ -20,6 +20,11 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
         self.clock = clock
     }
 
+    /// Off until the hold gate catches the measured truncation: on `codeswitch-ko` the fast final reports
+    /// `audioEnd` at the end of the audio although its text stops early, so nothing is held (CER 47 % → 48–50 %)
+    /// while the second analyzer doubles CPU (docs/BENCHMARKS.md, "Fast-results tail safety net").
+    static let isEnabled = false
+
     /// Wraps `primary` with a non-fast twin when the locale needs the safety net and fast results are on.
     public static func wrapIfNeeded(
         primary: any TranscriberEngine,
@@ -27,7 +32,7 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
         options: EngineOptions,
         makeSlow: () async throws -> (any TranscriberEngine)?
     ) async throws -> any TranscriberEngine {
-        guard options.fast, FastResultsTailGuard.applies(to: localeID) else { return primary }
+        guard isEnabled, options.fast, FastResultsTailGuard.applies(to: localeID) else { return primary }
         guard let slow = try await makeSlow() else { return primary }
         return FastResultsSafetyNet(fast: primary, slow: slow)
     }

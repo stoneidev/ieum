@@ -127,12 +127,13 @@ struct SpeechActivityClockTests {
         #expect((english as? PassthroughEngine) === fake)
     }
 
-    @Test func wrapIfNeededAddsTheSafetyNetForKoreanFastSessions() async throws {
+    @Test func wrapIfNeededFollowsTheSwitchForKoreanFastSessions() async throws {
         let fake = PassthroughEngine()
         let wrapped = try await FastResultsSafetyNet.wrapIfNeeded(
             primary: fake, localeID: "ko-KR", options: EngineOptions(fast: true)
         ) { PassthroughEngine() }
-        #expect(wrapped is FastResultsSafetyNet)
+        // Switched off until the hold gate catches the measured truncation (docs/BENCHMARKS.md).
+        #expect((wrapped is FastResultsSafetyNet) == FastResultsSafetyNet.isEnabled)
     }
 }
 
