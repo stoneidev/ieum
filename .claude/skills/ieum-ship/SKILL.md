@@ -81,7 +81,9 @@ Check `curl -s https://ieum.calmwork.today/latest.json` shows the new version. N
 ## 9. Homebrew tap
 
 In `~/Projects/homebrew-tap`: set `version` and `sha256` (of `/tmp/dl.dmg`) in `Casks/ieum.rb`,
-`brew audit --cask --online stoneidev/tap/ieum`, commit "ieum x.y.z", push.
+commit "ieum x.y.z", push. Brew reads its own clone (`brew --repository stoneidev/tap`), so run
+`git -C "$(brew --repository stoneidev/tap)" pull --ff-only` before `brew audit --cask --online stoneidev/tap/ieum`; otherwise it audits
+the old version and complains that livecheck found the new one.
 
 ## 10. Report (Korean)
 
