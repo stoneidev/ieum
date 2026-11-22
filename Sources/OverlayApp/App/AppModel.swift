@@ -804,7 +804,13 @@ final class AppModel: ObservableObject {
         setup: MeetingSetup, locales: [String], source: Source, deviceUID: String?, vocabulary: [String],
         continueTranscript: URL?, generation: Int
     ) async {
-        let raw: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
+        // Lead-in silence pads the recognizer timeline so speech that starts at sample 0 (common after a
+        // settings restart) is not clipped; see LeadInCapture and docs/TRANSCRIPTION-RESEARCH.md.
+        // Keep the SystemAudioCapture instance so its failureMessage is still readable after wrapping.
+        let systemCapture: SystemAudioCapture? = source == .microphone ? nil : SystemAudioCapture()
+        let raw: any AudioCapture = LeadInCapture(
+            source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : systemCapture!
+        )
         let isCall = source == .call
         // A call reads two inputs inside its own engine; the sound check watches the single input of the other sources.
         let capture: any AudioCapture = isCall ? raw : PausableCapture(
@@ -869,7 +875,10 @@ final class AppModel: ObservableObject {
                 // works on the default input, so a microphone chosen in Settings is used as it is and EchoGuard filters the leak.
                 let call = CallEngine(
                     theirLocale: locale(for: setup.heard), myLocale: locale(for: setup.shown ?? setup.heard),
-                    options: options, microphone: MicrophoneCapture(voiceProcessing: deviceUID == nil, deviceUID: deviceUID)
+                    options: options,
+                    microphone: LeadInCapture(
+                        MicrophoneCapture(voiceProcessing: deviceUID == nil, deviceUID: deviceUID)
+                    )
                 )
                 started = (call, try await call.events(from: capture))
             } else if setup.isConversation {
@@ -900,7 +909,7 @@ final class AppModel: ObservableObject {
             }
             // The events ended without the user asking for it: the audio source went away.
             if !stopRequested {
-                if let reason = (capture as? SystemAudioCapture)?.failureMessage {
+                if let reason = systemCapture?.failureMessage {
                     failure = tr("System audio stopped (\(reason)). It cannot be captured while the display is asleep or its source changed. Start captions again.",
                                  "시스템 소리 입력이 멈췄습니다(\(reason)). 디스플레이가 꺼졌거나 소리 출력이 바뀌면 캡처할 수 없습니다. 자막을 다시 시작하세요.")
                 } else {
