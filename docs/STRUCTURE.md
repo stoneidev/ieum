@@ -51,4 +51,4 @@ Prefer one type (or a small cluster) per file once a file grows past a screenful
 
 ## CI
 
-`.github/workflows/ci.yml` runs on `macos-26` and builds/runs **`CaptionCoreTests` only** (plus a release build of `CaptionCore`). It does not compile `OverlayApp` on the runner: Xcode 26.6’s Swift frontend has crashed there with `SmallVector unable to grow` while IR-generating `SettingsView.swift`. Treat a green CI as coverage of shared library logic; verify the menu-bar app with `make app` / the verify-app skill on a Mac.
+`.github/workflows/ci.yml` runs on `macos-26` with `IEUM_CI_CORE_ONLY=1`. That env var makes `Package.swift` omit the `OverlayApp` / `Ieum` product so `swift test` does not compile the menu-bar target: Xcode 26.6’s Swift frontend has crashed on the runner with `SmallVector unable to grow` while IR-generating `SettingsView.swift`. Local builds leave the variable unset and keep the full package. Treat a green CI as coverage of shared library logic; verify the app with `make app` / the verify-app skill on a Mac.

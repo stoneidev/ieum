@@ -5,11 +5,9 @@ on:
     branches: [main]
   pull_request:
 
-# CaptionCore needs the macOS 26 SDK (FoundationModels). macos-15 fails to import it.
-# OverlayApp is not built here: Xcode 26.6's Swift frontend crashes with
-# "SmallVector unable to grow" while IR-generating SettingsView.swift on the
-# GitHub runner. CaptionCoreTests only depends on CaptionCore, so unit tests
-# stay green without that executable. Full `make app` remains a local Mac check.
+# CaptionCore needs the macOS 26 SDK (FoundationModels).
+# IEUM_CI_CORE_ONLY omits OverlayApp from Package.swift: Xcode 26.6 on the
+# runner crashes in IRGen for SettingsView.swift. Unit tests cover CaptionCore.
 permissions:
   contents: read
 
@@ -17,6 +15,8 @@ jobs:
   test:
     name: CaptionCoreTests
     runs-on: macos-26
+    env:
+      IEUM_CI_CORE_ONLY: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -25,11 +25,8 @@ jobs:
           swift --version
           xcrun --sdk macosx --show-sdk-version
 
-      - name: Build CaptionCoreTests
-        run: swift build --build-tests --target CaptionCoreTests
-
-      - name: Run CaptionCoreTests
-        run: swift test --skip-build
+      - name: Run package tests
+        run: swift test
 
       - name: Release build CaptionCore
         run: swift build -c release --arch arm64 --target CaptionCore
