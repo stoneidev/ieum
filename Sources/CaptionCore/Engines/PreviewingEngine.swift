@@ -21,6 +21,33 @@ public final class PreviewingEngine: TranscriberEngine, @unchecked Sendable {
         self.preview = preview
     }
 
+    /// Whether `candidate` is this engine's early-words source (identity check for tests).
+    func isPreview(_ candidate: any TranscriberEngine) -> Bool {
+        (candidate as AnyObject) === (preview as AnyObject)
+    }
+
+    /// Wraps `primary` with the legacy early-words recognizer when the option is on and a preview engine is available.
+    /// Used by single-language `EngineFactory` and by each leg of `ConversationEngine` (auto-detect).
+    ///
+    /// `makePreview` is optional so tests can inject a fake; when nil, the on-device legacy recognizer is used.
+    /// The factory stays internal — a public default closure cannot reference it.
+    public static func wrapIfNeeded(
+        primary: any TranscriberEngine,
+        localeID: String,
+        options: EngineOptions,
+        makePreview: ((String, EngineOptions) async -> (any TranscriberEngine)?)? = nil
+    ) async -> any TranscriberEngine {
+        guard options.showsWordsSooner else { return primary }
+        let preview: (any TranscriberEngine)?
+        if let makePreview {
+            preview = await makePreview(localeID, options)
+        } else {
+            preview = await makePreviewEngine(localeID: localeID, options: options)
+        }
+        guard let preview else { return primary }
+        return PreviewingEngine(primary: primary, preview: preview)
+    }
+
     /// Whether the legacy recognizer can serve as the early-words source for `localeID`: it must have an on-device
     /// model and the Speech Recognition permission. Asks for the permission when it was never asked.
     static func makePreviewEngine(localeID: String, options: EngineOptions) async -> (any TranscriberEngine)? {
@@ -55,9 +82,11 @@ public final class PreviewingEngine: TranscriberEngine, @unchecked Sendable {
                 return (ordered[0]!, ordered[1]!)
             }
         } catch {
+            // Early words are a convenience: if the preview (or the dual start) fails, captions continue
+            // on the primary recognizer alone without aborting the session.
             await primary.stop()
             await preview.stop()
-            throw error
+            return try await primary.events(from: capture)
         }
 
         let merger = Merger()
@@ -80,15 +109,27 @@ public final class PreviewingEngine: TranscriberEngine, @unchecked Sendable {
     struct Gate {
         /// Letters of the sentences the modern recognizer finished during the current legacy session.
         private var finishedLetters = 0
+        /// Modern finals that arrived before any preview words in this legacy session.
+        private var pendingFinals: [String] = []
         /// The current legacy session has produced words.
         private var sessionHasWords = false
         /// Early words exist for the sentence being spoken, so the modern interim words are not shown.
         private(set) var previewSeen = false
         private var previewLost = false
+        /// Last preview interim text, used to ignore wrong-language modern finals in conversation mode.
+        private var lastPreviewText = ""
 
         mutating func primary(_ event: TranscriptionEvent) -> Bool {
             if event.isFinal {
-                if sessionHasWords { finishedLetters += Self.letterCount(event.text) }
+                if sessionHasWords {
+                    // Only finals that match what the preview has been hearing advance the offset.
+                    // Wrong-language finals (conversation mode) must not strip letters from the other stream.
+                    if Self.aligns(final: event.text, withPreview: lastPreviewText) {
+                        finishedLetters += Self.letterCount(event.text)
+                    }
+                } else {
+                    pendingFinals.append(event.text)
+                }
                 previewSeen = false
                 return true
             }
@@ -107,12 +148,23 @@ public final class PreviewingEngine: TranscriberEngine, @unchecked Sendable {
             if event.isFinal {
                 // The legacy session ended (a pause): its next words belong to a new sentence.
                 finishedLetters = 0
+                pendingFinals = []
                 sessionHasWords = false
                 previewSeen = false
+                lastPreviewText = ""
                 return nil
             }
             guard !previewLost else { return nil }
+            if !sessionHasWords {
+                // Apply modern finals that landed before the first preview words, when they belong
+                // to the same utterance (so a late cumulative preview does not re-show them).
+                for final in pendingFinals where Self.aligns(final: final, withPreview: event.text) {
+                    finishedLetters += Self.letterCount(final)
+                }
+                pendingFinals = []
+            }
             sessionHasWords = true
+            lastPreviewText = event.text
             let rest = Self.dropping(letters: finishedLetters, from: event.text)
             guard !rest.isEmpty else {
                 previewSeen = false
@@ -123,6 +175,27 @@ public final class PreviewingEngine: TranscriberEngine, @unchecked Sendable {
                 text: rest, isFinal: false, locale: event.locale, timestamp: event.timestamp,
                 audioStart: event.audioStart, audioEnd: event.audioEnd, confidence: event.confidence
             )
+        }
+
+        /// Same-script and prefix-related: the final is part of what the preview is hearing.
+        static func aligns(final: String, withPreview preview: String) -> Bool {
+            let f = lettersOnly(final)
+            let p = lettersOnly(preview)
+            guard !f.isEmpty, !p.isEmpty else { return false }
+            guard scriptKind(f) == scriptKind(p) else { return false }
+            return p.hasPrefix(f) || f.hasPrefix(p)
+        }
+
+        private static func lettersOnly(_ text: String) -> String {
+            String(text.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }.map(Character.init))
+        }
+
+        private enum ScriptKind { case latin, hangul, cjk }
+
+        private static func scriptKind(_ letters: String) -> ScriptKind {
+            if TextScript.hangulRatio(letters) > 0.5 { return .hangul }
+            if TextScript.cjkRatio(letters) > 0.5 { return .cjk }
+            return .latin
         }
 
         static func letterCount(_ text: String) -> Int {

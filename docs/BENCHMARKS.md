@@ -63,7 +63,9 @@ The modern recognizer reports interim text in bursts about once a second (first 
 (first word at about 0.5 s, then every 0.2 to 0.3 s). With `showsWordsSooner` (bench flag `--early-words`) both run on the same audio; the legacy words
 are shown for the sentence being spoken, and every finished sentence still comes from the modern recognizer.
 Measured on en-US (9 s of speech, 3 runs): first text 1.01 s to 0.51 s; word error rate 3 % to 3 %; final delay 0.90 s to 0.89 s; CPU 1.3 % to 2.7 %;
-peak memory 21.7 MB to 24.1 MB. Needs the Speech Recognition permission; without it captions run as before. Not used in Conversation mode.
+peak memory 21.7 MB to 24.1 MB. Needs the Speech Recognition permission; without it captions run as before.
+Conversation (auto-detect) mode uses the same early-words wrap per language when the option is on; live latency, language
+choice accuracy and CPU with two legacy recognizers have **not** been re-measured yet.
 Known rough edge: the two recognizers split sentences slightly differently, so a word at a sentence boundary can show up in the previous sentence for a moment.
 
 ## Closing sentences at a pause damages the next sentence's first words
