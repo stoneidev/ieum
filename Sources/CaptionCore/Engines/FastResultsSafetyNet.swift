@@ -20,12 +20,13 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
         self.clock = clock
     }
 
-    /// Off until the hold gate catches the measured truncation: on `codeswitch-ko` the fast final reports
-    /// `audioEnd` at the end of the audio although its text stops early, so nothing is held (CER 47 % → 48–50 %)
-    /// while the second analyzer doubles CPU (docs/BENCHMARKS.md, "Fast-results tail safety net").
-    static let isEnabled = false
+    /// On for Korean when fast results are on. The hold uses interim letter-count stall (and the older
+    /// `audioEnd` check): on `codeswitch-ko` the truncated final reports `audioEnd` at the end of the audio, so
+    /// the range check alone never held (docs/BENCHMARKS.md, "Fast-results tail safety net").
+    static let isEnabled = true
 
     /// Wraps `primary` with a non-fast twin when the locale needs the safety net and fast results are on.
+    /// If the slow twin cannot be built, captions continue on `primary` alone (recovery is optional).
     public static func wrapIfNeeded(
         primary: any TranscriberEngine,
         localeID: String,
@@ -33,8 +34,12 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
         makeSlow: () async throws -> (any TranscriberEngine)?
     ) async throws -> any TranscriberEngine {
         guard isEnabled, options.fast, FastResultsTailGuard.applies(to: localeID) else { return primary }
-        guard let slow = try await makeSlow() else { return primary }
-        return FastResultsSafetyNet(fast: primary, slow: slow)
+        do {
+            guard let slow = try await makeSlow() else { return primary }
+            return FastResultsSafetyNet(fast: primary, slow: slow)
+        } catch {
+            return primary
+        }
     }
 
     public func events(from capture: any AudioCapture) async throws -> AsyncThrowingStream<TranscriptionEvent, Error> {
@@ -59,9 +64,10 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
                 return (ordered[0]!, ordered[1]!)
             }
         } catch {
+            // Recovery is optional: if the slow twin (or dual start) fails, keep captions on fast alone.
             await fast.stop()
             await slow.stop()
-            throw error
+            return try await fast.events(from: capture)
         }
         lock.withLock { engines = [fast, slow] }
 
@@ -81,6 +87,10 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
     struct Gate {
         private(set) var pending: TranscriptionEvent?
         private(set) var lastCommitted: TranscriptionEvent?
+        /// Letter count of the longest interim so far in the current utterance.
+        private(set) var lastInterimLetters = 0
+        /// Audio time (`audioEnd` of the interim, else `lastSpeechAt`) when that letter count last grew.
+        private(set) var lastInterimGrowthAt = 0.0
 
         mutating func fast(_ event: TranscriptionEvent, lastSpeechAt: Double) -> [TranscriptionEvent] {
             if event.isFinal {
@@ -90,7 +100,15 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
                     lastCommitted = pending
                     self.pending = nil
                 }
-                if FastResultsTailGuard.shouldHoldFinal(audioEnd: event.audioEnd, lastSpeechAt: lastSpeechAt) {
+                let hold = FastResultsTailGuard.shouldHold(
+                    finalText: event.text,
+                    audioEnd: event.audioEnd,
+                    lastSpeechAt: lastSpeechAt,
+                    lastInterimLetters: lastInterimLetters,
+                    lastInterimGrowthAt: lastInterimGrowthAt
+                )
+                resetInterimTracking()
+                if hold {
                     pending = event
                     out.append(TranscriptionEvent(
                         text: event.text, isFinal: false, locale: event.locale, timestamp: event.timestamp,
@@ -103,7 +121,20 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
                 }
                 return out
             }
+            noteInterim(event, lastSpeechAt: lastSpeechAt)
             return [event]
+        }
+
+        private mutating func noteInterim(_ event: TranscriptionEvent, lastSpeechAt: Double) {
+            let letters = FastResultsTailGuard.letterCount(event.text)
+            guard letters > lastInterimLetters else { return }
+            lastInterimLetters = letters
+            lastInterimGrowthAt = event.audioEnd ?? lastSpeechAt
+        }
+
+        private mutating func resetInterimTracking() {
+            lastInterimLetters = 0
+            lastInterimGrowthAt = 0
         }
 
         mutating func slow(_ event: TranscriptionEvent) -> TranscriptionEvent? {
@@ -159,6 +190,8 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
                         for try await event in fast { await fromFast(event) }
                         await streamEnded()
                     } catch {
+                        // Commit any held interim so a truncated line is not lost when fast dies mid-hold.
+                        await flushPending()
                         await finish(error)
                     }
                 }
