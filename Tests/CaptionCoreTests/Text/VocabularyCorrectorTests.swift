@@ -70,13 +70,39 @@ struct VocabularyCorrectorTests {
         let latin = VocabularyCorrector(terms: ["Kubernetes"])
         #expect(latin.correct("쿠버네티스를 설치했습니다") == "Kubernetes를 설치했습니다")
         #expect(latin.correct("쿠버네티스에서 확인") == "Kubernetes에서 확인")
+        #expect(latin.correct("쿠버네티스하고 배포") == "Kubernetes하고 배포")
+        #expect(latin.correct("쿠버네티스에서는요") == "Kubernetes에서는요")
     }
 
     @Test func explicitHangulVocabularyLineBeatsALatinAlias() {
         // Both spellings are listed: keep Hangul when the recognizer already said the Hangul form.
         #expect(corrector.correct("쿠버네티스 클러스터") == "쿠버네티스 클러스터")
-        // A listed Hangul line still blocks the Latin alias for that exact spelling; particles stay untouched.
+        // Particles stay on the Hangul spelling (not rewritten to Latin, not stripped).
         #expect(corrector.correct("쿠버네티스를 설치했습니다") == "쿠버네티스를 설치했습니다")
+        // Real competition: the generated alias matches 쿠버네티즈 exactly, the listed Hangul line only
+        // fuzzy-matches — the listed line must still win.
+        #expect(corrector.correct("쿠버네티즈 클러스터") == "쿠버네티스 클러스터")
+    }
+
+    @Test func fatigueIsNotRewrittenToFigma() {
+        let latin = VocabularyCorrector(terms: ["Figma"])
+        #expect(latin.correct("피그마 파일을 열어요") == "Figma 파일을 열어요")
+        #expect(latin.correct("오늘 피로가 쌓였어요") == "오늘 피로가 쌓였어요")
+        #expect(latin.correct("피로도 높아요") == "피로도 높아요")
+    }
+
+    @Test func sharedHangulAliasPrefersTheLongerLatinTerm() {
+        let both = VocabularyCorrector(terms: ["Postgres", "PostgreSQL"])
+        #expect(both.correct("포스트그레스 쿼리") == "PostgreSQL 쿼리")
+        let reversed = VocabularyCorrector(terms: ["PostgreSQL", "Postgres"])
+        #expect(reversed.correct("포스트그레스 쿼리") == "PostgreSQL 쿼리")
+        #expect(VocabularyHangul.preferredLatin(among: ["Postgres", "PostgreSQL"]) == "PostgreSQL")
+    }
+
+    @Test func oneSyllableHangulAliasIsCorrected() {
+        let latin = VocabularyCorrector(terms: ["Zoom"])
+        #expect(latin.correct("줌 미팅") == "Zoom 미팅")
+        #expect(latin.correct("줌에서 만나요") == "Zoom에서 만나요")
     }
 
     @Test func unknownHangulLoanwordsNeedTheirOwnLine() {
@@ -87,10 +113,13 @@ struct VocabularyCorrectorTests {
 
     @Test func hangulAliasTableCoversResearchMishearings() {
         #expect(VocabularyHangul.aliases(forLatin: "Kubernetes").contains("큐버닉스"))
-        #expect(VocabularyHangul.aliases(forLatin: "Figma").contains("피로"))
+        #expect(VocabularyHangul.aliases(forLatin: "Figma").contains("피그마"))
+        // Research also heard 피로 for Figma; that ordinary Korean word is deliberately not an alias.
+        #expect(!VocabularyHangul.aliases(forLatin: "Figma").contains("피로"))
         #expect(VocabularyHangul.aliases(forLatin: "쿠버네티스").isEmpty)
         #expect(VocabularyHangul.peelingParticle(from: "쿠버네티스를").stem == "쿠버네티스")
         #expect(VocabularyHangul.peelingParticle(from: "쿠버네티스를").particle == "를")
+        #expect(VocabularyHangul.peelingParticle(from: "쿠버네티스에서는요").particle == "에서는요")
         #expect(VocabularyHangul.peelingParticle(from: "Kubernetes").particle.isEmpty)
     }
 

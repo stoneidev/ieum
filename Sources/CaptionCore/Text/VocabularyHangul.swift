@@ -14,16 +14,36 @@ public enum VocabularyHangul {
         return table[key] ?? []
     }
 
-    /// Splits a Hangul token into `(stem, particle)` when a trailing josa can be peeled off; otherwise `(token, "")`.
-    /// Longest particle wins so `에서는` is not read as `에서` + `는`.
+    /// Among Latin vocabulary lines that claim the same Hangul alias, pick one stably: the longest spelling wins
+    /// (`PostgreSQL` over `Postgres`); equal length keeps lexicographic order.
+    public static func preferredLatin(among lines: [String]) -> String? {
+        let latin = lines.filter(isLatin)
+        guard let first = latin.first else { return nil }
+        return latin.dropFirst().reduce(first) { best, next in
+            if next.count != best.count { return next.count > best.count ? next : best }
+            return next.lowercased() < best.lowercased() ? next : best
+        }
+    }
+
+    /// Splits a Hangul token into `(stem, particle)` by peeling trailing josa/endings, including stacks
+    /// (`에서는요` → stem + `에서는요`). Longest particle wins at each step.
     public static func peelingParticle(from token: String) -> (stem: String, particle: String) {
         guard isHangulHeavy(token) else { return (token, "") }
-        for particle in particles where token.count > particle.count && token.hasSuffix(particle) {
-            let stem = String(token.dropLast(particle.count))
-            guard !stem.isEmpty, isHangulHeavy(stem) else { continue }
-            return (stem, particle)
+        var stem = token
+        var particle = ""
+        while true {
+            var peeled: String?
+            for candidate in particles where stem.count > candidate.count && stem.hasSuffix(candidate) {
+                let next = String(stem.dropLast(candidate.count))
+                guard !next.isEmpty, isHangulHeavy(next) else { continue }
+                peeled = candidate
+                break
+            }
+            guard let peeled else { break }
+            particle = peeled + particle
+            stem = String(stem.dropLast(peeled.count))
         }
-        return (token, "")
+        return (stem, particle)
     }
 
     public static func isLatin(_ text: String) -> Bool {
@@ -41,11 +61,12 @@ public enum VocabularyHangul {
 
     // MARK: - Table
 
-    /// Lowercased Latin → Hangul forms. Include research mishearings (`큐버닉스`, `피로`) and everyday variants.
+    /// Lowercased Latin → Hangul forms. Research listed `피로` for Figma, but that is also ordinary Korean
+    /// ("fatigue"), so it is omitted on purpose.
     private static let table: [String: [String]] = [
         "kubernetes": ["쿠버네티스", "큐버네티스", "큐버닉스", "쿠버네테스", "쿠버네티즈"],
         "terraform": ["테라폼", "테라폴"],
-        "figma": ["피그마", "피로"],
+        "figma": ["피그마"],
         "slack": ["슬랙", "슬락"],
         "jira": ["지라"],
         "docker": ["도커", "도카"],
@@ -82,7 +103,7 @@ public enum VocabularyHangul {
         "입니다", "습니다", "습니까",
         "까지는", "부터는", "으로써", "으로서",
         "에게서", "한테서", "한테", "에게",
-        "으로", "로서", "로써",
+        "하고", "으로", "로서", "로써",
         "에서", "까지", "부터", "보다",
         "이나", "이랑", "랑",
         "은", "는", "이", "가", "을", "를", "의", "에", "와", "과", "도", "만", "로", "요",

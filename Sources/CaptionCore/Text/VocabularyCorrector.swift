@@ -52,17 +52,23 @@ public struct VocabularyCorrector: Sendable {
             .filter { !$0.isEmpty && seenLines.insert($0.lowercased()).inserted }
         var built: [Term] = lines
             .map { Term(text: $0, key: Self.key($0), tokenCount: max(1, $0.split(separator: " ").count), isHangulAlias: false) }
-            .filter { $0.key.count >= 2 }
+            .filter { $0.key.count >= 2 || VocabularyHangul.isHangulHeavy($0.text) }
         // Hangul keys the person already listed keep their Hangul spelling; aliases only fill gaps.
-        var occupiedKeys = Set(built.map { String($0.key) })
+        let occupiedByListed = Set(built.map { String($0.key) })
+        var aliasClaims: [String: [String]] = [:]
         for line in lines where VocabularyHangul.isLatin(line) {
             for alias in VocabularyHangul.aliases(forLatin: line) {
                 let aliasKey = Self.key(alias)
-                guard aliasKey.count >= 2 else { continue }
+                // Curated one-syllable forms such as Zoom → 줌 are allowed; fuzzy matching still needs longer keys.
+                guard !aliasKey.isEmpty else { continue }
                 let occupied = String(aliasKey)
-                guard occupiedKeys.insert(occupied).inserted else { continue }
-                built.append(Term(text: line, key: aliasKey, tokenCount: 1, isHangulAlias: true))
+                guard !occupiedByListed.contains(occupied) else { continue }
+                aliasClaims[occupied, default: []].append(line)
             }
+        }
+        for (occupied, claimants) in aliasClaims {
+            guard let chosen = VocabularyHangul.preferredLatin(among: claimants) else { continue }
+            built.append(Term(text: chosen, key: Array(occupied), tokenCount: 1, isHangulAlias: true))
         }
         self.terms = built
         maxWindow = min(5, (self.terms.map(\.tokenCount).max() ?? 1) + 3)
@@ -124,7 +130,7 @@ public struct VocabularyCorrector: Sendable {
             let joinedCore = window.map(\.core).joined()
             let candidates = Self.windowKeys(for: joinedCore)
             for (windowKey, particle) in candidates {
-                guard windowKey.count >= 2 else { continue }
+                guard !windowKey.isEmpty else { continue }
                 for term in terms {
                     // Windows far longer or shorter than the term cannot sound like it.
                     let ratio = Double(windowKey.count) / Double(term.key.count)
@@ -140,18 +146,24 @@ public struct VocabularyCorrector: Sendable {
                         let shorter = max(Self.score(withoutFirst, term.key) ?? 0, Self.score(withoutLast, term.key) ?? 0)
                         if shorter > score + 0.05 { continue }
                     }
-                    // Peeling a josa is only for Hangul→Latin aliases (`쿠버네티스를` → `Kubernetes를`).
-                    // Hangul vocabulary lines keep the old rule: a particle blocks the match.
-                    if !particle.isEmpty, !term.isHangulAlias { continue }
+                    // Peeling a josa is for Hangul windows: Latin aliases and listed Hangul lines keep the ending
+                    // (`쿠버네티스를` → `Kubernetes를` or `쿠버네티스를`). Latin listed lines never peel.
+                    if !particle.isEmpty {
+                        let hangulLine = !term.isHangulAlias && VocabularyHangul.isHangulHeavy(term.text)
+                        guard term.isHangulAlias || hangulLine else { continue }
+                    }
                     let replacement = window.first!.leading + term.text + particle + window.last!.trailing
                     let preferAlias = term.isHangulAlias
                     if let current = best {
+                        // A listed vocabulary line always beats a generated Hangul→Latin alias, even when the alias
+                        // is an exact mishearing and the listed Hangul form only fuzzy-matches.
+                        if preferAlias != current.preferAlias {
+                            if !preferAlias { best = (score, replacement, length, preferAlias) }
+                            continue
+                        }
                         let betterScore = score > current.score + 1e-9
                         let longerTie = abs(score - current.score) < 1e-9 && length > current.consumed
-                        // An explicit Hangul vocabulary line beats a Latin alias on the same score.
-                        let preferListed = abs(score - current.score) < 1e-9 && length == current.consumed
-                            && current.preferAlias && !preferAlias
-                        if betterScore || longerTie || preferListed {
+                        if betterScore || longerTie {
                             best = (score, replacement, length, preferAlias)
                         }
                     } else {
