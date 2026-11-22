@@ -54,7 +54,7 @@ Build output must be warning-free. If notarization hangs, see ieum-release step 
 
 ## 5. Commit, tag, push
 
-`git commit -am "Release x.y.z"` (+ one-paragraph summary + trailer), `git tag -a vx.y.z -m "Ieum x.y.z"`, `git push origin main --tags`.
+`git commit -am "Release x.y.z"` (+ one-paragraph summary + trailer), `git push origin main` first, then `git tag -a vx.y.z -m "Ieum x.y.z"` and `git push origin vx.y.z` (a rejected `main` push then leaves no tag behind).
 Never move or re-create an existing tag; if one is wrong, ship the next patch.
 Other agents merge PRs into `main` while a release builds. If the push of `main` is rejected, `git fetch` and **merge** `origin/main`
 (do not rebase: the tag must stay on `main`), run `swift test`, push; check `git merge-base --is-ancestor vx.y.z origin/main`.
