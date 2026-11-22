@@ -83,6 +83,14 @@ where English sentences get the rule too, was checked before shipping on `mixed.
 0.86 → 0.63 s, word error rate 12.9 → 9.7 % (both lose the "Great," after the first Korean turn), language chosen correctly 100 % in both.
 Bench flags for this: `--pause <seconds>`, `--no-pause-finalization`, `--no-fast`, `--no-vad`.
 
+## Fast-results tail safety net (Korean)
+
+SpeechTranscriber with `.fastResults` can finalize while speech continues and drop the tail (codeswitch-ko CER 47 % every run;
+`--no-fast` keeps the text). A second, separate analyzer without fast results recovers it (~2.3 s later; `Benchmarks/research/dual.swift`).
+`FastResultsSafetyNet` turns that on for Korean when fast results are on: hold a fast final whose `audioEnd` is still followed by speech,
+show it as interim, then commit the slow final. Unit tests cover the hold/recover gate; live codeswitch re-bench and the second analyzer’s
+CPU cost are still open (`docs/TRANSCRIPTION-RESEARCH.md` #3).
+
 ## Meeting-notes prompt (`minutes-eval`)
 
 The minutes, lecture notes and conversation summaries are written by the on-device model (Foundation Models) from `MinutesPrompt` (the instructions,
