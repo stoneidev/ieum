@@ -27,17 +27,17 @@ on the Mac (Apple Speech and Translation frameworks); there is no cloud and no a
 
 | Path | What |
 |---|---|
-| `Sources/CaptionCore` | Library shared by everything: audio capture, speech engines, conversation arbitration, translation pipeline, transcript recorder, text cleaning |
-| `Sources/OverlayApp` | The menu-bar app (product `Ieum`): `AppModel` (state, sessions), overlay window and views, settings, setup, menu, hot keys |
+| `Sources/CaptionCore` | Library shared by everything: audio capture, speech engines, conversation arbitration, translation pipeline, transcript recorder, text cleaning. Domain folders under the target (`Audio`, `Engines`, `Meeting`, `Reply`, …); see `docs/STRUCTURE.md` |
+| `Sources/OverlayApp` | The menu-bar app (product `Ieum`): feature folders (`App`, `Overlay`, `Reply`, `Minutes`, `Settings`, …) holding `AppModel`, overlay, settings, menu, hot keys |
 | `Sources/CaptionCLI` | `caption-cli`, a command-line recognizer |
 | `Sources/CaptionBench` | `caption-bench`, the benchmark runner |
-| `Tests/CaptionCoreTests` | Swift Testing suites for the library (336 tests) |
+| `Tests/CaptionCoreTests` | Swift Testing suites for the library (336 tests); folders mirror `CaptionCore` domains |
 | `Resources` | Info.plists (app + CLI), `entitlements.plist`, app icon |
 | `Benchmarks` | Audio generation (`say`), reference texts, `run.sh`, `report.py`, results per version |
 | `Scripts` | `dev-run.sh`, `deploy-site.sh`, `window-info.swift`, `make-icon.swift` |
 | `site-src` | The website template: every sentence in English, Korean, Japanese and Chinese as adjacent `<span class="en|ko|ja|zh">`. `Scripts/build-site.py` writes one page per language (`/`, `/ko/`, `/ja/`, `/zh/`) with its own head (hreflang, JSON-LD), plus `sitemap.xml` and `llms-full.txt` |
 | `site` | Static site files that are copied as they are (fonts, icons, `og.png`, `robots.txt`, `llms.txt`, `_headers`); deployed with `Scripts/deploy-site.sh` (`--preview` for a preview URL) |
-| `docs` | `PRD.md`, `USER-GUIDE.md`, `BENCHMARKS.md`, `UX-REVIEW.md` |
+| `docs` | `PRD.md`, `USER-GUIDE.md`, `BENCHMARKS.md`, `UX-REVIEW.md`, `STRUCTURE.md` (engineering package layout) |
 | `.claude/skills` | Runbooks: `ieum-release`, `ieum-verify-app`, `ieum-benchmark` (plain Markdown, usable by any agent). Other skills the owner installed locally (for example `ui-ux-pro-max`, used for the UI/site design work) are not committed |
 | `.omc` | Planning artifacts from earlier sessions (`prd.json`, interview spec). History only; `docs/PRD.md` is the current statement |
 
@@ -108,7 +108,7 @@ Pure decisions (`UpdateCheck`, `UpdateFeed`) live in CaptionCore and are tested.
 
 ## Release highlights ("What's new")
 
-`WhatsNewCatalog.pages()` in `Sources/OverlayApp/WhatsNewView.swift` lists the user-visible highlights, newest first, each with the version that introduced it.
+`WhatsNewCatalog.pages()` in `Sources/OverlayApp/Updates/WhatsNewView.swift` lists the user-visible highlights, newest first, each with the version that introduced it.
 When a release adds something people should notice, add a page (title and body in both languages, and an `Art` scene or reuse one) before building the release.
 The window opens once after an update and shows only pages newer than `Preferences.lastSeenVersion`; selection logic is `WhatsNew.pending` (tested). Try it with
 `open -n .build/app/Ieum.app --args -lastSeenVersion 0.2.3`. Synthetic mouse/Esc input does not reach it from the agent shell (the app is not activated there), so judge the

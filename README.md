@@ -172,17 +172,19 @@ flowchart LR
 
 ### Source layout
 
+One Swift package, domain folders inside each target (see [STRUCTURE.md](docs/STRUCTURE.md)).
+
 | Path | What |
 |---|---|
 | `Sources/CaptionCore` | Audio capture, recognizers, conversation arbitration, translation pipeline, transcript recorder. Shared by everything below. |
 | `Sources/OverlayApp` | The menu-bar app: overlay windows, settings, setup. Builds the product `Ieum`. |
 | `Sources/CaptionCLI` | Command-line recognizer, product `caption-cli`. |
 | `Sources/CaptionBench` | Benchmark tool, product `caption-bench`. |
-| `Tests/CaptionCoreTests` | Unit tests for the core library (Swift Testing). |
+| `Tests/CaptionCoreTests` | Unit tests for the core library (Swift Testing); folders mirror CaptionCore domains. |
 | `Resources` | Info.plists, entitlements, app icon. |
 | `Benchmarks` | Audio generation, reference texts, runner, results. |
 | `site` | The product website, static HTML deployed to Cloudflare Pages (`npx wrangler pages deploy site --project-name ieum`). |
-| `docs` | [UX review](docs/UX-REVIEW.md) and [benchmark notes](docs/BENCHMARKS.md). |
+| `docs` | [UX review](docs/UX-REVIEW.md), [benchmark notes](docs/BENCHMARKS.md), [package layout](docs/STRUCTURE.md). |
 
 ## Build from source
 

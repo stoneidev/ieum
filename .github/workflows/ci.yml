@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# CaptionCore and the package tests need Apple frameworks (Speech, AVFoundation, …).
+# Run on macOS; do not claim Linux `swift test` coverage for this package.
+jobs:
+  test:
+    name: swift test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Run package tests
+        run: swift test
+
+      - name: Release build (warning check)
+        run: swift build -c release --arch arm64
