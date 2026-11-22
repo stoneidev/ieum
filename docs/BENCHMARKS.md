@@ -77,6 +77,10 @@ sentence ending at 4.0 s), so English single-language modes no longer use the pa
 It stays on where it is needed: Korean (final delay 0.84 s with it, 2.59 s without) and the auto-detect mode (word error rate 10 % with it, 29 % without;
 language chosen correctly 100 % against 50 %; final delay 0.85 s against 2.61 s). In those modes English sentences after a pause can still lose their first
 words; a way to keep the speed without the damage is not found yet.
+
+The default pause moved from 0.7 s to 0.4 s (v0.18.3; Korean/Japanese/Chinese numbers in `docs/TRANSCRIPTION-RESEARCH.md`). The auto-detect mode,
+where English sentences get the rule too, was checked before shipping on `mixed.wav` (en, ko, en, ko; 2 runs each): 0.7 s → 0.4 s gave final delay
+0.86 → 0.63 s, word error rate 12.9 → 9.7 % (both lose the "Great," after the first Korean turn), language chosen correctly 100 % in both.
 Bench flags for this: `--pause <seconds>`, `--no-pause-finalization`, `--no-fast`, `--no-vad`.
 
 ## Meeting-notes prompt (`minutes-eval`)
