@@ -155,7 +155,11 @@ final class AppModel: ObservableObject {
     /// translators were prepared can tell it is out of date and must not start anything.
     private var translationGeneration = 0
     var sessionIndex = 0
-    /// True while a setting change stops the captions only to start them again.
+    /// Coalesces overlapping stop/restart from mid-session settings changes (see `SessionControl`).
+    private var sessionControl = SessionControl()
+    /// Bumped when a capture task is created; a halt scheduled for an older generation must not stop a replacement.
+    private var captureGeneration = 0
+    /// True while a setting change or "new conversation" stops the captions only to start them again.
     private var isRestarting = false
     private var isStartingNewConversation = false
     private var showsFailureNotice = false
@@ -169,8 +173,9 @@ final class AppModel: ObservableObject {
 
     // MARK: Session control
 
-    func start() {
-        guard !isRunning else { return }
+    /// - Parameter continuingMeeting: settings restart — same meeting index and transcript file, new recognizer.
+    func start(continuingMeeting: Bool = false) {
+        guard sessionControl.requestStart() else { return }
         // A saved mode that needs a newer macOS than this one cannot run; fall back before anything starts.
         if !source.isAvailableOnThisMac {
             source = .microphone
@@ -182,18 +187,20 @@ final class AppModel: ObservableObject {
             updateSecondaryRow()
         }
         stopRequested = false
-        sessionIndex += 1
-        // Nothing from the previous session (or mode) may linger on the bar.
+        if !continuingMeeting { sessionIndex += 1 }
+        // Nothing from the previous recognizer may linger on the bar.
         barEntries.removeAll()
         barFinalText = ""
         barTranslation = ("", "")
         translatedPartial = ""
         partial = ""
         status = .starting
-        coffeeStage = nil
-        coffeeThanks = false
-        vocabularyCardOpen = false
-        vocabularyAdded = 0
+        if !continuingMeeting {
+            coffeeStage = nil
+            coffeeThanks = false
+            vocabularyCardOpen = false
+            vocabularyAdded = 0
+        }
         startingNote = nil
         transcriptWarning = nil
         inputAdvice = .good
@@ -205,8 +212,14 @@ final class AppModel: ObservableObject {
         let source = self.source
         let vocabulary = self.vocabulary
         let deviceUID = InputDevices.resolve(preferredUID: inputDeviceUID, available: InputDevices.available())
+        let continueTranscript = continuingMeeting ? scriptFile : nil
+        captureGeneration += 1
+        let generation = captureGeneration
         sessionTask = Task { [weak self] in
-            await self?.runSession(setup: setup, locales: locales, source: source, deviceUID: deviceUID, vocabulary: vocabulary)
+            await self?.runSession(
+                setup: setup, locales: locales, source: source, deviceUID: deviceUID, vocabulary: vocabulary,
+                continueTranscript: continueTranscript, generation: generation
+            )
         }
         startPruning()
     }
@@ -216,18 +229,58 @@ final class AppModel: ObservableObject {
         // The user asked to stop: an automatic restart that is about to happen must not override that.
         autoRestartTask?.cancel()
         autoRestartTask = nil
-        guard sessionTask != nil else { return }
-        stopRequested = true
-        await engine?.stop()
-        await sessionTask?.value
+        let shouldHalt = sessionControl.requestStop()
+        if shouldHalt {
+            await haltCapture(
+                task: sessionTask, generation: captureGeneration, engine: engine
+            )
+        } else {
+            // A settings restart (or another stop) is already winding the session down; wait for that
+            // task — not whatever `sessionTask` points at after a later start. Mark stop so a late
+            // restart's halt still ends the session without starting again.
+            stopRequested = true
+            await waitForCurrentSession()
+        }
     }
 
+    /// Changing a setting mid-meeting stops and starts again; that is one meeting, not two.
+    /// Prefer `restartIfRunning()` from settings setters so overlapping changes coalesce.
     func restart() async {
-        // Changing a setting mid-meeting stops and starts again; that is one meeting, not two.
+        guard sessionControl.requestRestart() else {
+            // Already stopping for a prior restart (coalesced), or idle / user-stop in progress.
+            await waitForCurrentSession()
+            return
+        }
         isRestarting = true
-        await stop()
+        await haltCapture(task: sessionTask, generation: captureGeneration, engine: engine)
+        // `runSession` calls `noteSessionEnded` and `start(continuingMeeting:)` when needed; do not wait
+        // again here — `sessionTask` would already be the new session and this would hang.
         isRestarting = false
-        start()
+    }
+
+    /// Ends the audio / recognizer for one capture generation. The task and generation are captured by the
+    /// caller so a halt scheduled before a replacement starts cannot stop that replacement.
+    private func haltCapture(
+        task: Task<Void, Never>?,
+        generation: Int,
+        engine engineToStop: (any TranscriberEngine)?
+    ) async {
+        guard let task else {
+            if sessionControl.noteSessionEnded() { start(continuingMeeting: true) }
+            return
+        }
+        stopRequested = true
+        // Only stop the engine that belongs to this generation; a newer start owns a new one.
+        if generation == captureGeneration {
+            await engineToStop?.stop()
+        }
+        await task.value
+    }
+
+    private func waitForCurrentSession() async {
+        // Capture before any await: after the old session ends a restart may have already assigned a new task.
+        guard let task = sessionTask else { return }
+        await task.value
     }
 
     /// Not for a call: it reads two inputs inside its own engine.
@@ -256,7 +309,7 @@ final class AppModel: ObservableObject {
             guard !isStartingNewConversation else { return }
             isStartingNewConversation = true
             defer { isStartingNewConversation = false }
-            let wasRunning = isRunning
+            let wasRunning = isRunning || sessionControl.isActive
             if wasRunning {
                 // One conversation ends and the next begins: not a finished meeting (no ask, no wrap-up).
                 isRestarting = true
@@ -282,11 +335,23 @@ final class AppModel: ObservableObject {
     }
 
     func toggleRunning() {
-        if isRunning { Task { await stop() } } else { start() }
+        if isRunning || sessionControl.isActive { Task { await stop() } } else { start() }
     }
 
     private func restartIfRunning() {
-        if isRunning { Task { await restart() } }
+        // `isRunning` stays true until the session task finishes, so a second settings change during an
+        // in-flight restart still reaches `SessionControl.requestRestart` and coalesces — without
+        // spawning another halt that could wait on the session the first restart just started.
+        guard isRunning || sessionControl.isActive else { return }
+        guard sessionControl.requestRestart() else { return }
+        let task = sessionTask
+        let generation = captureGeneration
+        let runningEngine = engine
+        Task { @MainActor in
+            self.isRestarting = true
+            await self.haltCapture(task: task, generation: generation, engine: runningEngine)
+            self.isRestarting = false
+        }
     }
 
     // MARK: First-run test
@@ -735,7 +800,10 @@ final class AppModel: ObservableObject {
 
     // MARK: Session body
 
-    private func runSession(setup: MeetingSetup, locales: [String], source: Source, deviceUID: String?, vocabulary: [String]) async {
+    private func runSession(
+        setup: MeetingSetup, locales: [String], source: Source, deviceUID: String?, vocabulary: [String],
+        continueTranscript: URL?, generation: Int
+    ) async {
         let raw: any AudioCapture = source == .microphone ? MicrophoneCapture(deviceUID: deviceUID) : SystemAudioCapture()
         let isCall = source == .call
         // A call reads two inputs inside its own engine; the sound check watches the single input of the other sources.
@@ -747,6 +815,7 @@ final class AppModel: ObservableObject {
         )
         var failure: String?
         var recoverable = false
+        var localRecorder: ScriptRecorder?
         let missing = await ModernSpeechSupport.uninstalledLocales(locales)
         if !missing.isEmpty, status == .starting {
             let names = missing.compactMap { SpokenLanguage(code: $0)?.name }.joined(separator: ", ")
@@ -755,25 +824,36 @@ final class AppModel: ObservableObject {
         do {
             let directory = Preferences.scriptDirectory
             do {
-                // The first-run test leaves no transcript behind.
-                recorder = selfTestActive ? nil : try ScriptRecorder(
-                    directory: directory, locale: isCall ? "call" : (setup.isConversation ? "conversation" : locales[0]),
-                    tagLanguages: setup.isConversation && !isCall, tagSpeakers: isCall
-                )
+                // The first-run test leaves no transcript behind. A settings restart keeps writing the same file.
+                let tagLanguages = setup.isConversation && !isCall
+                if selfTestActive {
+                    localRecorder = nil
+                } else if let continueTranscript,
+                          let continued = try? ScriptRecorder(
+                            continuing: continueTranscript, tagLanguages: tagLanguages, tagSpeakers: isCall
+                          ) {
+                    localRecorder = continued
+                } else {
+                    localRecorder = try ScriptRecorder(
+                        directory: directory, locale: isCall ? "call" : (setup.isConversation ? "conversation" : locales[0]),
+                        tagLanguages: tagLanguages, tagSpeakers: isCall
+                    )
+                }
             } catch {
                 throw EngineError.captureFailed(
                     tr("Can't save transcripts to \(directory.path). Choose another folder in Settings, then start again.",
                        "\(directory.path)에 기록을 저장할 수 없습니다. 설정에서 다른 폴더를 고른 뒤 다시 시작하세요.")
                 )
             }
-            recorder?.onFailure { [weak self] reason in
+            localRecorder?.onFailure { [weak self] reason in
                 Task { @MainActor in
                     self?.transcriptWarning = tr("The transcript can no longer be saved (\(reason)). Captions keep running.",
                                                  "기록을 더 이상 저장할 수 없습니다(\(reason)). 자막은 계속 나옵니다.")
                 }
             }
-            scriptFile = recorder?.fileURL
-            resetMinutes()
+            recorder = localRecorder
+            scriptFile = localRecorder?.fileURL
+            if continueTranscript == nil { resetMinutes() }
 
             var options = EngineOptions(vocabulary: vocabulary)
             options.correctsTranscript = false
@@ -796,6 +876,15 @@ final class AppModel: ObservableObject {
                 started = try await EngineFactory.startConversation(locales: locales, options: options, capture: capture)
             } else {
                 started = try await EngineFactory.start(choice: .auto, localeID: locales[0], options: options, capture: capture)
+            }
+            // A halt for an older generation must not adopt this engine (and later stop the replacement).
+            guard generation == captureGeneration else {
+                await started.engine.stop()
+                if recorder === localRecorder {
+                    localRecorder?.close()
+                    recorder = nil
+                }
+                return
             }
             engine = started.engine
             if stopRequested {
@@ -826,17 +915,28 @@ final class AppModel: ObservableObject {
         }
         // The last sentences are only just final: give their translations a moment before the translators close.
         await finishTranslation()
-        recorder?.close()
-        recorder = nil
-        engine = nil
-        sessionTask = nil
+        if recorder === localRecorder {
+            localRecorder?.close()
+            recorder = nil
+        }
+        if generation == captureGeneration {
+            engine = nil
+            sessionTask = nil
+        }
         pruneTask?.cancel()
         pruneTask = nil
+        // A superseded generation (late task after a replacement already started) must not drive lifecycle.
+        guard generation == captureGeneration else { return }
+        let shouldRestart = sessionControl.noteSessionEnded()
         // A recognizer error while winding down is not worth showing; the user already asked to stop.
         status = failure != nil && !stopRequested ? .error(failure ?? "") : .idle
-        if stopRequested, !selfTestActive, !isRestarting { noteMeetingFinished() }
+        // Settings restart keeps the meeting open (`shouldRestart`). "New conversation" uses
+        // `isStartingNewConversation` so wrap-up still runs when the user stops during a settings halt.
+        if stopRequested, !selfTestActive, !shouldRestart, !isStartingNewConversation { noteMeetingFinished() }
         if status == .idle { partial = "" }
-        if recoverable, !stopRequested, allowAutoRestart() {
+        if shouldRestart {
+            start(continuingMeeting: true)
+        } else if recoverable, !stopRequested, allowAutoRestart() {
             status = .idle
             autoRestartTask = Task { [weak self] in
                 try? await Task.sleep(for: .milliseconds(600))

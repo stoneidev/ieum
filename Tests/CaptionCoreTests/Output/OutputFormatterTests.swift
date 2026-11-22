@@ -394,6 +394,20 @@ struct ScriptRecorderTests {
         #expect(text.contains("early") && !text.contains("late"))
     }
 
+    @Test func continuingAfterCloseAppendsToTheSameFile() throws {
+        let dir = tempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let first = try ScriptRecorder(directory: dir, locale: "en-US", startedAt: sampleDate, timeZone: utc)
+        first.append(event("before restart", final: true))
+        first.close()
+        let second = try ScriptRecorder(continuing: first.fileURL, timeZone: utc)
+        second.append(event("after restart", final: true))
+        second.close()
+        let text = try String(contentsOf: first.fileURL, encoding: .utf8)
+        #expect(text.contains("before restart") && text.contains("after restart"))
+        #expect(text.hasPrefix("# Transcript (en-US)"))
+    }
+
     @Test func createsMissingDirectory() throws {
         let dir = tempDir().appendingPathComponent("nested/deeper")
         defer { try? FileManager.default.removeItem(at: dir.deletingLastPathComponent().deletingLastPathComponent()) }
