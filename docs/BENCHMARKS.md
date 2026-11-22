@@ -103,7 +103,10 @@ audio, although its text stops at "…피로 공유", so `audioEnd` is never fol
 
 **Text-stall hold (on again):** the gate now also holds when interim letters stop growing ≥0.5 s before the last speech while the final’s
 letter count stays within +4 of that stall — the codeswitch shape above. `isEnabled = true` again. Live `codeswitch-ko` CER after the text
-gate is still unmeasured on device (unit tests only on the stall/recover path).
+gate was measured before shipping v0.18.6 (`caption-bench`, 2 runs each, v0.18.3 without the net → with the text gate):
+`codeswitch-ko` CER 47.4 % → 26.3 % (the last sentence "금요일까지 PR 리뷰를 끝내고 슬랙에 올려주세요" is back; the rest is transliteration such as
+피그머, close to the 24 % of `--no-fast`), final delay 0.48–0.53 → 0.61 s; plain Korean (`ko-KR.wav`) CER 1.8 % in both, final delay 0.53 → 0.56 s
+(no false hold). CPU 0.8–1.0 % → 2.2–2.6 % for the second analyzer. Real speech is not measured.
 
 ## Meeting-notes prompt (`minutes-eval`)
 
