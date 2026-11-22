@@ -193,7 +193,7 @@ Requires Xcode 26 (Swift 6) on Apple silicon.
 ```sh
 make build        # caption-cli, ad-hoc signed
 make app          # .build/app/Ieum.app, ad-hoc signed, runs on this Mac only
-make test         # 336 tests
+make test         # 338 tests
 make clean
 ```
 

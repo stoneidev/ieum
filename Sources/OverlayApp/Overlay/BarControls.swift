@@ -117,8 +117,11 @@ struct OverlayMenuButton: NSViewRepresentable {
                 menu.addItem(ActionItem(tr("Bring captions to the front", "자막을 앞으로 가져오기")) { model.bringOverlayToFront() })
             }
             menu.addItem(.separator())
-            menu.addItem(ActionItem(model.isPaused ? tr("Resume captions", "자막 다시 시작") : tr("Pause captions", "자막 일시정지") + (model.globalShortcuts ? "   ⌃⌥P" : ""),
-                                    enabled: model.canPause || model.isPaused) { model.togglePause() })
+            menu.addItem(ActionItem(
+                (model.isPaused ? tr("Resume captions", "자막 다시 시작") : tr("Pause captions", "자막 일시정지"))
+                    + (model.globalShortcuts ? "   ⌃⌥P" : ""),
+                enabled: model.canPause || model.isPaused
+            ) { model.togglePause() })
             menu.addItem(ActionItem(tr("New conversation", "새 대화"), enabled: model.canStartNewConversation) { model.startNewConversation() })
             menu.addItem(ActionItem(tr("Name this meeting…", "이 회의에 이름 붙이기…"), enabled: model.canNameLastTranscript) { model.renameLastTranscript() })
             if model.offersMinutes {

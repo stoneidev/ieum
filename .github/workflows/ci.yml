@@ -5,17 +5,22 @@ on:
     branches: [main]
   pull_request:
 
-# CaptionCore and the package tests need Apple frameworks (Speech, AVFoundation, …).
-# Run on macOS; do not claim Linux `swift test` coverage for this package.
+# CaptionCore links Apple frameworks (Speech, AVFoundation, FoundationModels, …).
+# FoundationModels needs the macOS 26 SDK (Xcode 26); macos-15 runners fail to import it.
+permissions:
+  contents: read
+
 jobs:
   test:
     name: swift test
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show Swift version
-        run: swift --version
+      - name: Show Swift / SDK
+        run: |
+          swift --version
+          xcrun --sdk macosx --show-sdk-version
 
       - name: Run package tests
         run: swift test
