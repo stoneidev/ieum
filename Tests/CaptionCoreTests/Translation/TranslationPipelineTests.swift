@@ -43,14 +43,30 @@ struct TranslationPipelineTests {
 
     @Test func finalsAreNeverDroppedAndKeepTheirOrder() async throws {
         let pipeline = TranslationPipeline(translator: FakeTranslator(delay: .milliseconds(40)))
-        let results = collect(pipeline)
         let ids = (0..<5).map { _ in UUID() }
+        let expected = ids.enumerated().map { TranslationPipeline.Output.final(id: $0.element, translation: "T(s\($0.offset))") }
+        // Wait for the five finals themselves — close() drops unfinished work, so a fixed sleep races under load.
+        let results = Task { () -> [TranslationPipeline.Output] in
+            var all: [TranslationPipeline.Output] = []
+            for await output in pipeline.outputs {
+                all.append(output)
+                if all.count == expected.count { break }
+            }
+            return all
+        }
         for (index, id) in ids.enumerated() { await pipeline.submitFinal(id: id, text: "s\(index)") }
-        // close() drops unfinished finals; under CI load a fixed 600 ms sleep raced the fifth translation.
-        try await Task.sleep(for: .seconds(2))
+        let outputs = try await withThrowingTaskGroup(of: [TranslationPipeline.Output].self) { group in
+            group.addTask { await results.value }
+            group.addTask {
+                try await Task.sleep(for: .seconds(5))
+                throw TranslationUnavailable("timed out waiting for five finals")
+            }
+            let first = try await group.next()!
+            group.cancelAll()
+            return first
+        }
         await pipeline.close()
-        let outputs = await results.value
-        #expect(outputs == ids.enumerated().map { .final(id: $0.element, translation: "T(s\($0.offset))") })
+        #expect(outputs == expected)
     }
 
     @Test func interimInFlightWhenSentenceFinalizesIsDiscarded() async throws {

@@ -24,18 +24,12 @@ struct EndpointDetectorTests {
         var d = EndpointDetector()
         #expect(feed(&d, level: -90, seconds: 1) == nil)      // quiet start: nothing yet
         #expect(feed(&d, level: -20, seconds: 2) == nil)      // speaking
-        // 50 ms steps: must stay quiet through 0.35 s and fire exactly at the 0.4 s threshold.
-        var firedAt: Double?
-        var t = 0.0
-        while t < 1.0 {
-            t += 0.05
-            if d.ingest(levelDB: -90, duration: 0.05) {
-                firedAt = t
-                break
-            }
-            if t < 0.4 { #expect(firedAt == nil) }
-        }
-        #expect(firedAt == 0.4)
+        // One chunk just under the threshold, then one that crosses it — avoids summing 0.05 in a loop
+        // (eight binary 0.05s can land under 0.4 and fire only on the ninth step).
+        let under = d.pause - 0.05
+        #expect(d.ingest(levelDB: -90, duration: under) == false)
+        #expect(d.ingest(levelDB: -90, duration: 0.05) == true)
+        #expect(abs(d.lastPause - d.pause) < 1e-9)
     }
 
     @Test func firesOncePerUtteranceNotRepeatedlyDuringTheSilence() {
