@@ -21,6 +21,21 @@ public final class PreviewingEngine: TranscriberEngine, @unchecked Sendable {
         self.preview = preview
     }
 
+    /// Wraps `primary` with the legacy early-words recognizer when the option is on and a preview engine is available.
+    /// Used by single-language `EngineFactory` and by each leg of `ConversationEngine` (auto-detect).
+    public static func wrapIfNeeded(
+        primary: any TranscriberEngine,
+        localeID: String,
+        options: EngineOptions,
+        makePreview: (String, EngineOptions) async -> (any TranscriberEngine)? = { locale, options in
+            await PreviewingEngine.makePreviewEngine(localeID: locale, options: options)
+        }
+    ) async -> any TranscriberEngine {
+        guard options.showsWordsSooner else { return primary }
+        guard let preview = await makePreview(localeID, options) else { return primary }
+        return PreviewingEngine(primary: primary, preview: preview)
+    }
+
     /// Whether the legacy recognizer can serve as the early-words source for `localeID`: it must have an on-device
     /// model and the Speech Recognition permission. Asks for the permission when it was never asked.
     static func makePreviewEngine(localeID: String, options: EngineOptions) async -> (any TranscriberEngine)? {

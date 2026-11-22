@@ -79,4 +79,40 @@ struct PreviewingEngineTests {
         let r13 = gate.preview(event("Hello there"))
         #expect(r13 == nil)
     }
+
+    @Test func wrapIfNeededIsANoOpWhenEarlyWordsAreOffOrPreviewIsMissing() async {
+        let fake = PassthroughEngine(name: "primary")
+        var options = EngineOptions()
+        options.showsWordsSooner = false
+        let kept = await PreviewingEngine.wrapIfNeeded(
+            primary: fake, localeID: "en-US", options: options
+        ) { _, _ in PassthroughEngine(name: "preview") }
+        #expect((kept as? PassthroughEngine) === fake)
+
+        options.showsWordsSooner = true
+        let withoutPreview = await PreviewingEngine.wrapIfNeeded(
+            primary: fake, localeID: "ja-JP", options: options
+        ) { _, _ in nil }
+        #expect((withoutPreview as? PassthroughEngine) === fake)
+    }
+
+    @Test func wrapIfNeededAddsEarlyWordsWhenEnabledAndPreviewExists() async {
+        let fake = PassthroughEngine(name: "primary")
+        var options = EngineOptions()
+        options.showsWordsSooner = true
+        let wrapped = await PreviewingEngine.wrapIfNeeded(
+            primary: fake, localeID: "en-US", options: options
+        ) { _, _ in PassthroughEngine(name: "preview") }
+        #expect(wrapped is PreviewingEngine)
+        #expect(wrapped.name.contains("early words"))
+    }
+}
+
+private final class PassthroughEngine: TranscriberEngine, @unchecked Sendable {
+    let name: String
+    init(name: String) { self.name = name }
+    func events(from capture: any AudioCapture) async throws -> AsyncThrowingStream<TranscriptionEvent, Error> {
+        AsyncThrowingStream { $0.finish() }
+    }
+    func stop() async {}
 }

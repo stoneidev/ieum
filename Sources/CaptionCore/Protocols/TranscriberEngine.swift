@@ -66,8 +66,9 @@ public struct EngineOptions: Sendable, Equatable {
     /// Whether `EngineFactory` repairs the transcript with `vocabulary`. The app switches this off: it corrects
     /// the text itself, with the list as it is right now, not as it was when the session started.
     public var correctsTranscript = true
-    /// Modern engine: also run the legacy recognizer and show its words for the sentence being spoken, which
-    /// appear sooner. Finished sentences always come from the modern engine.
+    /// Also run the legacy recognizer and show its words for the sentence being spoken, which appear sooner.
+    /// Finished sentences always come from the modern engine. Applies to single-language sessions and to each
+    /// language leg of conversation (auto-detect) when that locale has an on-device legacy model.
     public var showsWordsSooner = false
 
     public init(fast: Bool = true, useVAD: Bool = true, vocabulary: [String] = [], pauseFinalization: TimeInterval? = 0.4) {
