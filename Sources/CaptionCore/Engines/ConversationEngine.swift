@@ -18,8 +18,15 @@ public final class ConversationEngine: TranscriberEngine, @unchecked Sendable {
     public func events(from capture: any AudioCapture) async throws -> AsyncThrowingStream<TranscriptionEvent, Error> {
         var made: [any TranscriberEngine] = []
         for locale in locales {
-            guard let engine = try await ModernSpeechSupport.makeEngine(localeID: locale, options: options) else {
+            guard let modern = try await ModernSpeechSupport.makeEngine(localeID: locale, options: options) else {
                 throw EngineError.engineUnavailable("Conversation mode needs macOS 26 or later.")
+            }
+            let engine = try await FastResultsSafetyNet.wrapIfNeeded(
+                primary: modern, localeID: locale, options: options
+            ) {
+                var slowOptions = options
+                slowOptions.fast = false
+                return try await ModernSpeechSupport.makeEngine(localeID: locale, options: slowOptions)
             }
             made.append(engine)
         }
