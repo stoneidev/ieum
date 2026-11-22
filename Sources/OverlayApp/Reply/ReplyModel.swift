@@ -163,7 +163,12 @@ final class ReplyModel: ObservableObject {
         dictation = Task { [weak self] in
             var heard: String?
             do {
-                let capture = MicrophoneCapture(voiceProcessing: false, deviceUID: InputDevices.resolve(preferredUID: device, available: InputDevices.available()))
+                let capture: any AudioCapture = LeadInCapture(
+                    MicrophoneCapture(
+                        voiceProcessing: false,
+                        deviceUID: InputDevices.resolve(preferredUID: device, available: InputDevices.available())
+                    )
+                )
                 var options = EngineOptions()
                 options.correctsTranscript = false
                 // firstUtterance stops at the first final. English must not pause-finalize (next-word damage);

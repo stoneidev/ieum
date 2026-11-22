@@ -75,7 +75,9 @@ struct CaptionCommand: AsyncParsableCommand {
         options.disablePauseFinalizationIfEnglish(locale)
 
         let polisher = polish ? await FinalTextPolisher.onDevice() : nil
-        let capture: any AudioCapture = source == .mic ? MicrophoneCapture(voiceProcessing: voiceProcessing) : SystemAudioCapture()
+        let capture: any AudioCapture = LeadInCapture(
+            source == .mic ? MicrophoneCapture(voiceProcessing: voiceProcessing) : SystemAudioCapture()
+        )
         let (engine, events) = try await EngineFactory.start(choice: engine, localeID: locale, options: options, capture: capture)
         log("engine: \(engine.name), locale: \(locale), source: \(source.rawValue) (Ctrl+C to stop)")
 

@@ -53,7 +53,9 @@ Also worth doing, small: count numbers fairly in `TextMetrics`/`report.py`. The 
   `--vocabulary API,AWS,Kubernetes,Figma,PR,Slack` changed nothing (47.4 % → 47.4 %) at the time of this research: `VocabularyCorrector` did not map Hangul transliterations to Latin terms.
   A curated Hangul alias list (`VocabularyHangul`: `큐버닉스`/`쿠버네티스` → Kubernetes, …) is now wired into the corrector and unit-tested; the codeswitch audio was not re-measured here.
 - Words at the very first instant of a session are lost: `numbers-en` without lead-in starts "budget for the…" (WER 13.3 %), with 0.5 s
-  lead-in "The budget…" (6.7 %). Matters after restarts (mode switch, auto-restart) while someone is talking; not measured in the app.
+  lead-in "The budget…" (6.7 %). Matters after restarts (mode switch, auto-restart) while someone is talking.
+  The app now wraps live mic/system/call (and reply dictation) with `LeadInCapture` (0.5 s burst silence before the first live chunk);
+  file benches stay unwrapped. Live `say` re-measure of the numbers passage through the app path is still outstanding.
 - Long sessions (6 min, the same 15-sentence block 6 times): **no drift**. English per-block WER 1.7 / 2.3 / 0.6 / 1.7 / 2.3 / 2.9 %,
   sentence latency median 0.72–0.88 s, max 1.12 s; Korean per-block CER 2.5 / 1.9 / 1.6 / 2.5 / 2.2 / 1.9 %. Peak memory 24 MB, CPU 1.6–1.8 %.
 
