@@ -155,7 +155,9 @@ final class AppModel: ObservableObject {
     /// translators were prepared can tell it is out of date and must not start anything.
     private var translationGeneration = 0
     var sessionIndex = 0
-    /// True while a setting change stops the captions only to start them again.
+    /// Coalesces overlapping stop/restart from mid-session settings changes (see `SessionControl`).
+    private var sessionControl = SessionControl()
+    /// True while a setting change or "new conversation" stops the captions only to start them again.
     private var isRestarting = false
     private var isStartingNewConversation = false
     private var showsFailureNotice = false
@@ -170,7 +172,7 @@ final class AppModel: ObservableObject {
     // MARK: Session control
 
     func start() {
-        guard !isRunning else { return }
+        guard sessionControl.requestStart() else { return }
         // A saved mode that needs a newer macOS than this one cannot run; fall back before anything starts.
         if !source.isAvailableOnThisMac {
             source = .microphone
@@ -216,18 +218,50 @@ final class AppModel: ObservableObject {
         // The user asked to stop: an automatic restart that is about to happen must not override that.
         autoRestartTask?.cancel()
         autoRestartTask = nil
-        guard sessionTask != nil else { return }
-        stopRequested = true
-        await engine?.stop()
-        await sessionTask?.value
+        let shouldHalt = sessionControl.requestStop()
+        if shouldHalt {
+            await haltCapture()
+        } else {
+            // A settings restart (or another stop) is already winding the session down; wait for that
+            // task — not whatever `sessionTask` points at after a later start. Mark stop so a late
+            // restart's halt still ends the session without starting again.
+            stopRequested = true
+            await waitForCurrentSession()
+        }
     }
 
+    /// Changing a setting mid-meeting stops and starts again; that is one meeting, not two.
+    /// Prefer `restartIfRunning()` from settings setters so overlapping changes coalesce.
     func restart() async {
-        // Changing a setting mid-meeting stops and starts again; that is one meeting, not two.
+        guard sessionControl.requestRestart() else {
+            // Already stopping for a prior restart (coalesced), or idle / user-stop in progress.
+            await waitForCurrentSession()
+            return
+        }
         isRestarting = true
-        await stop()
+        await haltCapture()
+        // `runSession` calls `noteSessionEnded` and `start()` when `restartAfterStop` is set; do not
+        // wait again here — `sessionTask` would already be the new session and this would hang.
         isRestarting = false
-        start()
+    }
+
+    /// Ends the audio / recognizer for the session that is live now. Captures the task before any `await` so a
+    /// concurrent restart cannot make this wait on a brand-new session (which would hang or leave silence).
+    private func haltCapture() async {
+        guard let task = sessionTask else {
+            if sessionControl.noteSessionEnded() { start() }
+            return
+        }
+        stopRequested = true
+        let runningEngine = engine
+        await runningEngine?.stop()
+        await task.value
+    }
+
+    private func waitForCurrentSession() async {
+        // Capture before any await: after the old session ends a restart may have already assigned a new task.
+        guard let task = sessionTask else { return }
+        await task.value
     }
 
     /// Not for a call: it reads two inputs inside its own engine.
@@ -256,7 +290,7 @@ final class AppModel: ObservableObject {
             guard !isStartingNewConversation else { return }
             isStartingNewConversation = true
             defer { isStartingNewConversation = false }
-            let wasRunning = isRunning
+            let wasRunning = isRunning || sessionControl.isActive
             if wasRunning {
                 // One conversation ends and the next begins: not a finished meeting (no ask, no wrap-up).
                 isRestarting = true
@@ -282,11 +316,20 @@ final class AppModel: ObservableObject {
     }
 
     func toggleRunning() {
-        if isRunning { Task { await stop() } } else { start() }
+        if isRunning || sessionControl.isActive { Task { await stop() } } else { start() }
     }
 
     private func restartIfRunning() {
-        if isRunning { Task { await restart() } }
+        // `isRunning` stays true until the session task finishes, so a second settings change during an
+        // in-flight restart still reaches `SessionControl.requestRestart` and coalesces — without
+        // spawning another halt that could wait on the session the first restart just started.
+        guard isRunning || sessionControl.isActive else { return }
+        guard sessionControl.requestRestart() else { return }
+        Task { @MainActor in
+            self.isRestarting = true
+            await self.haltCapture()
+            self.isRestarting = false
+        }
     }
 
     // MARK: First-run test
@@ -832,11 +875,15 @@ final class AppModel: ObservableObject {
         sessionTask = nil
         pruneTask?.cancel()
         pruneTask = nil
+        let shouldRestart = sessionControl.noteSessionEnded()
         // A recognizer error while winding down is not worth showing; the user already asked to stop.
         status = failure != nil && !stopRequested ? .error(failure ?? "") : .idle
-        if stopRequested, !selfTestActive, !isRestarting { noteMeetingFinished() }
+        // A settings restart (or "new conversation") is the same meeting, not a finished one.
+        if stopRequested, !selfTestActive, !isRestarting, !shouldRestart { noteMeetingFinished() }
         if status == .idle { partial = "" }
-        if recoverable, !stopRequested, allowAutoRestart() {
+        if shouldRestart {
+            start()
+        } else if recoverable, !stopRequested, allowAutoRestart() {
             status = .idle
             autoRestartTask = Task { [weak self] in
                 try? await Task.sleep(for: .milliseconds(600))
