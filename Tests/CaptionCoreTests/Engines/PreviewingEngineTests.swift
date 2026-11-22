@@ -121,7 +121,7 @@ struct PreviewingEngineTests {
         #expect((withoutPreview as? PassthroughEngine) === fake)
     }
 
-    @Test func wrapIfNeededAddsEarlyWordsWhenEnabledAndPreviewExists() async {
+    @Test func wrapIfNeededAddsEarlyWordsWhenEnabledAndPreviewExists() async throws {
         let fake = PassthroughEngine(name: "primary")
         let preview = PassthroughEngine(name: "preview")
         var options = EngineOptions()
