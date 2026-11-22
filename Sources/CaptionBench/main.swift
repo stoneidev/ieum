@@ -39,7 +39,7 @@ struct CaptionBench: AsyncParsableCommand {
     var noVad = false
     @Flag(help: "Do not finalize a sentence at a pause; leave that to the recognizer.")
     var noPauseFinalization = false
-    @Option(help: "Seconds of silence after which a sentence is finalized (default 0.7).")
+    @Option(help: "Seconds of silence after which a sentence is finalized (default 0.4).")
     var pause: Double?
     @Flag(help: "Use the legacy SFSpeechRecognizer engine.")
     var legacy = false

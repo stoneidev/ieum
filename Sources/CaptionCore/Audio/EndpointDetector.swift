@@ -21,7 +21,7 @@ public struct EndpointDetector: Sendable {
     /// How long the pause had lasted when `ingest` last returned true, so the caller can tell when the speech ended.
     public private(set) var lastPause: TimeInterval = 0
 
-    public init(pause: TimeInterval = 0.7, minimumSpeech: TimeInterval = 0.3, marginDB: Float = 12, absoluteFloorDB: Float = -50) {
+    public init(pause: TimeInterval = 0.4, minimumSpeech: TimeInterval = 0.3, marginDB: Float = 12, absoluteFloorDB: Float = -50) {
         self.pause = pause
         self.minimumSpeech = minimumSpeech
         self.marginDB = marginDB

@@ -165,6 +165,10 @@ private struct GeneralTab: View {
                         "두 번째 인식기를 함께 돌려 첫 단어가 약 0.5초 일찍, 이후 단어마다 바로 나옵니다. 끝난 문장은 계속 더 정확한 인식기가 확정합니다. 음성 인식 권한이 필요합니다. 다음에 자막을 시작할 때부터 적용되며 언어 자동 인식 번역 모드에서는 쓰이지 않습니다."))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
+                Text(tr("Korean, Japanese and Chinese close each sentence after a short pause (about 0.4 s) so translations and transcript lines keep up. English waits for the recognizer instead, which protects the first words of the next sentence.",
+                        "한국어·일본어·중국어는 짧은 쉼(약 0.4초) 뒤에 문장을 확정해 번역과 기록 줄이 말에 맞춰 따라옵니다. 영어는 인식기가 정할 때까지 기다려 다음 문장 첫 단어를 지킵니다."))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
                 Toggle(tr("Global shortcuts", "전역 단축키"), isOn: Binding(get: { model.globalShortcuts }, set: model.setGlobalShortcuts))
                 if model.globalShortcuts {
                     ForEach(shortcuts, id: \.key) { shortcut in
