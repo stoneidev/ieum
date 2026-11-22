@@ -52,8 +52,46 @@ struct VocabularyCorrectorTests {
         #expect(corrector.correct(text) == text)
     }
 
-    @Test func koreanOneSyllableMisspellingIsFixed() {
-        #expect(corrector.correct("쿠버네티즈 클러스터") == "쿠버네티스 클러스터")
+    @Test func koreanOneSyllableMisspellingIsFixedTowardHangulWhenOnlyHangulIsListed() {
+        let hangulOnly = VocabularyCorrector(terms: ["쿠버네티스", "지라"])
+        #expect(hangulOnly.correct("쿠버네티즈 클러스터") == "쿠버네티스 클러스터")
+    }
+
+    @Test func hangulLoanwordsRewriteToLatinVocabulary() {
+        let latin = VocabularyCorrector(terms: ["Kubernetes", "Figma", "Slack", "Terraform"])
+        #expect(latin.correct("쿠버네티스 클러스터를 올립니다") == "Kubernetes 클러스터를 올립니다")
+        #expect(latin.correct("큐버닉스 배포") == "Kubernetes 배포")
+        #expect(latin.correct("피그마 파일을 열어요") == "Figma 파일을 열어요")
+        #expect(latin.correct("슬랙으로 보내 주세요") == "Slack으로 보내 주세요")
+        #expect(latin.correct("테라폼 플랜") == "Terraform 플랜")
+    }
+
+    @Test func hangulAliasKeepsAParticleOnTheLatinTerm() {
+        let latin = VocabularyCorrector(terms: ["Kubernetes"])
+        #expect(latin.correct("쿠버네티스를 설치했습니다") == "Kubernetes를 설치했습니다")
+        #expect(latin.correct("쿠버네티스에서 확인") == "Kubernetes에서 확인")
+    }
+
+    @Test func explicitHangulVocabularyLineBeatsALatinAlias() {
+        // Both spellings are listed: keep Hangul when the recognizer already said the Hangul form.
+        #expect(corrector.correct("쿠버네티스 클러스터") == "쿠버네티스 클러스터")
+        // A listed Hangul line still blocks the Latin alias for that exact spelling; particles stay untouched.
+        #expect(corrector.correct("쿠버네티스를 설치했습니다") == "쿠버네티스를 설치했습니다")
+    }
+
+    @Test func unknownHangulLoanwordsNeedTheirOwnLine() {
+        let latin = VocabularyCorrector(terms: ["Siobhan"])
+        let text = "시오반이 발표합니다"
+        #expect(latin.correct(text) == text)
+    }
+
+    @Test func hangulAliasTableCoversResearchMishearings() {
+        #expect(VocabularyHangul.aliases(forLatin: "Kubernetes").contains("큐버닉스"))
+        #expect(VocabularyHangul.aliases(forLatin: "Figma").contains("피로"))
+        #expect(VocabularyHangul.aliases(forLatin: "쿠버네티스").isEmpty)
+        #expect(VocabularyHangul.peelingParticle(from: "쿠버네티스를").stem == "쿠버네티스")
+        #expect(VocabularyHangul.peelingParticle(from: "쿠버네티스를").particle == "를")
+        #expect(VocabularyHangul.peelingParticle(from: "Kubernetes").particle.isEmpty)
     }
 
     /// A tiny stand-in for the system dictionary.

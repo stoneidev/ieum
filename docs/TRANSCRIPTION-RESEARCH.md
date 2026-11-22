@@ -49,8 +49,8 @@ Also worth doing, small: count numbers fairly in `TextMetrics`/`report.py`. The 
 - Numbers are recognized well; formatting is mostly good (`$2.4 million`, `15%`, `June 21, 2026`, `3월 3일 오전 9시 30분`, `204호`).
   Errors: `9.30` for 9:30; `7731은` → `7730일은` (homophone 삼십일); `2억 4천만` → `2억 4천백` only when speech starts at sample 0.
 - Code-switching: `API`, `AWS`, `PR` come out in Latin letters; `Kubernetes` → `큐버닉스`, `Figma` → `피그마/피로`, `Slack` → `슬랙`.
-  `--vocabulary API,AWS,Kubernetes,Figma,PR,Slack` changed nothing (47.4 % → 47.4 %): `VocabularyCorrector` does not map Hangul transliterations to Latin terms.
-  A Hangul-transliteration alias list (`큐버닉스`/`쿠버네티스` → Kubernetes) would be the cheap fix; not built or measured.
+  `--vocabulary API,AWS,Kubernetes,Figma,PR,Slack` changed nothing (47.4 % → 47.4 %) at the time of this research: `VocabularyCorrector` did not map Hangul transliterations to Latin terms.
+  A curated Hangul alias list (`VocabularyHangul`: `큐버닉스`/`쿠버네티스` → Kubernetes, …) is now wired into the corrector and unit-tested; the codeswitch audio was not re-measured here.
 - Words at the very first instant of a session are lost: `numbers-en` without lead-in starts "budget for the…" (WER 13.3 %), with 0.5 s
   lead-in "The budget…" (6.7 %). Matters after restarts (mode switch, auto-restart) while someone is talking; not measured in the app.
 - Long sessions (6 min, the same 15-sentence block 6 times): **no drift**. English per-block WER 1.7 / 2.3 / 0.6 / 1.7 / 2.3 / 2.9 %,

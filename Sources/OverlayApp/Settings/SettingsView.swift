@@ -334,6 +334,11 @@ private struct VocabularyTab: View {
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            Text(tr("Latin terms also match common Korean spellings: \"Kubernetes\" fixes \"쿠버네티스\" and \"큐버닉스\". Add a Hangul line yourself when a name is not a known loanword.",
+                    "라틴 철자만 넣어도 흔한 한글 표기를 고칩니다: \"Kubernetes\"면 \"쿠버네티스\", \"큐버닉스\"도 바로잡힙니다. 알려진 외래어가 아니면 한글 줄을 직접 추가하세요."))
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             encouragement
             TextEditor(text: $text)
                 .font(.system(size: 14))
@@ -343,7 +348,7 @@ private struct VocabularyTab: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(tr("Example, replaced as soon as you type:", "예시, 입력하면 사라집니다:"))
                                 .font(.system(size: 12, weight: .medium))
-                            Text("Kubernetes\nSiobhan\nTerraform\n쿠버네티스")
+                            Text("Kubernetes\nSiobhan\nTerraform\nFigma")
                                 .font(.system(size: 14, design: .monospaced))
                         }
                         .foregroundStyle(.tertiary)
