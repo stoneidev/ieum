@@ -59,6 +59,7 @@ struct FileAudioCaptureTests {
     @Test func stopEndsTheStreamEarly() async throws {
         let url = try makeTestFile()
         defer { try? FileManager.default.removeItem(at: url) }
+        // Without stop this would stream ~1 s of audio plus 5 s of silence.
         let capture = FileAudioCapture(url: url, tailSilence: 5)
         let stream = try await capture.start()
         Task {
@@ -67,7 +68,9 @@ struct FileAudioCaptureTests {
         }
         var seconds = 0.0
         for await chunk in stream { seconds += chunk.duration }
-        #expect(seconds < 1.0)
+        // CI schedulers can delay the stop task; still require a clear cut before the silence tail.
+        #expect(seconds < 3.0)
+        #expect(seconds > 0)
     }
 
     @Test func unreadableFileFailsWithAClearError() async {

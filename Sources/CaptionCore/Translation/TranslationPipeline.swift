@@ -102,15 +102,21 @@ public actor TranslationPipeline {
         while !closed, let text = latestInterim {
             latestInterim = nil
             let startedEpoch = epoch
+            // Remember the source before awaiting so a second submit of the same text
+            // during translation is dropped (latest-wins still applies to newer wording).
+            lastInterimSource = text
             do {
                 let translation = try await translateWithTimeout(text, using: interimTranslator)
-                // Drop it when a sentence was finalized meanwhile; keep the text for de-duplication otherwise.
+                // Drop it when a sentence was finalized meanwhile (epoch moved; lastInterimSource was cleared).
                 if !closed, startedEpoch == epoch {
-                    lastInterimSource = text
                     continuation.yield(.interim(source: text, translation: translation))
                 }
             } catch {
-                if !closed, startedEpoch == epoch { continuation.yield(.failed(id: nil, message: Self.describe(error))) }
+                if !closed, startedEpoch == epoch {
+                    // Allow the same wording to be tried again after a failure.
+                    lastInterimSource = ""
+                    continuation.yield(.failed(id: nil, message: Self.describe(error)))
+                }
             }
         }
         drainingInterims = false
