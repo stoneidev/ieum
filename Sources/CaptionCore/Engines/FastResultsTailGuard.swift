@@ -6,9 +6,20 @@ import Foundation
 /// speaking, dropping the tail (measured on the Korean codeswitch passage in `docs/TRANSCRIPTION-RESEARCH.md`). A
 /// second analyzer without fast results keeps the tail. This guard only answers "hold this fast final?" and
 /// "is the slow final the better complete sentence?".
+///
+/// The measured codeswitch truncation reports `audioEnd` at the end of the audio even when the text stopped early,
+/// so `shouldHoldFinal(audioEnd:…)` alone never fires. `shouldHoldForStalledText` catches that: interim letter count
+/// stopped growing while speech continued, and the final did not add the missing tail.
 public enum FastResultsTailGuard {
     /// Speech heard this far past a final's `audioEnd` means the final likely cut the utterance short.
     public static let speechPastFinal: TimeInterval = 0.35
+
+    /// Speech heard this far past the last interim letter-count growth means the recognizer stalled.
+    /// Matches the codeswitch dump: interim stopped ~12.5 s, speech went on to ~15 s.
+    public static let interimStall: TimeInterval = 0.5
+
+    /// Extra letters a final may add (punctuation, a short particle) without counting as a completed tail.
+    public static let finalLetterSlack = 4
 
     /// Locales where the silent tail drop was measured (and where a second analyzer is worth the cost).
     public static func applies(to localeID: String) -> Bool {
@@ -23,6 +34,40 @@ public enum FastResultsTailGuard {
     ) -> Bool {
         guard let end = audioEnd, end.isFinite, lastSpeechAt.isFinite else { return false }
         return lastSpeechAt > end + speechPastFinal
+    }
+
+    /// Hold when interim text stopped growing while speech continued, and the final is not longer than that stall.
+    ///
+    /// On `codeswitch-ko` the truncated final's `audioEnd` is the end of the file, so the audio-range hold never
+    /// fires; the interim letter count still stops early while RMS speech continues (docs/BENCHMARKS.md).
+    public static func shouldHoldForStalledText(
+        finalText: String,
+        lastInterimLetters: Int,
+        lastInterimGrowthAt: Double,
+        lastSpeechAt: Double,
+        interimStall: TimeInterval = interimStall,
+        finalLetterSlack: Int = finalLetterSlack
+    ) -> Bool {
+        guard lastInterimLetters > 0, lastInterimGrowthAt.isFinite, lastSpeechAt.isFinite else { return false }
+        guard lastSpeechAt > lastInterimGrowthAt + interimStall else { return false }
+        return letterCount(finalText) <= lastInterimLetters + finalLetterSlack
+    }
+
+    /// Either the audio-range hold or the interim-stall hold.
+    public static func shouldHold(
+        finalText: String,
+        audioEnd: Double?,
+        lastSpeechAt: Double,
+        lastInterimLetters: Int,
+        lastInterimGrowthAt: Double
+    ) -> Bool {
+        shouldHoldFinal(audioEnd: audioEnd, lastSpeechAt: lastSpeechAt)
+            || shouldHoldForStalledText(
+                finalText: finalText,
+                lastInterimLetters: lastInterimLetters,
+                lastInterimGrowthAt: lastInterimGrowthAt,
+                lastSpeechAt: lastSpeechAt
+            )
     }
 
     /// Prefer the slow final when it covers the same span with clearly more letters.

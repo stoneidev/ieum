@@ -20,6 +20,36 @@ struct FastResultsTailGuardTests {
         #expect(!FastResultsTailGuard.shouldHoldFinal(audioEnd: nil, lastSpeechAt: 15.0))
     }
 
+    @Test func holdsWhenInterimTextStallsWhileSpeechContinues() {
+        // codeswitch-ko shape: interim stops growing ~12.5 s, speech to ~15 s, final text matches the stall
+        // even though audioEnd is the end of the file.
+        #expect(FastResultsTailGuard.shouldHoldForStalledText(
+            finalText: "쿠버네티스 클러스터를 점검하고 피로 공유",
+            lastInterimLetters: FastResultsTailGuard.letterCount("쿠버네티스 클러스터를 점검하고 피로 공유"),
+            lastInterimGrowthAt: 12.5,
+            lastSpeechAt: 15.0
+        ))
+        #expect(!FastResultsTailGuard.shouldHoldForStalledText(
+            finalText: "짧은",
+            lastInterimLetters: FastResultsTailGuard.letterCount("짧은"),
+            lastInterimGrowthAt: 14.8,
+            lastSpeechAt: 15.0
+        ))
+        #expect(!FastResultsTailGuard.shouldHoldForStalledText(
+            finalText: "훨씬 더 길게 이어진 완전한 문장입니다",
+            lastInterimLetters: FastResultsTailGuard.letterCount("짧은"),
+            lastInterimGrowthAt: 12.5,
+            lastSpeechAt: 15.0
+        ))
+        #expect(FastResultsTailGuard.shouldHold(
+            finalText: "잘린",
+            audioEnd: 15.2,
+            lastSpeechAt: 15.0,
+            lastInterimLetters: FastResultsTailGuard.letterCount("잘린"),
+            lastInterimGrowthAt: 12.5
+        ))
+    }
+
     @Test func prefersALongerOverlappingSlowFinal() {
         #expect(FastResultsTailGuard.prefersSlow(
             fastText: "쿠버네티스 클러스터를",
@@ -68,6 +98,35 @@ struct FastResultsSafetyNetGateTests {
         let recovered = gate.slow(final("쿠버네티스 클러스터를 점검하고 슬랙에 올립니다", start: 0, end: 15.0))
         #expect(recovered?.isFinal == true)
         #expect(recovered?.text == "쿠버네티스 클러스터를 점검하고 슬랙에 올립니다")
+        #expect(gate.pending == nil)
+    }
+
+    @Test func codeswitchStyleStallHoldsEvenWhenAudioEndCoversTheFile() {
+        // Measured dump: interim stops at "…피로 공유", final range=0.0-15.2, speech still at 15 s.
+        var gate = FastResultsSafetyNet.Gate()
+        let truncated = "쿠버네티스 클러스터를 점검하고 피로 공유"
+        _ = gate.fast(interim(truncated, start: 0, end: 12.5), lastSpeechAt: 12.5)
+        #expect(gate.lastInterimLetters == FastResultsTailGuard.letterCount(truncated))
+        #expect(gate.lastInterimGrowthAt == 12.5)
+
+        let held = gate.fast(final(truncated, start: 0, end: 15.2), lastSpeechAt: 15.0)
+        #expect(held.count == 1 && !held[0].isFinal)
+        #expect(gate.pending?.text == truncated)
+        #expect(gate.lastInterimLetters == 0)
+
+        let recovered = gate.slow(final(
+            "쿠버네티스 클러스터를 점검하고 피로 공유합니다. 피그마에서 디자인을 확인하세요.",
+            start: 0, end: 15.2
+        ))
+        #expect(recovered?.isFinal == true)
+        #expect(recovered?.text.contains("피그마") == true)
+    }
+
+    @Test func cleanEndingWithMatchingInterimIsNotHeld() {
+        var gate = FastResultsSafetyNet.Gate()
+        _ = gate.fast(interim("안녕하세요", start: 0, end: 1.1), lastSpeechAt: 1.1)
+        let out = gate.fast(final("안녕하세요.", start: 0, end: 1.2), lastSpeechAt: 1.25)
+        #expect(out.count == 1 && out[0].isFinal && out[0].text == "안녕하세요.")
         #expect(gate.pending == nil)
     }
 
@@ -127,13 +186,13 @@ struct SpeechActivityClockTests {
         #expect((english as? PassthroughEngine) === fake)
     }
 
-    @Test func wrapIfNeededFollowsTheSwitchForKoreanFastSessions() async throws {
+    @Test func wrapIfNeededWrapsKoreanFastSessions() async throws {
         let fake = PassthroughEngine()
         let wrapped = try await FastResultsSafetyNet.wrapIfNeeded(
             primary: fake, localeID: "ko-KR", options: EngineOptions(fast: true)
         ) { PassthroughEngine() }
-        // Switched off until the hold gate catches the measured truncation (docs/BENCHMARKS.md).
-        #expect((wrapped is FastResultsSafetyNet) == FastResultsSafetyNet.isEnabled)
+        #expect(wrapped is FastResultsSafetyNet)
+        #expect(FastResultsSafetyNet.isEnabled)
     }
 }
 

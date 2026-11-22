@@ -89,14 +89,18 @@ Bench flags for this: `--pause <seconds>`, `--no-pause-finalization`, `--no-fast
 
 SpeechTranscriber with `.fastResults` can finalize while speech continues and drop the tail (codeswitch-ko CER 47 % every run;
 `--no-fast` keeps the text). A second, separate analyzer without fast results recovers it (~2.3 s later; `Benchmarks/research/dual.swift`).
-`FastResultsSafetyNet` turns that on for Korean when fast results are on: hold a fast final whose `audioEnd` is still followed by speech,
-show it as interim, then commit the slow final. Unit tests cover the hold/recover gate.
+`FastResultsSafetyNet` turns that on for Korean when fast results are on: hold a truncated fast final (shown as interim), then commit the
+slow final. Hold when speech continues past `audioEnd`, **or** when interim letter count stalled while speech continued and the final did
+not grow past that stall (`FastResultsTailGuard.shouldHoldForStalledText`). Unit tests cover both signals and the recover gate.
 
-**Measured before shipping and switched off** (`FastResultsSafetyNet.isEnabled = false`, v0.18.4). `caption-bench`, 2 runs each, v0.18.3 → with the net:
+**v0.18.4 measured the audioEnd-only gate and switched the net off** (`isEnabled = false`). `caption-bench`, 2 runs each, v0.18.3 → with the net:
 `codeswitch-ko` CER 47.4 % → 48.4–50.5 % (the tail is still missing), CPU 0.84–0.98 % → 1.70–1.74 %, peak memory +0.7 MB; plain Korean (`ko-KR.wav`)
 CER 1.8 % in both, CPU 0.94–1.02 % → 1.74–1.80 %. The reason is in `--dump`: the truncated fast final reports `range=0.0-15.2`, the end of the
-audio, although its text stops at "…피로 공유", so `audioEnd` is never followed by speech and nothing is held. A gate that compares the text
-(or the slow final) instead of `audioEnd` is needed before turning it on.
+audio, although its text stops at "…피로 공유", so `audioEnd` is never followed by speech and nothing is held.
+
+**Text-stall hold (on again):** the gate now also holds when interim letters stop growing ≥0.5 s before the last speech while the final’s
+letter count stays within +4 of that stall — the codeswitch shape above. `isEnabled = true` again. Live `codeswitch-ko` CER after the text
+gate is still unmeasured on device (unit tests only on the stall/recover path).
 
 ## Meeting-notes prompt (`minutes-eval`)
 
