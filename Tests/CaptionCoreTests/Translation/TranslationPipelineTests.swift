@@ -88,16 +88,32 @@ struct TranslationPipelineTests {
         struct Slow: TextTranslator { func translate(_ text: String) async throws -> String { try await Task.sleep(for: .milliseconds(400)); return "slow(\(text))" } }
         struct Quick: TextTranslator { func translate(_ text: String) async throws -> String { try await Task.sleep(for: .milliseconds(30)); return "quick(\(text))" } }
         let pipeline = TranslationPipeline(translator: Quick(), interimTranslator: Slow())
-        let results = collect(pipeline)
         let id = UUID()
+        // Wait for the final itself — close() drops unfinished work, so a fixed sleep races under CI load.
+        let results = Task { () -> [TranslationPipeline.Output] in
+            var all: [TranslationPipeline.Output] = []
+            for await output in pipeline.outputs {
+                all.append(output)
+                if case .final(let got, _) = output, got == id { break }
+            }
+            return all
+        }
         await pipeline.submitInterim("next sentence")      // starts the slow translation
         try await Task.sleep(for: .milliseconds(20))
         let before = ContinuousClock.now
         await pipeline.submitFinal(id: id, text: "one")
-        try await Task.sleep(for: .milliseconds(150))
+        let outputs = try await withThrowingTaskGroup(of: [TranslationPipeline.Output].self) { group in
+            group.addTask { await results.value }
+            group.addTask {
+                try await Task.sleep(for: .seconds(2))
+                throw TranslationUnavailable("timed out waiting for the quick final")
+            }
+            let first = try await group.next()!
+            group.cancelAll()
+            return first
+        }
         let waited = before.duration(to: ContinuousClock.now)
         await pipeline.close()
-        let outputs = await results.value
         #expect(outputs.contains(.final(id: id, translation: "quick(one)")))
         #expect(waited < .milliseconds(400))
         // The interim result for the previous sentence is stale once the sentence is final.
