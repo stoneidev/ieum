@@ -21,25 +21,43 @@ struct FastResultsTailGuardTests {
     }
 
     @Test func holdsWhenInterimTextStallsWhileSpeechContinues() {
-        // codeswitch-ko shape: interim stops growing ~12.5 s, speech to ~15 s, final text matches the stall
-        // even though audioEnd is the end of the file.
+        // codeswitch-ko shape: interim stops growing ~12.5 s, final range through ~15.2 s, text matches the stall.
         #expect(FastResultsTailGuard.shouldHoldForStalledText(
             finalText: "쿠버네티스 클러스터를 점검하고 피로 공유",
+            audioEnd: 15.2,
+            lastInterimLetters: FastResultsTailGuard.letterCount("쿠버네티스 클러스터를 점검하고 피로 공유"),
+            lastInterimGrowthAt: 12.5,
+            lastSpeechAt: 15.0
+        ))
+        // A few letters past the stall still hold (punctuation / particle), not a completed tail.
+        #expect(FastResultsTailGuard.shouldHoldForStalledText(
+            finalText: "쿠버네티스 클러스터를 점검하고 피로 공유요",
+            audioEnd: 15.2,
             lastInterimLetters: FastResultsTailGuard.letterCount("쿠버네티스 클러스터를 점검하고 피로 공유"),
             lastInterimGrowthAt: 12.5,
             lastSpeechAt: 15.0
         ))
         #expect(!FastResultsTailGuard.shouldHoldForStalledText(
             finalText: "짧은",
+            audioEnd: 15.0,
             lastInterimLetters: FastResultsTailGuard.letterCount("짧은"),
             lastInterimGrowthAt: 14.8,
             lastSpeechAt: 15.0
         ))
         #expect(!FastResultsTailGuard.shouldHoldForStalledText(
             finalText: "훨씬 더 길게 이어진 완전한 문장입니다",
+            audioEnd: 15.0,
             lastInterimLetters: FastResultsTailGuard.letterCount("짧은"),
             lastInterimGrowthAt: 12.5,
             lastSpeechAt: 15.0
+        ))
+        // Later session speech must not inflate a clean final whose own audioEnd is near growth.
+        #expect(!FastResultsTailGuard.shouldHoldForStalledText(
+            finalText: "안녕하세요.",
+            audioEnd: 1.2,
+            lastInterimLetters: FastResultsTailGuard.letterCount("안녕하세요"),
+            lastInterimGrowthAt: 1.1,
+            lastSpeechAt: 20.0
         ))
         #expect(FastResultsTailGuard.shouldHold(
             finalText: "잘린",
@@ -193,6 +211,17 @@ struct SpeechActivityClockTests {
         ) { PassthroughEngine() }
         #expect(wrapped is FastResultsSafetyNet)
         #expect(FastResultsSafetyNet.isEnabled)
+    }
+
+    @Test func wrapIfNeededFallsBackWhenSlowBuildFails() async throws {
+        let fake = PassthroughEngine()
+        let kept = try await FastResultsSafetyNet.wrapIfNeeded(
+            primary: fake, localeID: "ko-KR", options: EngineOptions(fast: true)
+        ) { () -> (any TranscriberEngine)? in
+            struct Boom: Error {}
+            throw Boom()
+        }
+        #expect((kept as? PassthroughEngine) === fake)
     }
 }
 

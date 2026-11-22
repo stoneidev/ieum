@@ -26,6 +26,7 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
     static let isEnabled = true
 
     /// Wraps `primary` with a non-fast twin when the locale needs the safety net and fast results are on.
+    /// If the slow twin cannot be built, captions continue on `primary` alone (recovery is optional).
     public static func wrapIfNeeded(
         primary: any TranscriberEngine,
         localeID: String,
@@ -33,8 +34,12 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
         makeSlow: () async throws -> (any TranscriberEngine)?
     ) async throws -> any TranscriberEngine {
         guard isEnabled, options.fast, FastResultsTailGuard.applies(to: localeID) else { return primary }
-        guard let slow = try await makeSlow() else { return primary }
-        return FastResultsSafetyNet(fast: primary, slow: slow)
+        do {
+            guard let slow = try await makeSlow() else { return primary }
+            return FastResultsSafetyNet(fast: primary, slow: slow)
+        } catch {
+            return primary
+        }
     }
 
     public func events(from capture: any AudioCapture) async throws -> AsyncThrowingStream<TranscriptionEvent, Error> {
@@ -59,9 +64,10 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
                 return (ordered[0]!, ordered[1]!)
             }
         } catch {
+            // Recovery is optional: if the slow twin (or dual start) fails, keep captions on fast alone.
             await fast.stop()
             await slow.stop()
-            throw error
+            return try await fast.events(from: capture)
         }
         lock.withLock { engines = [fast, slow] }
 
@@ -184,6 +190,8 @@ public final class FastResultsSafetyNet: TranscriberEngine, @unchecked Sendable 
                         for try await event in fast { await fromFast(event) }
                         await streamEnded()
                     } catch {
+                        // Commit any held interim so a truncated line is not lost when fast dies mid-hold.
+                        await flushPending()
                         await finish(error)
                     }
                 }

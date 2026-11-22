@@ -36,20 +36,26 @@ public enum FastResultsTailGuard {
         return lastSpeechAt > end + speechPastFinal
     }
 
-    /// Hold when interim text stopped growing while speech continued, and the final is not longer than that stall.
+    /// Hold when interim text stopped growing while this utterance's speech continued, and the final did not
+    /// grow past that stall (`<= lastInterimLetters + finalLetterSlack` still holds — a few extra letters are
+    /// punctuation or a particle, not proof the tail arrived).
     ///
     /// On `codeswitch-ko` the truncated final's `audioEnd` is the end of the file, so the audio-range hold never
-    /// fires; the interim letter count still stops early while RMS speech continues (docs/BENCHMARKS.md).
+    /// fires; the interim letter count still stops early while the final's own range keeps extending
+    /// (docs/BENCHMARKS.md). Prefer `audioEnd` over the session-wide speech watermark so a later speaker cannot
+    /// make a finished sentence look truncated.
     public static func shouldHoldForStalledText(
         finalText: String,
+        audioEnd: Double?,
         lastInterimLetters: Int,
         lastInterimGrowthAt: Double,
         lastSpeechAt: Double,
         interimStall: TimeInterval = interimStall,
         finalLetterSlack: Int = finalLetterSlack
     ) -> Bool {
-        guard lastInterimLetters > 0, lastInterimGrowthAt.isFinite, lastSpeechAt.isFinite else { return false }
-        guard lastSpeechAt > lastInterimGrowthAt + interimStall else { return false }
+        guard lastInterimLetters > 0, lastInterimGrowthAt.isFinite else { return false }
+        let speechHint = audioEnd ?? lastSpeechAt
+        guard speechHint.isFinite, speechHint > lastInterimGrowthAt + interimStall else { return false }
         return letterCount(finalText) <= lastInterimLetters + finalLetterSlack
     }
 
@@ -64,6 +70,7 @@ public enum FastResultsTailGuard {
         shouldHoldFinal(audioEnd: audioEnd, lastSpeechAt: lastSpeechAt)
             || shouldHoldForStalledText(
                 finalText: finalText,
+                audioEnd: audioEnd,
                 lastInterimLetters: lastInterimLetters,
                 lastInterimGrowthAt: lastInterimGrowthAt,
                 lastSpeechAt: lastSpeechAt
