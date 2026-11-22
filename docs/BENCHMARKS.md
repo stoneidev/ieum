@@ -64,8 +64,11 @@ The modern recognizer reports interim text in bursts about once a second (first 
 are shown for the sentence being spoken, and every finished sentence still comes from the modern recognizer.
 Measured on en-US (9 s of speech, 3 runs): first text 1.01 s to 0.51 s; word error rate 3 % to 3 %; final delay 0.90 s to 0.89 s; CPU 1.3 % to 2.7 %;
 peak memory 21.7 MB to 24.1 MB. Needs the Speech Recognition permission; without it captions run as before.
-Conversation (auto-detect) mode uses the same early-words wrap per language when the option is on; live latency, language
-choice accuracy and CPU with two legacy recognizers have **not** been re-measured yet.
+Conversation (auto-detect) mode uses the same early-words wrap per language when the option is on (v0.18.5). Measured before shipping on
+`mixed.wav` (en, ko, en, ko; 2 runs each, off → on): first text 1.03 → 0.53 s, word error rate 9.7 % in both, language chosen correctly 100 % in both,
+final delay 0.60 → 0.59 s, CPU 2.6 % → 2.7–3.1 %, peak memory 25 → 27 MB. Flicker on screen (PRD §10.8) is not measured.
+Bench note: until v0.18.5 `caption-bench --conversation --locale en-US` switched the pause rule off, unlike the app (auto-detect keeps it), and
+reported 50 % language choice / 29 % WER / 2.6 s finals; runs from before then that relied on the default (no `--pause`) are not comparable.
 Known rough edge: the two recognizers split sentences slightly differently, so a word at a sentence boundary can show up in the previous sentence for a moment.
 
 ## Closing sentences at a pause damages the next sentence's first words

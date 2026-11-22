@@ -91,8 +91,8 @@ struct CaptionBench: AsyncParsableCommand {
             options.pauseFinalization = nil
         } else if let pause {
             options.pauseFinalization = pause
-        } else {
-            // Match the app: English single-locale runs leave finalization to the recognizer.
+        } else if !conversation {
+            // Match the app: English single-locale runs leave finalization to the recognizer; auto-detect keeps the pause rule.
             options.disablePauseFinalizationIfEnglish(locale)
         }
 
