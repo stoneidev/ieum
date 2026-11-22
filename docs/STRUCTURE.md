@@ -48,3 +48,7 @@ SPM compiles every `.swift` file under a target `path`; subfolders are for human
 ## Large types
 
 Prefer one type (or a small cluster) per file once a file grows past a screenful of unrelated views. Same-module splits are cheap; cross-module extractions need a clear public surface and tests.
+
+## CI
+
+`.github/workflows/ci.yml` runs on `macos-26` and builds/runs **`CaptionCoreTests` only** (plus a release build of `CaptionCore`). It does not compile `OverlayApp` on the runner: Xcode 26.6’s Swift frontend has crashed there with `SmallVector unable to grow` while IR-generating `SettingsView.swift`. Treat a green CI as coverage of shared library logic; verify the menu-bar app with `make app` / the verify-app skill on a Mac.
